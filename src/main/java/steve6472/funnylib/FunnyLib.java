@@ -10,10 +10,13 @@ import org.bukkit.plugin.Plugin;
 import steve6472.funnylib.command.AnnotationCommand;
 import steve6472.funnylib.command.BuiltInCommands;
 import steve6472.funnylib.events.ServerTickEvent;
+import steve6472.funnylib.menu.MenuListener;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.item.builtin.MarkerItem;
 import steve6472.funnylib.item.events.ArmorEventListener;
+import steve6472.funnylib.menu.MenuTest;
+import steve6472.funnylib.util.Log;
 
 /**
  * Created by steve6472
@@ -27,6 +30,7 @@ public class FunnyLib
 	private static Plugin PLUGIN;
 	private static long uptimeTicks;
 	private static ArmorEventListener armorEventListener;
+	private static MenuListener menuListener;
 
 	public static void init(Plugin plugin, boolean builtInItems)
 	{
@@ -35,9 +39,16 @@ public class FunnyLib
 
 		FunnyLib.PLUGIN = plugin;
 
+		Log.init(plugin);
+
+		// TODO: remove
+		AnnotationCommand.registerCommands(MenuTest.class);
+
 		AnnotationCommand.registerCommands(BuiltInCommands.class);
 		Bukkit.getPluginManager().registerEvents(armorEventListener = new ArmorEventListener(), plugin);
+		Bukkit.getPluginManager().registerEvents(menuListener = new MenuListener(), plugin);
 		Bukkit.getPluginManager().registerEvents(new CustomCommandRunner(), plugin);
+		Bukkit.getPluginManager().registerEvents(new Items(), plugin);
 
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () ->
 		{
@@ -45,6 +56,7 @@ public class FunnyLib
 			armorEventListener.tick();
 			SERVER_TICK_EVENT.setUptimeTick(uptimeTicks);
 			Bukkit.getPluginManager().callEvent(SERVER_TICK_EVENT);
+			Items.tick();
 
 		}, 0, 0);
 
@@ -55,6 +67,16 @@ public class FunnyLib
 	public static Plugin getPlugin()
 	{
 		return PLUGIN;
+	}
+
+	public static long getUptimeTicks()
+	{
+		return uptimeTicks;
+	}
+
+	public static MenuListener getMenuListener()
+	{
+		return menuListener;
 	}
 
 	private static class CustomCommandRunner implements Listener

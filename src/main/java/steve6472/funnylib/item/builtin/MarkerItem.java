@@ -50,12 +50,14 @@ public class MarkerItem extends CustomItem implements ClickEvents, TickInHandEve
 	@Override
 	public void tickInHand(Player player, ItemStack itemStack, EquipmentSlot hand)
 	{
+		if (FunnyLib.getUptimeTicks() % 3 != 0) return;
+
 		ItemStackBuilder edit = ItemStackBuilder.edit(itemStack);
 		int x = edit.getCustomTagInt(X);
 		int y = edit.getCustomTagInt(Y);
 		int z = edit.getCustomTagInt(Z);
 
-		ParticleUtil.boxAbsolute(player, Particle.REDSTONE, x, y, z, x + 1, y + 1, z + 1, 0, 0.1, OPTIONS);
+		ParticleUtil.boxAbsolute(player, Particle.REDSTONE, x, y, z, x + 1, y + 1, z + 1, 0, 0.2, OPTIONS);
 	}
 
 	@Override

@@ -1,0 +1,8 @@
+name: FunnyLib
+version: '${project.version}'
+main: steve6472.funnylib.FunnyLibStandalone
+api-version: 1.18
+commands:
+  cmds:
+    description: Shows all custom commands
+    permission-message: No! Bad participant!

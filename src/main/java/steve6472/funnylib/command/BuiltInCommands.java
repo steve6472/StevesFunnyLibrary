@@ -155,4 +155,13 @@ public class BuiltInCommands
 
 		return true;
 	}
+
+	@Command
+	@Description("Gibs custom item")
+	@Usage("/gib <customItem")
+	public static boolean gib(@NotNull Player player, @NotNull String[] args)
+	{
+		player.getInventory().addItem(Items.ITEMS.get(args[0]).customItem().newItemStack());
+		return true;
+	}
 }

@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,6 +25,8 @@ public class MiscUtil
 
 	public static final BlockFace[] DIRECTIONS = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.UP, BlockFace.DOWN};
 	public static final BlockFace[] HORIZONTAL_DIRECTIONS = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
+
+	public static final ItemStack AIR = new ItemStack(Material.AIR);
 
 	public static final Pattern ID_MATCH = Pattern.compile("[a-z0-9_]*");
 	public static final Pattern HEX_MATCH = Pattern.compile("[a-fA-F0-9]{6}");
