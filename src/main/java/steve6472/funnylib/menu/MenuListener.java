@@ -60,19 +60,7 @@ public class MenuListener implements Listener
 
 		Slot slot = menu.getSlot(e.getSlot() % 9, e.getSlot() / 9);
 
-		if (slot == null)
-		{
-			e.setCancelled(true);
-			return;
-		}
-
-		if (!slot.allowedClickTypes.contains(e.getClick()))
-		{
-			e.setCancelled(true);
-			return;
-		}
-
-		if (!slot.allowedInventoryActions.contains(e.getAction()))
+		if (slot == null || !slot.canBeInteractedWith(e.getClick(), e.getAction()))
 		{
 			e.setCancelled(true);
 			return;

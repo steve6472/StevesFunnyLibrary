@@ -21,6 +21,8 @@ public class MenuBuilder
 
 	private boolean allowPlayerInventory;
 	private boolean recordHistory;
+	private boolean offsetLimited;
+	private int minOffsetX, maxOffsetX, minOffsetY, maxOffsetY;
 
 	private BiFunction<Menu, Player, Response> onClose;
 	private Consumer<MenuBuilder> customBuilder;
@@ -104,6 +106,16 @@ public class MenuBuilder
 		return this;
 	}
 
+	public MenuBuilder limitOffset(int minOffsetX, int maxOffsetX, int minOffsetY, int maxOffsetY)
+	{
+		this.minOffsetX = minOffsetX;
+		this.maxOffsetX = maxOffsetX;
+		this.minOffsetY = minOffsetY;
+		this.maxOffsetY = maxOffsetY;
+		this.offsetLimited = true;
+		return this;
+	}
+
 	public Menu build()
 	{
 		if (customBuilder != null)
@@ -117,6 +129,8 @@ public class MenuBuilder
 		slots.forEach((slotLoc, slotBuilder) -> {
 			Slot slot = slotBuilder.build();
 			slot.holder = menu;
+			slot.x = slotLoc.x();
+			slot.y = slotLoc.y();
 			menu.slots.put(slotLoc, slot);
 			int index = slotLoc.toIndex(0, 0, rows);
 			if (index < rows * 9 && index >= 0)
@@ -128,6 +142,8 @@ public class MenuBuilder
 		stickySlots.forEach((slotLoc, slotBuilder) -> {
 			Slot slot = slotBuilder.build();
 			slot.holder = menu;
+			slot.x = slotLoc.x();
+			slot.y = slotLoc.y();
 			menu.stickySlots.put(slotLoc, slot);
 			int index = slotLoc.toIndex(0, 0, rows);
 			if (index < rows * 9 && index >= 0)
@@ -136,9 +152,15 @@ public class MenuBuilder
 			}
 		});
 
+		menu.rows = rows;
 		menu.onClose = onClose;
 		menu.allowPlayerInventory = allowPlayerInventory;
 		menu.recordHistory = recordHistory;
+		menu.minOffsetX = minOffsetX;
+		menu.minOffsetY = minOffsetY;
+		menu.maxOffsetX = maxOffsetX;
+		menu.maxOffsetY = maxOffsetY;
+		menu.offsetLimited = offsetLimited;
 
 		return menu;
 	}

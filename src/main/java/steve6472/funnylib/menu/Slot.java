@@ -23,6 +23,8 @@ public class Slot
 	BiFunction<Click, Player, Response> onClick;
 	Map<ClickType, BiFunction<Click, Player, Response>> conditionedClick;
 
+	int x, y;
+
 	boolean isSticky;
 
 	public ItemStack item()
@@ -30,14 +32,21 @@ public class Slot
 		return itemStack;
 	}
 
-	public void setItem(ItemStack itemStack)
+	public Slot setItem(ItemStack itemStack)
 	{
-		this.itemStack = item();
+		this.itemStack = itemStack;
+		updateSlot();
+		return this;
 	}
 
 	public Menu menu()
 	{
 		return holder;
+	}
+
+	protected boolean canBeInteractedWith(ClickType clickType, InventoryAction inventoryAction)
+	{
+		return allowedClickTypes.contains(clickType) && allowedInventoryActions.contains(inventoryAction);
 	}
 
 	/*
@@ -58,5 +67,23 @@ public class Slot
 		}
 
 		return Response.cancel();
+	}
+
+	public Slot updateSlot()
+	{
+		int index;
+
+		if (isSticky)
+		{
+			index = x + y * 9;
+		} else
+		{
+			if (x - holder.offsetX < 0 || x - holder.offsetX > 8 || y - holder.offsetY < 0 || y - holder.offsetY > holder.rows) return this;
+			index = (x - holder.offsetX) + (y - holder.offsetY) * 9;
+		}
+
+		holder.inventory.setItem(index, item());
+
+		return this;
 	}
 }

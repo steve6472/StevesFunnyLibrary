@@ -23,6 +23,9 @@ public class Menu
 	boolean redirected;
 	BiFunction<Menu, Player, Response> onClose;
 	int offsetX, offsetY;
+	int rows;
+	int minOffsetX, maxOffsetX, minOffsetY, maxOffsetY;
+	boolean offsetLimited;
 
 	final Map<SlotLoc, Slot> slots = new HashMap<>();
 	final Map<SlotLoc, Slot> stickySlots = new HashMap<>();
@@ -48,9 +51,26 @@ public class Menu
 
 	public void move(int x, int y)
 	{
-		this.offsetX += x;
-		this.offsetY += y;
+		if (offsetLimited)
+		{
+			this.offsetX = Math.max(minOffsetX, Math.min(maxOffsetX, offsetX + x));
+			this.offsetY = Math.max(minOffsetY, Math.min(maxOffsetY, offsetY + y));
+		} else
+		{
+			this.offsetX += x;
+			this.offsetY += y;
+		}
 		reload();
+	}
+
+	public int getOffsetX()
+	{
+		return offsetX;
+	}
+
+	public int getOffsetY()
+	{
+		return offsetY;
 	}
 
 	public Slot getSlot(int x, int y)
