@@ -29,8 +29,25 @@ public class MenuTest
 		.create(6, "Fancy Menu")
 		.slot(0, SlotBuilder.create(ItemStackBuilder.quick(Material.STICK, "Fancy Stick", "#966f33")));
 
+	private static final Mask BIOME_MAP_MASK = Mask.createMask()
+		.addRow("......XXX")
+		.addRow("......XXX")
+		.addRow("......XXX")
+		.addRow("......X.X")
+		.addRow(".......X.")
+		.addRow("......X.X")
+		.addItem('X', SlotBuilder.create(ItemStackBuilder.quick(Material.GRAY_STAINED_GLASS_PANE, "")).setSticky())
+		;
+
+	private static final Mask BIOME_BORDER_MASK = Mask.createMask()
+		.addRow("X".repeat(66))
+		.addRow("X" + ".".repeat(64) + "X", 64)
+		.addRow("X".repeat(66))
+		.addItem('X', SlotBuilder.create(ItemStackBuilder.quick(Material.RED_STAINED_GLASS_PANE, "")))
+		.setOffset(-33, -33);
+
 	private static final MenuBuilder BIOME_MAP = MenuBuilder
-		.create(6, "Biome Map 64x64")
+		.create(6, "Biome Map 16x16")
 		.customBuilder(b -> {
 			World world = Bukkit.getWorld("world");
 			if (world == null)
@@ -59,26 +76,32 @@ public class MenuTest
 				}
 			}
 		})
-		.slot(7, 3, SlotBuilder.create(ItemStackBuilder.quick(Material.ARROW, "North", ChatColor.GREEN)).setSticky().allow(InventoryAction.PICKUP_ALL).onClick(ClickType.LEFT, (c, p) ->
-		{
-			c.getMenu().move(0, -1);
-			return Response.cancel();
-		}))
-		.slot(8, 4, SlotBuilder.create(ItemStackBuilder.quick(Material.ARROW, "East", ChatColor.GREEN)).setSticky().allow(InventoryAction.PICKUP_ALL).onClick(ClickType.LEFT, (c, p) ->
-		{
-			c.getMenu().move(1, 0);
-			return Response.cancel();
-		}))
-		.slot(7, 5, SlotBuilder.create(ItemStackBuilder.quick(Material.ARROW, "South", ChatColor.GREEN)).setSticky().allow(InventoryAction.PICKUP_ALL).onClick(ClickType.LEFT, (c, p) ->
-		{
-			c.getMenu().move(0, 1);
-			return Response.cancel();
-		}))
-		.slot(6, 4, SlotBuilder.create(ItemStackBuilder.quick(Material.ARROW, "West", ChatColor.GREEN)).setSticky().allow(InventoryAction.PICKUP_ALL).onClick(ClickType.LEFT, (c, p) ->
-		{
-			c.getMenu().move(-1, 0);
-			return Response.cancel();
-		}));
+		.slot(7, 3,
+			SlotBuilder.create(ItemStackBuilder.quick(Material.ARROW, "North", ChatColor.GREEN))
+				.setSticky()
+				.allow(InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF)
+				.onClick(ClickType.LEFT, (c, p) -> { c.getMenu().move(0, -1); return Response.cancel(); })
+				.onClick(ClickType.RIGHT, (c, p) -> { c.getMenu().move(0, -6); return Response.cancel(); }))
+		.slot(8, 4,
+			SlotBuilder.create(ItemStackBuilder.quick(Material.ARROW, "East", ChatColor.GREEN))
+				.setSticky()
+				.allow(InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF)
+				.onClick(ClickType.LEFT, (c, p) -> { c.getMenu().move(1, 0); return Response.cancel(); })
+				.onClick(ClickType.RIGHT, (c, p) -> { c.getMenu().move(6, 0); return Response.cancel(); }))
+		.slot(7, 5,
+			SlotBuilder.create(ItemStackBuilder.quick(Material.ARROW, "South", ChatColor.GREEN))
+				.setSticky()
+				.allow(InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF)
+				.onClick(ClickType.LEFT, (c, p) -> { c.getMenu().move(0, 1); return Response.cancel(); })
+				.onClick(ClickType.RIGHT, (c, p) -> { c.getMenu().move(0, 6); return Response.cancel(); }))
+		.slot(6, 4,
+			SlotBuilder.create(ItemStackBuilder.quick(Material.ARROW, "West", ChatColor.GREEN))
+				.setSticky()
+				.allow(InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF)
+				.onClick(ClickType.LEFT, (c, p) -> { c.getMenu().move(-1, 0); return Response.cancel(); })
+				.onClick(ClickType.RIGHT, (c, p) -> { c.getMenu().move(-6, 0); return Response.cancel(); }))
+		.applyMask(BIOME_MAP_MASK)
+		.applyMask(BIOME_BORDER_MASK);
 
 	private static final MenuBuilder MAIN_BUILDER = MenuBuilder
 		.create(3, "Main Test Menu")

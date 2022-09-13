@@ -72,9 +72,18 @@ public class MenuBuilder
 	private void addSlot(SlotLoc key, SlotBuilder slot)
 	{
 		if (slot.isSticky())
+		{
 			stickySlots.putIfAbsent(key, slot);
-		else
+		} else
+		{
 			slots.putIfAbsent(key, slot);
+		}
+	}
+
+	public MenuBuilder applyMask(Mask mask)
+	{
+		mask.applyMask(this);
+		return this;
 	}
 
 	public MenuBuilder customBuilder(Consumer<MenuBuilder> customBuilder)
