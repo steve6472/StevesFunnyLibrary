@@ -12,6 +12,7 @@ public class Response
 	private static final Response EXIT = new Response();
 
 	private MenuBuilder redirect;
+	private ArbitraryData redirectData;
 
 	public static Response cancel()
 	{
@@ -35,6 +36,14 @@ public class Response
 		return response;
 	}
 
+	public static Response redirect(MenuBuilder menu, ArbitraryData redirectData)
+	{
+		Response response = new Response();
+		response.redirect = menu;
+		response.redirectData = redirectData;
+		return response;
+	}
+
 	/*
 	 * Getters
 	 */
@@ -42,5 +51,10 @@ public class Response
 	public MenuBuilder getRedirect()
 	{
 		return redirect;
+	}
+
+	public ArbitraryData getRedirectData()
+	{
+		return redirectData;
 	}
 }

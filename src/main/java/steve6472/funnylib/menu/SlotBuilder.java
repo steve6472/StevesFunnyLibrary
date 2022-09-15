@@ -20,8 +20,8 @@ public class SlotBuilder
 	private final ItemStack item;
 	private Set<ClickType> allowedClickTypes = new HashSet<>();
 	private Set<InventoryAction> allowedInventoryActions = new HashSet<>();
-	private Map<ClickType, BiFunction<Click, Player, Response>> conditionedClick = new HashMap<>();
-	private BiFunction<Click, Player, Response> onClick;
+	private Map<ClickType, BiFunction<Click, Menu, Response>> conditionedClick = new HashMap<>();
+	private BiFunction<Click, Menu, Response> onClick;
 	private boolean isSticky;
 
 	private SlotBuilder(ItemStack item)
@@ -72,7 +72,7 @@ public class SlotBuilder
 	 * @param onClick function to run
 	 * @return Builder
 	 */
-	public SlotBuilder onClick(BiFunction<Click, Player, Response> onClick)
+	public SlotBuilder onClick(BiFunction<Click, Menu, Response> onClick)
 	{
 		this.onClick = onClick;
 		return this;
@@ -85,7 +85,7 @@ public class SlotBuilder
 	 * @param onClick function to run
 	 * @return Builder
 	 */
-	public SlotBuilder onClick(ClickType type, BiFunction<Click, Player, Response> onClick)
+	public SlotBuilder onClick(ClickType type, BiFunction<Click, Menu, Response> onClick)
 	{
 		allow(type);
 		conditionedClick.put(type, onClick);

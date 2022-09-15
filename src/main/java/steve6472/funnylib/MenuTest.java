@@ -1,19 +1,16 @@
-package steve6472.funnylib.menu;
+package steve6472.funnylib;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import steve6472.funnylib.command.Command;
 import steve6472.funnylib.command.Description;
 import steve6472.funnylib.command.Usage;
+import steve6472.funnylib.menu.*;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
 
@@ -54,18 +51,21 @@ public class MenuTest
 
 	private static final MenuBuilder BIOME_MAP = MenuBuilder
 		.create(6, "Biome Map 16x16")
-		.customBuilder(b -> {
-			World world = Bukkit.getWorld("world");
-			if (world == null)
-				return;
+		.customBuilder(b ->
+		{
+			Player player = b.getData("player", Player.class);
+			World world = player.getWorld();
 
-			for (int x = -32; x < 32; x++)
+			int ox = player.getLocation().getChunk().getX();
+			int oz = player.getLocation().getChunk().getZ();
+
+			for (int x = -32 + ox; x < 32 + ox; x++)
 			{
-				for (int y = -32; y < 32; y++)
+				for (int z = -32 + oz; z < 32 + oz; z++)
 				{
 					Material mat = Material.BLACK_STAINED_GLASS_PANE;
 
-					Biome biome = world.getBiome(x * 16, 64, y * 16);
+					Biome biome = world.getBiome(x * 16, player.getLocation().getBlockY(), z * 16);
 					mat = switch (biome)
 					{
 						case RIVER -> Material.BLUE_STAINED_GLASS_PANE;
@@ -76,11 +76,25 @@ public class MenuTest
 						case LUSH_CAVES -> Material.MOSS_BLOCK;
 						case FROZEN_RIVER -> Material.ICE;
 						case SNOWY_TAIGA -> Material.SNOW_BLOCK;
+						case BEACH -> Material.SMOOTH_SANDSTONE_SLAB;
+						case SNOWY_PLAINS -> Material.SNOW;
+						case COLD_OCEAN -> Material.PACKED_ICE;
 						default -> mat;
 					};
 
-					ItemStack item = ItemStackBuilder.create(mat).setName(biome.name()).addLore("C: " + x + "/" + y).addLore("B: " + (x * 16) + "/" + (y * 16)).buildItemStack();
-					b.slot(x, y, SlotBuilder.create(item));
+					ItemStack item = ItemStackBuilder.create(mat).setName(biome.name()).addLore("C: " + x + "/" + z).addLore("B: " + (x * 16) + "/" + (z * 16)).buildItemStack();
+					SlotBuilder slot = SlotBuilder.create(item);
+					slot.allow(InventoryAction.PICKUP_ALL);
+					int finalX = x;
+					int finalZ = z;
+					slot.onClick(ClickType.LEFT, (c, m) ->
+					{
+						Location location = new Location(world, finalX * 16 + 8, 0, finalZ * 16 + 8);
+						location.setY(world.getHighestBlockAt(location).getY() + 1.5);
+						c.player().teleport(location);
+						return Response.exit();
+					});
+					b.slot(x - ox, z - oz, slot);
 				}
 			}
 		})
@@ -88,26 +102,26 @@ public class MenuTest
 			SlotBuilder.create(ItemStackBuilder.quick(Material.ARROW, "North", ChatColor.GREEN))
 				.setSticky()
 				.allow(InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF)
-				.onClick(ClickType.LEFT, (c, p) -> moveBiomeMap(c.getMenu(), 0, -1))
-				.onClick(ClickType.RIGHT, (c, p) -> moveBiomeMap(c.getMenu(), 0, -6)))
+				.onClick(ClickType.LEFT, (c, m) -> moveBiomeMap(c.menu(), 0, -1))
+				.onClick(ClickType.RIGHT, (c, m) -> moveBiomeMap(c.menu(), 0, -6)))
 		.slot(8, 4,
 			SlotBuilder.create(ItemStackBuilder.quick(Material.ARROW, "East", ChatColor.GREEN))
 				.setSticky()
 				.allow(InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF)
-				.onClick(ClickType.LEFT, (c, p) -> moveBiomeMap(c.getMenu(), 1, 0))
-				.onClick(ClickType.RIGHT, (c, p) -> moveBiomeMap(c.getMenu(), 6, 0)))
+				.onClick(ClickType.LEFT, (c, m) -> moveBiomeMap(c.menu(), 1, 0))
+				.onClick(ClickType.RIGHT, (c, m) -> moveBiomeMap(c.menu(), 6, 0)))
 		.slot(7, 5,
 			SlotBuilder.create(ItemStackBuilder.quick(Material.ARROW, "South", ChatColor.GREEN))
 				.setSticky()
 				.allow(InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF)
-				.onClick(ClickType.LEFT, (c, p) -> moveBiomeMap(c.getMenu(), 0, 1))
-				.onClick(ClickType.RIGHT, (c, p) -> moveBiomeMap(c.getMenu(), 0, 6)))
+				.onClick(ClickType.LEFT, (c, m) -> moveBiomeMap(c.menu(), 0, 1))
+				.onClick(ClickType.RIGHT, (c, m) -> moveBiomeMap(c.menu(), 0, 6)))
 		.slot(6, 4,
 			SlotBuilder.create(ItemStackBuilder.quick(Material.ARROW, "West", ChatColor.GREEN))
 				.setSticky()
 				.allow(InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF)
-				.onClick(ClickType.LEFT, (c, p) -> moveBiomeMap(c.getMenu(), -1, 0))
-				.onClick(ClickType.RIGHT, (c, p) -> moveBiomeMap(c.getMenu(), -6, 0)))
+				.onClick(ClickType.LEFT, (c, m) -> moveBiomeMap(c.menu(), -1, 0))
+				.onClick(ClickType.RIGHT, (c, m) -> moveBiomeMap(c.menu(), -6, 0)))
 		.slot(7, 4, SlotBuilder.create(ItemStackBuilder.quick(Material.LIGHT_BLUE_STAINED_GLASS_PANE, "Offset: 0/0")).setSticky())
 		.applyMask(BIOME_MAP_MASK)
 		.applyMask(BIOME_BORDER_MASK)
@@ -121,9 +135,9 @@ public class MenuTest
 				.setName(JSONMessage.create("Enter the ").then("FUN ZONE").color(ChatColor.GREEN))
 				.buildItemStack())
 			.allow(InventoryAction.PICKUP_ALL)
-			.onClick(ClickType.LEFT, (c, p) ->
+			.onClick(ClickType.LEFT, (c, m) ->
 			{
-				p.sendMessage(ChatColor.GREEN + "Welcome to the GUI");
+				c.player().sendMessage(ChatColor.GREEN + "Welcome to the GUI");
 				return Response.redirect(FANCY_MENU);
 			}))
 		.slot(14, SlotBuilder
@@ -132,15 +146,29 @@ public class MenuTest
 				.setName(JSONMessage.create("Biome Map").color(ChatColor.DARK_GREEN))
 				.buildItemStack())
 			.allow(InventoryAction.PICKUP_ALL)
-			.onClick(ClickType.LEFT, (c, p) ->
+			.onClick(ClickType.LEFT, (c, m) ->
 			{
-				return Response.redirect(BIOME_MAP);
+				return Response.redirect(BIOME_MAP, m.getPassedData());
 			}))
 		.slot(8, SlotBuilder
 			.create(ItemStackBuilder.quick(Material.BARRIER, "Close", ChatColor.RED))
 			.allow(ClickType.LEFT)
 			.allow(InventoryAction.PICKUP_ALL)
-			.onClick((c, p) -> Response.exit()))
+			.onClick((c, m) -> Response.exit()))
+		.slot(0, 0, m ->
+		{
+			Player player = m.getData("player", Player.class);
+			Material mat = player.getGameMode() == GameMode.CREATIVE ? Material.WOODEN_PICKAXE : Material.COMMAND_BLOCK;
+			String text = player.getGameMode() == GameMode.CREATIVE ? "Switch to Survival" : "Switch to Creative";
+
+			return SlotBuilder
+				.create(ItemStackBuilder.quick(mat, text))
+				.allow(InventoryAction.PICKUP_ALL)
+				.onClick(ClickType.LEFT, (c, cm) -> {
+					player.setGameMode(player.getGameMode() == GameMode.CREATIVE ? GameMode.ADVENTURE : GameMode.CREATIVE);
+					return Response.exit();
+				});
+		})
 		.setOnClose((m, p) ->
 		{
 			p.sendMessage(ChatColor.GREEN + "Goodbye");
@@ -152,7 +180,7 @@ public class MenuTest
 	@Usage("/testMenu")
 	public static boolean testMenu(@NotNull Player player, @NotNull String[] args)
 	{
-		MAIN_BUILDER.build().showToPlayer(player);
+		MAIN_BUILDER.setData("player", player).build().showToPlayer(player);
 
 		return true;
 	}

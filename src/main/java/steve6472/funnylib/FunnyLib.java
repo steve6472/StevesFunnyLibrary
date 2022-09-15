@@ -15,7 +15,6 @@ import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.item.builtin.MarkerItem;
 import steve6472.funnylib.item.events.ArmorEventListener;
-import steve6472.funnylib.menu.MenuTest;
 import steve6472.funnylib.util.Log;
 
 /**

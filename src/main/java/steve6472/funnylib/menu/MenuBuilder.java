@@ -27,8 +27,11 @@ public class MenuBuilder
 	private BiFunction<Menu, Player, Response> onClose;
 	private Consumer<MenuBuilder> customBuilder;
 
+	private final ArbitraryData arbitraryData = new ArbitraryData();
+
 	final Map<SlotLoc, SlotBuilder> slots = new HashMap<>();
 	final Map<SlotLoc, SlotBuilder> stickySlots = new HashMap<>();
+	final Map<SlotLoc, ISlotBuilder> slotBuilders = new HashMap<>();
 
 	private MenuBuilder(int rows, String title)
 	{
@@ -46,6 +49,10 @@ public class MenuBuilder
 		this.onClose = onClose;
 		return this;
 	}
+
+	/*
+	 * Slots
+	 */
 
 	public MenuBuilder slot(int index, SlotBuilder builder)
 	{
@@ -75,11 +82,21 @@ public class MenuBuilder
 	{
 		if (slot.isSticky())
 		{
-			stickySlots.putIfAbsent(key, slot);
+			stickySlots.put(key, slot);
 		} else
 		{
-			slots.putIfAbsent(key, slot);
+			slots.put(key, slot);
 		}
+	}
+
+	/*
+	 * Other ways of... doing slots
+	 */
+
+	public MenuBuilder slot(int x, int y, ISlotBuilder builder)
+	{
+		slotBuilders.put(new SlotLoc(x, y), builder);
+		return this;
 	}
 
 	public MenuBuilder applyMask(Mask mask)
@@ -90,9 +107,17 @@ public class MenuBuilder
 
 	public MenuBuilder customBuilder(Consumer<MenuBuilder> customBuilder)
 	{
+		if (this.customBuilder != null)
+		{
+			throw new RuntimeException("Custom Builder already exists!");
+		}
 		this.customBuilder = customBuilder;
 		return this;
 	}
+
+	/*
+	 * Flags
+	 */
 
 	public MenuBuilder recordHistory()
 	{
@@ -116,12 +141,54 @@ public class MenuBuilder
 		return this;
 	}
 
+	/*
+	 * Arbitrary data
+	 */
+
+	public <T> MenuBuilder setData(String key, T data)
+	{
+		arbitraryData.setData(key, data);
+		return this;
+	}
+
+	public <T> T getData(String key, Class<T> expectedType)
+	{
+		return arbitraryData.getData(key, expectedType);
+	}
+
+	public MenuBuilder removeData(String key)
+	{
+		arbitraryData.removeData(key);
+		return this;
+	}
+
+	public MenuBuilder copyFrom(ArbitraryData otherData)
+	{
+		arbitraryData.copyFrom(otherData);
+		return this;
+	}
+
+	public ArbitraryData getArbitraryData()
+	{
+		return arbitraryData;
+	}
+
+	/*
+	 * Building Menu
+	 */
+
 	public Menu build()
 	{
 		if (customBuilder != null)
 		{
 			customBuilder.accept(this);
 		}
+
+		slotBuilders.forEach((k, v) ->
+		{
+			SlotBuilder builder = v.builder(this);
+			addSlot(k, builder);
+		});
 
 		Inventory inv = Bukkit.createInventory(null, rows * 9, title);
 		Menu menu = new Menu(inv);
@@ -161,6 +228,7 @@ public class MenuBuilder
 		menu.maxOffsetX = maxOffsetX;
 		menu.maxOffsetY = maxOffsetY;
 		menu.offsetLimited = offsetLimited;
+		menu.passedData = arbitraryData.copy();
 
 		return menu;
 	}

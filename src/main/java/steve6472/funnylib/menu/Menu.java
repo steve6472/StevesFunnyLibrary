@@ -26,6 +26,7 @@ public class Menu
 	int rows;
 	int minOffsetX, maxOffsetX, minOffsetY, maxOffsetY;
 	boolean offsetLimited;
+	ArbitraryData passedData;
 
 	final Map<SlotLoc, Slot> slots = new HashMap<>();
 	final Map<SlotLoc, Slot> stickySlots = new HashMap<>();
@@ -101,6 +102,11 @@ public class Menu
 				inventory.setItem(i, MiscUtil.AIR);
 			}
 		}
+	}
+
+	public ArbitraryData getPassedData()
+	{
+		return passedData;
 	}
 
 	/*

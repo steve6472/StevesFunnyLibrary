@@ -1,5 +1,6 @@
 package steve6472.funnylib.menu;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
@@ -11,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
  */
 public class Click
 {
+	Player player;
 	Slot slot;
 	ClickType type;
 	InventoryAction action;
@@ -18,27 +20,32 @@ public class Click
 
 	// TODO: make getters
 
-	public Menu getMenu()
+	public Player player()
+	{
+		return player;
+	}
+
+	public Menu menu()
 	{
 		return slot.menu();
 	}
 
-	public Slot getSlot()
+	public Slot slot()
 	{
 		return slot;
 	}
 
-	public ClickType getType()
+	public ClickType type()
 	{
 		return type;
 	}
 
-	public InventoryAction getAction()
+	public InventoryAction action()
 	{
 		return action;
 	}
 
-	public ItemStack getItemOnCursor()
+	public ItemStack itemOnCursor()
 	{
 		return itemOnCursor;
 	}

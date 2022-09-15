@@ -20,8 +20,8 @@ public class Slot
 	ItemStack itemStack;
 	Set<ClickType> allowedClickTypes;
 	Set<InventoryAction> allowedInventoryActions;
-	BiFunction<Click, Player, Response> onClick;
-	Map<ClickType, BiFunction<Click, Player, Response>> conditionedClick;
+	BiFunction<Click, Menu, Response> onClick;
+	Map<ClickType, BiFunction<Click, Menu, Response>> conditionedClick;
 
 	int x, y;
 
@@ -53,17 +53,17 @@ public class Slot
 	 * Event thingies
 	 */
 
-	Response callOnClick(Click click, Player player)
+	Response callOnClick(Click click)
 	{
-		BiFunction<Click, Player, Response> clickPlayerBiConsumer = conditionedClick.get(click.type);
+		BiFunction<Click, Menu, Response> clickPlayerBiConsumer = conditionedClick.get(click.type);
 		if (clickPlayerBiConsumer != null)
 		{
-			return clickPlayerBiConsumer.apply(click, player);
+			return clickPlayerBiConsumer.apply(click, holder);
 		}
 
 		if (onClick != null)
 		{
-			return onClick.apply(click, player);
+			return onClick.apply(click, holder);
 		}
 
 		return Response.cancel();

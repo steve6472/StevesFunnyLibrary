@@ -67,12 +67,13 @@ public class MenuListener implements Listener
 		}
 
 		Click click = new Click();
+		click.player = player;
 		click.slot = slot;
 		click.itemOnCursor = e.getCursor();
 		click.type = e.getClick();
 		click.action = e.getAction();
 
-		Response response = slot.callOnClick(click, player);
+		Response response = slot.callOnClick(click);
 
 		if (response == Response.allow())
 		{
@@ -91,7 +92,15 @@ public class MenuListener implements Listener
 		{
 			e.setCancelled(true);
 			menu.redirected = true;
-			response.getRedirect().build().showToPlayer(player);
+
+			MenuBuilder redirect = response.getRedirect();
+
+			if (response.getRedirectData() != null)
+			{
+				redirect.copyFrom(response.getRedirectData());
+			}
+
+			redirect.build().showToPlayer(player);
 			return;
 		}
 
