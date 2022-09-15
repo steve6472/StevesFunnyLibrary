@@ -2,15 +2,11 @@ package steve6472.funnylib.item;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.AbstractArrow;
-import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -22,9 +18,7 @@ import org.bukkit.persistence.PersistentDataType;
 import steve6472.funnylib.item.events.*;
 import steve6472.funnylib.util.ItemStackBuilder;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
@@ -230,7 +224,7 @@ public class Items implements Listener
 			return;
 
 		CustomItem customItem = itemEventEntry.customItem;
-		if (customItem instanceof ClickEvents itemEvent)
+		if (customItem instanceof ItemClickEvents itemEvent)
 		{
 			itemEvent.rightClickEntity(item, e);
 		}
@@ -257,7 +251,7 @@ public class Items implements Listener
 			return;
 
 		CustomItem customItem = itemEventEntry.customItem;
-		if (customItem instanceof ClickEvents itemEvent)
+		if (customItem instanceof ItemClickEvents itemEvent)
 		{
 			if (e.getClickedBlock() == null)
 			{

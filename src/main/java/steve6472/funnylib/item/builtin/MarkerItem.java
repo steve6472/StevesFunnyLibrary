@@ -8,7 +8,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.item.CustomItem;
-import steve6472.funnylib.item.events.ClickEvents;
+import steve6472.funnylib.item.events.ItemClickEvents;
 import steve6472.funnylib.item.events.TickInHandEvent;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.ParticleUtil;
@@ -18,7 +18,7 @@ import steve6472.funnylib.util.ParticleUtil;
  * Date: 9/10/2022
  * Project: StevesFunnyLibrary
  */
-public class MarkerItem extends CustomItem implements ClickEvents, TickInHandEvent
+public class MarkerItem extends CustomItem implements ItemClickEvents, TickInHandEvent
 {
 	private static final NamespacedKey X = new NamespacedKey(FunnyLib.getPlugin(), "x");
 	private static final NamespacedKey Y = new NamespacedKey(FunnyLib.getPlugin(), "y");

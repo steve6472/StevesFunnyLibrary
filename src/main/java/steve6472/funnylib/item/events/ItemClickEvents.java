@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
  * Project: AkmaEventPlugin
  *
  ***********************/
-public interface ClickEvents
+public interface ItemClickEvents
 {
 	default void rightClickAir(ItemStack item, PlayerInteractEvent e) {}
 	default void rightClickBlock(ItemStack item, PlayerInteractEvent e) {}

@@ -7,9 +7,16 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.plugin.Plugin;
+import org.json.JSONObject;
+import steve6472.funnylib.blocks.Blocks;
+import steve6472.funnylib.blocks.CustomBlock;
+import steve6472.funnylib.blocks.builtin.TeleportButtonBlock;
 import steve6472.funnylib.command.AnnotationCommand;
 import steve6472.funnylib.command.BuiltInCommands;
 import steve6472.funnylib.events.ServerTickEvent;
+import steve6472.funnylib.item.builtin.TeleportButtonItem;
+import steve6472.funnylib.json.codec.Codec;
+import steve6472.funnylib.json.codec.codecs.LocationCodec;
 import steve6472.funnylib.menu.MenuListener;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.Items;
@@ -31,6 +38,11 @@ public class FunnyLib
 	private static ArmorEventListener armorEventListener;
 	private static MenuListener menuListener;
 
+	private FunnyLib()
+	{
+		new JSONObject();
+	}
+
 	public static void init(Plugin plugin, boolean builtInItems)
 	{
 		if (FunnyLib.PLUGIN != null)
@@ -48,6 +60,7 @@ public class FunnyLib
 		Bukkit.getPluginManager().registerEvents(menuListener = new MenuListener(), plugin);
 		Bukkit.getPluginManager().registerEvents(new CustomCommandRunner(), plugin);
 		Bukkit.getPluginManager().registerEvents(new Items(), plugin);
+		Bukkit.getPluginManager().registerEvents(new Blocks(), plugin);
 
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () ->
 		{
@@ -120,9 +133,17 @@ public class FunnyLib
 	 */
 
 	public static CustomItem LOCATION_MARKER;
+	public static CustomItem TELEPORT_BUTTON_ITEM;
+
+	public static CustomBlock TELEPORT_BUTTON_BLOCK;
 
 	private static void initBuiltin()
 	{
+		Codec.registerCodec(new LocationCodec());
+
 		Items.registerAdminItem(LOCATION_MARKER = new MarkerItem());
+		Items.registerAdminItem(TELEPORT_BUTTON_ITEM = new TeleportButtonItem());
+
+		Blocks.registerBlock(TELEPORT_BUTTON_BLOCK = new TeleportButtonBlock());
 	}
 }

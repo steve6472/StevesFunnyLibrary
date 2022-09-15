@@ -1,13 +1,25 @@
 package steve6472.funnylib.command;
 
+import net.minecraft.nbt.Tag;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.craftbukkit.v1_19_R1.persistence.CraftPersistentDataContainer;
+import org.bukkit.craftbukkit.v1_19_R1.persistence.DirtyCraftPersistentDataContainer;
 import org.bukkit.entity.Player;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.jetbrains.annotations.NotNull;
+import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.RepeatingTask;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Created by steve6472
@@ -163,5 +175,71 @@ public class BuiltInCommands
 	{
 		player.getInventory().addItem(Items.ITEMS.get(args[0]).customItem().newItemStack());
 		return true;
+	}
+
+	@Command
+	@Description("Prints content of PersistantDataContainer of this chunk")
+	@Usage("/debugChunkData")
+	@Usage("[-b] -> broadcast")
+	public static boolean debugChunkData(@NotNull Player player, @NotNull String[] args)
+	{
+		boolean broadcast = hasFlag("-b", args);
+
+		PersistentDataContainer chunkData = player.getLocation().getChunk().getPersistentDataContainer();
+		CraftPersistentDataContainer container = (CraftPersistentDataContainer) chunkData;
+		Map<String, Tag> stringTagMap = container.getRaw();
+		stringTagMap.forEach((k, v) ->
+		{
+			String msg = k + " " + v.toString();
+			if (broadcast)
+				Bukkit.broadcastMessage(msg);
+			else
+				player.sendMessage(msg);
+		});
+		return true;
+	}
+
+	@Command
+	@Description("Removes all data from custom blocks in this chunk")
+	@Usage("/clearCustomBlocks")
+	public static boolean clearCustomBlocks(@NotNull Player player, @NotNull String[] args)
+	{
+		boolean broadcast = hasFlag("-b", args);
+
+		PersistentDataContainer chunkData = player.getLocation().getChunk().getPersistentDataContainer();
+		List<NamespacedKey> toRemove = new ArrayList<>();
+		for (NamespacedKey key : chunkData.getKeys())
+		{
+			if (key.getNamespace().equals(FunnyLib.getPlugin().getName().toLowerCase(Locale.ROOT)))
+			{
+				if (key.getKey().startsWith("block_"))
+				{
+					toRemove.add(key);
+				}
+			}
+		}
+
+		for (NamespacedKey namespacedKey : toRemove)
+		{
+			chunkData.remove(namespacedKey);
+		}
+		return true;
+	}
+
+
+
+
+
+	public static boolean hasFlag(String flag, String[] args)
+	{
+		for (String arg : args)
+		{
+			if (arg.equals(flag))
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 }
