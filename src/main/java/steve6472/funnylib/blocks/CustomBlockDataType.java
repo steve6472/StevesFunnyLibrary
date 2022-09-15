@@ -1,5 +1,6 @@
 package steve6472.funnylib.blocks;
 
+import org.bukkit.Bukkit;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
@@ -40,6 +41,10 @@ public class CustomBlockDataType implements PersistentDataType<String, BlockData
 		json.put("blockData", blockData);
 		json.put("dataClass", complex.getClass().getName());
 		json.put("blockId", complex.getBlock().id());
+		json.put("worldName", complex.worldName);
+		json.put("x", complex.x);
+		json.put("y", complex.y);
+		json.put("z", complex.z);
 		return json.toString();
 	}
 
@@ -57,6 +62,8 @@ public class CustomBlockDataType implements PersistentDataType<String, BlockData
 
 			CustomBlock block = Blocks.getCustomBlockById(json.getString("blockId"));
 			blockData.setLogic(block);
+			blockData.setLocation(Bukkit.getWorld(json.getString("worldName")), json.getInt("x"), json.getInt("y"), json.getInt("z"));
+
 
 			return blockData;
 		} catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException |

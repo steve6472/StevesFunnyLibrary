@@ -1,5 +1,6 @@
 package steve6472.funnylib.blocks.stateengine;
 
+import org.bukkit.Bukkit;
 import steve6472.funnylib.blocks.stateengine.properties.IProperty;
 
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public abstract class StateObject
 
 	public void setDefaultState(State state)
 	{
+		System.out.println("DefaultState for " + getClass().getSimpleName() + " " + state);
 		this.defaultState = state;
 	}
 

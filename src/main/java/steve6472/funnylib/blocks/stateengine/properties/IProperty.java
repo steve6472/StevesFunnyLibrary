@@ -11,4 +11,8 @@ public interface IProperty<T extends Comparable<T>>
 	T[] getPossibleValues();
 
 	String getName();
+
+	String toString(Comparable<?> obj);
+
+	T fromString(String str);
 }

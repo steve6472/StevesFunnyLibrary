@@ -31,4 +31,22 @@ public class IntProperty extends Property<Integer>
 	{
 		return possibleValues;
 	}
+
+	@Override
+	public String toString(Comparable<?> obj)
+	{
+		return obj.toString();
+	}
+
+	@Override
+	public Integer fromString(String str)
+	{
+		int i = Integer.parseInt(str);
+		for (Integer possibleValue : possibleValues)
+		{
+			if (i == possibleValue)
+				return i;
+		}
+		throw new RuntimeException("Int " + i + " is not present in the allowed values");
+	}
 }

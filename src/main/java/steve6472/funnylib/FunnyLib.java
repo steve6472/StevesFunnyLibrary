@@ -15,7 +15,9 @@ import steve6472.funnylib.command.AnnotationCommand;
 import steve6472.funnylib.command.BuiltInCommands;
 import steve6472.funnylib.events.ServerTickEvent;
 import steve6472.funnylib.item.builtin.TeleportButtonItem;
+import steve6472.funnylib.item.builtin.AdminWrenchItem;
 import steve6472.funnylib.json.codec.Codec;
+import steve6472.funnylib.json.codec.codecs.ItemStackCodec;
 import steve6472.funnylib.json.codec.codecs.LocationCodec;
 import steve6472.funnylib.menu.MenuListener;
 import steve6472.funnylib.item.CustomItem;
@@ -45,8 +47,8 @@ public class FunnyLib
 
 	public static void init(Plugin plugin, boolean builtInItems)
 	{
-		if (FunnyLib.PLUGIN != null)
-			throw new RuntimeException("Plugin %s tried to initialize FunnyLib again. This is not allowed!".formatted(plugin.getName()));
+//		if (FunnyLib.PLUGIN != null)
+//			throw new RuntimeException("Plugin %s tried to initialize FunnyLib again. This is not allowed!".formatted(plugin.getName()));
 
 		FunnyLib.PLUGIN = plugin;
 
@@ -72,8 +74,7 @@ public class FunnyLib
 
 		}, 0, 0);
 
-		if (builtInItems)
-			initBuiltin();
+		initBuiltin();
 	}
 
 	public static Plugin getPlugin()
@@ -132,18 +133,22 @@ public class FunnyLib
 	 * Built-in stuff
 	 */
 
+	public static CustomBlock TELEPORT_BUTTON_BLOCK;
+
 	public static CustomItem LOCATION_MARKER;
 	public static CustomItem TELEPORT_BUTTON_ITEM;
-
-	public static CustomBlock TELEPORT_BUTTON_BLOCK;
+	public static CustomItem ADMIN_WRENCH;
 
 	private static void initBuiltin()
 	{
 		Codec.registerCodec(new LocationCodec());
-
-		Items.registerAdminItem(LOCATION_MARKER = new MarkerItem());
-		Items.registerAdminItem(TELEPORT_BUTTON_ITEM = new TeleportButtonItem());
+		Codec.registerCodec(new ItemStackCodec());
 
 		Blocks.registerBlock(TELEPORT_BUTTON_BLOCK = new TeleportButtonBlock());
+
+		Items.registerAdminItem(LOCATION_MARKER = new MarkerItem());
+		Items.registerAdminItem(ADMIN_WRENCH = new AdminWrenchItem());
+
+		Items.registerItem(TELEPORT_BUTTON_ITEM = new TeleportButtonItem());
 	}
 }

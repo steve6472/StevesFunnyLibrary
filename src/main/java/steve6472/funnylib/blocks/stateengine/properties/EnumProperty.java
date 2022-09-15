@@ -33,4 +33,22 @@ public class EnumProperty<T extends Comparable<T>> extends Property<T>
 	{
 		return possibleValues;
 	}
+
+	@Override
+	public String toString(Comparable<?> obj)
+	{
+		return ((Enum<?>) obj).name();
+	}
+
+	@Override
+	public T fromString(String str)
+	{
+		for (T possibleValue : possibleValues)
+		{
+			if (((Enum<?>) possibleValue).name().equals(str))
+				return possibleValue;
+
+		}
+		throw new RuntimeException("'" + str + "' not found in enum " + clazz.getSimpleName());
+	}
 }

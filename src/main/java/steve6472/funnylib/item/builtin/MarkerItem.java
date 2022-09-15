@@ -20,9 +20,9 @@ import steve6472.funnylib.util.ParticleUtil;
  */
 public class MarkerItem extends CustomItem implements ItemClickEvents, TickInHandEvent
 {
-	private static final NamespacedKey X = new NamespacedKey(FunnyLib.getPlugin(), "x");
-	private static final NamespacedKey Y = new NamespacedKey(FunnyLib.getPlugin(), "y");
-	private static final NamespacedKey Z = new NamespacedKey(FunnyLib.getPlugin(), "z");
+	public static final NamespacedKey X = new NamespacedKey(FunnyLib.getPlugin(), "x");
+	public static final NamespacedKey Y = new NamespacedKey(FunnyLib.getPlugin(), "y");
+	public static final NamespacedKey Z = new NamespacedKey(FunnyLib.getPlugin(), "z");
 	private static final Particle.DustOptions OPTIONS = new Particle.DustOptions(Color.WHITE, 0.75f);
 
 	@Override

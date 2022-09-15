@@ -23,4 +23,16 @@ public class BooleanProperty extends Property<Boolean>
 	{
 		return new Boolean[] {true, false};
 	}
+
+	@Override
+	public String toString(Comparable<?> obj)
+	{
+		return obj.toString();
+	}
+
+	@Override
+	public Boolean fromString(String str)
+	{
+		return Boolean.parseBoolean(str);
+	}
 }

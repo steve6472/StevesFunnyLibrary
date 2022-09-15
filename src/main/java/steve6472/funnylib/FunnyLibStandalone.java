@@ -1,5 +1,6 @@
 package steve6472.funnylib;
 
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**

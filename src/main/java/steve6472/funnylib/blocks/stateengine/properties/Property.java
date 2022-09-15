@@ -1,5 +1,7 @@
 package steve6472.funnylib.blocks.stateengine.properties;
 
+import java.util.Arrays;
+
 /**********************
  * Created by steve6472 (Mirek Jozefek)
  * On date: 02.07.2020
@@ -24,6 +26,8 @@ public abstract class Property<T extends Comparable<T>> implements IProperty<T>
 	@Override
 	public String toString()
 	{
-		return "Property{" + "name='" + name + '\'' + '}';
+		return "Property{" + "name='" + name + "', possibleValues=" + Arrays.toString(getPossibleValues()) + '}';
 	}
+
+
 }

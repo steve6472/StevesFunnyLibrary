@@ -7,7 +7,13 @@ import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
+import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -92,6 +98,52 @@ public class MiscUtil
 		}
 
 		return output.toString();
+	}
+
+	/*
+	 * https://gist.github.com/aadnk/8138186
+	 */
+
+	public static String itemToBase64(ItemStack itemStack)
+	{
+		try
+		{
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
+
+			dataOutput.writeObject(Objects.requireNonNullElseGet(itemStack, () -> AIR));
+
+			dataOutput.close();
+
+			return Base64Coder.encodeLines(outputStream.toByteArray());
+
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+			return "";
+		}
+	}
+
+	public static ItemStack itemFromBase64(String data)
+	{
+		try
+		{
+			ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
+			BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
+
+			Object o = dataInput.readObject();
+			if (o instanceof ItemStack i)
+			{
+				return i;
+			} else
+			{
+				throw new RuntimeException("Read data is NOT an ItemStack");
+			}
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+			return new ItemStack(Material.AIR);
+		}
 	}
 
 	private final static int CENTER_PX = 154;

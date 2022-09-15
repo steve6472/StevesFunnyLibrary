@@ -1,7 +1,10 @@
 package steve6472.funnylib.blocks.builtin;
 
+import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.blocks.BlockData;
+import steve6472.funnylib.json.codec.ann.Save;
 import steve6472.funnylib.json.codec.ann.SaveInt;
+import steve6472.funnylib.json.codec.codecs.ItemStackCodec;
 
 /**
  * Created by steve6472
@@ -10,6 +13,6 @@ import steve6472.funnylib.json.codec.ann.SaveInt;
  */
 public class TeleportButtonData extends BlockData
 {
-	@SaveInt
-	public int x = -108, y = 112, z = -742;
+	@Save(type = ItemStackCodec.class)
+	public ItemStack item;
 }

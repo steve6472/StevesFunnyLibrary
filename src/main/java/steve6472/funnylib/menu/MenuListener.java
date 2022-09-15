@@ -6,6 +6,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import steve6472.funnylib.util.MetaUtil;
 
 /**
@@ -41,6 +42,18 @@ public class MenuListener implements Listener
 	}
 
 	@EventHandler
+	public void drag(InventoryDragEvent e)
+	{
+		if (!(e.getWhoClicked() instanceof Player player))
+			return;
+		Menu menu = MetaUtil.getValue(player, Menu.class, MENU_META_KEY);
+		if (menu == null)
+			return;
+
+		e.setCancelled(true);
+	}
+
+		@EventHandler
 	public void click(InventoryClickEvent e)
 	{
 		if (!(e.getWhoClicked() instanceof Player player))
@@ -56,6 +69,20 @@ public class MenuListener implements Listener
 				e.setCancelled(true);
 				return;
 			}
+		}
+
+		// Can click in player inventory & clicked inventory is player inventory
+		if (menu.allowPlayerInventory && e.getClickedInventory() != menu.inventory)
+		{
+			// Shift clicking hard
+			// Probably some handler for it
+			if (e.isShiftClick())
+			{
+				e.setCancelled(true);
+				return;
+			}
+
+			return;
 		}
 
 		Slot slot = menu.getSlot(e.getSlot() % 9, e.getSlot() / 9);
