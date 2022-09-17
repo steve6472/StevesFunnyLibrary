@@ -1,19 +1,25 @@
 package steve6472.funnylib.blocks.builtin;
 
-import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.ItemFrame;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
+import steve6472.funnylib.*;
 import steve6472.funnylib.blocks.*;
 import steve6472.funnylib.blocks.events.BreakBlockEvent;
 import steve6472.funnylib.blocks.events.BlockTick;
 import steve6472.funnylib.blocks.stateengine.State;
+import steve6472.funnylib.context.BlockContext;
+import steve6472.funnylib.context.BlockFaceContext;
+import steve6472.funnylib.context.PlayerContext;
 import steve6472.funnylib.json.codec.ann.Save;
 import steve6472.funnylib.json.codec.ann.SaveDouble;
 import steve6472.funnylib.json.codec.codecs.EntityCodec;
 import steve6472.funnylib.util.ItemStackBuilder;
+import steve6472.funnylib.util.MiscUtil;
 import steve6472.funnylib.util.RandomUtil;
+
+import java.util.List;
 
 /**
  * Created by steve6472
@@ -50,25 +56,38 @@ public class SilkLeavesBlock extends CustomBlock implements IBlockData, BlockTic
 	}
 
 	@Override
-	public void tick(State state, Location location, CustomBlockData data)
+	public void tick(BlockContext context)
 	{
-		if (!(data instanceof SilkLeavesBlockData silkData)) return;
+		SilkLeavesBlockData silkData = context.getBlockData(SilkLeavesBlockData.class);
 
-		if (RandomUtil.decide(20))
+		if (silkData.percentage != 100 && RandomUtil.decide(20))
 		{
 			silkData.percentage += RandomUtil.randomDouble(1, 5);
 			if (silkData.percentage > 100)
 				silkData.percentage = 100;
 			silkData.itemFrame.setItem(ItemStackBuilder.create(Material.LEATHER_HORSE_ARMOR).setCustomModelData(4).setArmorColor(blend(0x77AB2F, 0xffffff, (float) (silkData.percentage / 100f))).buildItemStack());
 		}
+
+		if (RandomUtil.decide(40) && silkData.percentage > 25)
+		{
+			Block block = context.getLocation()
+				.clone()
+				.add(MiscUtil.DIRECTIONS[RandomUtil.randomInt(0, 5)].getDirection())
+				.getBlock();
+
+			if (block.getType().name().endsWith("_LEAVES"))
+			{
+				Blocks.setBlockState(block.getLocation(), FunnyLib.SILK_LEAVES.getDefaultState());
+			}
+		}
 	}
 
 	@Override
-	public void onPlace(Location location, State state, CustomBlockData data)
+	public void onPlace(BlockContext context)
 	{
-		if (!(data instanceof SilkLeavesBlockData silkData)) return;
+		if (!(context.getBlockData() instanceof SilkLeavesBlockData silkData)) return;
 
-		ItemFrame frame = location.getWorld().spawn(location, ItemFrame.class);
+		ItemFrame frame = context.getWorld().spawn(context.getLocation(), ItemFrame.class);
 		frame.setFixed(true);
 		frame.setFacingDirection(States.FACING_HORIZONTAL.getPossibleValues()[RandomUtil.randomInt(0, 3)]);
 		frame.setVisible(false);
@@ -79,31 +98,62 @@ public class SilkLeavesBlock extends CustomBlock implements IBlockData, BlockTic
 	}
 
 	@Override
-	public void onRemove(Location location, State state, CustomBlockData data)
+	public void onRemove(BlockContext context)
 	{
-		if (!(data instanceof SilkLeavesBlockData silkData)) return;
-		silkData.itemFrame.remove();
+		context.getBlockData(SilkLeavesBlockData.class).itemFrame.remove();
+	}
 
-		if (silkData.percentage == 100)
+	@Override
+	public void getDrops(BlockContext blockContext, List<ItemStack> drops)
+	{
+		SilkLeavesBlockData silkData = blockContext.getBlockData(SilkLeavesBlockData.class);
+
+		if (silkData.percentage < 95)
 		{
 			int amount = RandomUtil.randomInt(0, 4);
-			if (amount > 0)
+			if (amount == 0)
 			{
 				ItemStack silk = new ItemStack(Material.STRING);
-				silk.setAmount(amount);
-				location.getWorld().dropItemNaturally(location, silk);
+				drops.add(silk);
 			}
 		}
 	}
 
 	@Override
-	public void breakBlock(ItemStack item, State state, CustomBlockData data, BlockBreakEvent e)
+	public void getDrops(PlayerContext playerContext, BlockFaceContext blockContext, List<ItemStack> drops)
 	{
-		e.setCancelled(true);
-		e.getBlock().setType(Material.AIR);
+		if (playerContext.isCreative())
+			return;
+
+		SilkLeavesBlockData silkData = blockContext.getBlockData(SilkLeavesBlockData.class);
+
+		if (silkData.percentage >= 95)
+		{
+			int amount = RandomUtil.randomInt(0, 4);
+
+			if (playerContext.holdsCustomItem(FunnyLib.WOODEN_CROOCK))
+			{
+				amount += RandomUtil.randomInt(0, 3);
+
+				if (RandomUtil.randomDouble(0, 1) <= 0.15)
+				{
+					drops.add(FunnyLib.SILKWORM.newItemStack());
+				}
+			}
+
+			if (amount > 0)
+			{
+				ItemStack silk = new ItemStack(Material.STRING);
+				silk.setAmount(amount);
+				drops.add(silk);
+			}
+		} else
+		{
+			getDrops(blockContext, drops);
+		}
 	}
 
-	int blend(int c1, int c2, float ratio)
+	public static int blend(int c1, int c2, float ratio)
 	{
 		if ( ratio > 1f ) ratio = 1f;
 		else if ( ratio < 0f ) ratio = 0f;

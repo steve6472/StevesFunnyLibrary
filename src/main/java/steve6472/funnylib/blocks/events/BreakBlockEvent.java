@@ -1,8 +1,7 @@
 package steve6472.funnylib.blocks.events;
 
-import org.bukkit.inventory.ItemStack;
-import steve6472.funnylib.blocks.CustomBlockData;
-import steve6472.funnylib.blocks.stateengine.State;
+import steve6472.funnylib.context.BlockFaceContext;
+import steve6472.funnylib.context.PlayerContext;
 
 /**
  * Created by steve6472
@@ -11,5 +10,5 @@ import steve6472.funnylib.blocks.stateengine.State;
  */
 public interface BreakBlockEvent
 {
-	void breakBlock(ItemStack item, State state, CustomBlockData data, org.bukkit.event.block.BlockBreakEvent e);
+	default void playerBreakBlock(PlayerContext playerContext, BlockFaceContext blockContext, BlockBreakResult result) {}
 }

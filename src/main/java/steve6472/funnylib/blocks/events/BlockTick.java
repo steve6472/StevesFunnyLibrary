@@ -1,8 +1,6 @@
 package steve6472.funnylib.blocks.events;
 
-import org.bukkit.Location;
-import steve6472.funnylib.blocks.CustomBlockData;
-import steve6472.funnylib.blocks.stateengine.State;
+import steve6472.funnylib.context.BlockContext;
 
 /**
  * Created by steve6472
@@ -11,5 +9,5 @@ import steve6472.funnylib.blocks.stateengine.State;
  */
 public interface BlockTick
 {
-	void tick(State state, Location location, CustomBlockData data);
+	void tick(BlockContext context);
 }

@@ -1,12 +1,17 @@
 package steve6472.funnylib.blocks;
 
-import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import steve6472.funnylib.context.BlockContext;
+import steve6472.funnylib.context.BlockFaceContext;
+import steve6472.funnylib.context.PlayerContext;
 import steve6472.funnylib.blocks.stateengine.State;
 import steve6472.funnylib.blocks.stateengine.StateObject;
+
+import java.util.List;
 
 /**
  * Created by steve6472
@@ -29,6 +34,26 @@ public abstract class CustomBlock extends StateObject
 
 	public abstract BlockData getVanillaState(State state);
 
-	public void onPlace(Location location, State state, CustomBlockData data) {}
-	public void onRemove(Location location, State state, CustomBlockData data) {}
+	public void onPlace(BlockContext context) {}
+	public void onRemove(BlockContext context) {}
+	public boolean canBreakByExplosion(BlockContext blockContext) { return true; }
+	public boolean canPlayerBreak(PlayerContext context) { return true; }
+
+	/*
+	 * Drops
+	 */
+
+	public void getDrops(BlockContext blockContext, List<ItemStack> drops) {}
+
+	public void getDrops(PlayerContext playerContext, BlockFaceContext blockContext, List<ItemStack> drops)
+	{
+		getDrops(blockContext, drops);
+	}
+
+	public void getExplodeDrops(BlockContext blockContext, List<ItemStack> drops)
+	{
+		getDrops(blockContext, drops);
+	}
+
+	public boolean vanillaBlockDrops() { return false; }
 }

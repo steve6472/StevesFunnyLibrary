@@ -47,7 +47,6 @@ public class SilkwormItem extends CustomItem implements ItemClickEvents
 	{
 		if (e.getClickedBlock().getType().name().endsWith("_LEAVES"))
 		{
-			e.getClickedBlock().setType(Material.AIR);
 			Blocks.setBlockState(e.getClickedBlock().getLocation(), FunnyLib.SILK_LEAVES.getDefaultState());
 		}
 		e.setCancelled(true);

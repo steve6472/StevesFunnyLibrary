@@ -1,25 +1,28 @@
 package steve6472.funnylib.blocks.builtin;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.FaceAttachable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.FunnyLib;
+import steve6472.funnylib.context.BlockFaceContext;
+import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.blocks.*;
 import steve6472.funnylib.blocks.events.BlockClickEvents;
 import steve6472.funnylib.blocks.stateengine.State;
 import steve6472.funnylib.blocks.stateengine.properties.EnumProperty;
 import steve6472.funnylib.blocks.stateengine.properties.IProperty;
+import steve6472.funnylib.context.PlayerContext;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.json.codec.ann.Save;
-import steve6472.funnylib.json.codec.ann.SaveInt;
 import steve6472.funnylib.json.codec.codecs.ItemStackCodec;
 import steve6472.funnylib.menu.Mask;
 import steve6472.funnylib.menu.MenuBuilder;
@@ -28,17 +31,15 @@ import steve6472.funnylib.menu.SlotBuilder;
 import steve6472.funnylib.util.BlockGen;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.MiscUtil;
-import steve6472.funnylib.util.RandomUtil;
 
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created by steve6472
  * Date: 9/15/2022
  * Project: StevesFunnyLibrary <br>
  */
-public class TeleportButtonBlock extends CustomBlock implements IBlockData, BlockClickEvents, AdminInterface
+public class TeleportButtonBlock extends CustomBlock implements IBlockData, BlockClickEvents, AdminInterface<TeleportButtonBlock.TeleportButtonData>
 {
 	public static final EnumProperty<BlockFace> FACING = States.FACING;
 	public static final EnumProperty<FaceAttachable.AttachedFace> ATTACHED = States.ATTACHED;
@@ -63,7 +64,7 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 	}
 
 	@Override
-	public org.bukkit.block.data.BlockData getVanillaState(State state)
+	public BlockData getVanillaState(State state)
 	{
 		return BlockGen.StoneButton(state.get(FACING), state.get(ATTACHED), false);
 	}
@@ -88,9 +89,9 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 	}
 
 	@Override
-	public void rightClick(State state, ItemStack itemInHand, Player player, PlayerInteractEvent e)
+	public void rightClick(PlayerBlockContext context, PlayerInteractEvent e)
 	{
-		TeleportButtonData blockData = Blocks.getBlockData(e.getClickedBlock().getLocation(), TeleportButtonData.class);
+		TeleportButtonData blockData = context.getBlockData(TeleportButtonData.class);
 
 		ItemStack item = blockData.item;
 		if (Items.getCustomItem(item) != FunnyLib.LOCATION_MARKER)
@@ -100,7 +101,22 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 		int x = edit.getCustomTagInt("x");
 		int y = edit.getCustomTagInt("y");
 		int z = edit.getCustomTagInt("z");
-		player.teleport(new Location(player.getWorld(), x + 0.5, y, z + 0.5, player.getLocation().getYaw(), player.getLocation().getPitch()));
+		context.getPlayer().teleport(new Location(context.getWorld(), x + 0.5, y, z + 0.5, context.getPlayerLocation().getYaw(), context.getPlayerLocation().getPitch()));
+	}
+
+	@Override
+	public void getDrops(BlockContext blockContext, List<ItemStack> drops)
+	{
+		drops.add(FunnyLib.TELEPORT_BUTTON_ITEM.newItemStack());
+		drops.add(blockContext.getBlockData(TeleportButtonData.class).item);
+	}
+
+	@Override
+	public void getDrops(PlayerContext playerContext, BlockFaceContext blockContext, List<ItemStack> drops)
+	{
+		if (!playerContext.isCreative())
+			drops.add(FunnyLib.TELEPORT_BUTTON_ITEM.newItemStack());
+		drops.add(blockContext.getBlockData(TeleportButtonData.class).item);
 	}
 
 	/*
@@ -108,9 +124,8 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 	 */
 
 	@Override
-	public void showInterface(CustomBlockData blockData, Player player)
+	public void showInterface(TeleportButtonData data, Player player)
 	{
-		TeleportButtonData data = (TeleportButtonData) blockData;
 		MENU.setData("location", data.item);
 		MENU.setData("data", data);
 		MENU.build().showToPlayers(player);

@@ -37,8 +37,10 @@ public class AdminWrenchItem extends CustomItem implements ItemClickEvents
 		if (blockState == null) return;
 
 		CustomBlock object = (CustomBlock) blockState.getObject();
+		//noinspection rawtypes
 		if (object instanceof AdminInterface af)
 		{
+			//noinspection unchecked
 			af.showInterface(Blocks.getBlockData(clickedBlock.getLocation()), e.getPlayer());
 		}
 	}

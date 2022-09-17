@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.blocks.events.BlockTick;
 import steve6472.funnylib.blocks.stateengine.State;
 
@@ -112,7 +113,7 @@ public class CustomChunk
 			State existingState = blocks.get(key);
 			if (existingState != null)
 			{
-				((CustomBlock) existingState.getObject()).onRemove(location, existingState, getBlockData(location));
+				((CustomBlock) existingState.getObject()).onRemove(new BlockContext(location, existingState));
 				setBlockData(location, null);
 				blocks.remove(key);
 				ticking.rem(key);
@@ -130,7 +131,7 @@ public class CustomChunk
 		State existingState = blocks.get(key);
 		if (existingState != null)
 		{
-			cb.onRemove(location, existingState, getBlockData(location));
+			cb.onRemove(new BlockContext(location, existingState));
 		}
 		blocks.put(key, state);
 
@@ -148,10 +149,10 @@ public class CustomChunk
 			blockData.setLogic(cb);
 			blockData.setLocation(bukkitChunk.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
 			setBlockData(location, blockData);
-			cb.onPlace(location, state, blockData);
+			cb.onPlace(new BlockContext(location, state, blockData));
 		} else
 		{
-			cb.onPlace(location, state, null);
+			cb.onPlace(new BlockContext(location, state));
 		}
 	}
 

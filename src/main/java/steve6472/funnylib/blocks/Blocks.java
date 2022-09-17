@@ -1,30 +1,34 @@
 package steve6472.funnylib.blocks;
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockCanBuildEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.json.JSONObject;
-import steve6472.funnylib.FunnyLib;
+import steve6472.funnylib.*;
+import steve6472.funnylib.blocks.events.BlockBreakResult;
 import steve6472.funnylib.blocks.events.BlockClickEvents;
 import steve6472.funnylib.blocks.events.BlockTick;
 import steve6472.funnylib.blocks.events.BreakBlockEvent;
 import steve6472.funnylib.blocks.stateengine.State;
 import steve6472.funnylib.blocks.stateengine.properties.IProperty;
+import steve6472.funnylib.context.BlockContext;
+import steve6472.funnylib.context.BlockFaceContext;
+import steve6472.funnylib.context.PlayerContext;
+import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.events.ServerTickEvent;
 import steve6472.funnylib.json.codec.Codec;
+import steve6472.funnylib.util.MetaUtil;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -79,12 +83,7 @@ public class Blocks implements Listener
 				for (int key : chunk.ticking)
 				{
 					State state = chunk.blocks.get(key);
-					((BlockTick) state.getObject())
-						.tick(
-							state,
-							new Location(world, CustomChunk.keyToX(key) + loadedChunk.getX() * 16, CustomChunk.keyToY(key), CustomChunk.keyToZ(key) + loadedChunk.getZ() * 16),
-							chunk.blockData.get(key)
-						);
+					((BlockTick) state.getObject()).tick(new BlockContext(new Location(world, CustomChunk.keyToX(key) + loadedChunk.getX() * 16, CustomChunk.keyToY(key), CustomChunk.keyToZ(key) + loadedChunk.getZ() * 16), state));
 				}
 			}
 		}
@@ -110,16 +109,94 @@ public class Blocks implements Listener
 
 		CustomChunk chunk = CHUNK_MAP.get(e.getBlock().getChunk());
 		State blockState = chunk.getBlockState(location);
-		if (blockState.getObject() instanceof BreakBlockEvent bbe)
+		World world = e.getBlock().getWorld();
+		if (blockState != null)
 		{
-			bbe.breakBlock(e.getPlayer().getInventory().getItem(EquipmentSlot.HAND), blockState, chunk.getBlockData(location), e);
+			CustomBlock block = ((CustomBlock) blockState.getObject());
+			PlayerContext playerContext = new PlayerContext(e.getPlayer());
+			BlockFaceContext blockContext = new BlockFaceContext(location, MetaUtil.getValue(e.getPlayer(), BlockFace.class, "last_face"));
+
+			boolean dropItems = true;
+
+			if (blockState.getObject() instanceof BreakBlockEvent bbe)
+			{
+				BlockBreakResult result = new BlockBreakResult();
+				bbe.playerBreakBlock(playerContext, blockContext, result);
+				dropItems = result.dropsItems();
+
+				e.setCancelled(result.isCancelled());
+
+				if (result.isResultChanged())
+				{
+					if (result.getResultCustomBlock() != null)
+					{
+						chunk.setBlockState(location, result.getResultCustomBlock().getDefaultState());
+					} else if (result.getResultState() != null)
+					{
+						chunk.setBlockState(location, result.getResultState());
+					} else
+					{
+						e.getBlock().setBlockData(result.getResultBlock());
+					}
+				}
+			}
+
+			if (dropItems && Boolean.TRUE.equals(world.getGameRuleValue(GameRule.DO_TILE_DROPS)))
+			{
+				List<ItemStack> drops = new ArrayList<>();
+				block.getDrops(playerContext, blockContext, drops);
+				for (ItemStack drop : drops)
+				{
+					world.dropItemNaturally(location, drop);
+				}
+			}
+
+			e.setDropItems(block.vanillaBlockDrops());
+			if (!e.isCancelled())
+			{
+				chunk.setBlockState(location, null);
+			}
 		}
-		chunk.setBlockState(location, null);
+	}
+
+	@EventHandler
+	public void explodeBlock(BlockExplodeEvent e)
+	{
+		if (e.isCancelled())
+			return;
+
+		Location location = e.getBlock().getLocation();
+
+		CustomChunk chunk = CHUNK_MAP.get(e.getBlock().getChunk());
+		State blockState = chunk.getBlockState(location);
+		World world = e.getBlock().getWorld();
+		if (blockState != null)
+		{
+			CustomBlock block = (CustomBlock) blockState.getObject();
+			BlockContext blockContext = new BlockContext(location, blockState);
+			List<ItemStack> drops = new ArrayList<>();
+			if (!block.canBreakByExplosion(blockContext))
+			{
+				e.setCancelled(true);
+			} else
+			{
+				if (Boolean.TRUE.equals(world.getGameRuleValue(GameRule.DO_TILE_DROPS)))
+				{
+					block.getExplodeDrops(blockContext, drops);
+					for (ItemStack drop : drops)
+					{
+						world.dropItemNaturally(location, drop);
+					}
+				}
+			}
+		}
 	}
 
 	@EventHandler
 	public void click(PlayerInteractEvent e)
 	{
+		MetaUtil.setMeta(e.getPlayer(), "last_face", e.getBlockFace());
+
 		Block block = e.getClickedBlock();
 		if (block == null) return;
 
@@ -130,13 +207,15 @@ public class Blocks implements Listener
 
 		if (customBlock instanceof BlockClickEvents bce)
 		{
+			PlayerBlockContext context = new PlayerBlockContext(new PlayerContext(e.getPlayer(), e.getHand()), new BlockFaceContext(block.getLocation(), e.getBlockFace()));
+
 			if (e.getAction() == Action.RIGHT_CLICK_BLOCK)
 			{
-				bce.rightClick(state, e.getItem(), e.getPlayer(), e);
+				bce.rightClick(context, e);
 			}
 			if (e.getAction() == Action.LEFT_CLICK_BLOCK)
 			{
-				bce.leftClick(state, e.getItem(), e.getPlayer(), e);
+				bce.leftClick(context, e);
 			}
 		}
 	}

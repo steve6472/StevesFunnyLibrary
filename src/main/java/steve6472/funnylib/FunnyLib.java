@@ -75,7 +75,13 @@ public class FunnyLib
 			uptimeTicks++;
 			armorEventListener.tick();
 			SERVER_TICK_EVENT.setUptimeTick(uptimeTicks);
-			Bukkit.getPluginManager().callEvent(SERVER_TICK_EVENT);
+			try
+			{
+				Bukkit.getPluginManager().callEvent(SERVER_TICK_EVENT);
+			} catch (Exception ex)
+			{
+				ex.printStackTrace();
+			}
 			Items.tick();
 
 		}, 0, 0);

@@ -1,9 +1,7 @@
 package steve6472.funnylib.blocks.events;
 
-import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
-import steve6472.funnylib.blocks.stateengine.State;
+import steve6472.funnylib.context.PlayerBlockContext;
 
 /**
  * Created by steve6472
@@ -12,6 +10,6 @@ import steve6472.funnylib.blocks.stateengine.State;
  */
 public interface BlockClickEvents
 {
-	default void rightClick(State state, ItemStack itemInHand, Player player, PlayerInteractEvent e) {}
-	default void leftClick(State state, ItemStack itemInHand, Player player, PlayerInteractEvent e) {}
+	default void rightClick(PlayerBlockContext context, PlayerInteractEvent e) {}
+	default void leftClick(PlayerBlockContext context, PlayerInteractEvent e) {}
 }

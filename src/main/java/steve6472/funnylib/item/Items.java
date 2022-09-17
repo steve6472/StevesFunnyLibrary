@@ -20,8 +20,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.item.events.*;
+import steve6472.funnylib.util.Checks;
 import steve6472.funnylib.util.ItemStackBuilder;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -34,6 +36,8 @@ import java.util.function.BiConsumer;
  ***********************/
 public class Items implements Listener
 {
+	private static final NamespacedKey CUSTOM_KEY = new NamespacedKey(FunnyLib.getPlugin(), ItemStackBuilder.CUSTOM_ID);
+
 	public record ItemEventEntry(boolean requireAdmin, CustomItem customItem)
 	{
 		private ItemEventEntry(CustomItem customItem)
@@ -131,7 +135,7 @@ public class Items implements Listener
 	public static boolean isCustomItem(ItemStack itemStack)
 	{
 		ItemMeta itemMeta = itemStack.getItemMeta();
-		return itemMeta != null && itemMeta.getPersistentDataContainer().has(new NamespacedKey(FunnyLib.getPlugin(), ItemStackBuilder.CUSTOM_ID), PersistentDataType.STRING);
+		return itemMeta != null && itemMeta.getPersistentDataContainer().has(CUSTOM_KEY, PersistentDataType.STRING);
 	}
 
 	public static String getCustomItemId(ItemStack itemStack)
@@ -141,7 +145,7 @@ public class Items implements Listener
 		ItemMeta itemMeta = itemStack.getItemMeta();
 		if (itemMeta == null)
 			return null;
-		return itemMeta.getPersistentDataContainer().get(new NamespacedKey(FunnyLib.getPlugin(), ItemStackBuilder.CUSTOM_ID), PersistentDataType.STRING);
+		return itemMeta.getPersistentDataContainer().get(CUSTOM_KEY, PersistentDataType.STRING);
 	}
 
 	public static ItemEventEntry getCustomItemEntry(ItemStack itemStack)
@@ -292,15 +296,7 @@ public class Items implements Listener
 		ItemStack item = e.getPlayer().getInventory().getItem(EquipmentSlot.HAND);
 		if (item == null) return;
 
-		Material type = item.getType();
-		if (e.getPlayer().getGameMode() == GameMode.CREATIVE &&
-			(
-				type == Material.WOODEN_SWORD ||
-				type == Material.STONE_SWORD ||
-				type == Material.IRON_SWORD ||
-				type == Material.GOLDEN_SWORD ||
-				type == Material.DIAMOND_SWORD ||
-				type == Material.NETHERITE_SWORD))
+		if (e.getPlayer().getGameMode() == GameMode.CREATIVE && Checks.isSwordMaterial(item.getType()))
 			return;
 
 		callEventOnCustomItem(e.getPlayer(), ItemBreakBlockEvent.class, item, (ev, i) -> e.setCancelled(!ev.breakBlock(e.getPlayer(), i, e.getBlock())));

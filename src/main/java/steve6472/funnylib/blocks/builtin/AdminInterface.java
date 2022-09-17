@@ -8,7 +8,7 @@ import steve6472.funnylib.blocks.CustomBlockData;
  * Date: 9/15/2022
  * Project: StevesFunnyLibrary <br>
  */
-public interface AdminInterface
+public interface AdminInterface<T extends CustomBlockData>
 {
-	void showInterface(CustomBlockData blockData, Player player);
+	void showInterface(T blockData, Player player);
 }
