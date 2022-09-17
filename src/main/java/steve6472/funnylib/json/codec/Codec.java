@@ -62,6 +62,7 @@ public abstract class Codec<T>
 
 		for (Field declaredField : object.getClass().getDeclaredFields())
 		{
+			declaredField.setAccessible(true);
 			if (declaredField.isAnnotationPresent(SaveInt.class))
 			{
 				json.put(declaredField.getName(), (int) declaredField.get(object));
@@ -103,6 +104,7 @@ public abstract class Codec<T>
 	{
 		for (Field declaredField : object.getClass().getDeclaredFields())
 		{
+			declaredField.setAccessible(true);
 			if (declaredField.isAnnotationPresent(SaveInt.class))
 			{
 				declaredField.set(object, json.optInt(declaredField.getName(), declaredField.getAnnotation(SaveInt.class).defVal()));

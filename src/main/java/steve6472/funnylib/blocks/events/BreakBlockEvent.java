@@ -1,6 +1,6 @@
 package steve6472.funnylib.blocks.events;
 
-import org.bukkit.Location;
+import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.blocks.CustomBlockData;
 import steve6472.funnylib.blocks.stateengine.State;
 
@@ -9,7 +9,7 @@ import steve6472.funnylib.blocks.stateengine.State;
  * Date: 9/15/2022
  * Project: StevesFunnyLibrary <br>
  */
-public interface BlockTick
+public interface BreakBlockEvent
 {
-	void tick(State state, Location location, CustomBlockData data);
+	void breakBlock(ItemStack item, State state, CustomBlockData data, org.bukkit.event.block.BlockBreakEvent e);
 }

@@ -1,5 +1,6 @@
 package steve6472.funnylib.blocks;
 
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
@@ -17,7 +18,6 @@ public abstract class CustomBlock extends StateObject
 	public CustomBlock()
 	{
 		super();
-		System.out.println("AWDAWDWD");
 	}
 
 	public abstract String id();
@@ -28,4 +28,7 @@ public abstract class CustomBlock extends StateObject
 	}
 
 	public abstract BlockData getVanillaState(State state);
+
+	public void onPlace(Location location, State state, CustomBlockData data) {}
+	public void onRemove(Location location, State state, CustomBlockData data) {}
 }

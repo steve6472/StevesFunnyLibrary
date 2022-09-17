@@ -15,6 +15,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import steve6472.funnylib.FunnyLib;
 
+import javax.naming.Name;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -323,7 +324,7 @@ public class ItemStackBuilder
 	 * Custom tags
 	 */
 
-	public static final NamespacedKey CUSTOM_ID = new NamespacedKey(FunnyLib.getPlugin(), "custom_id");
+	public static final String CUSTOM_ID = "custom_id";
 
 	public ItemStackBuilder setCustomId(String id)
 	{
@@ -336,46 +337,46 @@ public class ItemStackBuilder
 		return getCustomTagString(CUSTOM_ID);
 	}
 
-	public ItemStackBuilder customTagString(NamespacedKey key, String value)
+	public ItemStackBuilder customTagString(String key, String value)
 	{
 		PersistentDataContainer dataContainer = meta.getPersistentDataContainer();
-		dataContainer.set(key, PersistentDataType.STRING, value);
+		dataContainer.set(new NamespacedKey(FunnyLib.getPlugin(), key), PersistentDataType.STRING, value);
 		return this;
 	}
 
-	public ItemStackBuilder customTagInt(NamespacedKey key, int value)
+	public ItemStackBuilder customTagInt(String key, int value)
 	{
 		PersistentDataContainer dataContainer = meta.getPersistentDataContainer();
-		dataContainer.set(key, PersistentDataType.INTEGER, value);
-
-		return this;
-	}
-
-	public ItemStackBuilder customTagByte(NamespacedKey key, byte value)
-	{
-		PersistentDataContainer dataContainer = meta.getPersistentDataContainer();
-		dataContainer.set(key, PersistentDataType.BYTE, value);
+		dataContainer.set(new NamespacedKey(FunnyLib.getPlugin(), key), PersistentDataType.INTEGER, value);
 
 		return this;
 	}
 
-	public String getCustomTagString(NamespacedKey key)
+	public ItemStackBuilder customTagByte(String key, byte value)
 	{
 		PersistentDataContainer dataContainer = meta.getPersistentDataContainer();
-		return dataContainer.get(key, PersistentDataType.STRING);
+		dataContainer.set(new NamespacedKey(FunnyLib.getPlugin(), key), PersistentDataType.BYTE, value);
+
+		return this;
 	}
 
-	public int getCustomTagInt(NamespacedKey key)
+	public String getCustomTagString(String key)
 	{
 		PersistentDataContainer dataContainer = meta.getPersistentDataContainer();
-		Integer integer = dataContainer.get(key, PersistentDataType.INTEGER);
+		return dataContainer.get(new NamespacedKey(FunnyLib.getPlugin(), key), PersistentDataType.STRING);
+	}
+
+	public int getCustomTagInt(String key)
+	{
+		PersistentDataContainer dataContainer = meta.getPersistentDataContainer();
+		Integer integer = dataContainer.get(new NamespacedKey(FunnyLib.getPlugin(), key), PersistentDataType.INTEGER);
 		return integer == null ? 0 : integer;
 	}
 
-	public byte getCustomTagByte(NamespacedKey key)
+	public byte getCustomTagByte(String key)
 	{
 		PersistentDataContainer dataContainer = meta.getPersistentDataContainer();
-		Byte abyte = dataContainer.get(key, PersistentDataType.BYTE);
+		Byte abyte = dataContainer.get(new NamespacedKey(FunnyLib.getPlugin(), key), PersistentDataType.BYTE);
 		return abyte == null ? 0 : abyte;
 	}
 

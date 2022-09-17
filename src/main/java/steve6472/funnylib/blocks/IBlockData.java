@@ -7,5 +7,5 @@ package steve6472.funnylib.blocks;
  */
 public interface IBlockData
 {
-	BlockData createBlockData();
+	CustomBlockData createBlockData();
 }

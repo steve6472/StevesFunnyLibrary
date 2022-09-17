@@ -1,7 +1,5 @@
 package steve6472.funnylib.blocks;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.World;
 
 /**
@@ -9,20 +7,15 @@ import org.bukkit.World;
  * Date: 9/15/2022
  * Project: StevesFunnyLibrary <br>
  */
-public abstract class BlockData
+public abstract class CustomBlockData
 {
 	private CustomBlock block;
 	int x, y, z;
 	String worldName;
 
-	public BlockData()
+	public CustomBlockData()
 	{
 
-	}
-
-	public final void save()
-	{
-		Blocks.setBlockData(new Location(Bukkit.getWorld(worldName), x, y, z), this);
 	}
 
 	public final void setLocation(World world, int x, int y, int z)

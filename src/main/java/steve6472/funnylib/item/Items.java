@@ -1,11 +1,14 @@
 package steve6472.funnylib.item;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -15,6 +18,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.item.events.*;
 import steve6472.funnylib.util.ItemStackBuilder;
 
@@ -127,7 +131,7 @@ public class Items implements Listener
 	public static boolean isCustomItem(ItemStack itemStack)
 	{
 		ItemMeta itemMeta = itemStack.getItemMeta();
-		return itemMeta != null && itemMeta.getPersistentDataContainer().has(ItemStackBuilder.CUSTOM_ID, PersistentDataType.STRING);
+		return itemMeta != null && itemMeta.getPersistentDataContainer().has(new NamespacedKey(FunnyLib.getPlugin(), ItemStackBuilder.CUSTOM_ID), PersistentDataType.STRING);
 	}
 
 	public static String getCustomItemId(ItemStack itemStack)
@@ -137,7 +141,7 @@ public class Items implements Listener
 		ItemMeta itemMeta = itemStack.getItemMeta();
 		if (itemMeta == null)
 			return null;
-		return itemMeta.getPersistentDataContainer().get(ItemStackBuilder.CUSTOM_ID, PersistentDataType.STRING);
+		return itemMeta.getPersistentDataContainer().get(new NamespacedKey(FunnyLib.getPlugin(), ItemStackBuilder.CUSTOM_ID), PersistentDataType.STRING);
 	}
 
 	public static ItemEventEntry getCustomItemEntry(ItemStack itemStack)
@@ -279,5 +283,26 @@ public class Items implements Listener
 				}
 			}
 		}
+	}
+
+	@EventHandler
+	public void breakBlock(BlockBreakEvent e)
+	{
+		if (e.getPlayer().getGameMode() == GameMode.SPECTATOR) return;
+		ItemStack item = e.getPlayer().getInventory().getItem(EquipmentSlot.HAND);
+		if (item == null) return;
+
+		Material type = item.getType();
+		if (e.getPlayer().getGameMode() == GameMode.CREATIVE &&
+			(
+				type == Material.WOODEN_SWORD ||
+				type == Material.STONE_SWORD ||
+				type == Material.IRON_SWORD ||
+				type == Material.GOLDEN_SWORD ||
+				type == Material.DIAMOND_SWORD ||
+				type == Material.NETHERITE_SWORD))
+			return;
+
+		callEventOnCustomItem(e.getPlayer(), ItemBreakBlockEvent.class, item, (ev, i) -> e.setCancelled(!ev.breakBlock(e.getPlayer(), i, e.getBlock())));
 	}
 }

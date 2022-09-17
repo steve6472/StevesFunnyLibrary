@@ -30,7 +30,6 @@ public abstract class StateObject
 
 	public void setDefaultState(State state)
 	{
-		System.out.println("DefaultState for " + getClass().getSimpleName() + " " + state);
 		this.defaultState = state;
 	}
 

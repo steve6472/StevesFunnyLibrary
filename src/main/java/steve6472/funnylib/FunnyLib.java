@@ -2,27 +2,32 @@ package steve6472.funnylib;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.plugin.Plugin;
+import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONString;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlock;
+import steve6472.funnylib.blocks.builtin.SilkLeavesBlock;
 import steve6472.funnylib.blocks.builtin.TeleportButtonBlock;
 import steve6472.funnylib.command.AnnotationCommand;
 import steve6472.funnylib.command.BuiltInCommands;
 import steve6472.funnylib.events.ServerTickEvent;
-import steve6472.funnylib.item.builtin.TeleportButtonItem;
-import steve6472.funnylib.item.builtin.AdminWrenchItem;
+import steve6472.funnylib.item.BlockPlacerItem;
+import steve6472.funnylib.item.builtin.*;
 import steve6472.funnylib.json.codec.Codec;
+import steve6472.funnylib.json.codec.codecs.EntityCodec;
 import steve6472.funnylib.json.codec.codecs.ItemStackCodec;
 import steve6472.funnylib.json.codec.codecs.LocationCodec;
 import steve6472.funnylib.menu.MenuListener;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.Items;
-import steve6472.funnylib.item.builtin.MarkerItem;
 import steve6472.funnylib.item.events.ArmorEventListener;
 import steve6472.funnylib.util.Log;
 
@@ -43,6 +48,7 @@ public class FunnyLib
 	private FunnyLib()
 	{
 		new JSONObject();
+		Class<JSONString> jsonStringClass = JSONString.class;
 	}
 
 	public static void init(Plugin plugin, boolean builtInItems)
@@ -75,6 +81,14 @@ public class FunnyLib
 		}, 0, 0);
 
 		initBuiltin();
+	}
+
+	public static void onUnload()
+	{
+		for (World world : Bukkit.getWorlds())
+		{
+			Blocks.saveWorld(world);
+		}
 	}
 
 	public static Plugin getPlugin()
@@ -136,19 +150,33 @@ public class FunnyLib
 	public static CustomBlock TELEPORT_BUTTON_BLOCK;
 
 	public static CustomItem LOCATION_MARKER;
+	public static CustomItem AREA_LOCATION_MARKER;
 	public static CustomItem TELEPORT_BUTTON_ITEM;
 	public static CustomItem ADMIN_WRENCH;
+
+	/*
+	 * Skyblock Beginnings
+	 */
+	public static CustomBlock SILK_LEAVES;
+
+	public static CustomItem WOODEN_CROOCK;
+	public static CustomItem SILKWORM;
 
 	private static void initBuiltin()
 	{
 		Codec.registerCodec(new LocationCodec());
 		Codec.registerCodec(new ItemStackCodec());
+		Codec.registerCodec(new EntityCodec());
 
 		Blocks.registerBlock(TELEPORT_BUTTON_BLOCK = new TeleportButtonBlock());
+		Blocks.registerBlock(SILK_LEAVES = new SilkLeavesBlock());
 
 		Items.registerAdminItem(LOCATION_MARKER = new MarkerItem());
+		Items.registerAdminItem(AREA_LOCATION_MARKER = new AreaMarkerItem());
 		Items.registerAdminItem(ADMIN_WRENCH = new AdminWrenchItem());
 
-		Items.registerItem(TELEPORT_BUTTON_ITEM = new TeleportButtonItem());
+		Items.registerItem(TELEPORT_BUTTON_ITEM = new BlockPlacerItem(TELEPORT_BUTTON_BLOCK, "teleport_button", Material.STONE_BUTTON, "Teleport Button", 0));
+		Items.registerItem(WOODEN_CROOCK = new WoodenCroockItem());
+		Items.registerItem(SILKWORM = new SilkwormItem());
 	}
 }

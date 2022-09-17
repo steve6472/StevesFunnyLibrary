@@ -1,8 +1,8 @@
 package steve6472.funnylib.blocks.builtin;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.FaceAttachable;
@@ -17,9 +17,10 @@ import steve6472.funnylib.blocks.events.BlockClickEvents;
 import steve6472.funnylib.blocks.stateengine.State;
 import steve6472.funnylib.blocks.stateengine.properties.EnumProperty;
 import steve6472.funnylib.blocks.stateengine.properties.IProperty;
-import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.Items;
-import steve6472.funnylib.item.builtin.MarkerItem;
+import steve6472.funnylib.json.codec.ann.Save;
+import steve6472.funnylib.json.codec.ann.SaveInt;
+import steve6472.funnylib.json.codec.codecs.ItemStackCodec;
 import steve6472.funnylib.menu.Mask;
 import steve6472.funnylib.menu.MenuBuilder;
 import steve6472.funnylib.menu.Response;
@@ -27,8 +28,10 @@ import steve6472.funnylib.menu.SlotBuilder;
 import steve6472.funnylib.util.BlockGen;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.MiscUtil;
+import steve6472.funnylib.util.RandomUtil;
 
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by steve6472
@@ -39,6 +42,12 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 {
 	public static final EnumProperty<BlockFace> FACING = States.FACING;
 	public static final EnumProperty<FaceAttachable.AttachedFace> ATTACHED = States.ATTACHED;
+
+	public static class TeleportButtonData extends CustomBlockData
+	{
+		@Save(type = ItemStackCodec.class)
+		private ItemStack item = MiscUtil.AIR;
+	}
 
 	@Override
 	public String id()
@@ -73,7 +82,7 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 	}
 
 	@Override
-	public BlockData createBlockData()
+	public CustomBlockData createBlockData()
 	{
 		return new TeleportButtonData();
 	}
@@ -82,16 +91,16 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 	public void rightClick(State state, ItemStack itemInHand, Player player, PlayerInteractEvent e)
 	{
 		TeleportButtonData blockData = Blocks.getBlockData(e.getClickedBlock().getLocation(), TeleportButtonData.class);
-		if (blockData.item.getType().isAir())
-			return;
-		if (Items.getCustomItem(blockData.item) != FunnyLib.LOCATION_MARKER)
+
+		ItemStack item = blockData.item;
+		if (Items.getCustomItem(item) != FunnyLib.LOCATION_MARKER)
 			return;
 
-		ItemStackBuilder edit = ItemStackBuilder.edit(blockData.item);
-		int x = edit.getCustomTagInt(MarkerItem.X);
-		int y = edit.getCustomTagInt(MarkerItem.Y);
-		int z = edit.getCustomTagInt(MarkerItem.Z);
-		player.teleport(new Location(player.getWorld(), x + 0.5, y, z + 0.5));
+		ItemStackBuilder edit = ItemStackBuilder.edit(item);
+		int x = edit.getCustomTagInt("x");
+		int y = edit.getCustomTagInt("y");
+		int z = edit.getCustomTagInt("z");
+		player.teleport(new Location(player.getWorld(), x + 0.5, y, z + 0.5, player.getLocation().getYaw(), player.getLocation().getPitch()));
 	}
 
 	/*
@@ -99,10 +108,12 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 	 */
 
 	@Override
-	public void showInterface(BlockData blockData, Player player)
+	public void showInterface(CustomBlockData blockData, Player player)
 	{
 		TeleportButtonData data = (TeleportButtonData) blockData;
-		MENU.setData("location", data.item).setData("data", data).build().showToPlayers(player);
+		MENU.setData("location", data.item);
+		MENU.setData("data", data);
+		MENU.build().showToPlayers(player);
 	}
 
 	private static final Mask mask = Mask.createMask()
@@ -130,12 +141,11 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 					TeleportButtonData data = cm.getPassedData().getData("data", TeleportButtonData.class);
 					if (c.itemOnCursor() != null && !c.itemOnCursor().getType().isAir())
 					{
-						data.item = c.itemOnCursor();
+						data.item = c.itemOnCursor().clone();
 					} else
 					{
-						data.item = null;
+						data.item = MiscUtil.AIR;
 					}
-					data.save();
 					return Response.allow();
 				});
 		})

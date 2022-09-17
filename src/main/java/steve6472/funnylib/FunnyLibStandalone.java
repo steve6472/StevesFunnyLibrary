@@ -15,4 +15,10 @@ public class FunnyLibStandalone extends JavaPlugin
 	{
 		FunnyLib.init(this, true);
 	}
+
+	@Override
+	public void onDisable()
+	{
+		FunnyLib.onUnload();
+	}
 }

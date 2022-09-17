@@ -11,6 +11,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.jetbrains.annotations.NotNull;
 import steve6472.funnylib.FunnyLib;
+import steve6472.funnylib.blocks.Blocks;
+import steve6472.funnylib.blocks.CustomChunk;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.RepeatingTask;
@@ -200,29 +202,28 @@ public class BuiltInCommands
 	}
 
 	@Command
+	@Description("Prints block debug")
+	@Usage("/debugChunkBlocks")
+	@Usage("[-b] -> broadcast")
+	public static boolean debugChunkBlocks(@NotNull Player player, @NotNull String[] args)
+	{
+		boolean broadcast = hasFlag("-b", args);
+
+		CustomChunk chunk = Blocks.CHUNK_MAP.get(player.getLocation().getChunk());
+		chunk.blockData.forEach((k, v) -> {
+			player.sendMessage(k + "(" + CustomChunk.keyToX(k) + "/" + CustomChunk.keyToY(k) + "/" + CustomChunk.keyToZ(k) + " -> " + v);
+		});
+		return true;
+	}
+
+	@Command
 	@Description("Removes all data from custom blocks in this chunk")
 	@Usage("/clearCustomBlocks")
 	public static boolean clearCustomBlocks(@NotNull Player player, @NotNull String[] args)
 	{
-		boolean broadcast = hasFlag("-b", args);
-
 		PersistentDataContainer chunkData = player.getLocation().getChunk().getPersistentDataContainer();
-		List<NamespacedKey> toRemove = new ArrayList<>();
-		for (NamespacedKey key : chunkData.getKeys())
-		{
-			if (key.getNamespace().equals(FunnyLib.getPlugin().getName().toLowerCase(Locale.ROOT)))
-			{
-				if (key.getKey().startsWith("block_"))
-				{
-					toRemove.add(key);
-				}
-			}
-		}
-
-		for (NamespacedKey namespacedKey : toRemove)
-		{
-			chunkData.remove(namespacedKey);
-		}
+		Blocks.CHUNK_MAP.remove(player.getLocation().getChunk());
+		chunkData.remove(new NamespacedKey(FunnyLib.getPlugin(), "custom_blocks"));
 		return true;
 	}
 

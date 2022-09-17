@@ -1,7 +1,7 @@
 package steve6472.funnylib.blocks.builtin;
 
 import org.bukkit.entity.Player;
-import steve6472.funnylib.blocks.BlockData;
+import steve6472.funnylib.blocks.CustomBlockData;
 
 /**
  * Created by steve6472
@@ -10,5 +10,5 @@ import steve6472.funnylib.blocks.BlockData;
  */
 public interface AdminInterface
 {
-	void showInterface(BlockData blockData, Player player);
+	void showInterface(CustomBlockData blockData, Player player);
 }

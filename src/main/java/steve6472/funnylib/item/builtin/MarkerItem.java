@@ -20,9 +20,6 @@ import steve6472.funnylib.util.ParticleUtil;
  */
 public class MarkerItem extends CustomItem implements ItemClickEvents, TickInHandEvent
 {
-	public static final NamespacedKey X = new NamespacedKey(FunnyLib.getPlugin(), "x");
-	public static final NamespacedKey Y = new NamespacedKey(FunnyLib.getPlugin(), "y");
-	public static final NamespacedKey Z = new NamespacedKey(FunnyLib.getPlugin(), "z");
 	private static final Particle.DustOptions OPTIONS = new Particle.DustOptions(Color.WHITE, 0.75f);
 
 	@Override
@@ -38,9 +35,9 @@ public class MarkerItem extends CustomItem implements ItemClickEvents, TickInHan
 		if (clickedBlock == null) return;
 
 		ItemStackBuilder.edit(item)
-			.customTagInt(X, clickedBlock.getX())
-			.customTagInt(Y, clickedBlock.getY())
-			.customTagInt(Z, clickedBlock.getZ())
+			.customTagInt("x", clickedBlock.getX())
+			.customTagInt("y", clickedBlock.getY())
+			.customTagInt("z", clickedBlock.getZ())
 			.removeLore()
 			.addLore(ChatColor.DARK_GRAY + "Location: " + ChatColor.RED + clickedBlock.getX() + ChatColor.WHITE + "/" + ChatColor.GREEN + clickedBlock.getY() + ChatColor.WHITE + "/" + ChatColor.BLUE + clickedBlock.getZ())
 			.buildItemStack();
@@ -53,9 +50,9 @@ public class MarkerItem extends CustomItem implements ItemClickEvents, TickInHan
 		if (FunnyLib.getUptimeTicks() % 3 != 0) return;
 
 		ItemStackBuilder edit = ItemStackBuilder.edit(itemStack);
-		int x = edit.getCustomTagInt(X);
-		int y = edit.getCustomTagInt(Y);
-		int z = edit.getCustomTagInt(Z);
+		int x = edit.getCustomTagInt("x");
+		int y = edit.getCustomTagInt("y");
+		int z = edit.getCustomTagInt("z");
 
 		ParticleUtil.boxAbsolute(player, Particle.REDSTONE, x, y, z, x + 1, y + 1, z + 1, 0, 0.2, OPTIONS);
 	}
