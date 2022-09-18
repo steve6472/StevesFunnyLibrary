@@ -21,6 +21,23 @@ public class Checks
 			material == Material.NETHERITE_SWORD;
 	}
 
+	public static boolean isLeavesMaterial(Material material)
+	{
+		return switch (material)
+			{
+				case ACACIA_LEAVES,
+					AZALEA_LEAVES,
+					BIRCH_LEAVES,
+					DARK_OAK_LEAVES,
+					FLOWERING_AZALEA_LEAVES,
+					JUNGLE_LEAVES,
+					MANGROVE_LEAVES,
+					OAK_LEAVES,
+					SPRUCE_LEAVES -> true;
+				default -> false;
+			};
+	}
+
 	@Deprecated
 	public static Tier getTier(Material material)
 	{

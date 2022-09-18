@@ -5,14 +5,14 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.FunnyLib;
+import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.events.ItemBreakBlockEvent;
+import steve6472.funnylib.util.Checks;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.RandomUtil;
 
@@ -43,25 +43,25 @@ public class WoodenCroockItem extends CustomItem implements ItemBreakBlockEvent
 	}
 
 	@Override
-	public boolean breakBlock(Player player, ItemStack itemStack, Block block)
+	public boolean breakBlock(PlayerBlockContext context)
 	{
-		if (player.getGameMode() == GameMode.CREATIVE)
+		if (context.isCreative())
 			return true;
 
-		if (block.getType().name().endsWith("_LEAVES"))
+		if (Checks.isLeavesMaterial(context.getBlock().getType()))
 		{
 			boolean proc = false;
 			if (RandomUtil.randomDouble(0, 1) <= 0.1)
 			{
-				block.setType(Material.AIR);
-				block.getWorld().dropItemNaturally(block.getLocation(), FunnyLib.SILKWORM.newItemStack());
+				context.getBlock().setType(Material.AIR);
+				context.getBlock().getWorld().dropItemNaturally(context.getBlockLocation(), FunnyLib.SILKWORM.newItemStack());
 				proc = true;
 			}
 
-			if (RandomUtil.randomDouble(0, 1) <= 0.2 && block.getType() == Material.OAK_LEAVES)
+			if (RandomUtil.randomDouble(0, 1) <= 0.2 && context.getBlock().getType() == Material.OAK_LEAVES)
 			{
-				block.setType(Material.AIR);
-				block.getWorld().dropItemNaturally(block.getLocation(), new ItemStack(Material.APPLE));
+				context.getBlock().setType(Material.AIR);
+				context.getBlock().getWorld().dropItemNaturally(context.getBlockLocation(), new ItemStack(Material.APPLE));
 				proc = true;
 			}
 

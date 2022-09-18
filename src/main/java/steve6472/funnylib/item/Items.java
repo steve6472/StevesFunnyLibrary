@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,11 +20,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import steve6472.funnylib.FunnyLib;
+import steve6472.funnylib.context.BlockFaceContext;
+import steve6472.funnylib.context.PlayerBlockContext;
+import steve6472.funnylib.context.PlayerContext;
 import steve6472.funnylib.item.events.*;
 import steve6472.funnylib.util.Checks;
 import steve6472.funnylib.util.ItemStackBuilder;
+import steve6472.funnylib.util.MetaUtil;
 
-import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -107,10 +111,10 @@ public class Items implements Listener
 		for (Player player : Bukkit.getOnlinePlayers())
 		{
 			ItemStack handItem = player.getInventory().getItem(EquipmentSlot.HAND);
-			callEventOnCustomItem(player, TickInHandEvent.class, handItem, (ev, i) -> ev.tickInHand(player, i, EquipmentSlot.HAND));
+			callEventOnCustomItem(player, TickInHandEvent.class, handItem, (ev, i) -> ev.tickInHand(new PlayerContext(player, EquipmentSlot.HAND)));
 
 			ItemStack offHandItem = player.getInventory().getItem(EquipmentSlot.OFF_HAND);
-			callEventOnCustomItem(player, TickInHandEvent.class, offHandItem, (ev, i) -> ev.tickInHand(player, i, EquipmentSlot.OFF_HAND));
+			callEventOnCustomItem(player, TickInHandEvent.class, offHandItem, (ev, i) -> ev.tickInHand(new PlayerContext(player, EquipmentSlot.OFF_HAND)));
 
 
 			for (EquipmentSlot armorSlot : ARMOR_SLOTS)
@@ -183,7 +187,7 @@ public class Items implements Listener
 		ItemEventEntry customItemEntry = getCustomItemEntry(currentItem);
 		if (customItemEntry != null && (customItemEntry.requireAdmin() && e.getPlayer().isOp() || !customItemEntry.requireAdmin()))
 		{
-			callEventOnCustomItem(e.getPlayer(), ConsumeEvent.class, currentItem, (ce, i) -> ce.consumed(e.getPlayer(), i));
+			callEventOnCustomItem(e.getPlayer(), ConsumeEvent.class, currentItem, (ce, i) -> ce.consumed(new PlayerContext(e.getPlayer())));
 		}
 	}
 
@@ -299,6 +303,11 @@ public class Items implements Listener
 		if (e.getPlayer().getGameMode() == GameMode.CREATIVE && Checks.isSwordMaterial(item.getType()))
 			return;
 
-		callEventOnCustomItem(e.getPlayer(), ItemBreakBlockEvent.class, item, (ev, i) -> e.setCancelled(!ev.breakBlock(e.getPlayer(), i, e.getBlock())));
+		callEventOnCustomItem(
+			e.getPlayer(),
+			ItemBreakBlockEvent.class,
+			item,
+			(ev, i) -> e.setCancelled(!ev.breakBlock(new PlayerBlockContext(new PlayerContext(e.getPlayer()), new BlockFaceContext(e.getBlock().getLocation(), MetaUtil.getValue(e.getPlayer(), BlockFace.class, "last_face")))))
+		);
 	}
 }

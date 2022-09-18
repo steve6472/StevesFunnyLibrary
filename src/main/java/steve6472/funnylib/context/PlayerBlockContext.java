@@ -17,7 +17,7 @@ import steve6472.funnylib.item.CustomItem;
  * Date: 9/17/2022
  * Project: StevesFunnyLibrary <br>
  */
-public record PlayerBlockContext(PlayerContext playerContext, BlockFaceContext blockClickContext)
+public record PlayerBlockContext(PlayerContext playerContext, BlockFaceContext blockContext)
 {
 	public Player getPlayer()
 	{
@@ -44,47 +44,62 @@ public record PlayerBlockContext(PlayerContext playerContext, BlockFaceContext b
 		return getPlayer().getLocation();
 	}
 
+	public boolean holdsCustomItem(CustomItem item)
+	{
+		return playerContext.holdsCustomItem(item);
+	}
+
+	public boolean isCreative()
+	{
+		return playerContext.isCreative();
+	}
+
+	public boolean isSurvival()
+	{
+		return playerContext.isSurvival();
+	}
+
 	/*
 	 * Block context
 	 */
 
 	public BlockFace getFace()
 	{
-		return blockClickContext.getFace();
+		return blockContext.getFace();
 	}
 
 	public Location getBlockLocation()
 	{
-		return blockClickContext.getLocation();
+		return blockContext.getLocation();
 	}
 
 	public World getWorld()
 	{
-		return blockClickContext.getWorld();
+		return blockContext.getWorld();
 	}
 
 	public Chunk getChunk()
 	{
-		return blockClickContext.getChunk();
+		return blockContext.getChunk();
 	}
 
 	public Block getBlock()
 	{
-		return blockClickContext.getBlock();
+		return blockContext.getBlock();
 	}
 
 	public State getState()
 	{
-		return blockClickContext.getState();
+		return blockContext.getState();
 	}
 
 	public CustomBlockData getBlockData()
 	{
-		return blockClickContext.getBlockData();
+		return blockContext.getBlockData();
 	}
 
 	public <T extends CustomBlockData> T getBlockData(Class<T> expectedType)
 	{
-		return blockClickContext.getBlockData(expectedType);
+		return blockContext.getBlockData(expectedType);
 	}
 }

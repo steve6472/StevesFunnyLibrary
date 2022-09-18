@@ -13,14 +13,12 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.FunnyLib;
-import steve6472.funnylib.context.BlockFaceContext;
 import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.blocks.*;
 import steve6472.funnylib.blocks.events.BlockClickEvents;
 import steve6472.funnylib.blocks.stateengine.State;
 import steve6472.funnylib.blocks.stateengine.properties.EnumProperty;
 import steve6472.funnylib.blocks.stateengine.properties.IProperty;
-import steve6472.funnylib.context.PlayerContext;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.json.codec.ann.Save;
 import steve6472.funnylib.json.codec.codecs.ItemStackCodec;
@@ -79,7 +77,7 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 			case DOWN -> FaceAttachable.AttachedFace.CEILING;
 			default -> throw new IllegalStateException("Unexpected value: " + clickedFace);
 		};
-		return getDefaultState().with(FACING, player.getFacing().getOppositeFace()).with(ATTACHED, face);
+		return getDefaultState().with(FACING, clickedFace).with(ATTACHED, face);
 	}
 
 	@Override
@@ -112,11 +110,11 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 	}
 
 	@Override
-	public void getDrops(PlayerContext playerContext, BlockFaceContext blockContext, List<ItemStack> drops)
+	public void getDrops(PlayerBlockContext context, List<ItemStack> drops)
 	{
-		if (!playerContext.isCreative())
+		if (!context.isCreative())
 			drops.add(FunnyLib.TELEPORT_BUTTON_ITEM.newItemStack());
-		drops.add(blockContext.getBlockData(TeleportButtonData.class).item);
+		drops.add(context.getBlockData(TeleportButtonData.class).item);
 	}
 
 	/*

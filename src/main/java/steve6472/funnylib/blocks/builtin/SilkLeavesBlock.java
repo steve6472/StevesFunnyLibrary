@@ -2,6 +2,7 @@ package steve6472.funnylib.blocks.builtin;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.*;
@@ -10,11 +11,11 @@ import steve6472.funnylib.blocks.events.BreakBlockEvent;
 import steve6472.funnylib.blocks.events.BlockTick;
 import steve6472.funnylib.blocks.stateengine.State;
 import steve6472.funnylib.context.BlockContext;
-import steve6472.funnylib.context.BlockFaceContext;
-import steve6472.funnylib.context.PlayerContext;
+import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.json.codec.ann.Save;
 import steve6472.funnylib.json.codec.ann.SaveDouble;
 import steve6472.funnylib.json.codec.codecs.EntityCodec;
+import steve6472.funnylib.util.Checks;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.MiscUtil;
 import steve6472.funnylib.util.RandomUtil;
@@ -44,7 +45,7 @@ public class SilkLeavesBlock extends CustomBlock implements IBlockData, BlockTic
 	}
 
 	@Override
-	public org.bukkit.block.data.BlockData getVanillaState(State state)
+	public BlockData getVanillaState(State state)
 	{
 		return Material.COBWEB.createBlockData();
 	}
@@ -75,7 +76,7 @@ public class SilkLeavesBlock extends CustomBlock implements IBlockData, BlockTic
 				.add(MiscUtil.DIRECTIONS[RandomUtil.randomInt(0, 5)].getDirection())
 				.getBlock();
 
-			if (block.getType().name().endsWith("_LEAVES"))
+			if (Checks.isLeavesMaterial(block.getType()))
 			{
 				Blocks.setBlockState(block.getLocation(), FunnyLib.SILK_LEAVES.getDefaultState());
 			}
@@ -120,18 +121,18 @@ public class SilkLeavesBlock extends CustomBlock implements IBlockData, BlockTic
 	}
 
 	@Override
-	public void getDrops(PlayerContext playerContext, BlockFaceContext blockContext, List<ItemStack> drops)
+	public void getDrops(PlayerBlockContext context, List<ItemStack> drops)
 	{
-		if (playerContext.isCreative())
+		if (context.isCreative())
 			return;
 
-		SilkLeavesBlockData silkData = blockContext.getBlockData(SilkLeavesBlockData.class);
+		SilkLeavesBlockData silkData = context.getBlockData(SilkLeavesBlockData.class);
 
 		if (silkData.percentage >= 95)
 		{
 			int amount = RandomUtil.randomInt(0, 4);
 
-			if (playerContext.holdsCustomItem(FunnyLib.WOODEN_CROOCK))
+			if (context.holdsCustomItem(FunnyLib.WOODEN_CROOCK))
 			{
 				amount += RandomUtil.randomInt(0, 3);
 
@@ -149,7 +150,7 @@ public class SilkLeavesBlock extends CustomBlock implements IBlockData, BlockTic
 			}
 		} else
 		{
-			getDrops(blockContext, drops);
+			getDrops(context.blockContext(), drops);
 		}
 	}
 

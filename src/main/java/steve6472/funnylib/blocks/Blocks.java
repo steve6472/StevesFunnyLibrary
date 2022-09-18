@@ -1,5 +1,6 @@
 package steve6472.funnylib.blocks;
 
+import it.unimi.dsi.fastutil.ints.IntListIterator;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -14,6 +15,7 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 import steve6472.funnylib.*;
 import steve6472.funnylib.blocks.events.BlockBreakResult;
@@ -31,10 +33,7 @@ import steve6472.funnylib.json.codec.Codec;
 import steve6472.funnylib.util.MetaUtil;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by steve6472
@@ -49,6 +48,8 @@ public class Blocks implements Listener
 
 	public static final Map<String, CustomBlock> BLOCKS = new HashMap<>();
 	private static final NamespacedKey CUSTOM_BLOCKS_KEY = new NamespacedKey(FunnyLib.getPlugin(), "custom_blocks");
+	@Nullable
+	public static Chunk currentLoadingChunk = null;
 
 	public static void registerBlock(CustomBlock customBlock)
 	{
@@ -80,22 +81,31 @@ public class Blocks implements Listener
 					continue;
 				}
 
-				for (int key : chunk.ticking)
+				for (IntListIterator iterator = chunk.ticking.iterator(); iterator.hasNext(); )
 				{
+					int key = iterator.next();
 					State state = chunk.blocks.get(key);
-					((BlockTick) state.getObject()).tick(new BlockContext(new Location(world, CustomChunk.keyToX(key) + loadedChunk.getX() * 16, CustomChunk.keyToY(key), CustomChunk.keyToZ(key) + loadedChunk.getZ() * 16), state));
+					if (state == null)
+					{
+						iterator.remove();
+					} else
+					{
+						((BlockTick) state.getObject()).tick(new BlockContext(new Location(world, CustomChunk.keyToX(key) + loadedChunk.getX() * 16, CustomChunk.keyToY(key), CustomChunk.keyToZ(key) + loadedChunk.getZ() * 16), state));
+					}
 				}
 			}
 		}
 
 		for (Chunk chunk : toLoad)
 		{
+			currentLoadingChunk = chunk;
 			CustomChunk customChunk = new CustomChunk(chunk);
 			String custom_blocks = chunk
 				.getPersistentDataContainer()
 				.get(CUSTOM_BLOCKS_KEY, PersistentDataType.STRING);
 			customChunk.fromJson(new JSONObject(custom_blocks == null ? "{}" : custom_blocks));
 			CHUNK_MAP.put(chunk, customChunk);
+			currentLoadingChunk = null;
 		}
 	}
 
@@ -144,11 +154,8 @@ public class Blocks implements Listener
 			if (dropItems && Boolean.TRUE.equals(world.getGameRuleValue(GameRule.DO_TILE_DROPS)))
 			{
 				List<ItemStack> drops = new ArrayList<>();
-				block.getDrops(playerContext, blockContext, drops);
-				for (ItemStack drop : drops)
-				{
-					world.dropItemNaturally(location, drop);
-				}
+				block.getDrops(new PlayerBlockContext(playerContext, blockContext), drops);
+				dropItems(location, drops);
 			}
 
 			e.setDropItems(block.vanillaBlockDrops());
@@ -183,10 +190,7 @@ public class Blocks implements Listener
 				if (Boolean.TRUE.equals(world.getGameRuleValue(GameRule.DO_TILE_DROPS)))
 				{
 					block.getExplodeDrops(blockContext, drops);
-					for (ItemStack drop : drops)
-					{
-						world.dropItemNaturally(location, drop);
-					}
+					dropItems(location, drops);
 				}
 			}
 		}
@@ -230,6 +234,7 @@ public class Blocks implements Listener
 	@EventHandler
 	public void loadChunk(ChunkLoadEvent e)
 	{
+		currentLoadingChunk = e.getChunk();
 		CustomChunk customChunk = new CustomChunk(e.getChunk());
 		String custom_blocks = e
 			.getChunk()
@@ -237,6 +242,7 @@ public class Blocks implements Listener
 			.get(CUSTOM_BLOCKS_KEY, PersistentDataType.STRING);
 		customChunk.fromJson(new JSONObject(custom_blocks == null ? "{}" : custom_blocks));
 		CHUNK_MAP.put(e.getChunk(), customChunk);
+		currentLoadingChunk = null;
 	}
 
 	@EventHandler
@@ -296,6 +302,27 @@ public class Blocks implements Listener
 	public static void setBlockData(Location location, CustomBlockData data)
 	{
 		CHUNK_MAP.get(location.getChunk()).setBlockData(location, data);
+	}
+
+	/*
+	 * Util
+	 */
+
+	private void dropItems(Location location, Collection<ItemStack> items)
+	{
+		World world = location.getWorld();
+		if (world == null)
+		{
+			return;
+		}
+
+		for (ItemStack drop : items)
+		{
+			if (!drop.getType().isAir() || !drop.getType().isItem())
+			{
+				world.dropItemNaturally(location, drop);
+			}
+		}
 	}
 
 	/*

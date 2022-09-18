@@ -2,11 +2,10 @@ package steve6472.funnylib.item.builtin;
 
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.FunnyLib;
+import steve6472.funnylib.context.PlayerContext;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.events.ItemClickEvents;
 import steve6472.funnylib.item.events.TickInHandEvent;
@@ -45,16 +44,16 @@ public class MarkerItem extends CustomItem implements ItemClickEvents, TickInHan
 	}
 
 	@Override
-	public void tickInHand(Player player, ItemStack itemStack, EquipmentSlot hand)
+	public void tickInHand(PlayerContext context)
 	{
 		if (FunnyLib.getUptimeTicks() % 3 != 0) return;
 
-		ItemStackBuilder edit = ItemStackBuilder.edit(itemStack);
+		ItemStackBuilder edit = ItemStackBuilder.edit(context.getHandItem());
 		int x = edit.getCustomTagInt("x");
 		int y = edit.getCustomTagInt("y");
 		int z = edit.getCustomTagInt("z");
 
-		ParticleUtil.boxAbsolute(player, Particle.REDSTONE, x, y, z, x + 1, y + 1, z + 1, 0, 0.2, OPTIONS);
+		ParticleUtil.boxAbsolute(context.getPlayer(), Particle.REDSTONE, x, y, z, x + 1, y + 1, z + 1, 0, 0.2, OPTIONS);
 	}
 
 	@Override

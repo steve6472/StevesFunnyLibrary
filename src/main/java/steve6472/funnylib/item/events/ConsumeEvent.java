@@ -2,6 +2,7 @@ package steve6472.funnylib.item.events;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import steve6472.funnylib.context.PlayerContext;
 
 /**********************
  * Created by steve6472
@@ -11,5 +12,5 @@ import org.bukkit.inventory.ItemStack;
  ***********************/
 public interface ConsumeEvent
 {
-	default void consumed(Player player, ItemStack item) {}
+	default void consumed(PlayerContext context) {}
 }

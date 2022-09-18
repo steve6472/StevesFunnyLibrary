@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import steve6472.funnylib.context.PlayerBlockContext;
 
 /**********************
  * Created by steve6472
@@ -15,10 +16,8 @@ import org.bukkit.inventory.ItemStack;
 public interface ItemBreakBlockEvent
 {
 	/**
-	 * @param player player who broke the block
-	 * @param itemStack item the block was broken with
-	 * @param block broken block
+	 * @param context context
 	 * @return false to cancel the event
 	 */
-	default boolean breakBlock(Player player, ItemStack itemStack, Block block) { return true; }
+	default boolean breakBlock(PlayerBlockContext context) { return true; }
 }

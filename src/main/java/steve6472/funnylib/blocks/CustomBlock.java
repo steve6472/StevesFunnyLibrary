@@ -6,7 +6,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.context.BlockContext;
-import steve6472.funnylib.context.BlockFaceContext;
+import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.context.PlayerContext;
 import steve6472.funnylib.blocks.stateengine.State;
 import steve6472.funnylib.blocks.stateengine.StateObject;
@@ -45,9 +45,9 @@ public abstract class CustomBlock extends StateObject
 
 	public void getDrops(BlockContext blockContext, List<ItemStack> drops) {}
 
-	public void getDrops(PlayerContext playerContext, BlockFaceContext blockContext, List<ItemStack> drops)
+	public void getDrops(PlayerBlockContext context, List<ItemStack> drops)
 	{
-		getDrops(blockContext, drops);
+		getDrops(context.blockContext(), drops);
 	}
 
 	public void getExplodeDrops(BlockContext blockContext, List<ItemStack> drops)

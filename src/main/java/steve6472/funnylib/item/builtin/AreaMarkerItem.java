@@ -2,11 +2,10 @@ package steve6472.funnylib.item.builtin;
 
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.FunnyLib;
+import steve6472.funnylib.context.PlayerContext;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.events.ItemClickEvents;
 import steve6472.funnylib.item.events.TickInHandEvent;
@@ -80,11 +79,11 @@ public class AreaMarkerItem extends CustomItem implements ItemClickEvents, TickI
 	}
 
 	@Override
-	public void tickInHand(Player player, ItemStack itemStack, EquipmentSlot hand)
+	public void tickInHand(PlayerContext context)
 	{
 		if (FunnyLib.getUptimeTicks() % 3 != 0) return;
 
-		ItemStackBuilder edit = ItemStackBuilder.edit(itemStack);
+		ItemStackBuilder edit = ItemStackBuilder.edit(context.getHandItem());
 		int x0 = edit.getCustomTagInt("x0");
 		int y0 = edit.getCustomTagInt("y0");
 		int z0 = edit.getCustomTagInt("z0");
@@ -92,7 +91,7 @@ public class AreaMarkerItem extends CustomItem implements ItemClickEvents, TickI
 		int y1 = edit.getCustomTagInt("y1");
 		int z1 = edit.getCustomTagInt("z1");
 
-		ParticleUtil.boxAbsolute(player, Particle.REDSTONE, Math.min(x0, x1 + 1), Math.min(y0, y1 + 1), Math.min(z0, z1 + 1), Math.max(x0, x1 + 1), Math.max(y0, y1 + 1), Math.max(z0, z1 + 1), 0, 0.5, OPTIONS);
+		ParticleUtil.boxAbsolute(context.getPlayer(), Particle.REDSTONE, Math.min(x0, x1 + 1), Math.min(y0, y1 + 1), Math.min(z0, z1 + 1), Math.max(x0, x1 + 1), Math.max(y0, y1 + 1), Math.max(z0, z1 + 1), 0, 0.5, OPTIONS);
 	}
 
 	@Override
