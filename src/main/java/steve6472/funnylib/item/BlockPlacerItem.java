@@ -2,12 +2,18 @@ package steve6472.funnylib.item;
 
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlock;
 import steve6472.funnylib.blocks.stateengine.State;
+import steve6472.funnylib.context.BlockFaceContext;
+import steve6472.funnylib.context.PlayerBlockContext;
+import steve6472.funnylib.context.PlayerContext;
 import steve6472.funnylib.item.events.ItemClickEvents;
+import steve6472.funnylib.util.ItemStackBuilder;
+import steve6472.funnylib.util.MetaUtil;
 
 /**
  * Created by steve6472
@@ -30,8 +36,15 @@ public class BlockPlacerItem extends GenericItem implements ItemClickEvents
 		Block clickedBlock = e.getClickedBlock();
 		if (clickedBlock == null) return;
 
-		State stateForPlacement = block.getStateForPlacement(e.getPlayer(), e.getClickedBlock(), e.getBlockFace());
 		Location location = e.getClickedBlock().getLocation().add(e.getBlockFace().getDirection());
-		Blocks.setBlockState(location, stateForPlacement);
+		if (location.getBlock().getType().isAir())
+		{
+			State stateForPlacement = block.getStateForPlacement(new PlayerBlockContext(new PlayerContext(e.getPlayer()), new BlockFaceContext(location, MetaUtil.getValue(e.getPlayer(), BlockFace.class, "last_face"))));
+			Blocks.setBlockState(location, stateForPlacement);
+			if (e.getItem() != null && e.getPlayer().getGameMode() == GameMode.SURVIVAL)
+			{
+				e.getItem().setAmount(e.getItem().getAmount() - 1);
+			}
+		}
 	}
 }

@@ -22,7 +22,7 @@ public class EntityCodec extends Codec<Entity>
 	{
 		if (json.optBoolean("none", false))
 			return null;
-		
+
 		String worldName = json.optString("world", null);
 		if (worldName == null)
 			return null;

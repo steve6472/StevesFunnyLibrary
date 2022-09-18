@@ -6,9 +6,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
@@ -109,6 +107,13 @@ public class Blocks implements Listener
 		}
 	}
 
+	public static boolean callBlockBreak(PlayerBlockContext context)
+	{
+		BlockBreakEvent e = new BlockBreakEvent(context.getBlock(), context.getPlayer());
+		FunnyLib.getBlocks().blockBreak(e);
+		return e.isCancelled();
+	}
+
 	@EventHandler
 	public void blockBreak(BlockBreakEvent e)
 	{
@@ -149,6 +154,9 @@ public class Blocks implements Listener
 						e.getBlock().setBlockData(result.getResultBlock());
 					}
 				}
+			} else
+			{
+				e.getBlock().setType(Material.AIR);
 			}
 
 			if (dropItems && Boolean.TRUE.equals(world.getGameRuleValue(GameRule.DO_TILE_DROPS)))
@@ -189,10 +197,50 @@ public class Blocks implements Listener
 			{
 				if (Boolean.TRUE.equals(world.getGameRuleValue(GameRule.DO_TILE_DROPS)))
 				{
-					block.getExplodeDrops(blockContext, drops);
+					block.getDrops(blockContext, drops);
 					dropItems(location, drops);
 				}
 			}
+		}
+	}
+
+	@EventHandler
+	public void iHatePistons(BlockPistonExtendEvent e)
+	{
+		for (Block block : e.getBlocks())
+		{
+			if (getBlockState(block.getLocation()) != null)
+			{
+				e.setCancelled(true);
+				return;
+			}
+		}
+	}
+
+	@EventHandler
+	public void iHatePistons2ElectricBoogaloo(BlockPistonRetractEvent e)
+	{
+		for (Block block : e.getBlocks())
+		{
+			if (getBlockState(block.getLocation()) != null)
+			{
+				e.setCancelled(true);
+				return;
+			}
+		}
+	}
+
+	@EventHandler
+	public void blockBurn(BlockBurnEvent e)
+	{
+		State blockState = getBlockState(e.getBlock().getLocation());
+		CustomBlock block = (CustomBlock) blockState.getObject();
+		if (!block.canBurn())
+		{
+			e.setCancelled(true);
+		} else
+		{
+			block.onBurn(new BlockContext(e.getBlock().getLocation(), blockState));
 		}
 	}
 

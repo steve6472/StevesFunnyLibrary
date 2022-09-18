@@ -21,6 +21,20 @@ public class Checks
 			material == Material.NETHERITE_SWORD;
 	}
 
+	public static boolean isPickaxeMaterial(Material material)
+	{
+		return switch (material)
+			{
+				case DIAMOND_PICKAXE,
+					GOLDEN_PICKAXE,
+					IRON_PICKAXE,
+					NETHERITE_PICKAXE,
+					STONE_PICKAXE,
+					WOODEN_PICKAXE -> true;
+				default -> false;
+			};
+	}
+
 	public static boolean isLeavesMaterial(Material material)
 	{
 		return switch (material)

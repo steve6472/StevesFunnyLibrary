@@ -68,16 +68,16 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 	}
 
 	@Override
-	public State getStateForPlacement(Player player, Block clickedBlock, BlockFace clickedFace)
+	public State getStateForPlacement(PlayerBlockContext context)
 	{
-		FaceAttachable.AttachedFace face = switch (clickedFace)
+		FaceAttachable.AttachedFace face = switch (context.getFace())
 		{
 			case NORTH, EAST, SOUTH, WEST -> FaceAttachable.AttachedFace.WALL;
 			case UP -> FaceAttachable.AttachedFace.FLOOR;
 			case DOWN -> FaceAttachable.AttachedFace.CEILING;
-			default -> throw new IllegalStateException("Unexpected value: " + clickedFace);
+			default -> throw new IllegalStateException("Unexpected value: " + context.getFace());
 		};
-		return getDefaultState().with(FACING, clickedFace).with(ATTACHED, face);
+		return getDefaultState().with(FACING, context.getFace()).with(ATTACHED, face);
 	}
 
 	@Override

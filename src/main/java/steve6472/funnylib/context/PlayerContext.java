@@ -90,4 +90,9 @@ public class PlayerContext
 	{
 		return getPlayer().getGameMode() == GameMode.SURVIVAL;
 	}
+
+	public boolean isSneaking()
+	{
+		return getPlayer().isSneaking();
+	}
 }

@@ -16,6 +16,7 @@ import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.events.ItemBreakBlockEvent;
 import steve6472.funnylib.item.events.ItemClickEvents;
+import steve6472.funnylib.util.Checks;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.RandomUtil;
 
@@ -45,7 +46,7 @@ public class SilkwormItem extends CustomItem implements ItemClickEvents
 	@Override
 	public void rightClickBlock(ItemStack item, PlayerInteractEvent e)
 	{
-		if (e.getClickedBlock().getType().name().endsWith("_LEAVES"))
+		if (Checks.isLeavesMaterial(e.getClickedBlock().getType()))
 		{
 			Blocks.setBlockState(e.getClickedBlock().getLocation(), FunnyLib.SILK_LEAVES.getDefaultState());
 		}

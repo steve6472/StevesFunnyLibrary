@@ -59,6 +59,11 @@ public record PlayerBlockContext(PlayerContext playerContext, BlockFaceContext b
 		return playerContext.isSurvival();
 	}
 
+	public boolean isPlayerSneaking()
+	{
+		return playerContext.isSneaking();
+	}
+
 	/*
 	 * Block context
 	 */

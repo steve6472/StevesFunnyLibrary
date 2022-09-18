@@ -9,11 +9,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.plugin.Plugin;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONString;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlock;
+import steve6472.funnylib.blocks.builtin.CrucibleBlock;
 import steve6472.funnylib.blocks.builtin.SilkLeavesBlock;
 import steve6472.funnylib.blocks.builtin.TeleportButtonBlock;
 import steve6472.funnylib.command.AnnotationCommand;
@@ -44,11 +44,11 @@ public class FunnyLib
 	private static long uptimeTicks;
 	private static ArmorEventListener armorEventListener;
 	private static MenuListener menuListener;
+	private static Blocks blocks;
 
 	private FunnyLib()
 	{
-		new JSONObject();
-		Class<JSONString> jsonStringClass = JSONString.class;
+		new MavenSux();
 	}
 
 	public static void init(Plugin plugin, boolean builtInItems)
@@ -68,7 +68,7 @@ public class FunnyLib
 		Bukkit.getPluginManager().registerEvents(menuListener = new MenuListener(), plugin);
 		Bukkit.getPluginManager().registerEvents(new CustomCommandRunner(), plugin);
 		Bukkit.getPluginManager().registerEvents(new Items(), plugin);
-		Bukkit.getPluginManager().registerEvents(new Blocks(), plugin);
+		Bukkit.getPluginManager().registerEvents(blocks = new Blocks(), plugin);
 
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () ->
 		{
@@ -110,6 +110,11 @@ public class FunnyLib
 	public static MenuListener getMenuListener()
 	{
 		return menuListener;
+	}
+
+	public static Blocks getBlocks()
+	{
+		return blocks;
 	}
 
 	private static class CustomCommandRunner implements Listener
@@ -164,9 +169,11 @@ public class FunnyLib
 	 * Skyblock Beginnings
 	 */
 	public static CustomBlock SILK_LEAVES;
+	public static CustomBlock CRUCIBLE_BLOCK;
 
 	public static CustomItem WOODEN_CROOCK;
 	public static CustomItem SILKWORM;
+	public static CustomItem CRUCIBLE_ITEM;
 
 	private static void initBuiltin()
 	{
@@ -176,6 +183,7 @@ public class FunnyLib
 
 		Blocks.registerBlock(TELEPORT_BUTTON_BLOCK = new TeleportButtonBlock());
 		Blocks.registerBlock(SILK_LEAVES = new SilkLeavesBlock());
+		Blocks.registerBlock(CRUCIBLE_BLOCK = new CrucibleBlock());
 
 		Items.registerAdminItem(LOCATION_MARKER = new MarkerItem());
 		Items.registerAdminItem(AREA_LOCATION_MARKER = new AreaMarkerItem());
@@ -184,5 +192,6 @@ public class FunnyLib
 		Items.registerItem(TELEPORT_BUTTON_ITEM = new BlockPlacerItem(TELEPORT_BUTTON_BLOCK, "teleport_button", Material.STONE_BUTTON, "Teleport Button", 0));
 		Items.registerItem(WOODEN_CROOCK = new WoodenCroockItem());
 		Items.registerItem(SILKWORM = new SilkwormItem());
+		Items.registerItem(CRUCIBLE_ITEM = new BlockPlacerItem(CRUCIBLE_BLOCK, "crucible", Material.COMMAND_BLOCK, "Crucible", 2));
 	}
 }
