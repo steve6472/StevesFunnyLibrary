@@ -1,6 +1,6 @@
 name: FunnyLib
 version: '${project.version}'
-main: steve6472.funnylib.FunnyLibStandalone
+main: steve6472.standalone.FunnyLibStandalone
 api-version: 1.18
 commands:
   cmds:

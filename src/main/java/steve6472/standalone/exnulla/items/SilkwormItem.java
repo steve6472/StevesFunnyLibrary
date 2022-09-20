@@ -1,4 +1,4 @@
-package steve6472.funnylib.item.builtin;
+package steve6472.standalone.exnulla.items;
 
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -19,6 +19,7 @@ import steve6472.funnylib.item.events.ItemClickEvents;
 import steve6472.funnylib.util.Checks;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.RandomUtil;
+import steve6472.standalone.exnulla.ExNulla;
 
 /**
  * Created by steve6472
@@ -48,7 +49,7 @@ public class SilkwormItem extends CustomItem implements ItemClickEvents
 	{
 		if (Checks.isLeavesMaterial(e.getClickedBlock().getType()))
 		{
-			Blocks.setBlockState(e.getClickedBlock().getLocation(), FunnyLib.SILK_LEAVES.getDefaultState());
+			Blocks.setBlockState(e.getClickedBlock().getLocation(), ExNulla.SILK_LEAVES.getDefaultState());
 		}
 		e.setCancelled(true);
 	}

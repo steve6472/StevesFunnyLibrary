@@ -1,4 +1,4 @@
-package steve6472.funnylib.item.builtin;
+package steve6472.standalone.exnulla.items;
 
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -15,6 +15,7 @@ import steve6472.funnylib.item.events.ItemBreakBlockEvent;
 import steve6472.funnylib.util.Checks;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.RandomUtil;
+import steve6472.standalone.exnulla.ExNulla;
 
 /**
  * Created by steve6472
@@ -54,7 +55,7 @@ public class WoodenCroockItem extends CustomItem implements ItemBreakBlockEvent
 			if (RandomUtil.randomDouble(0, 1) <= 0.1)
 			{
 				context.getBlock().setType(Material.AIR);
-				context.getBlock().getWorld().dropItemNaturally(context.getBlockLocation(), FunnyLib.SILKWORM.newItemStack());
+				context.getBlock().getWorld().dropItemNaturally(context.getBlockLocation(), ExNulla.SILKWORM.newItemStack());
 				proc = true;
 			}
 

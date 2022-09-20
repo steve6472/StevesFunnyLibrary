@@ -1,4 +1,4 @@
-package steve6472.funnylib.blocks.builtin;
+package steve6472.standalone.exnulla.blocks;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -19,6 +19,7 @@ import steve6472.funnylib.util.Checks;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.MiscUtil;
 import steve6472.funnylib.util.RandomUtil;
+import steve6472.standalone.exnulla.ExNulla;
 
 import java.util.List;
 
@@ -78,7 +79,7 @@ public class SilkLeavesBlock extends CustomBlock implements IBlockData, BlockTic
 
 			if (Checks.isLeavesMaterial(block.getType()))
 			{
-				Blocks.setBlockState(block.getLocation(), FunnyLib.SILK_LEAVES.getDefaultState());
+				Blocks.setBlockState(block.getLocation(), ExNulla.SILK_LEAVES.getDefaultState());
 			}
 		}
 	}
@@ -132,13 +133,13 @@ public class SilkLeavesBlock extends CustomBlock implements IBlockData, BlockTic
 		{
 			int amount = RandomUtil.randomInt(0, 4);
 
-			if (context.holdsCustomItem(FunnyLib.WOODEN_CROOCK))
+			if (context.holdsCustomItem(ExNulla.WOODEN_CROOCK))
 			{
 				amount += RandomUtil.randomInt(0, 3);
 
 				if (RandomUtil.randomDouble(0, 1) <= 0.15)
 				{
-					drops.add(FunnyLib.SILKWORM.newItemStack());
+					drops.add(ExNulla.SILKWORM.newItemStack());
 				}
 			}
 

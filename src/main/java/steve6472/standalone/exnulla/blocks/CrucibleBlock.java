@@ -1,4 +1,4 @@
-package steve6472.funnylib.blocks.builtin;
+package steve6472.standalone.exnulla.blocks;
 
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -25,6 +25,7 @@ import steve6472.funnylib.json.codec.ann.SaveInt;
 import steve6472.funnylib.json.codec.codecs.EntityCodec;
 import steve6472.funnylib.util.Checks;
 import steve6472.funnylib.util.ItemStackBuilder;
+import steve6472.standalone.exnulla.ExNulla;
 
 import java.util.List;
 
@@ -123,7 +124,7 @@ public class CrucibleBlock extends CustomBlock implements IBlockData, BlockClick
 	@Override
 	public void getDrops(BlockContext blockContext, List<ItemStack> drops)
 	{
-		drops.add(FunnyLib.CRUCIBLE_ITEM.newItemStack());
+		drops.add(ExNulla.CRUCIBLE_ITEM.newItemStack());
 	}
 
 	@Override
