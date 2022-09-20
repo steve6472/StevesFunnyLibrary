@@ -166,6 +166,7 @@ public class FunnyLib
 	public static CustomItem AREA_LOCATION_MARKER;
 	public static CustomItem TELEPORT_BUTTON_ITEM;
 	public static CustomItem ADMIN_WRENCH;
+	public static CustomItem STRUCTURE;
 
 	private static void initBuiltin()
 	{
@@ -179,6 +180,7 @@ public class FunnyLib
 		Items.registerAdminItem(LOCATION_MARKER = new MarkerItem());
 		Items.registerAdminItem(AREA_LOCATION_MARKER = new AreaMarkerItem());
 		Items.registerAdminItem(ADMIN_WRENCH = new AdminWrenchItem());
+		Items.registerAdminItem(STRUCTURE = new StructureItem());
 
 		Items.registerItem(TELEPORT_BUTTON_ITEM = new BlockPlacerItem(TELEPORT_BUTTON_BLOCK, "teleport_button", Material.STONE_BUTTON, "Teleport Button", 0));
 	}

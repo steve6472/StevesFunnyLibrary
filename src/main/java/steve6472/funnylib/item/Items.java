@@ -15,6 +15,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -24,6 +25,7 @@ import steve6472.funnylib.context.BlockFaceContext;
 import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.context.PlayerContext;
 import steve6472.funnylib.item.events.*;
+import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.util.Checks;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.MetaUtil;
@@ -169,6 +171,17 @@ public class Items implements Listener
 	}
 
 	@EventHandler
+	public void swapHands(PlayerSwapHandItemsEvent e)
+	{
+		callEventOnCustomItem(
+			e.getPlayer(),
+			SwapHandEvent.class,
+			e.getOffHandItem(),
+			(ev, i) -> e.setCancelled(ev.swapHands(e.getPlayer(), e.getOffHandItem(), e.getMainHandItem()) == Response.cancel())
+		);
+	}
+
+	@EventHandler
 	public void inventoryEvent(InventoryClickEvent e)
 	{
 		ItemStack currentItem = e.getCurrentItem();
@@ -250,6 +263,9 @@ public class Items implements Listener
 
 		ItemStack item = e.getItem();
 		if (item == null || item.getType() == Material.AIR)
+			return;
+
+		if (e.getPlayer().getCooldown(item.getType()) != 0)
 			return;
 
 		if (ItemStackBuilder.edit(item).getCustomId() == null)

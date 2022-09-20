@@ -8,12 +8,15 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_19_R1.persistence.CraftPersistentDataContainer;
 import org.bukkit.craftbukkit.v1_19_R1.persistence.DirtyCraftPersistentDataContainer;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.jetbrains.annotations.NotNull;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomChunk;
 import steve6472.funnylib.item.Items;
+import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.RepeatingTask;
 
@@ -224,6 +227,32 @@ public class BuiltInCommands
 		PersistentDataContainer chunkData = player.getLocation().getChunk().getPersistentDataContainer();
 		Blocks.CHUNK_MAP.remove(player.getLocation().getChunk());
 		chunkData.remove(new NamespacedKey(FunnyLib.getPlugin(), "custom_blocks"));
+		return true;
+	}
+
+	@Command
+	@Description("Renames an item")
+	@Usage("/name <new_name>")
+	public static boolean name(@NotNull Player player, @NotNull String[] args)
+	{
+		ItemStack item = player.getInventory().getItem(EquipmentSlot.HAND);
+		ItemStackBuilder edit = ItemStackBuilder.edit(item);
+		String originalName = edit.getCustomTagString("original_name");
+		if (args.length == 0)
+		{
+			if (originalName == null || originalName.isBlank())
+				return false;
+			edit.setName(JSONMessage.create(originalName));
+		} else
+		{
+			if (originalName == null || originalName.isBlank())
+			{
+				edit.customTagString("original_name", edit.getNameLegacy());
+				originalName = edit.getNameLegacy();
+			}
+			edit.setName(JSONMessage.create(ChatColor.AQUA + originalName + ChatColor.ITALIC + " (" + args[0] + ")"));
+		}
+		player.getInventory().setItem(EquipmentSlot.HAND, edit.buildItemStack());
 		return true;
 	}
 
