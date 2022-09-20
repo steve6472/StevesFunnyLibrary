@@ -1,32 +1,34 @@
-package steve6472.funnylib.blocks.builtin;
+package steve6472.standalone.interactable.blocks;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.FaceAttachable;
+import org.bukkit.block.data.type.Switch;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import steve6472.funnylib.context.BlockContext;
-import steve6472.funnylib.FunnyLib;
-import steve6472.funnylib.context.PlayerBlockContext;
+import org.bukkit.util.Vector;
 import steve6472.funnylib.blocks.*;
+import steve6472.funnylib.blocks.builtin.AdminInterface;
 import steve6472.funnylib.blocks.events.BlockClickEvents;
 import steve6472.funnylib.blocks.stateengine.State;
 import steve6472.funnylib.blocks.stateengine.properties.EnumProperty;
 import steve6472.funnylib.blocks.stateengine.properties.IProperty;
-import steve6472.funnylib.item.Items;
+import steve6472.funnylib.context.BlockContext;
+import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.json.codec.ann.Save;
-import steve6472.funnylib.json.codec.codecs.ItemStackCodec;
+import steve6472.funnylib.json.codec.ann.SaveString;
+import steve6472.funnylib.json.codec.codecs.MarkerCodec;
 import steve6472.funnylib.menu.Mask;
 import steve6472.funnylib.menu.MenuBuilder;
 import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.menu.SlotBuilder;
 import steve6472.funnylib.util.BlockGen;
 import steve6472.funnylib.util.ItemStackBuilder;
-import steve6472.funnylib.util.MiscUtil;
+import steve6472.standalone.interactable.Interactable;
 
 import java.util.List;
 
@@ -35,21 +37,23 @@ import java.util.List;
  * Date: 9/15/2022
  * Project: StevesFunnyLibrary <br>
  */
-public class TeleportButtonBlock extends CustomBlock implements IBlockData, BlockClickEvents, AdminInterface<TeleportButtonBlock.TeleportButtonData>
+public class ActivatingButtonBlock extends CustomBlock implements IBlockData, BlockClickEvents, AdminInterface<ActivatingButtonBlock.ActivatingData>
 {
 	public static final EnumProperty<BlockFace> FACING = States.FACING;
 	public static final EnumProperty<FaceAttachable.AttachedFace> ATTACHED = States.ATTACHED;
 
-	public static class TeleportButtonData extends CustomBlockData
+	public static class ActivatingData extends CustomBlockData
 	{
-		@Save(type = ItemStackCodec.class)
-		private ItemStack item = MiscUtil.AIR;
+		@Save(type = MarkerCodec.class)
+		private Vector block;
+		@SaveString
+		private String material = Material.STONE_BUTTON.name();
 	}
 
 	@Override
 	public String id()
 	{
-		return "teleport_button";
+		return "activating_button";
 	}
 
 	@Override
@@ -62,7 +66,19 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 	@Override
 	public BlockData getVanillaState(BlockContext context)
 	{
-		return BlockGen.StoneButton(context.getState().get(FACING), context.getState().get(ATTACHED), false);
+		Switch switchData;
+		if (context.testDataType(ActivatingData.class))
+		{
+			ActivatingData data = context.getBlockData(ActivatingData.class);
+			switchData = (Switch) Material.valueOf(data.material).createBlockData();
+		} else
+		{
+			switchData = (Switch) Material.STONE_BUTTON.createBlockData();
+		}
+		switchData.setFacing(context.getState().get(FACING));
+		switchData.setAttachedFace(context.getState().get(ATTACHED));
+		switchData.setPowered(false);
+		return switchData;
 	}
 
 	@Override
@@ -88,38 +104,23 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 	@Override
 	public CustomBlockData createBlockData()
 	{
-		return new TeleportButtonData();
+		return new ActivatingData();
 	}
 
 	@Override
 	public void rightClick(PlayerBlockContext context, PlayerInteractEvent e)
 	{
-		TeleportButtonData blockData = context.getBlockData(TeleportButtonData.class);
-
-		ItemStack item = blockData.item;
-		if (Items.getCustomItem(item) != FunnyLib.LOCATION_MARKER)
+		ActivatingData blockData = context.getBlockData(ActivatingData.class);
+		if (blockData.block == null)
+		{
 			return;
+		}
 
-		ItemStackBuilder edit = ItemStackBuilder.edit(item);
-		int x = edit.getCustomTagInt("x");
-		int y = edit.getCustomTagInt("y");
-		int z = edit.getCustomTagInt("z");
-		context.getPlayer().teleport(new Location(context.getWorld(), x + 0.5, y, z + 0.5, context.getPlayerLocation().getYaw(), context.getPlayerLocation().getPitch()));
-	}
+		Location location = blockData.block.toLocation(context.getWorld());
 
-	@Override
-	public void getDrops(BlockContext blockContext, List<ItemStack> drops)
-	{
-		drops.add(FunnyLib.TELEPORT_BUTTON_ITEM.newItemStack());
-		drops.add(blockContext.getBlockData(TeleportButtonData.class).item);
-	}
-
-	@Override
-	public void getDrops(PlayerBlockContext context, List<ItemStack> drops)
-	{
-		if (!context.isCreative())
-			drops.add(FunnyLib.TELEPORT_BUTTON_ITEM.newItemStack());
-		drops.add(context.getBlockData(TeleportButtonData.class).item);
+		State blockState = Blocks.getBlockState(location);
+		if (blockState.getObject() instanceof Activable activable)
+			activable.activate(new BlockContext(location, blockState));
 	}
 
 	/*
@@ -127,17 +128,17 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 	 */
 
 	@Override
-	public void showInterface(TeleportButtonData data, PlayerBlockContext context)
+	public void showInterface(ActivatingData data, PlayerBlockContext context)
 	{
-		MENU.setData("location", data.item);
 		MENU.setData("data", data);
+		MENU.setData("location", context.getBlockLocation());
 		MENU.build().showToPlayers(context.getPlayer());
 	}
 
 	private static final Mask mask = Mask.createMask()
-		.addRow("abaVVVaba")
-		.addRow("babV.Vbab")
-		.addRow("abaVVVaba")
+		.addRow("aVVVbVVVa")
+		.addRow("bV.VaV.Vb")
+		.addRow("aVVVbVVVa")
 		.addItem('V', SlotBuilder.create(ItemStackBuilder.quick(Material.LIME_STAINED_GLASS_PANE, "")))
 		.addItem('a', SlotBuilder.create(ItemStackBuilder.quick(Material.GRAY_STAINED_GLASS_PANE, "")))
 		.addItem('b', SlotBuilder.create(ItemStackBuilder.quick(Material.LIGHT_GRAY_STAINED_GLASS_PANE, "")));
@@ -145,26 +146,36 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 	private static final MenuBuilder MENU = MenuBuilder
 		.create(3, "Location")
 		.allowPlayerInventory()
-		.slot(4, 1, m ->
+		.slot(2, 1, m ->
 		{
-			ItemStack item = m.getData("location", ItemStack.class);
-			if (item == null) item = MiscUtil.AIR;
+			ActivatingData data = m.getData("data", ActivatingData.class);
+			return MarkerCodec.slotBuilder(data.block, v -> data.block = v);
+		})
+		.slot(6, 1, m ->
+		{
+			ActivatingData data = m.getData("data", ActivatingData.class);
+			Location location = m.getData("location", Location.class);
 
-			return SlotBuilder
-				.create(item)
-				.allow(InventoryAction.PICKUP_ALL, InventoryAction.PLACE_ALL)
+			return SlotBuilder.create(ItemStackBuilder.quick(Material.valueOf(data.material), "Material"))
+				.allow(InventoryAction.PICKUP_ALL, InventoryAction.SWAP_WITH_CURSOR)
 				.allow(ClickType.LEFT)
-				.onClick((c, cm) ->
-				{
-					TeleportButtonData data = cm.getPassedData().getData("data", TeleportButtonData.class);
-					if (c.itemOnCursor() != null && !c.itemOnCursor().getType().isAir())
+				.onClick((c, cm) -> {
+
+					ItemStack item = c.itemOnCursor();
+					if (item.getType().isAir())
 					{
-						data.item = c.itemOnCursor().clone();
-					} else
-					{
-						data.item = MiscUtil.AIR;
+						return Response.cancel();
 					}
-					return Response.allow();
+
+					BlockData blockData = item.getType().createBlockData();
+					if (blockData instanceof Switch)
+					{
+						data.material = item.getType().name();
+						location.getBlock().setBlockData(Interactable.ACTIVATING_BUTTON_BLOCK.getVanillaState(new BlockContext(location)));
+						c.slot().setItem(ItemStackBuilder.quick(Material.valueOf(data.material), "Material"));
+					}
+
+					return Response.cancel();
 				});
 		})
 		.applyMask(mask);

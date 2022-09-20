@@ -5,11 +5,9 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.inventory.ItemStack;
-import steve6472.funnylib.*;
 import steve6472.funnylib.blocks.*;
 import steve6472.funnylib.blocks.events.BreakBlockEvent;
 import steve6472.funnylib.blocks.events.BlockTick;
-import steve6472.funnylib.blocks.stateengine.State;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.json.codec.ann.Save;
@@ -46,7 +44,7 @@ public class SilkLeavesBlock extends CustomBlock implements IBlockData, BlockTic
 	}
 
 	@Override
-	public BlockData getVanillaState(State state)
+	public BlockData getVanillaState(BlockContext context)
 	{
 		return Material.COBWEB.createBlockData();
 	}

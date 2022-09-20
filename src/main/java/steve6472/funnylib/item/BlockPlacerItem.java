@@ -39,7 +39,7 @@ public class BlockPlacerItem extends GenericItem implements ItemClickEvents
 		Location location = e.getClickedBlock().getLocation().add(e.getBlockFace().getDirection());
 		if (location.getBlock().getType().isAir())
 		{
-			State stateForPlacement = block.getStateForPlacement(new PlayerBlockContext(new PlayerContext(e.getPlayer()), new BlockFaceContext(location, MetaUtil.getValue(e.getPlayer(), BlockFace.class, "last_face"))));
+			State stateForPlacement = block.getStateForPlacement(new PlayerBlockContext(new PlayerContext(e.getPlayer()), new BlockFaceContext(location, e.getBlockFace())));
 			Blocks.setBlockState(location, stateForPlacement);
 			if (e.getItem() != null && e.getPlayer().getGameMode() == GameMode.SURVIVAL)
 			{

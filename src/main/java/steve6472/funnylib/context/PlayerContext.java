@@ -1,6 +1,8 @@
 package steve6472.funnylib.context;
 
+import org.bukkit.Chunk;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
@@ -30,8 +32,12 @@ public class PlayerContext
 
 	public PlayerContext(Player player, EquipmentSlot hand)
 	{
+		this(player, hand, player.getInventory().getItem(hand));
+	}
+
+	public PlayerContext(Player player, EquipmentSlot hand, ItemStack item)
+	{
 		this.player = player;
-		ItemStack item = player.getInventory().getItem(hand);
 		if (item == null)
 		{
 			handItem = MiscUtil.AIR;
@@ -74,6 +80,16 @@ public class PlayerContext
 		}
 
 		return customItem;
+	}
+
+	public Location getLocation()
+	{
+		return player.getLocation();
+	}
+
+	public Chunk getPlayerChunk()
+	{
+		return getLocation().getChunk();
 	}
 
 	public boolean holdsCustomItem(CustomItem item)

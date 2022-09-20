@@ -10,6 +10,7 @@ public class Response
 	private static final Response CANCEL = new Response();
 	private static final Response ALLOW = new Response();
 	private static final Response EXIT = new Response();
+	private static final Response CLEAR_ITEM_FROM_CURSOR = new Response();
 
 	private MenuBuilder redirect;
 	private ArbitraryData redirectData;
@@ -27,6 +28,11 @@ public class Response
 	public static Response exit()
 	{
 		return EXIT;
+	}
+
+	public static Response clearItemFromCursor()
+	{
+		return CLEAR_ITEM_FROM_CURSOR;
 	}
 
 	public static Response redirect(MenuBuilder menu)

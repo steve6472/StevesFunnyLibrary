@@ -2,6 +2,7 @@ package steve6472.funnylib;
 
 import org.json.JSONObject;
 import org.json.JSONString;
+import steve6472.funnylib.util.ParticleUtil;
 
 /**
  * Created by steve6472
@@ -21,5 +22,6 @@ public class MavenSux
 				return "";
 			}
 		};
+		new ParticleUtil();
 	}
 }

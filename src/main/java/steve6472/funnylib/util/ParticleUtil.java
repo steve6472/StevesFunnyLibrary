@@ -4,6 +4,7 @@ import org.apache.logging.log4j.util.TriConsumer;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -68,6 +69,16 @@ public class ParticleUtil
 				world.spawnParticle(particle, i, y, j, 0, 0, 0, particleSpeed);
 			}
 		}
+	}
+
+	public static void block(Block block, Particle particle, double particleSpeed, double spacing)
+	{
+		boxAbsolute(block.getWorld(), particle, block.getX(), block.getY(), block.getZ(), block.getX() + 1, block.getY() + 1, block.getZ() + 1, particleSpeed, spacing);
+	}
+
+	public static <T> void block(Block block, Particle particle, double particleSpeed, double spacing, @Nullable T data)
+	{
+		boxAbsolute(block.getWorld(), particle, block.getX(), block.getY(), block.getZ(), block.getX() + 1, block.getY() + 1, block.getZ() + 1, particleSpeed, spacing, data);
 	}
 
 	public static void box(World world, Particle particle, double x, double y, double z, double width, double height, double depth, double particleSpeed, double spacing)
@@ -198,7 +209,7 @@ public class ParticleUtil
 	 * Player Particle Data
 	 */
 
-	public static <T>  void sphere(Player player, Particle particle, Location center, double quality, double radius, @Nullable T data)
+	public static <T> void sphere(Player player, Particle particle, Location center, double quality, double radius, @Nullable T data)
 	{
 		for (double i = 0; i <= Math.PI; i += Math.PI / quality)
 		{

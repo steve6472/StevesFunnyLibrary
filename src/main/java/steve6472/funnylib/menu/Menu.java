@@ -6,6 +6,7 @@ import steve6472.funnylib.util.MetaUtil;
 import steve6472.funnylib.util.MiscUtil;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.function.BiFunction;
 
@@ -84,6 +85,38 @@ public class Menu
 
 		loc = new SlotLoc(x + offsetX, y + offsetY);
 		return slots.get(loc);
+	}
+
+	public void setSlot(int x, int y, Slot slot)
+	{
+		if (slot.isSticky)
+		{
+			stickySlots.put(new SlotLoc(x, y), slot);
+		} else
+		{
+			slots.put(new SlotLoc(x, y), slot);
+		}
+	}
+
+	/**
+	 * Ignores slicky slots
+	 * supports negative values somewhat
+	 */
+	public void insertLineBelow(int y, int count)
+	{
+		HashMap<SlotLoc, Slot> toAdd = new HashMap<>();
+
+		for (Iterator<SlotLoc> iterator = slots.keySet().iterator(); iterator.hasNext(); )
+		{
+			SlotLoc slotLoc = iterator.next();
+			if (slotLoc.y() > y)
+			{
+				toAdd.put(new SlotLoc(slotLoc.x(), slotLoc.y() + count), slots.get(slotLoc));
+				iterator.remove();
+			}
+		}
+
+		slots.putAll(toAdd);
 	}
 
 	public void reload()

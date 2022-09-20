@@ -75,6 +75,10 @@ public abstract class Codec<T>
 			{
 				json.put(declaredField.getName(), (float) declaredField.get(object));
 			}
+			else if (declaredField.isAnnotationPresent(SaveBool.class))
+			{
+				json.put(declaredField.getName(), (boolean) declaredField.get(object));
+			}
 			else if (declaredField.isAnnotationPresent(SaveString.class))
 			{
 				json.put(declaredField.getName(), declaredField.get(object));
@@ -116,6 +120,10 @@ public abstract class Codec<T>
 			else if (declaredField.isAnnotationPresent(SaveFloat.class))
 			{
 				declaredField.set(object, json.optFloat(declaredField.getName(), declaredField.getAnnotation(SaveFloat.class).defVal()));
+			}
+			else if (declaredField.isAnnotationPresent(SaveBool.class))
+			{
+				declaredField.set(object, json.optBoolean(declaredField.getName(), declaredField.getAnnotation(SaveBool.class).defVal()));
 			}
 			else if (declaredField.isAnnotationPresent(SaveString.class))
 			{

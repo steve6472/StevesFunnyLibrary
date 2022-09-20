@@ -8,6 +8,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import steve6472.funnylib.util.MetaUtil;
+import steve6472.funnylib.util.MiscUtil;
 
 /**
  * Created by steve6472
@@ -104,6 +105,12 @@ public class MenuListener implements Listener
 
 		if (response == Response.allow())
 		{
+			return;
+		}
+
+		if (response == Response.clearItemFromCursor())
+		{
+			e.setCursor(MiscUtil.AIR);
 			return;
 		}
 

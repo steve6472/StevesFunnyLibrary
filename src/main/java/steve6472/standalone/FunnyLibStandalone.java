@@ -3,6 +3,7 @@ package steve6472.standalone;
 import org.bukkit.plugin.java.JavaPlugin;
 import steve6472.funnylib.FunnyLib;
 import steve6472.standalone.exnulla.ExNulla;
+import steve6472.standalone.interactable.Interactable;
 
 /**
  * Created by steve6472
@@ -16,6 +17,7 @@ public class FunnyLibStandalone extends JavaPlugin
 	{
 		FunnyLib.init(this, true);
 		ExNulla.init();
+		Interactable.init();
 	}
 
 	@Override

@@ -1,13 +1,20 @@
 package steve6472.funnylib.menu;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import steve6472.funnylib.util.ItemStackBuilder;
+import steve6472.funnylib.util.JSONMessage;
+import steve6472.standalone.interactable.blocks.ElevatorControllerBlock;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
+import java.util.function.*;
 
 /**
  * Created by steve6472
@@ -112,6 +119,34 @@ public class MenuBuilder
 			throw new RuntimeException("Custom Builder already exists!");
 		}
 		this.customBuilder = customBuilder;
+		return this;
+	}
+
+	/*
+	 * Presets
+	 */
+
+	private static ItemStack createToggleItem(boolean flag, String label)
+	{
+		Material mat = flag ? Material.LIME_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE;
+		ChatColor color = flag ? ChatColor.GREEN : ChatColor.RED;
+		return ItemStackBuilder
+			.create(mat)
+			.setName(label)
+			.addLore(JSONMessage.create("Current: ").color(ChatColor.GRAY).then("" + flag).color(color))
+			.setCustomModelData(1)
+			.buildItemStack();
+	}
+
+	public MenuBuilder toggleSlot(int x, int y, String label, Function<ArbitraryData, Boolean> get, BiConsumer<ArbitraryData, Boolean> set)
+	{
+		slot(x, y, (builder) -> SlotBuilder.create(createToggleItem(get.apply(arbitraryData), label)).allow(ClickType.LEFT).allow(InventoryAction.PICKUP_ALL).onClick((c, cm) ->
+		{
+			boolean current = !get.apply(arbitraryData);
+			set.accept(cm.getPassedData(), current);
+			c.slot().setItem(createToggleItem(current, label));
+			return Response.cancel();
+		}));
 		return this;
 	}
 

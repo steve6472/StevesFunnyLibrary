@@ -1,10 +1,7 @@
 package steve6472.funnylib.blocks;
 
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.block.PistonMoveReaction;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.PlayerBlockContext;
@@ -33,7 +30,7 @@ public abstract class CustomBlock extends StateObject
 		return getDefaultState();
 	}
 
-	public abstract BlockData getVanillaState(State state);
+	public abstract BlockData getVanillaState(BlockContext context);
 
 	public void onPlace(BlockContext context) {}
 	public void onRemove(BlockContext context) {}

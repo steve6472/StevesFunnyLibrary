@@ -269,12 +269,12 @@ public class Items implements Listener
 			{
 				if (e.getAction() == Action.LEFT_CLICK_AIR)
 				{
-					itemEvent.leftClickAir(item, e);
+					itemEvent.leftClickAir(new PlayerContext(e.getPlayer(), EquipmentSlot.HAND, item), e);
 					itemEvent.leftClick(item, e);
 				}
 				else if (e.getAction() == Action.RIGHT_CLICK_AIR)
 				{
-					itemEvent.rightClickAir(item, e);
+					itemEvent.rightClickAir(new PlayerContext(e.getPlayer(), EquipmentSlot.HAND, item), e);
 					itemEvent.rightClick(item, e);
 				}
 			} else

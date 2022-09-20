@@ -10,14 +10,12 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
-import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlock;
 import steve6472.funnylib.blocks.CustomBlockData;
 import steve6472.funnylib.blocks.IBlockData;
 import steve6472.funnylib.blocks.events.BlockClickEvents;
 import steve6472.funnylib.blocks.events.BlockTick;
-import steve6472.funnylib.blocks.stateengine.State;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.json.codec.ann.Save;
@@ -220,7 +218,7 @@ public class CrucibleBlock extends CustomBlock implements IBlockData, BlockClick
 	}
 
 	@Override
-	public BlockData getVanillaState(State state)
+	public BlockData getVanillaState(BlockContext context)
 	{
 		return Material.BARRIER.createBlockData();
 	}

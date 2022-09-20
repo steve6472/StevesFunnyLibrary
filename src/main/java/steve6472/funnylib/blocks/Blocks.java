@@ -5,6 +5,7 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -45,7 +46,7 @@ public class Blocks implements Listener
 	public static final int DEFAULT_PLACE_FLAGS = CREATE_DATA;
 
 	public static final Map<String, CustomBlock> BLOCKS = new HashMap<>();
-	private static final NamespacedKey CUSTOM_BLOCKS_KEY = new NamespacedKey(FunnyLib.getPlugin(), "custom_blocks");
+	public static final NamespacedKey CUSTOM_BLOCKS_KEY = new NamespacedKey(FunnyLib.getPlugin(), "custom_blocks");
 	@Nullable
 	public static Chunk currentLoadingChunk = null;
 
@@ -96,14 +97,7 @@ public class Blocks implements Listener
 
 		for (Chunk chunk : toLoad)
 		{
-			currentLoadingChunk = chunk;
-			CustomChunk customChunk = new CustomChunk(chunk);
-			String custom_blocks = chunk
-				.getPersistentDataContainer()
-				.get(CUSTOM_BLOCKS_KEY, PersistentDataType.STRING);
-			customChunk.fromJson(new JSONObject(custom_blocks == null ? "{}" : custom_blocks));
-			CHUNK_MAP.put(chunk, customChunk);
-			currentLoadingChunk = null;
+			loadChunk(chunk);
 		}
 	}
 
@@ -244,11 +238,15 @@ public class Blocks implements Listener
 		}
 	}
 
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void setLastFace(PlayerInteractEvent e)
+	{
+		MetaUtil.setMeta(e.getPlayer(), "last_face", e.getBlockFace());
+	}
+
 	@EventHandler
 	public void click(PlayerInteractEvent e)
 	{
-		MetaUtil.setMeta(e.getPlayer(), "last_face", e.getBlockFace());
-
 		Block block = e.getClickedBlock();
 		if (block == null) return;
 
@@ -282,24 +280,33 @@ public class Blocks implements Listener
 	@EventHandler
 	public void loadChunk(ChunkLoadEvent e)
 	{
-		currentLoadingChunk = e.getChunk();
-		CustomChunk customChunk = new CustomChunk(e.getChunk());
-		String custom_blocks = e
-			.getChunk()
+		loadChunk(e.getChunk());
+	}
+
+	public static void loadChunk(Chunk chunk)
+	{
+		currentLoadingChunk = chunk;
+		CustomChunk customChunk = new CustomChunk(chunk);
+		String custom_blocks = chunk
 			.getPersistentDataContainer()
 			.get(CUSTOM_BLOCKS_KEY, PersistentDataType.STRING);
 		customChunk.fromJson(new JSONObject(custom_blocks == null ? "{}" : custom_blocks));
-		CHUNK_MAP.put(e.getChunk(), customChunk);
+		CHUNK_MAP.put(chunk, customChunk);
 		currentLoadingChunk = null;
 	}
 
 	@EventHandler
 	public void unloadChunk(ChunkUnloadEvent e)
 	{
-		CustomChunk customChunk = CHUNK_MAP.get(e.getChunk());
+		saveChunk(e.getChunk());
+	}
+
+	public static void saveChunk(Chunk chunk)
+	{
+		CustomChunk customChunk = CHUNK_MAP.get(chunk);
 		JSONObject json = new JSONObject();
 		customChunk.toJson(json);
-		e.getChunk().getPersistentDataContainer().set(CUSTOM_BLOCKS_KEY, PersistentDataType.STRING, json.toString());
+		chunk.getPersistentDataContainer().set(CUSTOM_BLOCKS_KEY, PersistentDataType.STRING, json.toString());
 	}
 
 	@EventHandler
@@ -392,6 +399,8 @@ public class Blocks implements Listener
 	public static State jsonToState(JSONObject json)
 	{
 		State defaultState = Blocks.getCustomBlockById(json.getString("id")).getDefaultState();
+		if (defaultState == null)
+			throw new RuntimeException("Block '" + json.getString("id") + "' returned null default state");
 		State state = defaultState;
 		if (state.getProperties() != null)
 		{

@@ -19,12 +19,13 @@ import steve6472.funnylib.util.ParticleUtil;
  */
 public class MarkerItem extends CustomItem implements ItemClickEvents, TickInHandEvent
 {
+	public static final String ID = "location_marker";
 	private static final Particle.DustOptions OPTIONS = new Particle.DustOptions(Color.WHITE, 0.75f);
 
 	@Override
 	public String id()
 	{
-		return "location_marker";
+		return ID;
 	}
 
 	@Override

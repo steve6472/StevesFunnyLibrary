@@ -44,6 +44,11 @@ public record PlayerBlockContext(PlayerContext playerContext, BlockFaceContext b
 		return getPlayer().getLocation();
 	}
 
+	public Chunk getPlayerChunk()
+	{
+		return playerContext.getPlayerChunk();
+	}
+
 	public boolean holdsCustomItem(CustomItem item)
 	{
 		return playerContext.holdsCustomItem(item);
@@ -106,5 +111,10 @@ public record PlayerBlockContext(PlayerContext playerContext, BlockFaceContext b
 	public <T extends CustomBlockData> T getBlockData(Class<T> expectedType)
 	{
 		return blockContext.getBlockData(expectedType);
+	}
+
+	public boolean testDataType(Class<? extends CustomBlockData> expectedType)
+	{
+		return blockContext.testDataType(expectedType);
 	}
 }

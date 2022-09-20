@@ -104,6 +104,8 @@ public class BlockContext
 	public boolean testDataType(Class<? extends CustomBlockData> expectedType)
 	{
 		CustomBlockData data = getBlockData();
+		if (data == null)
+			return false;
 		return data.getClass().isAssignableFrom(expectedType);
 	}
 }

@@ -11,6 +11,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.plugin.Plugin;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlock;
+import steve6472.funnylib.json.codec.codecs.MarkerCodec;
 import steve6472.standalone.exnulla.blocks.CrucibleBlock;
 import steve6472.standalone.exnulla.blocks.SilkLeavesBlock;
 import steve6472.funnylib.blocks.builtin.TeleportButtonBlock;
@@ -53,6 +54,7 @@ public class FunnyLib
 
 	public static void init(Plugin plugin, boolean builtInItems)
 	{
+		new MavenSux();
 //		if (FunnyLib.PLUGIN != null)
 //			throw new RuntimeException("Plugin %s tried to initialize FunnyLib again. This is not allowed!".formatted(plugin.getName()));
 
@@ -170,6 +172,7 @@ public class FunnyLib
 		Codec.registerCodec(new LocationCodec());
 		Codec.registerCodec(new ItemStackCodec());
 		Codec.registerCodec(new EntityCodec());
+		Codec.registerCodec(new MarkerCodec());
 
 		Blocks.registerBlock(TELEPORT_BUTTON_BLOCK = new TeleportButtonBlock());
 

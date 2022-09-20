@@ -6,8 +6,12 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlock;
+import steve6472.funnylib.blocks.CustomBlockData;
 import steve6472.funnylib.blocks.builtin.AdminInterface;
 import steve6472.funnylib.blocks.stateengine.State;
+import steve6472.funnylib.context.BlockFaceContext;
+import steve6472.funnylib.context.PlayerBlockContext;
+import steve6472.funnylib.context.PlayerContext;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.events.ItemClickEvents;
 import steve6472.funnylib.util.ItemStackBuilder;
@@ -40,8 +44,9 @@ public class AdminWrenchItem extends CustomItem implements ItemClickEvents
 		//noinspection rawtypes
 		if (object instanceof AdminInterface af)
 		{
+			CustomBlockData blockData = Blocks.getBlockData(clickedBlock.getLocation());
 			//noinspection unchecked
-			af.showInterface(Blocks.getBlockData(clickedBlock.getLocation()), e.getPlayer());
+			af.showInterface(blockData, new PlayerBlockContext(new PlayerContext(e.getPlayer()), new BlockFaceContext(clickedBlock.getLocation(), e.getBlockFace(), blockState, blockData)));
 		}
 	}
 

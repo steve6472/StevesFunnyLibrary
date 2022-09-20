@@ -135,7 +135,7 @@ public class CustomChunk
 		}
 		blocks.put(key, state);
 
-		BlockData vanillaState = cb.getVanillaState(state);
+		BlockData vanillaState = cb.getVanillaState(new BlockContext(location, state));
 		location.getBlock().setBlockData(vanillaState);
 
 		if (cb instanceof BlockTick)
