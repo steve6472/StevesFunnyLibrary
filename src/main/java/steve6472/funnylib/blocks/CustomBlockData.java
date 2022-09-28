@@ -1,6 +1,8 @@
 package steve6472.funnylib.blocks;
 
 import org.bukkit.World;
+import org.json.JSONObject;
+import steve6472.funnylib.context.BlockContext;
 
 /**
  * Created by steve6472
@@ -10,8 +12,8 @@ import org.bukkit.World;
 public abstract class CustomBlockData
 {
 	private CustomBlock block;
-	int x, y, z;
-	String worldName;
+	protected int x, y, z;
+	protected String worldName;
 
 	public CustomBlockData()
 	{
@@ -25,6 +27,11 @@ public abstract class CustomBlockData
 		this.y = y;
 		this.z = z;
 	}
+
+	public void onPlace(BlockContext context) {}
+	public void onRemove(BlockContext context) {}
+	public void save(JSONObject json) {}
+	public void load(JSONObject json) {}
 
 	public void setLogic(CustomBlock block)
 	{

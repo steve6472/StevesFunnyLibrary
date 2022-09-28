@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -113,10 +114,17 @@ public class CustomChunk
 			State existingState = blocks.get(key);
 			if (existingState != null)
 			{
-				((CustomBlock) existingState.getObject()).onRemove(new BlockContext(location, existingState));
+				CustomBlockData blockData = getBlockData(location);
+				BlockContext context = new BlockContext(location, existingState);
+				((CustomBlock) existingState.getObject()).onRemove(context);
+				if (blockData != null)
+				{
+					blockData.onRemove(context);
+				}
 				setBlockData(location, null);
 				blocks.remove(key);
 				ticking.rem(key);
+				location.getBlock().setType(Material.AIR);
 			}
 
 			return;
@@ -131,7 +139,15 @@ public class CustomChunk
 		State existingState = blocks.get(key);
 		if (existingState != null)
 		{
-			cb.onRemove(new BlockContext(location, existingState));
+			BlockContext context = new BlockContext(location, existingState);
+
+			CustomBlockData blockData = getBlockData(location);
+			if (blockData != null)
+			{
+				blockData.onRemove(context);
+			}
+
+			cb.onRemove(context);
 		}
 		blocks.put(key, state);
 
@@ -149,7 +165,9 @@ public class CustomChunk
 			blockData.setLogic(cb);
 			blockData.setLocation(bukkitChunk.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
 			setBlockData(location, blockData);
-			cb.onPlace(new BlockContext(location, state, blockData));
+			BlockContext context = new BlockContext(location, state, blockData);
+			blockData.onPlace(context);
+			cb.onPlace(context);
 		} else
 		{
 			cb.onPlace(new BlockContext(location, state));

@@ -11,7 +11,9 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.plugin.Plugin;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlock;
+import steve6472.funnylib.blocks.builtin.MultiBlock;
 import steve6472.funnylib.json.codec.codecs.MarkerCodec;
+import steve6472.funnylib.util.GlowingUtil;
 import steve6472.standalone.exnulla.blocks.CrucibleBlock;
 import steve6472.standalone.exnulla.blocks.SilkLeavesBlock;
 import steve6472.funnylib.blocks.builtin.TeleportButtonBlock;
@@ -61,6 +63,7 @@ public class FunnyLib
 		FunnyLib.PLUGIN = plugin;
 
 		Log.init(plugin);
+		GlowingUtil.init();
 
 		// TODO: remove
 		AnnotationCommand.registerCommands(MenuTest.class);
@@ -161,6 +164,7 @@ public class FunnyLib
 	 */
 
 	public static CustomBlock TELEPORT_BUTTON_BLOCK;
+	public static CustomBlock MULTI_BLOCK;
 
 	public static CustomItem LOCATION_MARKER;
 	public static CustomItem AREA_LOCATION_MARKER;
@@ -176,6 +180,7 @@ public class FunnyLib
 		Codec.registerCodec(new MarkerCodec());
 
 		Blocks.registerBlock(TELEPORT_BUTTON_BLOCK = new TeleportButtonBlock());
+		Blocks.registerBlock(MULTI_BLOCK = new MultiBlock());
 
 		Items.registerAdminItem(LOCATION_MARKER = new MarkerItem());
 		Items.registerAdminItem(AREA_LOCATION_MARKER = new AreaMarkerItem());

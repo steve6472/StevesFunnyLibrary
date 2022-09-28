@@ -6,6 +6,7 @@ import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
@@ -109,6 +110,11 @@ public class ParticleUtil
 		line(world, particle, x1, y0, z1, x1, y1, z1, particleSpeed, spacing);
 	}
 
+	public static void boxAbsolute(World world, Particle particle, BoundingBox box, double particleSpeed, double spacing)
+	{
+		boxAbsolute(world, particle, box.getMinX(), box.getMinY(), box.getMinZ(), box.getMaxX(), box.getMaxY(), box.getMaxZ(), particleSpeed, spacing);
+	}
+
 	public static void boxAbsolute(World world, Particle particle, double x0, double y0, double z0, double x1, double y1, double z1, double particleSpeed, double spacing)
 	{
 		// Bottom
@@ -182,6 +188,11 @@ public class ParticleUtil
 		line(player, particle, x1, y0, z0, x1, y1, z0, particleSpeed, spacing);
 		line(player, particle, x0, y0, z1, x0, y1, z1, particleSpeed, spacing);
 		line(player, particle, x1, y0, z1, x1, y1, z1, particleSpeed, spacing);
+	}
+
+	public static void boxAbsolute(Player player, Particle particle, BoundingBox box, double particleSpeed, double spacing)
+	{
+		boxAbsolute(player, particle, box.getMinX(), box.getMinY(), box.getMinZ(), box.getMaxX(), box.getMaxY(), box.getMaxZ(), particleSpeed, spacing);
 	}
 
 	public static void boxAbsolute(Player player, Particle particle, double x0, double y0, double z0, double x1, double y1, double z1, double particleSpeed, double spacing)
@@ -282,6 +293,11 @@ public class ParticleUtil
 		line(player, particle, x1, y0, z1, x1, y1, z1, particleSpeed, spacing, data);
 	}
 
+	public static <T> void boxAbsolute(Player player, Particle particle, BoundingBox box, double particleSpeed, double spacing, @Nullable T data)
+	{
+		boxAbsolute(player, particle, box.getMinX(), box.getMinY(), box.getMinZ(), box.getMaxX(), box.getMaxY(), box.getMaxZ(), particleSpeed, spacing, data);
+	}
+
 	public static <T> void boxAbsolute(Player player, Particle particle, double x0, double y0, double z0, double x1, double y1, double z1, double particleSpeed, double spacing, @Nullable T data)
 	{
 		// Bottom
@@ -301,6 +317,11 @@ public class ParticleUtil
 		line(player, particle, x1, y0, z0, x1, y1, z0, particleSpeed, spacing, data);
 		line(player, particle, x0, y0, z1, x0, y1, z1, particleSpeed, spacing, data);
 		line(player, particle, x1, y0, z1, x1, y1, z1, particleSpeed, spacing, data);
+	}
+
+	public static <T> void boxAbsolute(World world, Particle particle, BoundingBox box, double particleSpeed, double spacing, @Nullable T data)
+	{
+		boxAbsolute(world, particle, box.getMinX(), box.getMinY(), box.getMinZ(), box.getMaxX(), box.getMaxY(), box.getMaxZ(), particleSpeed, spacing, data);
 	}
 
 	public static <T> void boxAbsolute(World world, Particle particle, double x0, double y0, double z0, double x1, double y1, double z1, double particleSpeed, double spacing, @Nullable T data)

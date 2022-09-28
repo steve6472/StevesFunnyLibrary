@@ -3,6 +3,7 @@ package steve6472.funnylib;
 import org.json.JSONObject;
 import org.json.JSONString;
 import steve6472.funnylib.util.ParticleUtil;
+import steve6472.standalone.interactable.ReflectionHacker;
 
 /**
  * Created by steve6472
@@ -23,5 +24,6 @@ public class MavenSux
 			}
 		};
 		new ParticleUtil();
+		new ReflectionHacker();
 	}
 }

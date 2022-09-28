@@ -29,6 +29,7 @@ import steve6472.funnylib.context.PlayerContext;
 import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.events.ServerTickEvent;
 import steve6472.funnylib.json.codec.Codec;
+import steve6472.funnylib.util.Log;
 import steve6472.funnylib.util.MetaUtil;
 
 import java.lang.reflect.InvocationTargetException;
@@ -89,7 +90,15 @@ public class Blocks implements Listener
 						iterator.remove();
 					} else
 					{
-						((BlockTick) state.getObject()).tick(new BlockContext(new Location(world, CustomChunk.keyToX(key) + loadedChunk.getX() * 16, CustomChunk.keyToY(key), CustomChunk.keyToZ(key) + loadedChunk.getZ() * 16), state));
+						Location location = new Location(world, CustomChunk.keyToX(key) + loadedChunk.getX() * 16, CustomChunk.keyToY(key), CustomChunk.keyToZ(key) + loadedChunk.getZ() * 16);
+						try
+						{
+							((BlockTick) state.getObject()).tick(new BlockContext(location, state));
+						} catch (Exception ex)
+						{
+							Log.error("Error while ticking custom block at location " + location);
+							ex.printStackTrace();
+						}
 					}
 				}
 			}
@@ -350,6 +359,7 @@ public class Blocks implements Listener
 	{
 		CustomBlockData blockData = getBlockData(location);
 		if (blockData.getClass().isAssignableFrom(expectedType))
+			//noinspection unchecked
 			return (T) blockData;
 		throw new RuntimeException("Expected type " + expectedType.getName()+ ", got " + blockData.getClass().getName());
 	}
@@ -404,9 +414,11 @@ public class Blocks implements Listener
 		State state = defaultState;
 		if (state.getProperties() != null)
 		{
+			//noinspection rawtypes
 			for (IProperty iProperty : defaultState.getProperties().keySet())
 			{
 				String string = json.getString(iProperty.getName());
+				//noinspection unchecked
 				state = state.with(iProperty, iProperty.fromString(string));
 			}
 		}
@@ -415,6 +427,8 @@ public class Blocks implements Listener
 
 	public static JSONObject dataToJson(CustomBlockData data)
 	{
+//		Location location = new Location(Bukkit.getWorld(data.worldName), data.x, data.y, data.z);
+
 		JSONObject blockData = Codec.save(data);
 		JSONObject json = new JSONObject();
 		json.put("blockData", blockData);
@@ -424,6 +438,8 @@ public class Blocks implements Listener
 		json.put("x", data.x);
 		json.put("y", data.y);
 		json.put("z", data.z);
+		data.save(json);
+		data.load(json);
 		return json;
 	}
 
@@ -439,7 +455,10 @@ public class Blocks implements Listener
 
 			CustomBlock block = Blocks.getCustomBlockById(json.getString("blockId"));
 			blockData.setLogic(block);
+//			Location location = new Location(Bukkit.getWorld(json.getString("worldName")), json.getInt("x"), json.getInt("y"), json.getInt("z"));
+			//noinspection ConstantConditions
 			blockData.setLocation(Bukkit.getWorld(json.getString("worldName")), json.getInt("x"), json.getInt("y"), json.getInt("z"));
+			blockData.load(json);
 
 			return blockData;
 		} catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException |

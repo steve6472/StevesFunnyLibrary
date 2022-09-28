@@ -10,6 +10,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
+import steve6472.funnylib.util.MiscUtil;
 import steve6472.standalone.interactable.blocks.ElevatorControllerBlock;
 
 import java.util.HashMap;
@@ -147,6 +148,42 @@ public class MenuBuilder
 			c.slot().setItem(createToggleItem(current, label));
 			return Response.cancel();
 		}));
+		return this;
+	}
+
+	public MenuBuilder itemSlot(int x, int y, Function<ArbitraryData, ItemStack> get, BiConsumer<ArbitraryData, ItemStack> set)
+	{
+		return itemSlot(x, y, get, set, i -> true);
+	}
+
+	public MenuBuilder itemSlot(int x, int y, Function<ArbitraryData, ItemStack> get, BiConsumer<ArbitraryData, ItemStack> set, Predicate<ItemStack> predicate)
+	{
+		slot(
+			x,
+			y,
+			(builder) -> SlotBuilder.create(get.apply(builder.getArbitraryData()))
+				.allow(InventoryAction.PICKUP_ALL, InventoryAction.PLACE_ALL)
+				.allow(ClickType.LEFT)
+				.onClick((c, cm) -> {
+
+					if (c.itemOnCursor().getType().isAir())
+					{
+						set.accept(cm.getPassedData(), MiscUtil.AIR);
+						c.slot().setItem(MiscUtil.AIR);
+						return Response.cancel();
+					}
+
+					if (predicate.test(c.itemOnCursor()))
+					{
+						set.accept(cm.getPassedData(), c.itemOnCursor().clone());
+						ItemStack clone = c.itemOnCursor().clone();
+						c.slot().setItem(clone);
+					}
+
+					return Response.cancel();
+				})
+
+		);
 		return this;
 	}
 

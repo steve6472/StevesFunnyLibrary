@@ -94,11 +94,11 @@ public class BlockContext
 	{
 		CustomBlockData data = getBlockData();
 
-		if (data.getClass().isAssignableFrom(expectedType))
+		if (data != null && data.getClass().isAssignableFrom(expectedType))
 			//noinspection unchecked
 			return (T) data;
 
-		throw new RuntimeException("Expected type " + expectedType.getName() + ", got " + data.getClass().getName());
+		throw new RuntimeException("Expected type " + expectedType.getName() + ", got " + (data == null ? "null" : data.getClass().getName()));
 	}
 
 	public boolean testDataType(Class<? extends CustomBlockData> expectedType)

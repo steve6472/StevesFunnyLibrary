@@ -51,7 +51,6 @@ public class StructureItem extends CustomItem implements ItemClickEvents, TickIn
 		int x1 = edit.getCustomTagInt("x1");
 		int y1 = edit.getCustomTagInt("y1");
 		int z1 = edit.getCustomTagInt("z1");
-		int c = 0;
 
 		for (int i = x0; i <= x1; i++)
 		{
@@ -66,7 +65,6 @@ public class StructureItem extends CustomItem implements ItemClickEvents, TickIn
 					js.put("z", k - z0);
 					js.put("b", blockAt.getBlockData().getAsString());
 					blocks.put(js);
-					c++;
 				}
 			}
 		}
@@ -160,11 +158,32 @@ public class StructureItem extends CustomItem implements ItemClickEvents, TickIn
 		}
 	}
 
-	public record BlockThing(BlockData data, Vector position) {}
+	public record BlockInfo(BlockData data, Vector position) {}
 
-	public static List<BlockThing> toBlocks(ItemStack item)
+	public static Vector getSize(ItemStack item)
 	{
-		ArrayList<BlockThing> list = new ArrayList<>();
+		if (Items.getCustomItemId(item) == null)
+		{
+			return new Vector();
+		}
+
+		ItemStackBuilder edit = ItemStackBuilder.edit(item);
+
+		String s = edit.getCustomTagString("blocks");
+		if (s == null)
+		{
+			return new Vector();
+		}
+		int lx = edit.getCustomTagInt("lx");
+		int ly = edit.getCustomTagInt("ly");
+		int lz = edit.getCustomTagInt("lz");
+
+		return new Vector(lx, ly, lz);
+	}
+
+	public static List<BlockInfo> toBlocks(ItemStack item)
+	{
+		ArrayList<BlockInfo> list = new ArrayList<>();
 		if (Items.getCustomItemId(item) == null)
 		{
 			return list;
@@ -196,7 +215,7 @@ public class StructureItem extends CustomItem implements ItemClickEvents, TickIn
 		{
 			JSONObject js = blocks.getJSONObject(i);
 			BlockData blockData = Bukkit.createBlockData(js.getString("b"));
-			BlockThing blockThing = new BlockThing(blockData, new Vector(js.getInt("x"), js.getInt("y"), js.getInt("z")));
+			BlockInfo blockThing = new BlockInfo(blockData, new Vector(js.getInt("x"), js.getInt("y"), js.getInt("z")));
 			list.add(blockThing);
 		}
 
