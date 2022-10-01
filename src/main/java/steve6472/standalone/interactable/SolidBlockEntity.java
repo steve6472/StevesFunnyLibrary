@@ -163,6 +163,9 @@ public class SolidBlockEntity
 
 	public void move(Location to)
 	{
+		if (entities.isEmpty())
+			return;
+
 		Location reference = entities.get(0).getLocation();
 
 		for (ArmorStand entity : entities)

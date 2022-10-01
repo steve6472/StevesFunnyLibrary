@@ -1,5 +1,6 @@
 package steve6472.standalone.interactable.blocks;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.ArmorStand;
@@ -7,7 +8,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.blocks.CustomBlockData;
+import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.item.builtin.StructureItem;
 import steve6472.funnylib.json.codec.ann.Save;
@@ -39,7 +42,7 @@ public class ElevatorControllerData extends CustomBlockData
 	public double speed = 1d, progress;
 
 	@SaveBool
-	public boolean showPoints, dirChange, enabled;
+	public boolean showPoints, dirChange, enabled, seatActivator = true;
 
 	@SaveInt
 	public int movingDirection; // 0 - none, 1 - to point A, 2 - to point B
@@ -100,6 +103,50 @@ public class ElevatorControllerData extends CustomBlockData
 		}
 	}
 
+	public void solidify()
+	{
+		if (sbe == null) return;
+		Bukkit.getScheduler().runTaskLater(FunnyLib.getPlugin(), () ->
+		{
+			sbe.destroy(0);
+			sbe = null;
+		}, 7);
+
+		JSONObject json = new JSONObject(ItemStackBuilder.edit(elevatorData).getCustomTagString("data"));
+		Bukkit.getScheduler().runTaskLater(FunnyLib.getPlugin(), () ->
+		{
+			JSONObject structure = json.getJSONObject("structure");
+			JSONArray blocks = structure.getJSONObject("blocks").getJSONArray("blocks");
+			List<StructureItem.BlockInfo> blockInfo = StructureItem.jsonToBlocks(new ArrayList<>(blocks.length()), blocks);
+
+			Location loc = pos.clone();
+			loc.setX((progress == 0 ? pointA : pointB).getX());
+			loc.setY((progress == 0 ? pointA : pointB).getY());
+			loc.setZ((progress == 0 ? pointA : pointB).getZ());
+
+			for (StructureItem.BlockInfo info : blockInfo)
+			{
+				loc.clone().add(info.position()).getBlock().setBlockData(info.data());
+			}
+		}, 5);
+	}
+
+	public void activate(PlayerBlockContext context, int dir)
+	{
+		movingDirection = dir;
+
+		if (enabled && sbe == null)
+		{
+			Vector position = getPosition();
+			createModel(new Location(pos.getWorld(), position.getX(), position.getY(), position.getZ()));
+		}
+
+		if (seatActivator && enabled && sbe != null && (movingDirection == 0 || dirChange))
+		{
+			sbe.sit(0, context.getPlayer());
+		}
+	}
+
 	public Vector getPosition()
 	{
 		double x = lerp(pointA.getX(), pointB.getX(), progress);
@@ -122,11 +169,6 @@ public class ElevatorControllerData extends CustomBlockData
 	@Override
 	public void load(JSONObject json)
 	{
-		if (enabled)
-		{
-			Vector position = getPosition();
-			createModel(new Location(pos.getWorld(), position.getX(), position.getY(), position.getZ()));
-		}
 	}
 
 	@Override
@@ -137,6 +179,7 @@ public class ElevatorControllerData extends CustomBlockData
 			if (sbe != null)
 			{
 				sbe.destroy(0);
+				sbe = null;
 			}
 		}
 	}

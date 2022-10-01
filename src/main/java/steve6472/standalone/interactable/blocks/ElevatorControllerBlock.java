@@ -89,7 +89,7 @@ public class ElevatorControllerBlock extends CustomBlock implements IBlockData, 
 			{
 				data.progress = 0;
 				data.movingDirection = 0;
-				data.updatePosition();
+				data.solidify();
 			}
 		} else if (data.movingDirection == 2)
 		{
@@ -98,7 +98,7 @@ public class ElevatorControllerBlock extends CustomBlock implements IBlockData, 
 			{
 				data.progress = 1;
 				data.movingDirection = 0;
-				data.updatePosition();
+				data.solidify();
 			}
 		}
 //
@@ -163,15 +163,10 @@ public class ElevatorControllerBlock extends CustomBlock implements IBlockData, 
 
 		if (data.progress == 1.0)
 		{
-			data.movingDirection = 1;
+			data.activate(context, 1);
 		} else if (data.progress == 0.0)
 		{
-			data.movingDirection = 2;
-		}
-
-		if (data.enabled && data.sbe != null && (data.movingDirection == 0 || data.dirChange))
-		{
-			data.sbe.sit(0, context.getPlayer());
+			data.activate(context, 2);
 		}
 	}
 
@@ -213,18 +208,7 @@ public class ElevatorControllerBlock extends CustomBlock implements IBlockData, 
 		.itemSlot(1, 2, d -> d.getData("data", ElevatorControllerData.class).elevatorData, (d, b) -> d.getData("data", ElevatorControllerData.class).elevatorData = b, is -> Items.getCustomItem(is) == Interactable.ELEVATOR_DATA_ITEM)
 		.toggleSlot(8, 0, "Show Points", d -> d.getData("data", ElevatorControllerData.class).showPoints, (d, b) -> d.getData("data", ElevatorControllerData.class).showPoints = b)
 		.toggleSlot(7, 0, "Allow changing direction when moving", d -> d.getData("data", ElevatorControllerData.class).dirChange, (d, b) -> d.getData("data", ElevatorControllerData.class).dirChange = b)
-		.toggleSlot(3, 2, "Enabled", d -> d.getData("data", ElevatorControllerData.class).enabled, (d, b) ->
-		{
-			ElevatorControllerData data = d.getData("data", ElevatorControllerData.class);
-			data.enabled = b;
-			if (b)
-			{
-				Location location = d.getData("location", Location.class);
-				data.createModel(new Location(location.getWorld(), data.pointA.getX(), data.pointA.getY(), data.pointA.getZ()));
-			} else
-			{
-				data.sbe.destroy(0);
-			}
-		})
+		.toggleSlot(6, 0, "Seat Activator", d -> d.getData("data", ElevatorControllerData.class).seatActivator, (d, b) -> d.getData("data", ElevatorControllerData.class).seatActivator = b)
+		.toggleSlot(3, 2, "Enabled", d -> d.getData("data", ElevatorControllerData.class).enabled, (d, b) -> d.getData("data", ElevatorControllerData.class).enabled = b)
 		.applyMask(mask);
 }
