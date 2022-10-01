@@ -19,6 +19,7 @@ import steve6472.funnylib.blocks.stateengine.State;
 import steve6472.funnylib.blocks.stateengine.properties.EnumProperty;
 import steve6472.funnylib.blocks.stateengine.properties.IProperty;
 import steve6472.funnylib.context.BlockContext;
+import steve6472.funnylib.context.BlockFaceContext;
 import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.json.codec.ann.Save;
 import steve6472.funnylib.json.codec.ann.SaveString;
@@ -126,7 +127,9 @@ public class ActivatingButtonBlock extends CustomBlock implements IBlockData, Bl
 			return;
 		}
 		if (blockState.getObject() instanceof Activable activable)
-			activable.activate(new BlockContext(location, blockState));
+		{
+			activable.activate(new PlayerBlockContext(context.playerContext(), new BlockFaceContext(location, BlockFace.SELF, blockState)));
+		}
 	}
 
 	/*

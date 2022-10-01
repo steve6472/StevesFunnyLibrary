@@ -136,7 +136,7 @@ public class WorldButtonListener implements Listener
 				for (Iterator<WorldButton> iter = entry.getValue().iterator(); iter.hasNext(); )
 				{
 					WorldButton worldButton = iter.next();
-					if (worldButton.hitbox.isDead())
+					if (worldButton.hitbox.isDead() || !NumberConversions.isFinite(worldButton.hitbox.getLocation().getX()))
 					{
 						iter.remove();
 						continue;

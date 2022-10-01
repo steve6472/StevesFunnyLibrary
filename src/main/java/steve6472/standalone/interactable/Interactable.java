@@ -41,7 +41,7 @@ public class Interactable
 
 		Items.registerAdminItem(ELEVATOR_CONTROLLER_ITEM = new BlockPlacerItem(ELEVATOR_CONTROLLER_BLOCK, "elevator_controller", Material.REPEATING_COMMAND_BLOCK, "Elevator Controller", 0));
 		Items.registerAdminItem(ACTIVATING_BUTTON_ITEM = new BlockPlacerItem(ACTIVATING_BUTTON_BLOCK, "activating_button", Material.WARPED_BUTTON, "Activating Button", 0));
-		Items.registerAdminItem(ELEVATOR_EDITOR_ITEM = new MultiBlockPlacerItem(ELEVATOR_EDITOR_BLOCK, "elevator_editor", Material.CHAIN_COMMAND_BLOCK, "Elevator Editor", 0));
+		Items.registerAdminItem(ELEVATOR_EDITOR_ITEM = new BlockPlacerItem(ELEVATOR_EDITOR_BLOCK, "elevator_editor", Material.CHAIN_COMMAND_BLOCK, "Elevator Editor", 0));
 		Items.registerAdminItem(ELEVATOR_DATA_ITEM = new GenericItem("elevator_data", Material.ENCHANTED_BOOK, "Elevator Data", 0));
 	}
 }

@@ -87,6 +87,17 @@ public class ElevatorControllerData extends CustomBlockData
 
 			sbe.addCustomCollision(origin, x, y, z);
 		}
+
+		JSONArray seats = json.getJSONArray("seats");
+		for (int i = 0; i < seats.length(); i++)
+		{
+			JSONObject seat = seats.getJSONObject(i);
+			double x = seat.getDouble("x");
+			double y = seat.getDouble("y");
+			double z = seat.getDouble("z");
+
+			sbe.addSeat(origin, x, y, z);
+		}
 	}
 
 	public Vector getPosition()

@@ -174,6 +174,16 @@ public class SolidBlockEntity
 
 			ReflectionHacker.callEntityMoveTo(entity, x, y, z, loc.getYaw(), loc.getPitch());
 		}
+
+		for (Entity seat : seats)
+		{
+			Location loc = seat.getLocation();
+			double x = loc.getX() - reference.getX() + to.getX();
+			double y = loc.getY() - reference.getY() + to.getY();
+			double z = loc.getZ() - reference.getZ() + to.getZ();
+
+			ReflectionHacker.callEntityMoveTo(seat, x, y, z, seat.getLocation().getYaw(), seat.getLocation().getPitch());
+		}
 	}
 
 	public void moveOffset(double x, double y, double z)

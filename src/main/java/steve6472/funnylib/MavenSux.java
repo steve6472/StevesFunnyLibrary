@@ -2,6 +2,7 @@ package steve6472.funnylib;
 
 import org.json.JSONObject;
 import org.json.JSONString;
+import steve6472.funnylib.util.Checks;
 import steve6472.funnylib.util.ParticleUtil;
 import steve6472.standalone.interactable.ReflectionHacker;
 
@@ -15,6 +16,7 @@ public class MavenSux
 	public MavenSux()
 	{
 		new JSONObject();
+		new Checks();
 		new JSONString()
 		{
 			@Override

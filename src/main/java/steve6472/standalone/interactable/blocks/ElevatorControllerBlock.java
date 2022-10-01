@@ -7,7 +7,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.util.Vector;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.blocks.CustomBlock;
 import steve6472.funnylib.blocks.CustomBlockData;
@@ -141,7 +140,7 @@ public class ElevatorControllerBlock extends CustomBlock implements IBlockData, 
 	}
 
 	@Override
-	public void activate(BlockContext context)
+	public void activate(PlayerBlockContext context)
 	{
 		ElevatorControllerData data = context.getBlockData(ElevatorControllerData.class);
 		if (data.dirChange)
@@ -168,6 +167,11 @@ public class ElevatorControllerBlock extends CustomBlock implements IBlockData, 
 		} else if (data.progress == 0.0)
 		{
 			data.movingDirection = 2;
+		}
+
+		if (data.enabled && data.sbe != null && (data.movingDirection == 0 || data.dirChange))
+		{
+			data.sbe.sit(0, context.getPlayer());
 		}
 	}
 

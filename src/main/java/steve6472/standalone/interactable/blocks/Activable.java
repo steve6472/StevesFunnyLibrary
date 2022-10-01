@@ -1,6 +1,6 @@
 package steve6472.standalone.interactable.blocks;
 
-import steve6472.funnylib.context.BlockContext;
+import steve6472.funnylib.context.PlayerBlockContext;
 
 /**
  * Created by steve6472
@@ -9,5 +9,5 @@ import steve6472.funnylib.context.BlockContext;
  */
 public interface Activable
 {
-	void activate(BlockContext context);
+	void activate(PlayerBlockContext context);
 }

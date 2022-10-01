@@ -53,7 +53,8 @@ public class WorldButton
 		if (world == null)
 			throw new NullPointerException("World is null!");
 
-		icon = world.spawn(location.clone().add(0, -1.7 + ((size - 1) * 0.255), 0), ArmorStand.class, e -> {
+		icon = world.spawn(location.clone().add(0, -1.7 + ((size - 1) * 0.255), 0), ArmorStand.class, e ->
+		{
 			e.setGravity(false);
 			e.setMarker(true);
 			e.setInvisible(true);
@@ -80,7 +81,8 @@ public class WorldButton
 			});
 		}
 
-		hitbox = world.spawn(location.clone().add(0, -size * 0.255, 0), Slime.class, e -> {
+		hitbox = world.spawn(location.clone().add(0, -size * 0.255, 0), Slime.class, e ->
+		{
 			e.setSize(size);
 			e.setInvisible(true);
 			e.setGravity(false);
@@ -115,6 +117,12 @@ public class WorldButton
 		{
 			GlowingUtil.setGlowColor(icon, disbledColor);
 		}
+	}
+
+	public void setIcon(ItemStack item)
+	{
+		assert icon.getEquipment() != null;
+		icon.getEquipment().setHelmet(item);
 	}
 
 	public void activate()

@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.blocks.events.BlockTick;
 import steve6472.funnylib.blocks.stateengine.State;
+import steve6472.funnylib.util.Log;
 
 import static steve6472.funnylib.blocks.Blocks.CREATE_DATA;
 
@@ -90,8 +91,15 @@ public class CustomChunk
 		blockData.forEach((key, datum) -> {
 			JSONObject locObj = new JSONObject();
 			locObj.put("locKey", key);
-			locObj.put("data", Blocks.dataToJson(datum, unloading));
-			data.put(locObj);
+			try
+			{
+				locObj.put("data", Blocks.dataToJson(datum, unloading));
+				data.put(locObj);
+			} catch (Exception ex)
+			{
+				Log.error("Exception thrown when saving data of " + datum.getBlock().id() + " at " + keyToX(key) + "/" + keyToY(key) + "/" + keyToZ(key));
+				ex.printStackTrace();
+			}
 		});
 		json.put("states", states);
 		json.put("data", data);

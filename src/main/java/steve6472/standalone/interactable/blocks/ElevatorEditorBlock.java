@@ -13,7 +13,6 @@ import steve6472.funnylib.blocks.CustomBlock;
 import steve6472.funnylib.blocks.CustomBlockData;
 import steve6472.funnylib.blocks.IBlockData;
 import steve6472.funnylib.blocks.builtin.AdminInterface;
-import steve6472.funnylib.blocks.builtin.IMultiBlock;
 import steve6472.funnylib.blocks.events.BlockTick;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.PlayerBlockContext;
@@ -33,7 +32,7 @@ import steve6472.funnylib.util.ParticleUtil;
  * Date: 9/20/2022
  * Project: StevesFunnyLibrary <br>
  */
-public class ElevatorEditorBlock extends CustomBlock implements IBlockData, AdminInterface<ElevatorEditorData>, IMultiBlock, BlockTick
+public class ElevatorEditorBlock extends CustomBlock implements IBlockData, AdminInterface<ElevatorEditorData>, BlockTick
 {
 	private static final Particle.DustOptions OPTIONS = new Particle.DustOptions(Color.AQUA, 1f);
 
@@ -64,12 +63,6 @@ public class ElevatorEditorBlock extends CustomBlock implements IBlockData, Admi
 	}
 
 	@Override
-	public Vector multiblockSize()
-	{
-		return new Vector(6, 1, 1);
-	}
-
-	@Override
 	public void tick(BlockContext context)
 	{
 		ElevatorEditorData blockData = context.getBlockData(ElevatorEditorData.class);
@@ -95,19 +88,23 @@ public class ElevatorEditorBlock extends CustomBlock implements IBlockData, Admi
 		{
 			if (player.getLocation().distance(context.getLocation()) < 16)
 			{
-				JSONMessage.create("Offset: ")
-					.then("X: ").color(ChatColor.RED).then("" + blockData.offsetX).color(ChatColor.RED)
-					.then(" Y: ").color(ChatColor.GREEN).then("" + blockData.offsetY).color(ChatColor.GREEN)
-					.then(" Z: ").color(ChatColor.BLUE).then("" + blockData.offsetZ).color(ChatColor.BLUE)
-					.actionbar(player);
+				if (blockData.collisionsMode)
+				{
+					JSONMessage.create("Collision Offset: ")
+						.then("X: ").color(ChatColor.RED).then("" + blockData.editingCollision.offsetX).color(ChatColor.DARK_RED)
+						.then(" Y: ").color(ChatColor.GREEN).then("" + blockData.editingCollision.offsetY).color(ChatColor.DARK_GREEN)
+						.then(" Z: ").color(ChatColor.BLUE).then("" + blockData.editingCollision.offsetZ).color(ChatColor.DARK_BLUE)
+						.actionbar(player);
+				} else
+				{
+					JSONMessage.create("Seat Offset: ")
+						.then("X: ").color(ChatColor.RED).then("" + blockData.editingSeat.offsetX).color(ChatColor.DARK_RED)
+						.then(" Y: ").color(ChatColor.GREEN).then("" + blockData.editingSeat.offsetY).color(ChatColor.DARK_GREEN)
+						.then(" Z: ").color(ChatColor.BLUE).then("" + blockData.editingSeat.offsetZ).color(ChatColor.DARK_BLUE)
+						.actionbar(player);
+				}
 			}
 		}
-	}
-
-	@Override
-	public void onRemove(BlockContext context)
-	{
-		breakMultiblock(context);
 	}
 
 	private static final Mask mask = Mask.createMask()
