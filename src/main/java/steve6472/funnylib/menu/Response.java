@@ -1,5 +1,7 @@
 package steve6472.funnylib.menu;
 
+import org.bukkit.inventory.ItemStack;
+
 /**
  * Created by steve6472
  * Date: 9/11/2022
@@ -12,6 +14,7 @@ public class Response
 	private static final Response EXIT = new Response();
 	private static final Response CLEAR_ITEM_FROM_CURSOR = new Response();
 
+	private ItemStack setItemToCursor;
 	private MenuBuilder redirect;
 	private ArbitraryData redirectData;
 
@@ -50,6 +53,13 @@ public class Response
 		return response;
 	}
 
+	public static Response setItemToCursor(ItemStack itemStack)
+	{
+		Response response = new Response();
+		response.setItemToCursor = itemStack;
+		return response;
+	}
+
 	/*
 	 * Getters
 	 */
@@ -62,5 +72,10 @@ public class Response
 	public ArbitraryData getRedirectData()
 	{
 		return redirectData;
+	}
+
+	public ItemStack getSetItemToCursor()
+	{
+		return setItemToCursor;
 	}
 }

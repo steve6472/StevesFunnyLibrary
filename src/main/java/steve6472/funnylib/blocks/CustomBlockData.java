@@ -1,6 +1,6 @@
 package steve6472.funnylib.blocks;
 
-import org.bukkit.World;
+import org.bukkit.Location;
 import org.json.JSONObject;
 import steve6472.funnylib.context.BlockContext;
 
@@ -12,25 +12,21 @@ import steve6472.funnylib.context.BlockContext;
 public abstract class CustomBlockData
 {
 	private CustomBlock block;
-	protected int x, y, z;
-	protected String worldName;
+	protected Location pos;
 
 	public CustomBlockData()
 	{
 
 	}
 
-	public final void setLocation(World world, int x, int y, int z)
+	public final void setPos(Location pos)
 	{
-		this.worldName = world.getName();
-		this.x = x;
-		this.y = y;
-		this.z = z;
+		this.pos = pos;
 	}
 
 	public void onPlace(BlockContext context) {}
 	public void onRemove(BlockContext context) {}
-	public void save(JSONObject json) {}
+	public void save(JSONObject json, boolean unloading) {}
 	public void load(JSONObject json) {}
 
 	public void setLogic(CustomBlock block)

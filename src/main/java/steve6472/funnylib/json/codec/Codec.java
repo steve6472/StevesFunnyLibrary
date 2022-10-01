@@ -1,5 +1,6 @@
 package steve6472.funnylib.json.codec;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import steve6472.funnylib.json.codec.ann.*;
 import steve6472.funnylib.json.codec.codecs.ObjectCodec;
@@ -83,6 +84,12 @@ public abstract class Codec<T>
 			{
 				json.put(declaredField.getName(), declaredField.get(object));
 			}
+			else if (declaredField.isAnnotationPresent(SaveDoubleArr.class))
+			{
+				double[] arr = (double[]) declaredField.get(object);
+				JSONArray jarr = new JSONArray(arr);
+				json.put(declaredField.getName(), jarr);
+			}
 			else if (declaredField.isAnnotationPresent(Save.class))
 			{
 				Save annotation = declaredField.getAnnotation(Save.class);
@@ -129,6 +136,16 @@ public abstract class Codec<T>
 			{
 				declaredField.set(object, json.optString(declaredField.getName(), declaredField.getAnnotation(SaveString.class).defVal()));
 			}
+			else if (declaredField.isAnnotationPresent(SaveDoubleArr.class))
+			{
+				JSONArray objects = json.optJSONArray(declaredField.getName());
+				double[] arr = new double[objects.length()];
+				for (int i = 0; i < objects.length(); i++)
+				{
+					arr[i] = objects.getDouble(i);
+				}
+				declaredField.set(object, arr);
+			}
 			else if (declaredField.isAnnotationPresent(Save.class))
 			{
 				Save annotation = declaredField.getAnnotation(Save.class);
@@ -137,8 +154,15 @@ public abstract class Codec<T>
 					Codec<?> codec = Codec.CODECS.get(annotation.type());
 					if (codec == null)
 						throw new RuntimeException("Codec for type " + annotation.type() + " not found!");
-					Object o = codec.fromJson(json.getJSONObject(declaredField.getName()));
-					declaredField.set(object, o);
+					JSONObject jsonData = json.optJSONObject(declaredField.getName(), null);
+					if (jsonData == null)
+					{
+						declaredField.set(object, null);
+					} else
+					{
+						Object o = codec.fromJson(jsonData);
+						declaredField.set(object, o);
+					}
 				} else
 				{
 					if (json.has(declaredField.getName()))

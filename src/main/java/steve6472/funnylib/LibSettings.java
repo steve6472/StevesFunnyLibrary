@@ -1,0 +1,11 @@
+package steve6472.funnylib;
+
+/**
+ * Created by steve6472
+ * Date: 9/30/2022
+ * Project: StevesFunnyLibrary <br>
+ */
+public class LibSettings
+{
+
+}

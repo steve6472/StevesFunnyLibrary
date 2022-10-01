@@ -108,6 +108,13 @@ public class MenuListener implements Listener
 			return;
 		}
 
+		if (response.getSetItemToCursor() != null)
+		{
+			e.setCursor(response.getSetItemToCursor().clone());
+			e.setCancelled(true);
+			return;
+		}
+
 		if (response == Response.clearItemFromCursor())
 		{
 			e.setCursor(MiscUtil.AIR);

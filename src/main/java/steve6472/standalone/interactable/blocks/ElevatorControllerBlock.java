@@ -17,23 +17,20 @@ import steve6472.funnylib.blocks.events.BlockClickEvents;
 import steve6472.funnylib.blocks.events.BlockTick;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.PlayerBlockContext;
-import steve6472.funnylib.json.codec.ann.Save;
-import steve6472.funnylib.json.codec.ann.SaveBool;
-import steve6472.funnylib.json.codec.ann.SaveDouble;
-import steve6472.funnylib.json.codec.ann.SaveInt;
-import steve6472.funnylib.json.codec.codecs.EntityCodec;
+import steve6472.funnylib.item.Items;
 import steve6472.funnylib.json.codec.codecs.MarkerCodec;
 import steve6472.funnylib.menu.Mask;
 import steve6472.funnylib.menu.MenuBuilder;
 import steve6472.funnylib.menu.SlotBuilder;
 import steve6472.funnylib.util.*;
+import steve6472.standalone.interactable.Interactable;
 
 /**
  * Created by steve6472
  * Date: 9/20/2022
  * Project: StevesFunnyLibrary <br>
  */
-public class ElevatorControllerBlock extends CustomBlock implements IBlockData, BlockTick, BlockClickEvents, AdminInterface<ElevatorControllerBlock.ElevatorControllerData>, Activable
+public class ElevatorControllerBlock extends CustomBlock implements IBlockData, BlockTick, BlockClickEvents, AdminInterface<ElevatorControllerData>, Activable
 {
 	@Override
 	public String id()
@@ -76,6 +73,16 @@ public class ElevatorControllerBlock extends CustomBlock implements IBlockData, 
 			return;
 		}
 
+		if (data.sbe != null && FunnyLib.getUptimeTicks() % 41 == 0)
+		{
+			data.sbe.update();
+		}
+
+		if (data.enabled && data.movingDirection != 0)
+		{
+			data.updatePosition();
+		}
+
 		if (data.movingDirection == 1)
 		{
 			data.progress -= data.speed * (1.0 / data.pointA.distance(data.pointB) / 20.0);
@@ -83,6 +90,7 @@ public class ElevatorControllerBlock extends CustomBlock implements IBlockData, 
 			{
 				data.progress = 0;
 				data.movingDirection = 0;
+				data.updatePosition();
 			}
 		} else if (data.movingDirection == 2)
 		{
@@ -91,13 +99,14 @@ public class ElevatorControllerBlock extends CustomBlock implements IBlockData, 
 			{
 				data.progress = 1;
 				data.movingDirection = 0;
+				data.updatePosition();
 			}
 		}
-
-		double x = lerp(data.pointA.getX(), data.pointB.getX(), data.progress);
-		double y = lerp(data.pointA.getY(), data.pointB.getY(), data.progress);
-		double z = lerp(data.pointA.getZ(), data.pointB.getZ(), data.progress);
-		context.getWorld().spawnParticle(Particle.END_ROD, x + 0.5, y + 0.5, z + 0.5, 0);
+//
+//		double x = lerp(data.pointA.getX(), data.pointB.getX(), data.progress);
+//		double y = lerp(data.pointA.getY(), data.pointB.getY(), data.progress);
+//		double z = lerp(data.pointA.getZ(), data.pointB.getZ(), data.progress);
+//		context.getWorld().spawnParticle(Particle.END_ROD, x + 0.5, y + 0.5, z + 0.5, 0);
 	}
 
 	private static double lerp(double a, double b, double percentage)
@@ -162,56 +171,56 @@ public class ElevatorControllerBlock extends CustomBlock implements IBlockData, 
 		}
 	}
 
-	public static class ElevatorControllerData extends CustomBlockData
-	{
-		@Save(type = MarkerCodec.class)
-		public Vector pointA, pointB;
-
-		@SaveDouble
-		public double speed = 1d, progress;
-
-		@SaveBool
-		public boolean showPoints, dirChange;
-
-		@SaveInt
-		public int movingDirection; // 0 - none, 1 - to point A, 2 - to point B
-
-		@Save(type = EntityCodec.class)
-		ArmorStand dataLabel;
-	}
-
 	@Override
 	public void showInterface(ElevatorControllerData data, PlayerBlockContext context)
 	{
 		MENU.setData("data", data);
+		MENU.setData("location", context.getBlockLocation());
 		MENU.build().showToPlayers(context.getPlayer());
 	}
 
 	private static final Mask mask = Mask.createMask()
-		.addRow("PPPaaaa..")
-		.addRow("P.Paaaaaa")
-		.addRow("aaaaa...a")
-		.addRow("O.Oaaaaaa")
+		.addRow("P.Paaaa..")
+		.addRow("PPPaaaaaa")
+		.addRow("G.Gaaaaaa")
 		.addRow("OOOaaaaaa")
+		.addRow("O.Oaaa...")
 		.addItem('V', SlotBuilder.create(ItemStackBuilder.quick(Material.LIME_STAINED_GLASS_PANE, "")))
 		.addItem('P', SlotBuilder.create(ItemStackBuilder.quick(Material.PINK_STAINED_GLASS_PANE, "")))
 		.addItem('O', SlotBuilder.create(ItemStackBuilder.quick(Material.ORANGE_STAINED_GLASS_PANE, "")))
+		.addItem('G', SlotBuilder.create(ItemStackBuilder.quick(Material.LIME_STAINED_GLASS_PANE, "")))
 		.addItem('a', SlotBuilder.create(ItemStackBuilder.quick(Material.LIGHT_GRAY_STAINED_GLASS_PANE, "")));
 
 	private static final MenuBuilder MENU = MenuBuilder
 		.create(5, "Elevator Controller")
 		.allowPlayerInventory()
-		.slot(1, 1, m ->
+		.slot(1, 0, m ->
 		{
 			ElevatorControllerData data = m.getData("data", ElevatorControllerData.class);
 			return MarkerCodec.slotBuilder(data.pointA, v -> data.pointA = v);
 		})
-		.slot(1, 3, m ->
+		.slot(1, 4, m ->
 		{
 			ElevatorControllerData data = m.getData("data", ElevatorControllerData.class);
 			return MarkerCodec.slotBuilder(data.pointB, v -> data.pointB = v);
 		})
+		.buttonSlot(6, 4, Material.ARROW, "Reduce speed", (c, cm) -> cm.getPassedData().getData("data", ElevatorControllerData.class).speed -= 0.05)
+		.buttonSlot(8, 4, Material.ARROW, "Add speed", (c, cm) -> cm.getPassedData().getData("data", ElevatorControllerData.class).speed += 0.05)
+		.itemSlot(1, 2, d -> d.getData("data", ElevatorControllerData.class).elevatorData, (d, b) -> d.getData("data", ElevatorControllerData.class).elevatorData = b, is -> Items.getCustomItem(is) == Interactable.ELEVATOR_DATA_ITEM)
 		.toggleSlot(8, 0, "Show Points", d -> d.getData("data", ElevatorControllerData.class).showPoints, (d, b) -> d.getData("data", ElevatorControllerData.class).showPoints = b)
 		.toggleSlot(7, 0, "Allow changing direction when moving", d -> d.getData("data", ElevatorControllerData.class).dirChange, (d, b) -> d.getData("data", ElevatorControllerData.class).dirChange = b)
+		.toggleSlot(3, 2, "Enabled", d -> d.getData("data", ElevatorControllerData.class).enabled, (d, b) ->
+		{
+			ElevatorControllerData data = d.getData("data", ElevatorControllerData.class);
+			data.enabled = b;
+			if (b)
+			{
+				Location location = d.getData("location", Location.class);
+				data.createModel(new Location(location.getWorld(), data.pointA.getX(), data.pointA.getY(), data.pointA.getZ()));
+			} else
+			{
+				data.sbe.destroy(0);
+			}
+		})
 		.applyMask(mask);
 }

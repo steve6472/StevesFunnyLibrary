@@ -26,8 +26,13 @@ public class SlotBuilder
 
 	private SlotBuilder(ItemStack item)
 	{
-		Preconditions.checkNotNull(item, "ItemStack can no be null! Use create() to create empty slot instead!");
-		this.item = item;
+		if (item == null)
+		{
+			this.item = MiscUtil.AIR;
+		} else
+		{
+			this.item = item;
+		}
 	}
 
 	public static SlotBuilder create(ItemStack item)

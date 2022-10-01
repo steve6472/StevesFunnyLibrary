@@ -1,5 +1,6 @@
 package steve6472.standalone.interactable.blocks;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -119,6 +120,11 @@ public class ActivatingButtonBlock extends CustomBlock implements IBlockData, Bl
 		Location location = blockData.block.toLocation(context.getWorld());
 
 		State blockState = Blocks.getBlockState(location);
+		if (blockState == null)
+		{
+			context.getPlayer().sendMessage(ChatColor.RED + "Could not find block to activate!");
+			return;
+		}
 		if (blockState.getObject() instanceof Activable activable)
 			activable.activate(new BlockContext(location, blockState));
 	}

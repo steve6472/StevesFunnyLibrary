@@ -3,6 +3,7 @@ package steve6472.funnylib.blocks;
 import org.bukkit.block.PistonMoveReaction;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
+import org.json.JSONObject;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.context.PlayerContext;
@@ -34,6 +35,8 @@ public abstract class CustomBlock extends StateObject
 
 	public void onPlace(BlockContext context) {}
 	public void onRemove(BlockContext context) {}
+	public void save(JSONObject json, boolean unloading) {}
+	public void load(JSONObject json) {}
 
 	/**
 	 * Called only when canBurn() returns true<br>

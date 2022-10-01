@@ -151,6 +151,22 @@ public class MenuBuilder
 		return this;
 	}
 
+	public MenuBuilder buttonSlot(int x, int y, Material material, String label, BiConsumer<Click, Menu> action)
+	{
+		ItemStack icon = ItemStackBuilder
+			.create(material)
+			.setName(label)
+			.addLore(JSONMessage.create("Button").color(ChatColor.GRAY))
+			.buildItemStack();
+
+		slot(x, y, (builder) -> SlotBuilder.create(icon).allow(ClickType.LEFT).allow(InventoryAction.PICKUP_ALL).onClick((c, cm) ->
+		{
+			action.accept(c, cm);
+			return Response.cancel();
+		}));
+		return this;
+	}
+
 	public MenuBuilder itemSlot(int x, int y, Function<ArbitraryData, ItemStack> get, BiConsumer<ArbitraryData, ItemStack> set)
 	{
 		return itemSlot(x, y, get, set, i -> true);
@@ -162,22 +178,34 @@ public class MenuBuilder
 			x,
 			y,
 			(builder) -> SlotBuilder.create(get.apply(builder.getArbitraryData()))
-				.allow(InventoryAction.PICKUP_ALL, InventoryAction.PLACE_ALL)
-				.allow(ClickType.LEFT)
+				.allow(InventoryAction.PICKUP_ALL, InventoryAction.PLACE_ALL, InventoryAction.PICKUP_HALF)
+				.allow(ClickType.LEFT, ClickType.RIGHT)
 				.onClick((c, cm) -> {
 
-					if (c.itemOnCursor().getType().isAir())
+					if (c.type() == ClickType.RIGHT)
 					{
-						set.accept(cm.getPassedData(), MiscUtil.AIR);
-						c.slot().setItem(MiscUtil.AIR);
-						return Response.cancel();
+						ItemStack current = get.apply(cm.getPassedData());
+						if (c.itemOnCursor().getType().isAir() && !current.getType().isAir())
+						{
+							return Response.setItemToCursor(current);
+						}
 					}
 
-					if (predicate.test(c.itemOnCursor()))
+					if (c.type() == ClickType.LEFT)
 					{
-						set.accept(cm.getPassedData(), c.itemOnCursor().clone());
-						ItemStack clone = c.itemOnCursor().clone();
-						c.slot().setItem(clone);
+						if (c.itemOnCursor().getType().isAir())
+						{
+							set.accept(cm.getPassedData(), MiscUtil.AIR);
+							c.slot().setItem(MiscUtil.AIR);
+							return Response.cancel();
+						}
+
+						if (predicate.test(c.itemOnCursor()))
+						{
+							set.accept(cm.getPassedData(), c.itemOnCursor().clone());
+							ItemStack clone = c.itemOnCursor().clone();
+							c.slot().setItem(clone);
+						}
 					}
 
 					return Response.cancel();

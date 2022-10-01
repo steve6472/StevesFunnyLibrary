@@ -79,10 +79,19 @@ public class MarkerCodec extends Codec<Vector>
 	{
 		return SlotBuilder
 			.create(toItem(current))
-			.allow(InventoryAction.PICKUP_ALL, InventoryAction.PLACE_ALL)
-			.allow(ClickType.LEFT)
+			.allow(InventoryAction.PICKUP_ALL, InventoryAction.PLACE_ALL, InventoryAction.PICKUP_HALF)
+			.allow(ClickType.LEFT, ClickType.RIGHT)
 			.onClick((c, cm) ->
 			{
+				if (c.type() == ClickType.RIGHT)
+				{
+					ItemStack currentItem = toItem(current);
+					if (c.itemOnCursor().getType().isAir() && !currentItem.getType().isAir())
+					{
+						return Response.setItemToCursor(currentItem);
+					}
+				}
+
 				if (c.itemOnCursor().getType().isAir())
 				{
 					set.accept(null);

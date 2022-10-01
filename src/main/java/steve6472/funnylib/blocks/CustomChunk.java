@@ -77,20 +77,20 @@ public class CustomChunk
 		}
 	}
 
-	public void toJson(JSONObject json)
+	public void toJson(JSONObject json, boolean unloading)
 	{
 		JSONArray states = new JSONArray();
 		JSONArray data = new JSONArray();
 		blocks.forEach((key, state) -> {
 			JSONObject locObj = new JSONObject();
 			locObj.put("locKey", key);
-			locObj.put("state", Blocks.stateToJson(state));
+			locObj.put("state", Blocks.stateToJson(state, unloading));
 			states.put(locObj);
 		});
 		blockData.forEach((key, datum) -> {
 			JSONObject locObj = new JSONObject();
 			locObj.put("locKey", key);
-			locObj.put("data", Blocks.dataToJson(datum));
+			locObj.put("data", Blocks.dataToJson(datum, unloading));
 			data.put(locObj);
 		});
 		json.put("states", states);
@@ -163,7 +163,7 @@ public class CustomChunk
 		{
 			CustomBlockData blockData = data.createBlockData();
 			blockData.setLogic(cb);
-			blockData.setLocation(bukkitChunk.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+			blockData.setPos(location.clone());
 			setBlockData(location, blockData);
 			BlockContext context = new BlockContext(location, state, blockData);
 			blockData.onPlace(context);

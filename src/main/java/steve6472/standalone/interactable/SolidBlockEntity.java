@@ -3,12 +3,15 @@ package steve6472.standalone.interactable;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Shulker;
 import org.bukkit.structure.Palette;
 import org.bukkit.structure.Structure;
+import org.bukkit.util.Vector;
+import steve6472.funnylib.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +39,7 @@ public class SolidBlockEntity
 		armorStand.setSmall(true);
 		armorStand.setInvisible(true);
 		armorStand.setInvulnerable(true);
+		armorStand.setPersistent(false);
 
 		Shulker shulker = world.spawn(origin, Shulker.class);
 		shulker.setAI(false);
@@ -43,7 +47,7 @@ public class SolidBlockEntity
 		shulker.setInvulnerable(true);
 		shulker.setAware(false);
 		shulker.setSilent(true);
-		shulker.setPersistent(true);
+		shulker.setPersistent(false);
 		shulker.setHealth(0.2);
 		armorStand.addPassenger(shulker);
 
@@ -65,7 +69,48 @@ public class SolidBlockEntity
 
 	public void sit(int seatIndex, Entity entity)
 	{
+		Preconditions.checkRange(seats, seatIndex);
 		seats.get(seatIndex).addPassenger(entity);
+	}
+
+	public void addBlock(BlockData data, Location origin, Vector offset, boolean collision)
+	{
+		if (data.getMaterial().isAir())
+			return;
+
+		Location loc = origin.clone();
+		loc.add(offset.getX() + 0.5, offset.getY(), offset.getZ() + 0.5);
+		Location blockLoc = loc.clone();
+
+		ArmorStand armorStand = world.spawn(loc, ArmorStand.class);
+		armorStand.setMarker(true);
+		armorStand.setGravity(false);
+		armorStand.setSmall(true);
+		armorStand.setInvisible(true);
+		armorStand.setInvulnerable(true);
+
+		if (collision)
+		{
+			Shulker shulker = world.spawn(blockLoc, Shulker.class);
+			shulker.setAI(false);
+			shulker.setInvisible(true);
+			shulker.setInvulnerable(true);
+			shulker.setAware(false);
+			shulker.setSilent(true);
+			shulker.setPersistent(true);
+			shulker.setHealth(0.2);
+			armorStand.addPassenger(shulker);
+		}
+
+		FallingBlock fallingBlock = world.spawnFallingBlock(blockLoc, data);
+		fallingBlock.setTicksLived(2);
+		fallingBlock.setDropItem(false);
+		fallingBlock.setHurtEntities(false);
+		fallingBlock.setGravity(false);
+		fallingBlock.setPersistent(false);
+
+		armorStand.addPassenger(fallingBlock);
+		entities.add(armorStand);
 	}
 
 	public void create(Structure structure, Location origin, boolean collision)
@@ -118,27 +163,16 @@ public class SolidBlockEntity
 
 	public void move(Location to)
 	{
-		List<Entity> passangers = new ArrayList<>();
-
 		Location reference = entities.get(0).getLocation();
 
 		for (ArmorStand entity : entities)
 		{
-			Location loc = entity.getLocation().clone();
-			loc.subtract(reference);
-			loc.add(to);
+			Location loc = entity.getLocation();
+			double x = loc.getX() - reference.getX() + to.getX();
+			double y = loc.getY() - reference.getY() + to.getY();
+			double z = loc.getZ() - reference.getZ() + to.getZ();
 
-			passangers.addAll(entity.getPassengers());
-			entity.eject();
-
-			entity.teleport(loc);
-
-			for (Entity passanger : passangers)
-			{
-				entity.addPassenger(passanger);
-			}
-
-			passangers.clear();
+			ReflectionHacker.callEntityMoveTo(entity, x, y, z, loc.getYaw(), loc.getPitch());
 		}
 	}
 

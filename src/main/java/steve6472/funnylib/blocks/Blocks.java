@@ -237,6 +237,9 @@ public class Blocks implements Listener
 	public void blockBurn(BlockBurnEvent e)
 	{
 		State blockState = getBlockState(e.getBlock().getLocation());
+		if (blockState == null)
+			return;
+
 		CustomBlock block = (CustomBlock) blockState.getObject();
 		if (!block.canBurn())
 		{
@@ -307,31 +310,28 @@ public class Blocks implements Listener
 	@EventHandler
 	public void unloadChunk(ChunkUnloadEvent e)
 	{
-		saveChunk(e.getChunk());
+		saveChunk(e.getChunk(), true);
 	}
 
-	public static void saveChunk(Chunk chunk)
+	public static void saveChunk(Chunk chunk, boolean unloading)
 	{
 		CustomChunk customChunk = CHUNK_MAP.get(chunk);
 		JSONObject json = new JSONObject();
-		customChunk.toJson(json);
+		customChunk.toJson(json, unloading);
 		chunk.getPersistentDataContainer().set(CUSTOM_BLOCKS_KEY, PersistentDataType.STRING, json.toString());
 	}
 
 	@EventHandler
 	public void worldSave(WorldSaveEvent e)
 	{
-		saveWorld(e.getWorld());
+		saveWorld(e.getWorld(), false);
 	}
 
-	public static void saveWorld(World world)
+	public static void saveWorld(World world, boolean unloadChunks)
 	{
 		for (Chunk loadedChunk : world.getLoadedChunks())
 		{
-			CustomChunk customChunk = CHUNK_MAP.get(loadedChunk);
-			JSONObject json = new JSONObject();
-			customChunk.toJson(json);
-			loadedChunk.getPersistentDataContainer().set(CUSTOM_BLOCKS_KEY, PersistentDataType.STRING, json.toString());
+			saveChunk(loadedChunk, unloadChunks);
 		}
 	}
 
@@ -394,7 +394,11 @@ public class Blocks implements Listener
 	 * Save Util
 	 */
 
-	public static JSONObject stateToJson(State state)
+	/*
+	 * State
+	 */
+
+	public static JSONObject stateToJson(State state, boolean unloading)
 	{
 		JSONObject json = new JSONObject();
 		CustomBlock block = ((CustomBlock) state.getObject());
@@ -403,6 +407,7 @@ public class Blocks implements Listener
 		{
 			state.getProperties().forEach((k, v) -> json.put(k.getName(), k.toString(v)));
 		}
+		block.save(json, unloading);
 		return json;
 	}
 
@@ -422,24 +427,26 @@ public class Blocks implements Listener
 				state = state.with(iProperty, iProperty.fromString(string));
 			}
 		}
+		((CustomBlock) state.getObject()).load(json);
 		return state;
 	}
 
-	public static JSONObject dataToJson(CustomBlockData data)
-	{
-//		Location location = new Location(Bukkit.getWorld(data.worldName), data.x, data.y, data.z);
+	/*
+	 * Block Data
+	 */
 
+	public static JSONObject dataToJson(CustomBlockData data, boolean unloading)
+	{
 		JSONObject blockData = Codec.save(data);
 		JSONObject json = new JSONObject();
 		json.put("blockData", blockData);
 		json.put("dataClass", data.getClass().getName());
 		json.put("blockId", data.getBlock().id());
-		json.put("worldName", data.worldName);
-		json.put("x", data.x);
-		json.put("y", data.y);
-		json.put("z", data.z);
-		data.save(json);
-		data.load(json);
+		json.put("worldName", data.pos.getWorld().getName());
+		json.put("x", data.pos.getBlockX());
+		json.put("y", data.pos.getBlockY());
+		json.put("z", data.pos.getBlockZ());
+		data.save(blockData, unloading);
 		return json;
 	}
 
@@ -451,14 +458,14 @@ public class Blocks implements Listener
 		{
 			Class<?> clazz = Class.forName(classPath);
 			Object o = clazz.getConstructor().newInstance();
-			CustomBlockData blockData = (CustomBlockData) Codec.load(o, json.getJSONObject("blockData"));
+			JSONObject data = json.getJSONObject("blockData");
+			CustomBlockData blockData = (CustomBlockData) Codec.load(o, data);
 
 			CustomBlock block = Blocks.getCustomBlockById(json.getString("blockId"));
 			blockData.setLogic(block);
-//			Location location = new Location(Bukkit.getWorld(json.getString("worldName")), json.getInt("x"), json.getInt("y"), json.getInt("z"));
-			//noinspection ConstantConditions
-			blockData.setLocation(Bukkit.getWorld(json.getString("worldName")), json.getInt("x"), json.getInt("y"), json.getInt("z"));
-			blockData.load(json);
+			Location location = new Location(Bukkit.getWorld(json.getString("worldName")), json.getInt("x"), json.getInt("y"), json.getInt("z"));
+			blockData.setPos(location);
+			blockData.load(data);
 
 			return blockData;
 		} catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException |

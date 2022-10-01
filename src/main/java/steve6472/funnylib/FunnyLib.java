@@ -54,7 +54,7 @@ public class FunnyLib
 		new MavenSux();
 	}
 
-	public static void init(Plugin plugin, boolean builtInItems)
+	public static void init(Plugin plugin, LibSettings settings)
 	{
 		new MavenSux();
 //		if (FunnyLib.PLUGIN != null)
@@ -98,7 +98,7 @@ public class FunnyLib
 	{
 		for (World world : Bukkit.getWorlds())
 		{
-			Blocks.saveWorld(world);
+			Blocks.saveWorld(world, true);
 		}
 	}
 

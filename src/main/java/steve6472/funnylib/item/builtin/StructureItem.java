@@ -211,6 +211,13 @@ public class StructureItem extends CustomItem implements ItemClickEvents, TickIn
 			return list;
 		}
 
+		jsonToBlocks(list, blocks);
+
+		return list;
+	}
+
+	public static List<BlockInfo> jsonToBlocks(ArrayList<BlockInfo> list, JSONArray blocks)
+	{
 		for (int i = 0; i < blocks.length(); i++)
 		{
 			JSONObject js = blocks.getJSONObject(i);
