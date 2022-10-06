@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -42,7 +43,7 @@ public class ElevatorControllerData extends CustomBlockData
 	public double speed = 1d, progress;
 
 	@SaveBool
-	public boolean showPoints, dirChange, enabled, seatActivator = true;
+	public boolean showPoints, dirChange, enabled, seatActivator = true, solidifyProtection;
 
 	@SaveInt
 	public int movingDirection; // 0 - none, 1 - to point A, 2 - to point B
@@ -54,6 +55,7 @@ public class ElevatorControllerData extends CustomBlockData
 	ArmorStand dataLabel;
 
 	SolidBlockEntity sbe;
+	int lx, ly, lz;
 
 	public void createModel(Location location)
 	{
@@ -70,9 +72,9 @@ public class ElevatorControllerData extends CustomBlockData
 
 		JSONObject json = new JSONObject(ItemStackBuilder.edit(elevatorData).getCustomTagString("data"));
 		JSONObject structure = json.getJSONObject("structure");
-//		int lx = structure.getInt("lx");
-//		int ly = structure.getInt("ly");
-//		int lz = structure.getInt("lz");
+		lx = structure.getInt("lx");
+		ly = structure.getInt("ly");
+		lz = structure.getInt("lz");
 		JSONArray blocks = structure.getJSONObject("blocks").getJSONArray("blocks");
 		List<StructureItem.BlockInfo> blockInfo = StructureItem.jsonToBlocks(new ArrayList<>(blocks.length()), blocks);
 		for (StructureItem.BlockInfo info : blockInfo)
@@ -106,10 +108,12 @@ public class ElevatorControllerData extends CustomBlockData
 	public void solidify()
 	{
 		if (sbe == null) return;
+		solidifyProtection = true;
 		Bukkit.getScheduler().runTaskLater(FunnyLib.getPlugin(), () ->
 		{
 			sbe.destroy(0);
 			sbe = null;
+			solidifyProtection = false;
 		}, 7);
 
 		JSONObject json = new JSONObject(ItemStackBuilder.edit(elevatorData).getCustomTagString("data"));
@@ -133,6 +137,9 @@ public class ElevatorControllerData extends CustomBlockData
 
 	public void activate(PlayerBlockContext context, int dir)
 	{
+		if (solidifyProtection)
+			return;
+
 		movingDirection = dir;
 
 		if (enabled && sbe == null)
@@ -143,7 +150,14 @@ public class ElevatorControllerData extends CustomBlockData
 
 		if (seatActivator && enabled && sbe != null && (movingDirection == 0 || dirChange))
 		{
-			sbe.sit(0, context.getPlayer());
+			Vector p = getPosition();
+			p.add(new Vector(-0.5, -0.5, -0.5));
+			if (new BoundingBox(p.getX(), p.getY(), p.getZ(), p.getX() + lx + 2, p.getY() + ly + 2, p.getZ() + lz + 2)
+				.contains(context
+					.getPlayer().getBoundingBox()))
+			{
+				sbe.sit(0, context.getPlayer());
+			}
 		}
 	}
 
@@ -157,8 +171,11 @@ public class ElevatorControllerData extends CustomBlockData
 
 	public void updatePosition()
 	{
-		Vector position = getPosition();
-		sbe.move(new Location(pos.getWorld(), position.getX() + 0.5, position.getY(), position.getZ() + 0.5));
+		if (sbe != null)
+		{
+			Vector position = getPosition();
+			sbe.move(new Location(pos.getWorld(), position.getX() + 0.5, position.getY(), position.getZ() + 0.5));
+		}
 	}
 
 	private static double lerp(double a, double b, double percentage)

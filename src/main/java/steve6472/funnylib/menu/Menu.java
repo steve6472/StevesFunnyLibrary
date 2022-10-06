@@ -98,6 +98,16 @@ public class Menu
 		}
 	}
 
+	public void removeSlot(int x, int y)
+	{
+		slots.remove(new SlotLoc(x, y));
+	}
+
+	public void removeStickySlot(int x, int y)
+	{
+		stickySlots.remove(new SlotLoc(x, y));
+	}
+
 	/**
 	 * Ignores slicky slots
 	 * supports negative values somewhat

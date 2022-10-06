@@ -167,6 +167,18 @@ public class MenuBuilder
 		return this;
 	}
 
+	public MenuBuilder buttonSlotResponse(int x, int y, Material material, String label, BiFunction<Click, Menu, Response> action)
+	{
+		ItemStack icon = ItemStackBuilder
+			.create(material)
+			.setName(label)
+			.addLore(JSONMessage.create("Button").color(ChatColor.GRAY))
+			.buildItemStack();
+
+		slot(x, y, (builder) -> SlotBuilder.create(icon).allow(ClickType.LEFT).allow(InventoryAction.PICKUP_ALL).onClick(action));
+		return this;
+	}
+
 	public MenuBuilder itemSlot(int x, int y, Function<ArbitraryData, ItemStack> get, BiConsumer<ArbitraryData, ItemStack> set)
 	{
 		return itemSlot(x, y, get, set, i -> true);

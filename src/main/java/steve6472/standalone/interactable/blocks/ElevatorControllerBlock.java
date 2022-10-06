@@ -1,5 +1,6 @@
 package steve6472.standalone.interactable.blocks;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -8,6 +9,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.event.player.PlayerInteractEvent;
 import steve6472.funnylib.FunnyLib;
+import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlock;
 import steve6472.funnylib.blocks.CustomBlockData;
 import steve6472.funnylib.blocks.IBlockData;
@@ -20,6 +22,7 @@ import steve6472.funnylib.item.Items;
 import steve6472.funnylib.json.codec.codecs.MarkerCodec;
 import steve6472.funnylib.menu.Mask;
 import steve6472.funnylib.menu.MenuBuilder;
+import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.menu.SlotBuilder;
 import steve6472.funnylib.util.*;
 import steve6472.standalone.interactable.Interactable;
@@ -137,12 +140,19 @@ public class ElevatorControllerBlock extends CustomBlock implements IBlockData, 
 	{
 		ElevatorControllerData data = context.getBlockData(ElevatorControllerData.class);
 		data.dataLabel.remove();
+		if (!data.elevatorData.getType().isAir())
+		{
+			context.getWorld().dropItem(context.getLocation(), data.elevatorData);
+		}
 	}
 
 	@Override
 	public void activate(PlayerBlockContext context)
 	{
 		ElevatorControllerData data = context.getBlockData(ElevatorControllerData.class);
+		if (data.solidifyProtection)
+			return;
+
 		if (data.dirChange)
 		{
 			if (data.movingDirection == 1)
@@ -171,6 +181,12 @@ public class ElevatorControllerBlock extends CustomBlock implements IBlockData, 
 	}
 
 	@Override
+	public boolean canPlayerBreak(PlayerBlockContext context)
+	{
+		return false;
+	}
+
+	@Override
 	public void showInterface(ElevatorControllerData data, PlayerBlockContext context)
 	{
 		MENU.setData("data", data);
@@ -179,15 +195,16 @@ public class ElevatorControllerBlock extends CustomBlock implements IBlockData, 
 	}
 
 	private static final Mask mask = Mask.createMask()
-		.addRow("P.Paaaa..")
-		.addRow("PPPaaaaaa")
-		.addRow("G.Gaaaaaa")
-		.addRow("OOOaaaaaa")
+		.addRow("P.Paaa...")
+		.addRow("PPPaaaaRa")
+		.addRow("G.GaaaR.R")
+		.addRow("OOOaaaaRa")
 		.addRow("O.Oaaa...")
 		.addItem('V', SlotBuilder.create(ItemStackBuilder.quick(Material.LIME_STAINED_GLASS_PANE, "")))
 		.addItem('P', SlotBuilder.create(ItemStackBuilder.quick(Material.PINK_STAINED_GLASS_PANE, "")))
 		.addItem('O', SlotBuilder.create(ItemStackBuilder.quick(Material.ORANGE_STAINED_GLASS_PANE, "")))
 		.addItem('G', SlotBuilder.create(ItemStackBuilder.quick(Material.LIME_STAINED_GLASS_PANE, "")))
+		.addItem('R', SlotBuilder.create(ItemStackBuilder.quick(Material.RED_STAINED_GLASS_PANE, "")))
 		.addItem('a', SlotBuilder.create(ItemStackBuilder.quick(Material.LIGHT_GRAY_STAINED_GLASS_PANE, "")));
 
 	private static final MenuBuilder MENU = MenuBuilder
@@ -205,6 +222,7 @@ public class ElevatorControllerBlock extends CustomBlock implements IBlockData, 
 		})
 		.buttonSlot(6, 4, Material.ARROW, "Reduce speed", (c, cm) -> cm.getPassedData().getData("data", ElevatorControllerData.class).speed -= 0.05)
 		.buttonSlot(8, 4, Material.ARROW, "Add speed", (c, cm) -> cm.getPassedData().getData("data", ElevatorControllerData.class).speed += 0.05)
+		.buttonSlotResponse(7, 2, Material.BARRIER, ChatColor.RED + "Remove Controller", (c, cm) -> { Blocks.setBlockState(cm.getPassedData().getData("location", Location.class), null); return Response.exit(); })
 		.itemSlot(1, 2, d -> d.getData("data", ElevatorControllerData.class).elevatorData, (d, b) -> d.getData("data", ElevatorControllerData.class).elevatorData = b, is -> Items.getCustomItem(is) == Interactable.ELEVATOR_DATA_ITEM)
 		.toggleSlot(8, 0, "Show Points", d -> d.getData("data", ElevatorControllerData.class).showPoints, (d, b) -> d.getData("data", ElevatorControllerData.class).showPoints = b)
 		.toggleSlot(7, 0, "Allow changing direction when moving", d -> d.getData("data", ElevatorControllerData.class).dirChange, (d, b) -> d.getData("data", ElevatorControllerData.class).dirChange = b)

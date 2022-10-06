@@ -4,7 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import steve6472.funnylib.blocks.CustomBlock;
 import steve6472.funnylib.context.BlockContext;
-import steve6472.funnylib.context.PlayerContext;
+import steve6472.funnylib.context.PlayerBlockContext;
 
 /**
  * Created by steve6472
@@ -26,7 +26,7 @@ public class MultiBlock extends CustomBlock
 	}
 
 	@Override
-	public boolean canPlayerBreak(PlayerContext context)
+	public boolean canPlayerBreak(PlayerBlockContext context)
 	{
 		return false;
 	}

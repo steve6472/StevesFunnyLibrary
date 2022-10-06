@@ -6,7 +6,6 @@ import org.bukkit.inventory.ItemStack;
 import org.json.JSONObject;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.PlayerBlockContext;
-import steve6472.funnylib.context.PlayerContext;
 import steve6472.funnylib.blocks.stateengine.State;
 import steve6472.funnylib.blocks.stateengine.StateObject;
 
@@ -45,7 +44,7 @@ public abstract class CustomBlock extends StateObject
 	 */
 	public void onBurn(BlockContext context) {}
 	public boolean canBreakByExplosion(BlockContext blockContext) { return true; }
-	public boolean canPlayerBreak(PlayerContext context) { return true; }
+	public boolean canPlayerBreak(PlayerBlockContext context) { return true; }
 
 	/**
 	 * Has only effect on vanilla-burnable blocks

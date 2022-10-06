@@ -244,7 +244,9 @@ public class SolidBlockEntity
 			{
 				Location location = seat.getLocation();
 				location.setY(Math.round(location.getY()) + 0.001);
-				location.setYaw(yaw);
+				location.setYaw(passenger.getLocation().getYaw());
+				location.setPitch(passenger.getLocation().getPitch());
+//				location.setYaw(yaw);
 				passenger.teleport(location);
 			}
 

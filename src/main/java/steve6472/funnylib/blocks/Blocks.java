@@ -134,6 +134,12 @@ public class Blocks implements Listener
 			PlayerContext playerContext = new PlayerContext(e.getPlayer());
 			BlockFaceContext blockContext = new BlockFaceContext(location, MetaUtil.getValue(e.getPlayer(), BlockFace.class, "last_face"));
 
+			if (!block.canPlayerBreak(new PlayerBlockContext(playerContext, blockContext)))
+			{
+				e.setCancelled(true);
+				return;
+			}
+
 			boolean dropItems = true;
 
 			if (blockState.getObject() instanceof BreakBlockEvent bbe)
