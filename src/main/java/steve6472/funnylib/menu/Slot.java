@@ -1,6 +1,5 @@
 package steve6472.funnylib.menu;
 
-import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
@@ -78,12 +77,31 @@ public class Slot
 			index = x + y * 9;
 		} else
 		{
-			if (x - holder.offsetX < 0 || x - holder.offsetX > 8 || y - holder.offsetY < 0 || y - holder.offsetY > holder.rows) return this;
+//			if (x - holder.offsetX < 0 || x - holder.offsetX > 8 || y - holder.offsetY < 0 || y - holder.offsetY > holder.rows) return this;
 			index = (x - holder.offsetX) + (y - holder.offsetY) * 9;
 		}
+
+		if (index >= 54)
+			return this;
 
 		holder.inventory.setItem(index, item());
 
 		return this;
+	}
+
+	public int getX()
+	{
+		return x;
+	}
+
+	public int getY()
+	{
+		return y;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "Slot{" + "itemStack=" + itemStack + ", x=" + x + ", y=" + y + ", isSticky=" + isSticky + '}';
 	}
 }

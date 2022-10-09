@@ -65,6 +65,20 @@ public class Menu
 		reload();
 	}
 
+	public void setOffset(int x, int y)
+	{
+		if (offsetLimited)
+		{
+			this.offsetX = Math.max(minOffsetX, Math.min(maxOffsetX, x));
+			this.offsetY = Math.max(minOffsetY, Math.min(maxOffsetY, y));
+		} else
+		{
+			this.offsetX = x;
+			this.offsetY = y;
+		}
+		reload();
+	}
+
 	public int getOffsetX()
 	{
 		return offsetX;
@@ -89,6 +103,9 @@ public class Menu
 
 	public void setSlot(int x, int y, Slot slot)
 	{
+		slot.holder = this;
+		slot.x = x;
+		slot.y = y;
 		if (slot.isSticky)
 		{
 			stickySlots.put(new SlotLoc(x, y), slot);
@@ -96,6 +113,11 @@ public class Menu
 		{
 			slots.put(new SlotLoc(x, y), slot);
 		}
+	}
+
+	public void setSlot(int x, int y, SlotBuilder builder)
+	{
+		setSlot(x, y, builder.build());
 	}
 
 	public void removeSlot(int x, int y)

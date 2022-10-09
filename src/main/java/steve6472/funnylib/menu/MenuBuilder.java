@@ -13,6 +13,7 @@ import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.MiscUtil;
 import steve6472.standalone.interactable.blocks.ElevatorControllerBlock;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.*;
@@ -124,110 +125,6 @@ public class MenuBuilder
 	}
 
 	/*
-	 * Presets
-	 */
-
-	private static ItemStack createToggleItem(boolean flag, String label)
-	{
-		Material mat = flag ? Material.LIME_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE;
-		ChatColor color = flag ? ChatColor.GREEN : ChatColor.RED;
-		return ItemStackBuilder
-			.create(mat)
-			.setName(label)
-			.addLore(JSONMessage.create("Current: ").color(ChatColor.GRAY).then("" + flag).color(color))
-			.setCustomModelData(1)
-			.buildItemStack();
-	}
-
-	public MenuBuilder toggleSlot(int x, int y, String label, Function<ArbitraryData, Boolean> get, BiConsumer<ArbitraryData, Boolean> set)
-	{
-		slot(x, y, (builder) -> SlotBuilder.create(createToggleItem(get.apply(arbitraryData), label)).allow(ClickType.LEFT).allow(InventoryAction.PICKUP_ALL).onClick((c, cm) ->
-		{
-			boolean current = !get.apply(arbitraryData);
-			set.accept(cm.getPassedData(), current);
-			c.slot().setItem(createToggleItem(current, label));
-			return Response.cancel();
-		}));
-		return this;
-	}
-
-	public MenuBuilder buttonSlot(int x, int y, Material material, String label, BiConsumer<Click, Menu> action)
-	{
-		ItemStack icon = ItemStackBuilder
-			.create(material)
-			.setName(label)
-			.addLore(JSONMessage.create("Button").color(ChatColor.GRAY))
-			.buildItemStack();
-
-		slot(x, y, (builder) -> SlotBuilder.create(icon).allow(ClickType.LEFT).allow(InventoryAction.PICKUP_ALL).onClick((c, cm) ->
-		{
-			action.accept(c, cm);
-			return Response.cancel();
-		}));
-		return this;
-	}
-
-	public MenuBuilder buttonSlotResponse(int x, int y, Material material, String label, BiFunction<Click, Menu, Response> action)
-	{
-		ItemStack icon = ItemStackBuilder
-			.create(material)
-			.setName(label)
-			.addLore(JSONMessage.create("Button").color(ChatColor.GRAY))
-			.buildItemStack();
-
-		slot(x, y, (builder) -> SlotBuilder.create(icon).allow(ClickType.LEFT).allow(InventoryAction.PICKUP_ALL).onClick(action));
-		return this;
-	}
-
-	public MenuBuilder itemSlot(int x, int y, Function<ArbitraryData, ItemStack> get, BiConsumer<ArbitraryData, ItemStack> set)
-	{
-		return itemSlot(x, y, get, set, i -> true);
-	}
-
-	public MenuBuilder itemSlot(int x, int y, Function<ArbitraryData, ItemStack> get, BiConsumer<ArbitraryData, ItemStack> set, Predicate<ItemStack> predicate)
-	{
-		slot(
-			x,
-			y,
-			(builder) -> SlotBuilder.create(get.apply(builder.getArbitraryData()))
-				.allow(InventoryAction.PICKUP_ALL, InventoryAction.PLACE_ALL, InventoryAction.PICKUP_HALF)
-				.allow(ClickType.LEFT, ClickType.RIGHT)
-				.onClick((c, cm) -> {
-
-					if (c.type() == ClickType.RIGHT)
-					{
-						ItemStack current = get.apply(cm.getPassedData());
-						if (c.itemOnCursor().getType().isAir() && !current.getType().isAir())
-						{
-							return Response.setItemToCursor(current);
-						}
-					}
-
-					if (c.type() == ClickType.LEFT)
-					{
-						if (c.itemOnCursor().getType().isAir())
-						{
-							set.accept(cm.getPassedData(), MiscUtil.AIR);
-							c.slot().setItem(MiscUtil.AIR);
-							return Response.cancel();
-						}
-
-						if (predicate.test(c.itemOnCursor()))
-						{
-							set.accept(cm.getPassedData(), c.itemOnCursor().clone());
-							ItemStack clone = c.itemOnCursor().clone();
-							c.slot().setItem(clone);
-						}
-					}
-
-					return Response.cancel();
-				})
-
-		);
-		return this;
-	}
-
-	/*
 	 * Flags
 	 */
 
@@ -283,6 +180,13 @@ public class MenuBuilder
 	public ArbitraryData getArbitraryData()
 	{
 		return arbitraryData;
+	}
+
+	public void clearAllSlots()
+	{
+		slots.clear();
+		stickySlots.clear();
+		slotBuilders.clear();
 	}
 
 	/*

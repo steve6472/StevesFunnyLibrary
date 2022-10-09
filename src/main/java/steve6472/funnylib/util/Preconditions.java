@@ -1,5 +1,7 @@
 package steve6472.funnylib.util;
 
+import org.jetbrains.annotations.Contract;
+
 import java.util.Collection;
 
 /**
@@ -27,5 +29,35 @@ public class Preconditions
 	{
 		if (index < 0 || index > collection.size())
 			throw new ArrayIndexOutOfBoundsException(index);
+	}
+
+	public static void checkNotEmpty(Collection<?> collection)
+	{
+		if (collection.isEmpty())
+			throw new RuntimeException("Collection is empty");
+	}
+
+	public static void checkPositive(int number)
+	{
+		if (number < 0)
+			throw new RuntimeException("Number is negative");
+	}
+
+	public static void checkPositive(long number)
+	{
+		if (number < 0)
+			throw new RuntimeException("Number is negative");
+	}
+
+	public static void checkAboveZero(int number)
+	{
+		if (number < 0)
+			throw new RuntimeException("Number is below zero");
+	}
+
+	public static void checkAboveZero(long number)
+	{
+		if (number < 0)
+			throw new RuntimeException("Number is below zero");
 	}
 }

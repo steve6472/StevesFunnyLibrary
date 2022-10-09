@@ -60,14 +60,16 @@ public class Items implements Listener
 
 	public static final Map<String, ItemEventEntry> ITEMS = new HashMap<>();
 
-	public static void registerItem(CustomItem customItem)
+	public static CustomItem registerItem(CustomItem customItem)
 	{
 		ITEMS.put(customItem.id(), new ItemEventEntry(customItem));
+		return customItem;
 	}
 
-	public static void registerAdminItem(CustomItem customItem)
+	public static CustomItem registerAdminItem(CustomItem customItem)
 	{
 		ITEMS.put(customItem.id(), new ItemEventEntry(true, customItem));
+		return customItem;
 	}
 
 	public Items()

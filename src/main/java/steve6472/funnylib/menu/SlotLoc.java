@@ -7,7 +7,7 @@ import java.util.Objects;
  * Date: 9/13/2022
  * Project: StevesFunnyLibrary <br>
  */
-record SlotLoc(int x, int y)
+public record SlotLoc(int x, int y)
 {
 	int toIndex(int ox, int oy, int rows)
 	{

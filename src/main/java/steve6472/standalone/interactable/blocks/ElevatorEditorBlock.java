@@ -157,6 +157,6 @@ public class ElevatorEditorBlock extends CustomBlock implements IBlockData, Admi
 
 				return Response.cancel();
 			}))
-		.itemSlot(1, 1, d -> d.getData("data", ElevatorEditorData.class).structure, (d, i) -> d.getData("data", ElevatorEditorData.class).structure = i, i -> Items.getCustomItem(i) == FunnyLib.STRUCTURE)
+		.slot(1, 1, SlotBuilder.itemSlot(d -> d.getData("data", ElevatorEditorData.class).structure, (d, i) -> d.getData("data", ElevatorEditorData.class).structure = i, i -> Items.getCustomItem(i) == FunnyLib.STRUCTURE))
 		.applyMask(mask);
 }

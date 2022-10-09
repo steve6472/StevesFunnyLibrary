@@ -16,6 +16,7 @@ public class Mask
 {
 	private List<String> patterns = new ArrayList<>();
 	private Map<Character, SlotBuilder> characterMap = new HashMap<>();
+	private Map<Character, ISlotBuilder> characterIMap = new HashMap<>();
 
 	private int offsetX, offsetY;
 	private char emptySlot = '.';
@@ -51,6 +52,12 @@ public class Mask
 		return this;
 	}
 
+	public Mask addItem(char character, ISlotBuilder slot)
+	{
+		characterIMap.put(character, slot);
+		return this;
+	}
+
 	public Mask setOffset(int offsetX, int offsetY)
 	{
 		this.offsetX = offsetX;
@@ -79,12 +86,18 @@ public class Mask
 				}
 
 				SlotBuilder slotBuilder = characterMap.get(c);
-				if (slotBuilder == null)
+				if (slotBuilder != null)
 				{
-					continue;
+					builder.slot(j + offsetX, i + offsetY, slotBuilder);
+				} else
+				{
+					ISlotBuilder iSlotBuilder = characterIMap.get(c);
+					if (iSlotBuilder != null)
+					{
+						builder.slot(j + offsetX, i + offsetY, iSlotBuilder);
+					}
 				}
 
-				builder.slot(j + offsetX, i + offsetY, slotBuilder);
 			}
 		}
 	}

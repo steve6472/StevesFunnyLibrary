@@ -220,13 +220,13 @@ public class ElevatorControllerBlock extends CustomBlock implements IBlockData, 
 			ElevatorControllerData data = m.getData("data", ElevatorControllerData.class);
 			return MarkerCodec.slotBuilder(data.pointB, v -> data.pointB = v);
 		})
-		.buttonSlot(6, 4, Material.ARROW, "Reduce speed", (c, cm) -> cm.getPassedData().getData("data", ElevatorControllerData.class).speed -= 0.05)
-		.buttonSlot(8, 4, Material.ARROW, "Add speed", (c, cm) -> cm.getPassedData().getData("data", ElevatorControllerData.class).speed += 0.05)
-		.buttonSlotResponse(7, 2, Material.BARRIER, ChatColor.RED + "Remove Controller", (c, cm) -> { Blocks.setBlockState(cm.getPassedData().getData("location", Location.class), null); return Response.exit(); })
-		.itemSlot(1, 2, d -> d.getData("data", ElevatorControllerData.class).elevatorData, (d, b) -> d.getData("data", ElevatorControllerData.class).elevatorData = b, is -> Items.getCustomItem(is) == Interactable.ELEVATOR_DATA_ITEM)
-		.toggleSlot(8, 0, "Show Points", d -> d.getData("data", ElevatorControllerData.class).showPoints, (d, b) -> d.getData("data", ElevatorControllerData.class).showPoints = b)
-		.toggleSlot(7, 0, "Allow changing direction when moving", d -> d.getData("data", ElevatorControllerData.class).dirChange, (d, b) -> d.getData("data", ElevatorControllerData.class).dirChange = b)
-		.toggleSlot(6, 0, "Seat Activator", d -> d.getData("data", ElevatorControllerData.class).seatActivator, (d, b) -> d.getData("data", ElevatorControllerData.class).seatActivator = b)
-		.toggleSlot(3, 2, "Enabled", d -> d.getData("data", ElevatorControllerData.class).enabled, (d, b) -> d.getData("data", ElevatorControllerData.class).enabled = b)
+		.slot(6, 4, SlotBuilder.buttonSlot(Material.ARROW, "Reduce speed", (c, cm) -> cm.getPassedData().getData("data", ElevatorControllerData.class).speed -= 0.05))
+		.slot(8, 4, SlotBuilder.buttonSlot(Material.ARROW, "Add speed", (c, cm) -> cm.getPassedData().getData("data", ElevatorControllerData.class).speed += 0.05))
+		.slot(7, 2, SlotBuilder.buttonSlotResponse(Material.BARRIER, ChatColor.RED + "Remove Controller", (c, cm) -> { Blocks.setBlockState(cm.getPassedData().getData("location", Location.class), null); return Response.exit(); }))
+		.slot(1, 2, SlotBuilder.itemSlot(d -> d.getData("data", ElevatorControllerData.class).elevatorData, (d, b) -> d.getData("data", ElevatorControllerData.class).elevatorData = b, is -> Items.getCustomItem(is) == Interactable.ELEVATOR_DATA_ITEM))
+		.slot(8, 0, SlotBuilder.toggleSlot("Show Points", d -> d.getData("data", ElevatorControllerData.class).showPoints, (d, b) -> d.getData("data", ElevatorControllerData.class).showPoints = b))
+		.slot(7, 0, SlotBuilder.toggleSlot("Allow changing direction when moving", d -> d.getData("data", ElevatorControllerData.class).dirChange, (d, b) -> d.getData("data", ElevatorControllerData.class).dirChange = b))
+		.slot(6, 0, SlotBuilder.toggleSlot("Seat Activator", d -> d.getData("data", ElevatorControllerData.class).seatActivator, (d, b) -> d.getData("data", ElevatorControllerData.class).seatActivator = b))
+		.slot(3, 2, SlotBuilder.toggleSlot("Enabled", d -> d.getData("data", ElevatorControllerData.class).enabled, (d, b) -> d.getData("data", ElevatorControllerData.class).enabled = b))
 		.applyMask(mask);
 }

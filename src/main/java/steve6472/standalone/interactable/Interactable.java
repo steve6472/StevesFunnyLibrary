@@ -5,14 +5,16 @@ import org.bukkit.Material;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlock;
+import steve6472.funnylib.command.AnnotationCommand;
 import steve6472.funnylib.item.BlockPlacerItem;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.GenericItem;
 import steve6472.funnylib.item.Items;
-import steve6472.funnylib.item.builtin.MultiBlockPlacerItem;
 import steve6472.standalone.interactable.blocks.ActivatingButtonBlock;
 import steve6472.standalone.interactable.blocks.ElevatorControllerBlock;
 import steve6472.standalone.interactable.blocks.ElevatorEditorBlock;
+import steve6472.standalone.interactable.ex.ExpItems;
+import steve6472.standalone.interactable.ex.ExpressionMenu;
 import steve6472.standalone.interactable.worldbutton.WorldButtonListener;
 
 /**
@@ -43,5 +45,8 @@ public class Interactable
 		Items.registerAdminItem(ACTIVATING_BUTTON_ITEM = new BlockPlacerItem(ACTIVATING_BUTTON_BLOCK, "activating_button", Material.WARPED_BUTTON, "Activating Button", 0));
 		Items.registerAdminItem(ELEVATOR_EDITOR_ITEM = new BlockPlacerItem(ELEVATOR_EDITOR_BLOCK, "elevator_editor", Material.CHAIN_COMMAND_BLOCK, "Elevator Editor", 0));
 		Items.registerAdminItem(ELEVATOR_DATA_ITEM = new GenericItem("elevator_data", Material.ENCHANTED_BOOK, "Elevator Data", 0));
+
+		ExpItems.init();
+		AnnotationCommand.registerCommands(ExpressionMenu.class);
 	}
 }
