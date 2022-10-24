@@ -10,5 +10,5 @@ import steve6472.funnylib.context.PlayerContext;
  */
 public interface BreakBlockEvent
 {
-	default void playerBreakBlock(PlayerContext playerContext, BlockFaceContext blockContext, BlockBreakResult result) {}
+	void playerBreakBlock(PlayerContext playerContext, BlockFaceContext blockContext, BlockBreakResult result);
 }

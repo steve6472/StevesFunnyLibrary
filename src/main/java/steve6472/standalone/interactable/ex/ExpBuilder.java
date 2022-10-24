@@ -4,10 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
-import steve6472.funnylib.menu.Menu;
-import steve6472.funnylib.menu.Response;
-import steve6472.funnylib.menu.Slot;
-import steve6472.funnylib.menu.SlotBuilder;
+import steve6472.funnylib.menu.*;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
 
@@ -45,7 +42,25 @@ public class ExpBuilder
 		slotBuilder.allow(ClickType.LEFT, ClickType.RIGHT, ClickType.SHIFT_LEFT, ClickType.SHIFT_RIGHT, ClickType.MIDDLE);
 		slotBuilder.allow(InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF, InventoryAction.CLONE_STACK, InventoryAction.MOVE_TO_OTHER_INVENTORY);
 		final Expression finalExp = currentExpression;
-		slotBuilder.onClick((click, menu) -> finalExp.action(elementType, click, menu, null));
+		slotBuilder.onClick((click, menu) ->
+		{
+			if (click.type() == ClickType.MIDDLE && !menu.hasMetadata("popup"))
+			{
+//				Bukkit.broadcastMessage("Popup " + finalExp.getClass().getSimpleName().toUpperCase() + " " + Integer.toHexString(finalExp.hashCode()));
+
+				menu.applyMask(ExpressionMenu.POPUP);
+				MenuBuilder builder = MenuBuilder.create(3, "POPUP_MENU_" + finalExp.getClass().getSimpleName().toUpperCase());
+				builder.limitOffset(0, 0, 0, Integer.MAX_VALUE);
+				finalExp.createPopup(builder);
+
+				Menu popupMenu = builder.build();
+				menu.setMetadata("popup", popupMenu);
+				popupMenu.overlay(menu, 1, 1, 6, 4);
+
+				return Response.cancel();
+			}
+			return finalExp.action(elementType, click, menu, null);
+		});
 		Slot slot = slotBuilder.build();
 		menu.setSlot(x, y, slot);
 

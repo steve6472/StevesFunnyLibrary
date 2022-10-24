@@ -1,11 +1,13 @@
 package steve6472.standalone.interactable.ex;
 
+import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
+import org.json.JSONObject;
 import steve6472.funnylib.menu.Click;
 import steve6472.funnylib.menu.Menu;
 import steve6472.funnylib.menu.Response;
-import steve6472.funnylib.menu.SlotBuilder;
 import steve6472.funnylib.util.MetaUtil;
+import steve6472.standalone.interactable.ex.impl.IfExp;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,36 +17,65 @@ import java.util.List;
  * Date: 10/6/2022
  * Project: StevesFunnyLibrary <br>
  */
-public class CodeBlock extends Expression
+public class CodeBlockExp extends Expression
 {
 	private final List<Expression> expressions;
 	private final boolean isBody;
+	private final Type type;
 	private int lastExecuted = 0;
-	private ExpResult lastResult;
+	private ExpResult lastResult = ExpResult.STOP;
 
-	public static CodeBlock body(Expression... expressions)
+	public static Expression loadJson(JSONObject json)
 	{
-		return new CodeBlock(true, expressions);
+		if (json.isEmpty())
+			return new CodeBlockExp(null, false, null);
+
+		if (!json.getBoolean("isBody"))
+		{
+			List<Expression> expressionList = Expressions.loadExpressions(json.getJSONArray("expressions"));
+			if (expressionList.isEmpty())
+				return null;
+			return expressionList.get(0);
+		} else
+		{
+			return body(null, Expressions.loadExpressions(json.getJSONArray("expressions")).toArray(new Expression[0]));
+		}
 	}
 
-	public static CodeBlock executor(Expression... expressions)
+	public static CodeBlockExp body(Expression parent, Expression... expressions)
 	{
-		return new CodeBlock(false, expressions);
+		return new CodeBlockExp(parent, true, Type.CONTROL, expressions);
 	}
 
-	private CodeBlock(boolean isBody, Expression... expressions)
+	public static CodeBlockExp executor(Expression parent, Type type, Expression... expressions)
 	{
+		return new CodeBlockExp(parent, false, type, expressions);
+	}
+
+	private CodeBlockExp(Expression parent, boolean isBody, Type type, Expression... expressions)
+	{
+		this.parent = parent;
 		this.isBody = isBody;
-		if (expressions == null || (expressions.length == 1 && expressions[0] == null))
-			this.expressions = new ArrayList<>();
-		else
-			this.expressions = new ArrayList<>(List.of(expressions));
+		this.type = type;
+		this.expressions = new ArrayList<>();
+		if (expressions != null && expressions.length > 0)
+		{
+			for (Expression expression : expressions)
+			{
+				if (expression == null)
+					continue;
+
+				expression.parent = this;
+				this.expressions.add(expression);
+			}
+		}
 	}
 
 	public void addExpression(Expression expression)
 	{
 		if (lastExecuted != 0)
 			throw new RuntimeException("Can not add expression while block is iterating");
+		expression.parent = this;
 		expressions.add(expression);
 	}
 
@@ -60,23 +91,30 @@ public class CodeBlock extends Expression
 		return expressions.isEmpty();
 	}
 
+	public List<Expression> getExpressions()
+	{
+		return expressions;
+	}
+
 	@Override
 	public ExpResult execute(ExpContext context)
 	{
+		if (context.getDelay() > 0)
+			return ExpResult.DELAY;
+
 		while (context.getDelay() == 0 && lastExecuted < expressions.size())
 		{
 			Expression expression = expressions.get(lastExecuted);
 			lastResult = expression.execute(context);
+			lastExecuted++;
 
 			if (lastResult == ExpResult.DELAY)
 			{
 				return ExpResult.DELAY;
 			}
-
-			lastExecuted++;
 		}
 
-		return ExpResult.PASS;
+		return ExpResult.STOP;
 	}
 
 	@Override
@@ -107,20 +145,33 @@ public class CodeBlock extends Expression
 	@Override
 	public Response action(IElementType type, Click click, Menu menu, Expression expression)
 	{
-		if (type == ElementType.NEW_EXP)
-		{
+//		if (type == ElementType.NEW_EXP)
+//		{
 			if (expression == null)
 			{
 				MetaUtil.setMeta(click.player(), "target_exp", this);
 				MetaUtil.setMeta(click.player(), "target_exp_type", type.ordinal());
-				return Response.redirect(ExpressionMenu.EXPRESSIONS_LIST);
+				return switch (this.type)
+					{
+						case CONTROL -> Response.redirect(ExpressionMenu.EXPRESSIONS_LIST);
+						case BOOL -> Response.redirect(ExpressionMenu.BOOL_LIST);
+						case INT -> Response.redirect(ExpressionMenu.INT_LIST);
+						case STRING -> Response.redirect(ExpressionMenu.STRING_LIST);
+						case HIDDEN -> throw new RuntimeException("These expressions are hidden for a reason...");
+					};
 			} else
 			{
 				addExpression(expression);
 			}
-		}
+//		}
 
 		return Response.cancel();
+	}
+
+	@Override
+	public Type getType()
+	{
+		return type;
 	}
 
 	@Override
@@ -159,6 +210,40 @@ public class CodeBlock extends Expression
 	public IElementType[] getTypes()
 	{
 		return ElementType.values();
+	}
+
+	@Override
+	public String stringify(boolean flag)
+	{
+		StringBuilder builder = new StringBuilder();
+		for (Expression expression : expressions)
+		{
+			builder.append(expression.stringify(false));
+			if (isBody)
+				builder.append("\n");
+		}
+		String s = builder.toString();
+		if (s.isBlank())
+			return ChatColor.RED + "X";
+		return s;
+	}
+
+	@Override
+	public void save(JSONObject json)
+	{
+		json.put("isBody", isBody);
+		json.put("type", type);
+		json.put("expressions", Expressions.saveExpressions(expressions));
+	}
+
+	public boolean isBody()
+	{
+		return isBody;
+	}
+
+	public void setParent(Expression parent)
+	{
+		this.parent = parent;
 	}
 
 	public enum ElementType implements IElementType

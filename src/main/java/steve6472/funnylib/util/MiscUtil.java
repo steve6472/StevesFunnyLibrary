@@ -1,5 +1,6 @@
 package steve6472.funnylib.util;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -47,6 +48,14 @@ public class MiscUtil
 	{
 		return ChatColor.RED + "X: " + location.getBlockX() + ChatColor.GREEN + " Y: " + location.getBlockY() + ChatColor.BLUE + " Z: " + location
 			.getBlockZ() + ChatColor.RESET;
+	}
+
+	public static void printStackTrace()
+	{
+		for (StackTraceElement stackTraceElement : Thread.currentThread().getStackTrace())
+		{
+			System.out.println(stackTraceElement);
+		}
 	}
 
 	private static final String MAP_FROM = "0123456789abcdef";

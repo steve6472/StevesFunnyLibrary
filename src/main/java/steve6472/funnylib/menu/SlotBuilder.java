@@ -95,6 +95,15 @@ public class SlotBuilder
 		});
 	}
 
+	public static SlotBuilder stickyButtonSlot_(ItemStack icon, BiConsumer<Click, Menu> action)
+	{
+		return SlotBuilder.create(icon).setSticky().allow(ClickType.LEFT).allow(InventoryAction.PICKUP_ALL).onClick((c, cm) ->
+		{
+			action.accept(c, cm);
+			return Response.cancel();
+		});
+	}
+
 	public static ISlotBuilder buttonSlot(Material material, String label, BiConsumer<Click, Menu> action)
 	{
 		ItemStack icon = ItemStackBuilder

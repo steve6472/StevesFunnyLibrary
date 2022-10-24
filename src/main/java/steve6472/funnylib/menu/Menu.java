@@ -2,6 +2,7 @@ package steve6472.funnylib.menu;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.NotNull;
 import steve6472.funnylib.util.MetaUtil;
 import steve6472.funnylib.util.MiscUtil;
 
@@ -130,6 +131,37 @@ public class Menu
 		stickySlots.remove(new SlotLoc(x, y));
 	}
 
+	public void applyMask(Mask mask)
+	{
+		mask.applyMask(this);
+	}
+
+	public void overlay(Menu below, int minX, int minY, int maxX, int maxY)
+	{
+		// Expressions GUI size
+		for (int i = 0; i < 54; i++)
+		{
+			int x = (i % 9);
+			int y = (i / 9);
+
+			if (x + minX < minX || x + minX > maxX || y + minY < minY || y + minY > maxY)
+				continue;
+
+			Slot slot = getSlot(x, y);
+
+			// TODO: fix below offset
+			below.removeStickySlot(x + minX, y + minY);
+			if (slot == null)
+			{
+				below.removeSlot(x + minX, y + minY);
+			} else
+			{
+				below.setSlot(x + minX, y + minY, slot);
+			}
+		}
+		below.reload();
+	}
+
 	/**
 	 * Ignores slicky slots
 	 * supports negative values somewhat
@@ -183,5 +215,37 @@ public class Menu
 		if (onClose == null) return Response.allow();
 
 		return onClose.apply(this, player);
+	}
+
+	/*
+	 * Metadata
+	 */
+
+	private final Map<String, Object> metadataMap = new HashMap<>();
+
+	public void setMetadata(@NotNull String key, @NotNull Object value)
+	{
+		metadataMap.put(key, value);
+	}
+
+	public <T> T getMetadata(@NotNull String key, @NotNull Class<T> expectedType)
+	{
+		Object o = metadataMap.get(key);
+		if (expectedType.isAssignableFrom(o.getClass()))
+		{
+			//noinspection unchecked
+			return (T) o;
+		}
+		return null;
+	}
+
+	public boolean hasMetadata(@NotNull String key)
+	{
+		return metadataMap.containsKey(key);
+	}
+
+	public void removeMetadata(@NotNull String key)
+	{
+		metadataMap.remove(key);
 	}
 }

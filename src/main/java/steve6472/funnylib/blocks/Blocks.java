@@ -1,5 +1,6 @@
 package steve6472.funnylib.blocks;
 
+import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntListIterator;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -42,9 +43,21 @@ import java.util.*;
  */
 public class Blocks implements Listener
 {
+	/*
+	 * Flags
+	 */
 	public static final int CREATE_DATA = 1;
+	public static final int CALL_ON_REMOVE = 2;
 
-	public static final int DEFAULT_PLACE_FLAGS = CREATE_DATA;
+	/*
+	 * Flag Configurations
+	 */
+	public static final int DEFAULT_PLACE_FLAGS = CREATE_DATA | CALL_ON_REMOVE;
+	public static final int CHANGE_STATE_FLAGS = 0;
+
+	/*
+	 * Visual Separator
+	 */
 
 	public static final Map<String, CustomBlock> BLOCKS = new HashMap<>();
 	public static final NamespacedKey CUSTOM_BLOCKS_KEY = new NamespacedKey(FunnyLib.getPlugin(), "custom_blocks");
@@ -81,7 +94,7 @@ public class Blocks implements Listener
 					continue;
 				}
 
-				for (IntListIterator iterator = chunk.ticking.iterator(); iterator.hasNext(); )
+				for (IntIterator iterator = chunk.ticking.iterator(); iterator.hasNext(); )
 				{
 					int key = iterator.next();
 					State state = chunk.blocks.get(key);
@@ -344,6 +357,11 @@ public class Blocks implements Listener
 	public static void setBlockState(Location location, State state)
 	{
 		CHUNK_MAP.get(location.getChunk()).setBlockState(location, state);
+	}
+
+	public static void changeBlockState(Location location, State state)
+	{
+		CHUNK_MAP.get(location.getChunk()).changeBlockState(location, state);
 	}
 
 	public static void setBlockState(Location location, State state, int flags)

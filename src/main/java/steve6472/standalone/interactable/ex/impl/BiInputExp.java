@@ -1,6 +1,9 @@
 package steve6472.standalone.interactable.ex.impl;
 
+import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
+import org.json.JSONObject;
+import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.standalone.interactable.ex.*;
 
 /**
@@ -10,15 +13,20 @@ import steve6472.standalone.interactable.ex.*;
  */
 public abstract class BiInputExp extends Expression
 {
-	public CodeBlock left, right;
+	private final Type returnType;
+	private final OperatorIcon icon;
+	public CodeBlockExp left, right;
 
-	public BiInputExp(Expression left, Expression right)
+	public BiInputExp(Type returnType, Type leftType, Type rightType, Expression left, Expression right)
 	{
-		this.left = CodeBlock.executor(left);
-		this.right = CodeBlock.executor(right);
+		this.returnType = returnType;
+		this.left = CodeBlockExp.executor(this, leftType, left);
+		this.right = CodeBlockExp.executor(this, rightType, right);
+		this.icon = new OperatorIcon();
 	}
 
 	protected abstract ItemStack getMiddleItem();
+	protected abstract String sign();
 
 	@Override
 	public int getHeight()
@@ -29,13 +37,36 @@ public abstract class BiInputExp extends Expression
 	@Override
 	public int getWidth()
 	{
-		return 3;
+		return 1 + left.getWidth() + right.getWidth();
 	}
 
 	@Override
 	public void build(ExpBuilder builder, int x, int y)
 	{
+		builder.setSlot(x + left.getWidth(), y, icon);
+		builder.build(left, x, y);
+		builder.build(right, x + left.getWidth() + 1, y);
+	}
 
+	@Override
+	public void save(JSONObject json)
+	{
+		json.put("left", Expressions.saveExpression(left));
+		json.put("right", Expressions.saveExpression(right));
+	}
+
+	@FunctionalInterface
+	public interface TriFunction<T>
+	{
+		Expression construct(T operator, Expression left, Expression right);
+	}
+
+	public static <T> Expression load(JSONObject json, T operator, TriFunction<T> constructor)
+	{
+		Expression leftExpr = Expressions.loadExpression(json.optJSONObject("left"));
+		Expression rightExpr = Expressions.loadExpression(json.optJSONObject("right"));
+
+		return constructor.construct(operator, leftExpr, rightExpr);
 	}
 
 	protected boolean runBoth(ExpContext context)
@@ -52,35 +83,79 @@ public abstract class BiInputExp extends Expression
 	@Override
 	public IElementType[] getTypes()
 	{
-		return new IElementType[0];
+		return new IElementType[] {icon};
 	}
 
-	public enum ElementType implements IElementType
+	@Override
+	public String stringify(boolean flag)
 	{
-		LEFT("left", ExpItems.LEFT.newItemStack()),
-		RIGHT("right", ExpItems.RIGHT.newItemStack()),
-		MIDDLE("operator", ExpItems.OPERATOR.newItemStack()),
-		;
+		// (X || X)
+		return
+			boldify("(", flag) +
+			left.stringify(false) +
+			" " +
+			boldify(sign(), flag) +
+			" " +
+			right.stringify(false) +
+			boldify(")", flag);
+	}
 
-		private final String label;
-		private final ItemStack item;
-
-		ElementType(String label, ItemStack item)
+	private static String boldify(String s, boolean flag)
+	{
+		if (flag)
 		{
-			this.label = label;
-			this.item = item;
+			return ChatColor.WHITE + s + ChatColor.DARK_GRAY;
+		} else
+		{
+			return ChatColor.DARK_GRAY + s;
 		}
+	}
 
+	@Override
+	public Type getType()
+	{
+		return returnType;
+	}
+
+	public class OperatorIcon implements IElementType
+	{
 		@Override
 		public String label()
 		{
-			return label;
+			return "operator";
+		}
+
+		@Override
+		public int ordinal()
+		{
+			return 0;
 		}
 
 		@Override
 		public ItemStack item()
 		{
-			return item;
+			ItemStack item = getMiddleItem();
+			ItemStackBuilder edit = ItemStackBuilder.edit(item.clone());
+			if (parent instanceof BiInputExp bix)
+			{
+				edit.addLoreWithLines(recursion(bix));
+			} else
+			{
+				edit.addLoreWithLines(stringify(true));
+			}
+			edit.addLore("");
+			return edit.buildItemStack();
+		}
+
+		private String recursion(BiInputExp bix)
+		{
+			if (bix.parent instanceof BiInputExp bix_)
+			{
+				return recursion(bix_);
+			} else
+			{
+				return bix.stringify(false);
+			}
 		}
 	}
 }

@@ -1,5 +1,6 @@
 package steve6472.standalone.interactable.ex;
 
+import org.bukkit.Location;
 import org.bukkit.World;
 import steve6472.funnylib.util.Preconditions;
 
@@ -11,11 +12,13 @@ import steve6472.funnylib.util.Preconditions;
 public class ExpContext
 {
 	private final World world;
+	private final Location executionLocation;
 	long delayTicks;
 
-	public ExpContext(World world)
+	public ExpContext(Location location)
 	{
-		this.world = world;
+		this.world = location.getWorld();
+		this.executionLocation = location;
 	}
 
 	public void delay(long ticks)
@@ -27,6 +30,11 @@ public class ExpContext
 	public long getDelay()
 	{
 		return delayTicks;
+	}
+
+	public void passDelay()
+	{
+		delayTicks = Math.max(0, delayTicks - 1);
 	}
 
 	public World getWorld()

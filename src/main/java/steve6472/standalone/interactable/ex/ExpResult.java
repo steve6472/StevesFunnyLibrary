@@ -9,6 +9,7 @@ public class ExpResult
 {
 	public static final ExpResult PASS = new ExpResult(null);
 	public static final ExpResult DELAY = new ExpResult(null);
+	public static final ExpResult STOP = new ExpResult(null);
 
 	private Object obj;
 
@@ -30,5 +31,15 @@ public class ExpResult
 	public String asString()
 	{
 		return (String) obj;
+	}
+
+	@Override
+	public String toString()
+	{
+		if      (this == PASS)  return "ExpResult{PASS}";
+		else if (this == DELAY) return "ExpResult{DELAY}";
+		else if (this == STOP)  return "ExpResult{STOP}";
+
+		else return "ExpResult{" + "obj=" + obj + '}';
 	}
 }

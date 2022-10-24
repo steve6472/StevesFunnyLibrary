@@ -71,6 +71,31 @@ public class Mask
 		return this;
 	}
 
+	void applyMask(Menu menu)
+	{
+		for (int i = 0; i < patterns.size(); i++)
+		{
+			String pattern = patterns.get(i);
+			char[] charArray = pattern.toCharArray();
+			for (int j = 0; j < charArray.length; j++)
+			{
+				char c = charArray[j];
+				if (c == emptySlot)
+				{
+					continue;
+				}
+
+				SlotBuilder slotBuilder = characterMap.get(c);
+				if (slotBuilder != null)
+				{
+					menu.setSlot(j + offsetX, i + offsetY, slotBuilder);
+				}
+			}
+		}
+
+		menu.reload();
+	}
+
 	void applyMask(MenuBuilder builder)
 	{
 		for (int i = 0; i < patterns.size(); i++)

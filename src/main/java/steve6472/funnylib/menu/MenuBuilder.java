@@ -69,6 +69,12 @@ public class MenuBuilder
 		return this;
 	}
 
+	public MenuBuilder slot(int index, ISlotBuilder builder)
+	{
+		slot(index % 9, index / 9, builder);
+		return this;
+	}
+
 	public MenuBuilder slot(int x, int y, SlotBuilder builder)
 	{
 		addSlot(new SlotLoc(x, y), builder);

@@ -276,6 +276,8 @@ public class Items implements Listener
 		String id = ItemStackBuilder.edit(item).getCustomId();
 
 		ItemEventEntry itemEventEntry = ITEMS.get(id);
+		if (itemEventEntry == null)
+			return;
 
 		if (itemEventEntry.requireAdmin && !e.getPlayer().isOp())
 			return;

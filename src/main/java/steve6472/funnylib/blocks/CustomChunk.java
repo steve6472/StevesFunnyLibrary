@@ -2,6 +2,7 @@ package steve6472.funnylib.blocks;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntArraySet;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -15,6 +16,7 @@ import steve6472.funnylib.blocks.events.BlockTick;
 import steve6472.funnylib.blocks.stateengine.State;
 import steve6472.funnylib.util.Log;
 
+import static steve6472.funnylib.blocks.Blocks.CALL_ON_REMOVE;
 import static steve6472.funnylib.blocks.Blocks.CREATE_DATA;
 
 /**
@@ -28,7 +30,7 @@ public class CustomChunk
 
 	public Int2ObjectLinkedOpenHashMap<State> blocks = new Int2ObjectLinkedOpenHashMap<>();
 	public Int2ObjectLinkedOpenHashMap<CustomBlockData> blockData = new Int2ObjectLinkedOpenHashMap<>();
-	public IntArrayList ticking = new IntArrayList();
+	public IntArraySet ticking = new IntArraySet();
 
 	public CustomChunk(Chunk bukkitChunk)
 	{
@@ -114,6 +116,16 @@ public class CustomChunk
 		setBlockState(location, state, Blocks.DEFAULT_PLACE_FLAGS);
 	}
 
+	public void changeBlockState(@NotNull Location location, @NotNull State state)
+	{
+		State blockState = getBlockState(location);
+
+		if (blockState == null || blockState.getObject() != state.getObject())
+			throw new RuntimeException("Can not change custom block from this method");
+
+		setBlockState(location, state, Blocks.CHANGE_STATE_FLAGS);
+	}
+
 	public void setBlockState(@NotNull Location location, @Nullable State state, int flags)
 	{
 		if (state == null)
@@ -144,8 +156,12 @@ public class CustomChunk
 		}
 
 		int key = locToKey(location);
+
+		/*
+		 * Replacing custom block with another custom block
+		 */
 		State existingState = blocks.get(key);
-		if (existingState != null)
+		if ((flags & CALL_ON_REMOVE) != 0 && existingState != null)
 		{
 			BlockContext context = new BlockContext(location, existingState);
 
@@ -157,6 +173,7 @@ public class CustomChunk
 
 			cb.onRemove(context);
 		}
+
 		blocks.put(key, state);
 
 		BlockData vanillaState = cb.getVanillaState(new BlockContext(location, state));
@@ -166,6 +183,10 @@ public class CustomChunk
 		{
 			ticking.add(key);
 		}
+
+		/*
+		 * Create Block Data
+		 */
 
 		if ((flags & CREATE_DATA) != 0 && cb instanceof IBlockData data)
 		{
@@ -182,6 +203,7 @@ public class CustomChunk
 		}
 	}
 
+	@Nullable
 	public State getBlockState(@NotNull Location location)
 	{
 		int key = locToKey(location);

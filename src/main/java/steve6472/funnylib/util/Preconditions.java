@@ -1,7 +1,5 @@
 package steve6472.funnylib.util;
 
-import org.jetbrains.annotations.Contract;
-
 import java.util.Collection;
 
 /**

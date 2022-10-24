@@ -1,10 +1,11 @@
 package steve6472.standalone.interactable.ex.impl;
 
-import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+import org.json.JSONObject;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.menu.*;
+import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.standalone.interactable.ex.*;
 
 /**
@@ -14,15 +15,19 @@ import steve6472.standalone.interactable.ex.*;
  */
 public class IfExp extends Expression
 {
-	private final CodeBlock body, condition;
+	private final CodeBlockExp body, condition;
 
 	public IfExp(Expression condition, Expression body)
 	{
-		this.condition = CodeBlock.executor(condition);
-		if (body instanceof CodeBlock cb)
+		this.condition = CodeBlockExp.executor(this, Type.BOOL, condition);
+		if (body instanceof CodeBlockExp cb)
+		{
 			this.body = cb;
-		else
-			this.body = CodeBlock.body(body);
+			this.body.setParent(this);
+		} else
+		{
+			this.body = CodeBlockExp.body(body);
+		}
 	}
 
 	@Override
@@ -77,6 +82,13 @@ public class IfExp extends Expression
 	}
 
 	@Override
+	public void createPopup(MenuBuilder builder)
+	{
+		builder.slot(0, 0, SlotBuilder.buttonSlot(ItemStackBuilder.edit(ExpItems.POPUP_CLOSE.newItemStack()).setName("Clear Condition").buildItemStack(), (c, m) -> condition.getExpressions().clear()));
+		builder.slot(0, 1, SlotBuilder.buttonSlot(ItemStackBuilder.edit(ExpItems.POPUP_CLOSE.newItemStack()).setName("Clear Body").buildItemStack(), (c, m) -> body.getExpressions().clear()));
+	}
+
+	@Override
 	public void build(ExpBuilder builder, int x, int y)
 	{
 		builder.setSlot(x, y, ElementType.START);
@@ -107,6 +119,25 @@ public class IfExp extends Expression
 	public IElementType[] getTypes()
 	{
 		return ElementType.values();
+	}
+
+	@Override
+	public String stringify(boolean flag)
+	{
+		return "if " + condition.stringify(false) + " then\n" + body.stringify(false) + "\nend";
+	}
+
+	@Override
+	public void save(JSONObject json)
+	{
+		json.put("body", Expressions.saveExpression(body));
+		json.put("condition", Expressions.saveExpression(condition));
+	}
+
+	@Override
+	public Type getType()
+	{
+		return Type.CONTROL;
 	}
 
 	public enum ElementType implements IElementType

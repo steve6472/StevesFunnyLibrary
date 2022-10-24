@@ -12,11 +12,11 @@ import steve6472.standalone.interactable.ex.Expression;
  */
 public class ArithmeticExp extends BiInputExp
 {
-	public Type type;
+	public Operator operator;
 
 	public ArithmeticExp(Expression left, Expression right)
 	{
-		super(left, right);
+		super(Type.INT, Type.INT, Type.INT, left, right);
 	}
 
 	@Override
@@ -26,11 +26,17 @@ public class ArithmeticExp extends BiInputExp
 	}
 
 	@Override
+	protected String sign()
+	{
+		return operator.label;
+	}
+
+	@Override
 	public ExpResult execute(ExpContext context)
 	{
 		if (!runBoth(context)) return ExpResult.DELAY;
 
-		int r = switch (type)
+		int r = switch (operator)
 		{
 			case ADD -> left.getResult().asInt() + right.getResult().asInt();
 			case SUB -> left.getResult().asInt() - right.getResult().asInt();
@@ -45,7 +51,7 @@ public class ArithmeticExp extends BiInputExp
 		return new ExpResult(r);
 	}
 
-	public enum Type
+	public enum Operator
 	{
 		ADD("+"),
 		SUB("-"),
@@ -58,7 +64,7 @@ public class ArithmeticExp extends BiInputExp
 
 		private final String label;
 
-		Type(String label)
+		Operator(String label)
 		{
 			this.label = label;
 		}

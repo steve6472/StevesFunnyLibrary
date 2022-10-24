@@ -64,30 +64,52 @@ public class BlockContext
 	{
 		if (block == null)
 		{
-			block = location.getBlock();
+			updateBlock();
 		}
 
 		return block;
+	}
+
+	public void updateBlock()
+	{
+		block = location.getBlock();
 	}
 
 	public State getState()
 	{
 		if (customState == null)
 		{
-			customState = Blocks.getBlockState(location);
+			updateState();
 		}
 
 		return customState;
+	}
+
+	public void updateState()
+	{
+		customState = Blocks.getBlockState(location);
 	}
 
 	public CustomBlockData getBlockData()
 	{
 		if (customBlockData == null)
 		{
-			customBlockData = Blocks.getBlockData(location);
+			updateBlockData();
 		}
 
 		return customBlockData;
+	}
+
+	public void updateBlockData()
+	{
+		customBlockData = Blocks.getBlockData(location);
+	}
+
+	public void updateLazy()
+	{
+		if (block != null) updateBlock();
+		if (customState != null) updateState();
+		if (customBlockData != null) updateBlockData();
 	}
 
 	public <T extends CustomBlockData> T getBlockData(Class<T> expectedType)

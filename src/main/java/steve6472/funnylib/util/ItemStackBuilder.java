@@ -15,7 +15,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import steve6472.funnylib.FunnyLib;
 
-import javax.naming.Name;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -173,6 +172,16 @@ public class ItemStackBuilder
 	/*
 	 * Lore
 	 */
+
+	public ItemStackBuilder addLoreWithLines(String text)
+	{
+		String[] split = text.split("\n");
+		for (String s : split)
+		{
+			addLore(s);
+		}
+		return this;
+	}
 
 	public ItemStackBuilder addLore(JSONMessage[] json)
 	{
