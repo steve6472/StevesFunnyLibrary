@@ -1,5 +1,6 @@
 package steve6472.standalone.interactable.ex;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -41,7 +42,7 @@ public class ExpressionMenu
 		;
 
 	public static final Mask POPUP = Mask.createMask()
-		.addRow(".._____..")
+		.addRow("...___...")
 		.addRow(".______X.")
 		.addRow("._______.")
 		.addRow(".______U.")

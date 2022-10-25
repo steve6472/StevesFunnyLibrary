@@ -146,20 +146,24 @@ public class Menu
 
 			if (x + minX < minX || x + minX > maxX || y + minY < minY || y + minY > maxY)
 				continue;
+//			System.out.print("" + x + ", " + y + " | ");
 
 			Slot slot = getSlot(x, y);
 
-			// TODO: fix below offset
+			int sx = x + minX + below.offsetX;
+			int sy = y + minY + below.offsetY;
+
 			below.removeStickySlot(x + minX, y + minY);
 			if (slot == null)
 			{
-				below.removeSlot(x + minX, y + minY);
+				below.removeSlot(sx, sy);
 			} else
 			{
-				below.setSlot(x + minX, y + minY, slot);
+				below.setSlot(sx, sy, slot);
 			}
 		}
 		below.reload();
+//		System.out.println();
 	}
 
 	/**
