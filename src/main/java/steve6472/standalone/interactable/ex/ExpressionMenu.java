@@ -1,6 +1,5 @@
 package steve6472.standalone.interactable.ex;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -35,11 +34,28 @@ public class ExpressionMenu
 		.addRow(".........", 5)
 		.addRow("XXXXXUDLR")
 		.addItem('X', SlotBuilder.create(ItemStackBuilder.create(Material.WHITE_STAINED_GLASS_PANE).setName("").buildItemStack()).setSticky())
-		.addItem('U', SlotBuilder.stickyButtonSlot(ItemStackBuilder.create(Material.LEATHER_HORSE_ARMOR).setName("Up").setCustomModelData(8).buildItemStack(), (c, m) -> m.move(0, -1)))
-		.addItem('D', SlotBuilder.stickyButtonSlot(ItemStackBuilder.create(Material.LEATHER_HORSE_ARMOR).setName("Down").setCustomModelData(9).buildItemStack(), (c, m) -> m.move(0, 1)))
-		.addItem('L', SlotBuilder.stickyButtonSlot(ItemStackBuilder.create(Material.LEATHER_HORSE_ARMOR).setName("Left").setCustomModelData(10).buildItemStack(), (c, m) -> m.move(-1, 0)))
-		.addItem('R', SlotBuilder.stickyButtonSlot(ItemStackBuilder.create(Material.LEATHER_HORSE_ARMOR).setName("Right").setCustomModelData(11).buildItemStack(), (c, m) -> m.move(1, 0)))
+		.addItem('U', SlotBuilder.stickyButtonSlot(ItemStackBuilder.create(Material.LEATHER_HORSE_ARMOR).setName("Up").setCustomModelData(8).buildItemStack(), (c, m) -> move(c, m,0, -1)))
+		.addItem('D', SlotBuilder.stickyButtonSlot(ItemStackBuilder.create(Material.LEATHER_HORSE_ARMOR).setName("Down").setCustomModelData(9).buildItemStack(), (c, m) -> move(c, m,0, 1)))
+		.addItem('L', SlotBuilder.stickyButtonSlot(ItemStackBuilder.create(Material.LEATHER_HORSE_ARMOR).setName("Left").setCustomModelData(10).buildItemStack(), (c, m) -> move(c, m,-1, 0)))
+		.addItem('R', SlotBuilder.stickyButtonSlot(ItemStackBuilder.create(Material.LEATHER_HORSE_ARMOR).setName("Right").setCustomModelData(11).buildItemStack(), (c, m) -> move(c, m,1, 0)))
 		;
+
+	private static void move(Click click, Menu menu, int x, int y)
+	{
+		menu.move(x, y);
+		MetaUtil.setMeta(click.player(), "exp_menu_x", menu.getOffsetX());
+		MetaUtil.setMeta(click.player(), "exp_menu_y", menu.getOffsetY());
+	}
+
+	public static final Mask POPUP_BACKGROUND = Mask.createMask()
+		.addRow("", 5)
+		.addRow("....P....")
+		.addItem('P', SlotBuilder.create(ExpItems.POPUP_TEST.newItemStack()).setSticky());
+
+	public static final Mask POPUP_NO_BACKGROUND = Mask.createMask()
+		.addRow("", 5)
+		.addRow("....P....")
+		.addItem('P', SlotBuilder.create(ExpItems.POPUP_NO_BACKGROUND.newItemStack()).setSticky());
 
 	public static final Mask POPUP = Mask.createMask()
 		.addRow("...___...")
@@ -49,65 +65,29 @@ public class ExpressionMenu
 		.addRow(".______D.")
 		.addRow("____P____")
 		.addItem('_', SlotBuilder.create(MiscUtil.AIR).setSticky())
-		.addItem('P', SlotBuilder.create(ExpItems.POPUP_TEST.newItemStack()).setSticky())
 		.addItem('X', SlotBuilder.stickyButtonSlot_(ExpItems.POPUP_CLOSE.newItemStack(), (c, m) ->
 		{
+			MetaUtil.removeMeta(c.player(), "target_exp");
+			MetaUtil.removeMeta(c.player(), "target_exp_type");
 			showMenuToPlayer(c.player());
 			m.removeMetadata("popup");
 		}))
-		.addItem('U', SlotBuilder.stickyButtonSlot_(ExpItems.POPUP_UP.newItemStack(), (c, m) ->
+		.addItem('U', SlotBuilder.stickyButtonSlot_(MiscUtil.AIR, (c, m) ->
 		{
 			Menu popupMenu = m.getMetadata("popup", Menu.class);
 			popupMenu.move(0, -1);
 			popupMenu.overlay(m, 1, 1, 6, 4);
+			c.slot().setItem(popupMenu.getOffsetY() <= 0 ? MiscUtil.AIR : ExpItems.POPUP_UP.newItemStack());
 		}))
 		.addItem('D', SlotBuilder.stickyButtonSlot_(ExpItems.POPUP_DOWN.newItemStack(), (c, m) ->
 		{
 			Menu popupMenu = m.getMetadata("popup", Menu.class);
 			popupMenu.move(0, 1);
 			popupMenu.overlay(m, 1, 1, 6, 4);
+
+			m.getSlot(c.slot().getX(), c.slot().getY() - 1).setItem(popupMenu.getOffsetY() <= 0 ? MiscUtil.AIR : ExpItems.POPUP_UP.newItemStack());
 		}))
 		;
-
-	public static final MenuBuilder EXPRESSIONS_LIST = MenuBuilder.create(6, "Select Control Expression")
-		.customBuilder(mb -> {
-			List<Expressions.ExpressionEntry> expressions = Expressions.getExpressions(Expression.Type.CONTROL);
-			for (int i = 0; i < expressions.size(); i++)
-			{
-				Expressions.ExpressionEntry entry = expressions.get(i);
-				mb.slot(i, SlotBuilder.buttonSlot(entry.icon().newItemStack(), addExpression(entry.constructor())));
-			}
-		});
-
-	public static final MenuBuilder BOOL_LIST = MenuBuilder.create(6, "Select Bool Expression")
-		.customBuilder(mb -> {
-			List<Expressions.ExpressionEntry> expressions = Expressions.getExpressions(Expression.Type.BOOL);
-			for (int i = 0; i < expressions.size(); i++)
-			{
-				Expressions.ExpressionEntry entry = expressions.get(i);
-				mb.slot(i, SlotBuilder.buttonSlot(entry.icon().newItemStack(), addExpression(entry.constructor())));
-			}
-		});
-
-	public static final MenuBuilder INT_LIST = MenuBuilder.create(6, "Select Int Expression")
-		.customBuilder(mb -> {
-			List<Expressions.ExpressionEntry> expressions = Expressions.getExpressions(Expression.Type.INT);
-			for (int i = 0; i < expressions.size(); i++)
-			{
-				Expressions.ExpressionEntry entry = expressions.get(i);
-				mb.slot(i, SlotBuilder.buttonSlot(entry.icon().newItemStack(), addExpression(entry.constructor())));
-			}
-		});
-
-	public static final MenuBuilder STRING_LIST = MenuBuilder.create(6, "Select String Expression")
-		.customBuilder(mb -> {
-			List<Expressions.ExpressionEntry> expressions = Expressions.getExpressions(Expression.Type.STRING);
-			for (int i = 0; i < expressions.size(); i++)
-			{
-				Expressions.ExpressionEntry entry = expressions.get(i);
-				mb.slot(i, SlotBuilder.buttonSlot(entry.icon().newItemStack(), addExpression(entry.constructor())));
-			}
-		});
 
 	public static final SlotBuilder PLACEHOLDER = button(ExpItems.PLACEHOLDER.newItemStack(), (c, m) -> Response.cancel());
 
@@ -121,7 +101,7 @@ public class ExpressionMenu
 			.onClick(click);
 	}
 
-	private static BiConsumer<Click, Menu> addExpression(Function<JSONObject, Expression> expressionSupplier)
+	public static BiConsumer<Click, Menu> addExpression(Function<JSONObject, Expression> expressionSupplier)
 	{
 		return (c, m) ->
 		{
@@ -148,7 +128,11 @@ public class ExpressionMenu
 		ExpBuilder builder = new ExpBuilder(menu);
 		builder.build(codeBlock, 0, 0);
 
-		menu.reload();
+		Integer x = MetaUtil.getValue(player, Integer.class, "exp_menu_x");
+		Integer y = MetaUtil.getValue(player, Integer.class, "exp_menu_y");
+
+		// move calls reload()
+		menu.move(x == null ? 0 : x, y == null ? 0 : y);
 
 		menu.showToPlayer(player);
 	}

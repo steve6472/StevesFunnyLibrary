@@ -1,6 +1,5 @@
 package steve6472.standalone.interactable.ex;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
@@ -48,14 +47,7 @@ public class ExpBuilder
 			{
 //				Bukkit.broadcastMessage("Popup " + finalExp.getClass().getSimpleName().toUpperCase() + " " + Integer.toHexString(finalExp.hashCode()));
 
-				menu.applyMask(ExpressionMenu.POPUP);
-				MenuBuilder builder = MenuBuilder.create(3, "POPUP_MENU_" + finalExp.getClass().getSimpleName().toUpperCase());
-				builder.limitOffset(0, 0, 0, Integer.MAX_VALUE);
-				finalExp.createPopup(builder);
-
-				Menu popupMenu = builder.build();
-				menu.setMetadata("popup", popupMenu);
-				popupMenu.overlay(menu, 1, 1, 6, 4);
+				openPopup(finalExp, menu, true);
 
 				return Response.cancel();
 			}
@@ -70,5 +62,20 @@ public class ExpBuilder
 		builder.addLore(Integer.toHexString(currentExpression.hashCode()), ChatColor.DARK_GRAY);
 		builder.customTagInt(ELEMENT_TYPE, elementType.ordinal());
 		slot.setItem(builder.buildItemStack());
+	}
+
+	public static Menu openPopup(Expression exp, Menu menu, boolean background)
+	{
+		menu.applyMask(ExpressionMenu.POPUP);
+		menu.applyMask(background ? ExpressionMenu.POPUP_BACKGROUND : ExpressionMenu.POPUP_NO_BACKGROUND);
+		MenuBuilder builder = MenuBuilder.create(3, "POPUP_MENU_" + exp.getClass().getSimpleName().toUpperCase());
+		builder.limitOffset(0, 0, 0, Integer.MAX_VALUE);
+		exp.createPopup(builder);
+
+		Menu popupMenu = builder.build();
+		menu.setMetadata("popup", popupMenu);
+		popupMenu.overlay(menu, 1, 1, 6, 4);
+
+		return popupMenu;
 	}
 }

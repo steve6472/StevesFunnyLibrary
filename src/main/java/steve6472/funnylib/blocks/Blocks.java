@@ -335,6 +335,8 @@ public class Blocks implements Listener
 	public static void saveChunk(Chunk chunk, boolean unloading)
 	{
 		CustomChunk customChunk = CHUNK_MAP.get(chunk);
+		if (customChunk == null)
+			return;
 		JSONObject json = new JSONObject();
 		customChunk.toJson(json, unloading);
 		chunk.getPersistentDataContainer().set(CUSTOM_BLOCKS_KEY, PersistentDataType.STRING, json.toString());

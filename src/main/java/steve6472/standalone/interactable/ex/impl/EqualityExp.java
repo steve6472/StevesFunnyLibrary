@@ -60,10 +60,10 @@ public class EqualityExp extends BiInputExp
 	public enum Operator
 	{
 		EQUALS("==", ExpItems.EQUALITY_EQUALS),
-		BIGGER(">", ExpItems.EQUALITY_EQUALS),
-		BIGGER_EQUAL(">=", ExpItems.EQUALITY_EQUALS),
+		BIGGER(">", ExpItems.EQUALITY_GREATER),
+		BIGGER_EQUAL(">=", ExpItems.EQUALITY_GREATER_EQUAL),
 		SMALLER("<", ExpItems.EQUALITY_LESS),
-		SMALLER_EQUAL("<=", ExpItems.EQUALITY_EQUALS),
+		SMALLER_EQUAL("<=", ExpItems.EQUALITY_LESS_EQUAL),
 		;
 
 		private final String label;

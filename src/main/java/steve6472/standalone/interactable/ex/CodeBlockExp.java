@@ -3,9 +3,7 @@ package steve6472.standalone.interactable.ex;
 import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 import org.json.JSONObject;
-import steve6472.funnylib.menu.Click;
-import steve6472.funnylib.menu.Menu;
-import steve6472.funnylib.menu.Response;
+import steve6472.funnylib.menu.*;
 import steve6472.funnylib.util.MetaUtil;
 import steve6472.standalone.interactable.ex.impl.IfExp;
 
@@ -151,14 +149,7 @@ public class CodeBlockExp extends Expression
 			{
 				MetaUtil.setMeta(click.player(), "target_exp", this);
 				MetaUtil.setMeta(click.player(), "target_exp_type", type.ordinal());
-				return switch (this.type)
-					{
-						case CONTROL -> Response.redirect(ExpressionMenu.EXPRESSIONS_LIST);
-						case BOOL -> Response.redirect(ExpressionMenu.BOOL_LIST);
-						case INT -> Response.redirect(ExpressionMenu.INT_LIST);
-						case STRING -> Response.redirect(ExpressionMenu.STRING_LIST);
-						case HIDDEN -> throw new RuntimeException("These expressions are hidden for a reason...");
-					};
+				ExpBuilder.openPopup(this, menu, false);
 			} else
 			{
 				addExpression(expression);
@@ -166,6 +157,17 @@ public class CodeBlockExp extends Expression
 //		}
 
 		return Response.cancel();
+	}
+
+	@Override
+	public void createPopup(MenuBuilder builder)
+	{
+		List<Expressions.ExpressionEntry> expressions = Expressions.getExpressions(getType());
+		for (int i = 0; i < expressions.size(); i++)
+		{
+			Expressions.ExpressionEntry entry = expressions.get(i);
+			builder.slot(i % 6, i / 6, SlotBuilder.buttonSlot(entry.icon().newItemStack(), ExpressionMenu.addExpression(entry.constructor())));
+		}
 	}
 
 	@Override

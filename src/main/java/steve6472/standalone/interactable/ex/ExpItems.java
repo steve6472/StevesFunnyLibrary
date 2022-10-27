@@ -16,6 +16,7 @@ public class ExpItems
 	public static CustomItem TEST = Items.registerAdminItem(new GenericItem("ui_texture_test", Material.COMMAND_BLOCK, "Test", 9));
 
 	public static CustomItem POPUP_TEST = Items.registerAdminItem(new GenericItem("popup_test", Material.COMMAND_BLOCK, "Popup", 12));
+	public static CustomItem POPUP_NO_BACKGROUND = Items.registerAdminItem(new GenericItem("popup_no_background", Material.COMMAND_BLOCK, "Popup", 36));
 	public static CustomItem POPUP_CLOSE = Items.registerAdminItem(new GenericItem("popup_close", Material.COMMAND_BLOCK, ChatColor.DARK_RED + "Close", 27));
 	public static CustomItem POPUP_UP = Items.registerAdminItem(new GenericItem("popup_up", Material.COMMAND_BLOCK, ChatColor.WHITE + "Up", 28));
 	public static CustomItem POPUP_DOWN = Items.registerAdminItem(new GenericItem("popup_down", Material.COMMAND_BLOCK, ChatColor.WHITE + "Down", 29));
@@ -35,6 +36,12 @@ public class ExpItems
 	public static CustomItem EQUALITY_EQUALS_ICON = Items.registerAdminItem(GenericItem.builder(Material.COMMAND_BLOCK, "equality_equals_icon").customModel(22).name(ChatColor.DARK_AQUA + "Equals").build());
 	public static CustomItem EQUALITY_LESS = Items.registerAdminItem(GenericItem.builder(Material.COMMAND_BLOCK, "equality_less").customModel(24).name(ChatColor.DARK_AQUA + "Less").build());
 	public static CustomItem EQUALITY_LESS_ICON = Items.registerAdminItem(GenericItem.builder(Material.COMMAND_BLOCK, "equality_less_icon").customModel(25).name(ChatColor.DARK_AQUA + "Less").build());
+	public static CustomItem EQUALITY_LESS_EQUAL = Items.registerAdminItem(GenericItem.builder(Material.COMMAND_BLOCK, "equality_less_equal").customModel(30).name(ChatColor.DARK_AQUA + "Less Equal").build());
+	public static CustomItem EQUALITY_LESS_EQUAL_ICON = Items.registerAdminItem(GenericItem.builder(Material.COMMAND_BLOCK, "equality_less_equal_icon").customModel(31).name(ChatColor.DARK_AQUA + "Less Equal").build());
+	public static CustomItem EQUALITY_GREATER = Items.registerAdminItem(GenericItem.builder(Material.COMMAND_BLOCK, "equality_greater").customModel(32).name(ChatColor.DARK_AQUA + "Greater").build());
+	public static CustomItem EQUALITY_GREATER_ICON = Items.registerAdminItem(GenericItem.builder(Material.COMMAND_BLOCK, "equality_greater_icon").customModel(33).name(ChatColor.DARK_AQUA + "Greater").build());
+	public static CustomItem EQUALITY_GREATER_EQUAL = Items.registerAdminItem(GenericItem.builder(Material.COMMAND_BLOCK, "equality_greater_equal").customModel(34).name(ChatColor.DARK_AQUA + "Greater Equal").build());
+	public static CustomItem EQUALITY_GREATER_EQUAL_ICON = Items.registerAdminItem(GenericItem.builder(Material.COMMAND_BLOCK, "equality_greater_equal_icon").customModel(35).name(ChatColor.DARK_AQUA + "Greater Equal").build());
 
 	public static CustomItem ADD_EXPRESSION = Items.registerAdminItem(new GenericItem("add_expression", Material.COMMAND_BLOCK, "Add Expression", 10));
 	public static CustomItem PLACEHOLDER = Items.registerAdminItem(new GenericItem("placeholder", Material.LEATHER_HORSE_ARMOR, "Placeholder", 1));

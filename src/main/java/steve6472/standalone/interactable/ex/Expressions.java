@@ -37,6 +37,9 @@ public class Expressions
 		register(Type.BOOL, ExpItems.LOGIC_OR_ICON, "or", json -> new LogicExpr(json.optEnum(LogicExpr.Operator.class, "operator", LogicExpr.Operator.OR), loadExpression(json.optJSONObject("left")), loadExpression(json.optJSONObject("right"))));
 		register(Type.BOOL, ExpItems.EQUALITY_EQUALS_ICON, "equals", json -> BiInputExp.load(json, EqualityExp.Operator.EQUALS, EqualityExp::new));
 		register(Type.BOOL, ExpItems.EQUALITY_LESS_ICON, "less", json -> BiInputExp.load(json, EqualityExp.Operator.SMALLER, EqualityExp::new));
+		register(Type.BOOL, ExpItems.EQUALITY_LESS_EQUAL_ICON, "less_equal", json -> BiInputExp.load(json, EqualityExp.Operator.SMALLER_EQUAL, EqualityExp::new));
+		register(Type.BOOL, ExpItems.EQUALITY_GREATER_ICON, "greater", json -> BiInputExp.load(json, EqualityExp.Operator.BIGGER, EqualityExp::new));
+		register(Type.BOOL, ExpItems.EQUALITY_GREATER_EQUAL_ICON, "greater_equal", json -> BiInputExp.load(json, EqualityExp.Operator.BIGGER_EQUAL, EqualityExp::new));
 		register(Type.CONTROL, ExpItems.DEBUG_HERE_ICON, "debug_here", json -> new DebugHereExp(json.optInt("id")));
 		register(Type.CONTROL, ExpItems.DELAY_ICON, "delay", json -> new DelayExp(json.optLong("ticks")));
 		register(Type.INT, ExpItems.CONSTANT_NUMBER, "const_int", json -> new ConstantNumberExp(json.optInt("number")));
