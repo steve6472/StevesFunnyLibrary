@@ -1,9 +1,12 @@
 package steve6472.funnylib.json.codec.codecs;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.json.JSONObject;
 import steve6472.funnylib.json.codec.Codec;
+
+import java.util.UUID;
 
 /**
  * Created by steve6472
@@ -15,7 +18,14 @@ public class LocationCodec extends Codec<Location>
 	@Override
 	public Location fromJson(JSONObject json)
 	{
-		return new Location((World) json.opt("world"), json.getDouble("x"), json.getDouble("y"), json.getDouble("z"), json.optFloat("yaw", 0.0f), json.optFloat("pitch", 0.0f));
+		String worldUUID = json.optString("world", null);
+		World world = null;
+		if (worldUUID != null)
+		{
+			world = Bukkit.getWorld(UUID.fromString(worldUUID));
+		}
+
+		return new Location(world, json.getDouble("x"), json.getDouble("y"), json.getDouble("z"), json.optFloat("yaw", 0.0f), json.optFloat("pitch", 0.0f));
 	}
 
 	@Override
@@ -23,7 +33,7 @@ public class LocationCodec extends Codec<Location>
 	{
 		if (obj.getWorld() != null)
 		{
-			json.put("world", obj.getWorld().getName());
+			json.put("world", obj.getWorld().getUID().toString());
 		}
 
 		json.put("x", obj.getX());

@@ -12,7 +12,7 @@ import org.bukkit.plugin.Plugin;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlock;
 import steve6472.funnylib.blocks.builtin.MultiBlock;
-import steve6472.funnylib.json.codec.codecs.MarkerCodec;
+import steve6472.funnylib.json.codec.codecs.*;
 import steve6472.funnylib.util.GlowingUtil;
 import steve6472.standalone.exnulla.blocks.CrucibleBlock;
 import steve6472.standalone.exnulla.blocks.SilkLeavesBlock;
@@ -23,9 +23,6 @@ import steve6472.funnylib.events.ServerTickEvent;
 import steve6472.funnylib.item.BlockPlacerItem;
 import steve6472.funnylib.item.builtin.*;
 import steve6472.funnylib.json.codec.Codec;
-import steve6472.funnylib.json.codec.codecs.EntityCodec;
-import steve6472.funnylib.json.codec.codecs.ItemStackCodec;
-import steve6472.funnylib.json.codec.codecs.LocationCodec;
 import steve6472.funnylib.menu.MenuListener;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.Items;
@@ -178,6 +175,7 @@ public class FunnyLib
 		Codec.registerCodec(new ItemStackCodec());
 		Codec.registerCodec(new EntityCodec());
 		Codec.registerCodec(new MarkerCodec());
+		Codec.registerCodec(new WorldCodec());
 
 		Blocks.registerBlock(TELEPORT_BUTTON_BLOCK = new TeleportButtonBlock());
 		Blocks.registerBlock(MULTI_BLOCK = new MultiBlock());

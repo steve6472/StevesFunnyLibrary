@@ -3,29 +3,19 @@ package steve6472.funnylib.blocks.builtin;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;
-import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlock;
 import steve6472.funnylib.blocks.CustomBlockData;
 import steve6472.funnylib.blocks.IBlockData;
 import steve6472.funnylib.blocks.events.BlockClickEvents;
-import steve6472.funnylib.blocks.events.BlockTick;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.json.codec.ann.Save;
-import steve6472.funnylib.json.codec.ann.SaveInt;
 import steve6472.funnylib.json.codec.codecs.EntityCodec;
-import steve6472.funnylib.util.Checks;
 import steve6472.funnylib.util.ItemStackBuilder;
-import steve6472.standalone.exnulla.ExNulla;
-
-import java.util.List;
 
 /**
  * Created by steve6472
@@ -36,7 +26,7 @@ public abstract class ItemFrameBlock extends CustomBlock implements IBlockData, 
 {
 	public static class Data extends CustomBlockData
 	{
-		@Save(type = EntityCodec.class)
+		@Save(value = EntityCodec.class)
 		Entity frame;
 	}
 

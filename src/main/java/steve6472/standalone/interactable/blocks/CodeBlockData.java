@@ -1,6 +1,7 @@
 package steve6472.standalone.interactable.blocks;
 
 import steve6472.funnylib.blocks.CustomBlockData;
+import steve6472.funnylib.json.codec.ann.Save;
 import steve6472.standalone.interactable.ex.CodeExecutor;
 
 /**
@@ -10,5 +11,5 @@ import steve6472.standalone.interactable.ex.CodeExecutor;
  */
 public class CodeBlockData extends CustomBlockData
 {
-	CodeExecutor executor;
+	@Save CodeExecutor executor;
 }

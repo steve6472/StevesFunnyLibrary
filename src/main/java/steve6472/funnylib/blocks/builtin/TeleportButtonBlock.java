@@ -42,7 +42,7 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 
 	public static class TeleportButtonData extends CustomBlockData
 	{
-		@Save(type = ItemStackCodec.class)
+		@Save(value = ItemStackCodec.class)
 		private ItemStack item = MiscUtil.AIR;
 	}
 

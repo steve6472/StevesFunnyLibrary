@@ -1,16 +1,14 @@
 package steve6472.funnylib.command;
 
 import net.minecraft.nbt.Tag;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_19_R1.persistence.CraftPersistentDataContainer;
 import org.bukkit.craftbukkit.v1_19_R1.persistence.DirtyCraftPersistentDataContainer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.blocks.Blocks;
@@ -19,6 +17,7 @@ import steve6472.funnylib.item.Items;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.RepeatingTask;
+import steve6472.standalone.FunnyLibStandalone;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -190,6 +189,9 @@ public class BuiltInCommands
 	{
 		boolean broadcast = hasFlag("-b", args);
 
+		if (player.getLocation().getWorld() != null)
+			player.getLocation().getWorld().save();
+
 		PersistentDataContainer chunkData = player.getLocation().getChunk().getPersistentDataContainer();
 		CraftPersistentDataContainer container = (CraftPersistentDataContainer) chunkData;
 		Map<String, Tag> stringTagMap = container.getRaw();
@@ -212,6 +214,8 @@ public class BuiltInCommands
 	{
 		boolean broadcast = hasFlag("-b", args);
 
+		if (player.getLocation().getWorld() != null)
+			player.getLocation().getWorld().save();
 		CustomChunk chunk = Blocks.CHUNK_MAP.get(player.getLocation().getChunk());
 		chunk.blockData.forEach((k, v) -> {
 			player.sendMessage(k + "(" + CustomChunk.keyToX(k) + "/" + CustomChunk.keyToY(k) + "/" + CustomChunk.keyToZ(k) + " -> " + v);
@@ -256,7 +260,29 @@ public class BuiltInCommands
 		return true;
 	}
 
-
+	@Command
+	@Description("Removes akmashorts chunks")
+	@Usage("/clearAkmaChunks")
+	public static boolean clearAkmaChunks(@NotNull Player player, @NotNull String[] args)
+	{
+		new RepeatingTask((JavaPlugin) FunnyLib.getPlugin(), 0, 60)
+		{
+			@Override
+			public void run()
+			{
+				for (World world : Bukkit.getWorlds())
+				{
+					for (Chunk loadedChunk : world.getLoadedChunks())
+					{
+						PersistentDataContainer chunkData = loadedChunk.getPersistentDataContainer();
+						Blocks.CHUNK_MAP.remove(loadedChunk);
+						chunkData.remove(new NamespacedKey("akmashorts", "custom_blocks"));
+					}
+				}
+			}
+		}.sendStopMessage(player);
+		return true;
+	}
 
 
 

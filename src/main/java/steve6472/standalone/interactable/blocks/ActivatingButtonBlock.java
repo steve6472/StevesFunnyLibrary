@@ -28,7 +28,6 @@ import steve6472.funnylib.menu.Mask;
 import steve6472.funnylib.menu.MenuBuilder;
 import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.menu.SlotBuilder;
-import steve6472.funnylib.util.BlockGen;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.standalone.interactable.Interactable;
 
@@ -46,7 +45,7 @@ public class ActivatingButtonBlock extends CustomBlock implements IBlockData, Bl
 
 	public static class ActivatingData extends CustomBlockData
 	{
-		@Save(type = MarkerCodec.class)
+		@Save(value = MarkerCodec.class)
 		private Vector block;
 		@SaveString
 		private String material = Material.STONE_BUTTON.name();

@@ -2,6 +2,10 @@ package steve6472.standalone.interactable.ex;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+import steve6472.funnylib.json.codec.ann.Save;
+import steve6472.funnylib.json.codec.ann.SaveLong;
+import steve6472.funnylib.json.codec.codecs.LocationCodec;
+import steve6472.funnylib.json.codec.codecs.WorldCodec;
 import steve6472.funnylib.util.Preconditions;
 
 /**
@@ -11,9 +15,15 @@ import steve6472.funnylib.util.Preconditions;
  */
 public class ExpContext
 {
-	private final World world;
-	private final Location executionLocation;
-	long delayTicks;
+	@Save(WorldCodec.class)     private final World world;
+	@Save(LocationCodec.class)  private final Location executionLocation;
+	@SaveLong                   long delayTicks;
+
+	public ExpContext()
+	{
+		world = null;
+		executionLocation = null;
+	}
 
 	public ExpContext(Location location)
 	{

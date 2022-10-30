@@ -38,9 +38,9 @@ public class CrucibleBlock extends CustomBlock implements IBlockData, BlockClick
 	{
 		@SaveInt
 		int cobblestoneAmount, lavaAmount;
-		@Save(type = EntityCodec.class)
+		@Save(value = EntityCodec.class)
 		Entity frame;
-		@Save(type = EntityCodec.class)
+		@Save(value = EntityCodec.class)
 		ArmorStand indicator, dataLabel;
 
 		boolean zeroedOut = false;

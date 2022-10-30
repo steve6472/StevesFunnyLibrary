@@ -15,7 +15,7 @@ public class ExpItems
 {
 	public static CustomItem TEST = Items.registerAdminItem(new GenericItem("ui_texture_test", Material.COMMAND_BLOCK, "Test", 9));
 
-	public static CustomItem POPUP_TEST = Items.registerAdminItem(new GenericItem("popup_test", Material.COMMAND_BLOCK, "Popup", 12));
+	public static CustomItem POPUP_BACKGROUND = Items.registerAdminItem(new GenericItem("popup_background", Material.COMMAND_BLOCK, "Popup", 12));
 	public static CustomItem POPUP_NO_BACKGROUND = Items.registerAdminItem(new GenericItem("popup_no_background", Material.COMMAND_BLOCK, "Popup", 36));
 	public static CustomItem POPUP_CLOSE = Items.registerAdminItem(new GenericItem("popup_close", Material.COMMAND_BLOCK, ChatColor.DARK_RED + "Close", 27));
 	public static CustomItem POPUP_UP = Items.registerAdminItem(new GenericItem("popup_up", Material.COMMAND_BLOCK, ChatColor.WHITE + "Up", 28));

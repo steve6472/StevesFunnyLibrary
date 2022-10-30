@@ -6,7 +6,6 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.blocks.*;
-import steve6472.funnylib.blocks.events.BreakBlockEvent;
 import steve6472.funnylib.blocks.events.BlockTick;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.PlayerBlockContext;
@@ -33,7 +32,7 @@ public class SilkLeavesBlock extends CustomBlock implements IBlockData, BlockTic
 		@SaveDouble
 		public double percentage;
 
-		@Save(type = EntityCodec.class)
+		@Save(value = EntityCodec.class)
 		public ItemFrame itemFrame;
 	}
 

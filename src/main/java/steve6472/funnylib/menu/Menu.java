@@ -205,6 +205,16 @@ public class Menu
 		}
 	}
 
+	public void clear()
+	{
+		slots.clear();
+		stickySlots.clear();
+		inventory.clear();
+		offsetX = 0;
+		offsetY = 0;
+		metadataMap.clear();
+	}
+
 	public ArbitraryData getPassedData()
 	{
 		return passedData;
@@ -251,5 +261,10 @@ public class Menu
 	public void removeMetadata(@NotNull String key)
 	{
 		metadataMap.remove(key);
+	}
+
+	public Map<String, Object> getMetadataMap()
+	{
+		return metadataMap;
 	}
 }

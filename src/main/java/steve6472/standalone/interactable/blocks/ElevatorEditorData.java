@@ -26,7 +26,7 @@ import java.util.List;
 
 public class ElevatorEditorData extends CustomBlockData
 {
-	@Save(type = ItemStackCodec.class)
+	@Save(value = ItemStackCodec.class)
 	public ItemStack structure = MiscUtil.AIR;
 
 	@SaveBool

@@ -1,5 +1,6 @@
 package steve6472.standalone.interactable.ex;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
@@ -43,6 +44,10 @@ public class ExpBuilder
 		final Expression finalExp = currentExpression;
 		slotBuilder.onClick((click, menu) ->
 		{
+			Bukkit.broadcastMessage("" + menu.hasMetadata("popup"));
+			menu.getMetadataMap().forEach((k, v) -> {
+				Bukkit.broadcastMessage(k + " -> " + v);
+			});
 			if (click.type() == ClickType.MIDDLE && !menu.hasMetadata("popup"))
 			{
 //				Bukkit.broadcastMessage("Popup " + finalExp.getClass().getSimpleName().toUpperCase() + " " + Integer.toHexString(finalExp.hashCode()));

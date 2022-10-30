@@ -1,5 +1,6 @@
 package steve6472.funnylib.json.codec;
 
+import com.google.gson.JsonNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import steve6472.funnylib.json.codec.ann.*;
@@ -61,12 +62,22 @@ public abstract class Codec<T>
 	{
 		JSONObject json = new JSONObject();
 
+		if (object == null)
+		{
+			json.put("__null__", true);
+			return json;
+		}
+
 		for (Field declaredField : object.getClass().getDeclaredFields())
 		{
 			declaredField.setAccessible(true);
 			if (declaredField.isAnnotationPresent(SaveInt.class))
 			{
 				json.put(declaredField.getName(), (int) declaredField.get(object));
+			}
+			if (declaredField.isAnnotationPresent(SaveLong.class))
+			{
+				json.put(declaredField.getName(), (long) declaredField.get(object));
 			}
 			else if (declaredField.isAnnotationPresent(SaveDouble.class))
 			{
@@ -93,11 +104,11 @@ public abstract class Codec<T>
 			else if (declaredField.isAnnotationPresent(Save.class))
 			{
 				Save annotation = declaredField.getAnnotation(Save.class);
-				if (annotation.type() != ObjectCodec.class)
+				if (annotation.value() != ObjectCodec.class)
 				{
-					Codec<?> codec = Codec.CODECS.get(annotation.type());
+					Codec<?> codec = Codec.CODECS.get(annotation.value());
 					if (codec == null)
-						throw new RuntimeException("Codec for type " + annotation.type() + " not found!");
+						throw new RuntimeException("Codec for type " + annotation.value() + " not found!");
 					JSONObject objSave = new JSONObject();
 					codec.toJSON(declaredField.get(object), objSave);
 					json.put(declaredField.getName(), objSave);
@@ -119,6 +130,10 @@ public abstract class Codec<T>
 			if (declaredField.isAnnotationPresent(SaveInt.class))
 			{
 				declaredField.set(object, json.optInt(declaredField.getName(), declaredField.getAnnotation(SaveInt.class).defVal()));
+			}
+			if (declaredField.isAnnotationPresent(SaveLong.class))
+			{
+				declaredField.set(object, json.optLong(declaredField.getName(), declaredField.getAnnotation(SaveLong.class).defVal()));
 			}
 			else if (declaredField.isAnnotationPresent(SaveDouble.class))
 			{
@@ -149,11 +164,11 @@ public abstract class Codec<T>
 			else if (declaredField.isAnnotationPresent(Save.class))
 			{
 				Save annotation = declaredField.getAnnotation(Save.class);
-				if (annotation.type() != ObjectCodec.class)
+				if (annotation.value() != ObjectCodec.class)
 				{
-					Codec<?> codec = Codec.CODECS.get(annotation.type());
+					Codec<?> codec = Codec.CODECS.get(annotation.value());
 					if (codec == null)
-						throw new RuntimeException("Codec for type " + annotation.type() + " not found!");
+						throw new RuntimeException("Codec for type " + annotation.value() + " not found!");
 					JSONObject jsonData = json.optJSONObject(declaredField.getName(), null);
 					if (jsonData == null)
 					{
@@ -167,12 +182,20 @@ public abstract class Codec<T>
 				{
 					if (json.has(declaredField.getName()))
 					{
-						final Constructor<?> declaredConstructors = declaredField.getType().getDeclaredConstructor();
-						final Object o = declaredConstructors.newInstance();
+						JSONObject jsonObject = json.getJSONObject(declaredField.getName());
 
-						load_(o, json.getJSONObject(declaredField.getName()));
+						if (jsonObject.optBoolean("__null__"))
+						{
+							declaredField.set(object, null);
+						} else
+						{
+							final Constructor<?> declaredConstructors = declaredField.getType().getDeclaredConstructor();
+							final Object o = declaredConstructors.newInstance();
 
-						declaredField.set(object, o);
+							load_(o, jsonObject);
+
+							declaredField.set(object, o);
+						}
 					} else
 					{
 						declaredField.set(object, null);

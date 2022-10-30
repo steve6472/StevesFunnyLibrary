@@ -2,7 +2,6 @@ package steve6472.standalone.interactable.blocks;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BoundingBox;
@@ -36,7 +35,7 @@ import java.util.List;
  */
 public class ElevatorControllerData extends CustomBlockData
 {
-	@Save(type = MarkerCodec.class)
+	@Save(value = MarkerCodec.class)
 	public Vector pointA, pointB;
 
 	@SaveDouble
@@ -48,10 +47,10 @@ public class ElevatorControllerData extends CustomBlockData
 	@SaveInt
 	public int movingDirection; // 0 - none, 1 - to point A, 2 - to point B
 
-	@Save(type = ItemStackCodec.class)
+	@Save(ItemStackCodec.class)
 	public ItemStack elevatorData = MiscUtil.AIR;
 
-	@Save(type = EntityCodec.class)
+	@Save(EntityCodec.class)
 	ArmorStand dataLabel;
 
 	SolidBlockEntity sbe;

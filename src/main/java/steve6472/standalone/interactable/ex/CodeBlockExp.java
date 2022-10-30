@@ -5,7 +5,6 @@ import org.bukkit.inventory.ItemStack;
 import org.json.JSONObject;
 import steve6472.funnylib.menu.*;
 import steve6472.funnylib.util.MetaUtil;
-import steve6472.standalone.interactable.ex.impl.IfExp;
 
 import java.util.ArrayList;
 import java.util.List;

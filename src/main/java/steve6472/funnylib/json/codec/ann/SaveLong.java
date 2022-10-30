@@ -1,8 +1,5 @@
 package steve6472.funnylib.json.codec.ann;
 
-import steve6472.funnylib.json.codec.Codec;
-import steve6472.funnylib.json.codec.codecs.ObjectCodec;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -17,7 +14,7 @@ import static java.lang.annotation.ElementType.FIELD;
  ***********************/
 @Retention(RetentionPolicy.RUNTIME)
 @Target(FIELD)
-public @interface Save
+public @interface SaveLong
 {
-	Class<? extends Codec<?>> value() default ObjectCodec.class;
+	long defVal() default 0L;
 }

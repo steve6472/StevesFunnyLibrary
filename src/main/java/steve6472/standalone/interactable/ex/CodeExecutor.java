@@ -2,6 +2,7 @@ package steve6472.standalone.interactable.ex;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import steve6472.funnylib.json.codec.ann.Save;
 
 /**
  * Created by steve6472
@@ -10,8 +11,13 @@ import org.bukkit.ChatColor;
  */
 public class CodeExecutor
 {
-	public Expression expression;
-	public ExpContext context;
+	@Save(ExpressionCodec.class)    public Expression expression;
+	@Save                           public ExpContext context;
+
+	public CodeExecutor()
+	{
+
+	}
 
 	public CodeExecutor(Expression expression, ExpContext context)
 	{

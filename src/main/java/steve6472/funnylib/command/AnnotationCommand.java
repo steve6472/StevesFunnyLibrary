@@ -45,7 +45,13 @@ public class AnnotationCommand extends BukkitCommand
 
 	public static String[] sendUsage(@Nullable CommandSender sender, String command)
 	{
-		String[] usage = AnnotationCommand.commands.get(command).usages();
+		CommandData commandData = AnnotationCommand.commands.get(command);
+		if (commandData == null)
+		{
+			return new String[]{ChatColor.RED + "Can not generate usage for command " + command
+				, ChatColor.RED + "Command not found"};
+		}
+		String[] usage = commandData.usages();
 		List<String> usageMsg = new ArrayList<>();
 		if (usage != null)
 		{
@@ -69,7 +75,17 @@ public class AnnotationCommand extends BukkitCommand
 
 	public static JSONMessage[] sendDescription(@Nullable CommandSender sender, String command)
 	{
-		String[] description = AnnotationCommand.commands.get(command).description();
+		CommandData commandData = AnnotationCommand.commands.get(command);
+		if (commandData == null)
+		{
+			return new JSONMessage[]{JSONMessage
+				.create("Can not generate description for command " + command)
+				.color(ChatColor.RED)
+				.newline()
+				.then("Command not found").color(ChatColor.RED)};
+		}
+
+		String[] description = commandData.description();
 		List<JSONMessage> descriptionMsg = new ArrayList<>();
 		if (description != null)
 		{

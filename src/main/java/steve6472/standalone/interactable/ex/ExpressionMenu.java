@@ -3,9 +3,6 @@ package steve6472.standalone.interactable.ex;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryAction;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import steve6472.funnylib.command.Command;
@@ -18,9 +15,7 @@ import steve6472.funnylib.util.MetaUtil;
 import steve6472.funnylib.util.MiscUtil;
 import steve6472.funnylib.util.Preconditions;
 
-import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -34,10 +29,10 @@ public class ExpressionMenu
 		.addRow(".........", 5)
 		.addRow("XXXXXUDLR")
 		.addItem('X', SlotBuilder.create(ItemStackBuilder.create(Material.WHITE_STAINED_GLASS_PANE).setName("").buildItemStack()).setSticky())
-		.addItem('U', SlotBuilder.stickyButtonSlot(ItemStackBuilder.create(Material.LEATHER_HORSE_ARMOR).setName("Up").setCustomModelData(8).buildItemStack(), (c, m) -> move(c, m,0, -1)))
-		.addItem('D', SlotBuilder.stickyButtonSlot(ItemStackBuilder.create(Material.LEATHER_HORSE_ARMOR).setName("Down").setCustomModelData(9).buildItemStack(), (c, m) -> move(c, m,0, 1)))
-		.addItem('L', SlotBuilder.stickyButtonSlot(ItemStackBuilder.create(Material.LEATHER_HORSE_ARMOR).setName("Left").setCustomModelData(10).buildItemStack(), (c, m) -> move(c, m,-1, 0)))
-		.addItem('R', SlotBuilder.stickyButtonSlot(ItemStackBuilder.create(Material.LEATHER_HORSE_ARMOR).setName("Right").setCustomModelData(11).buildItemStack(), (c, m) -> move(c, m,1, 0)))
+		.addItem('U', SlotBuilder.stickyButtonSlot_(ItemStackBuilder.create(Material.LEATHER_HORSE_ARMOR).setName("Up").setCustomModelData(8).buildItemStack(), (c, m) -> move(c, m,0, -1)))
+		.addItem('D', SlotBuilder.stickyButtonSlot_(ItemStackBuilder.create(Material.LEATHER_HORSE_ARMOR).setName("Down").setCustomModelData(9).buildItemStack(), (c, m) -> move(c, m,0, 1)))
+		.addItem('L', SlotBuilder.stickyButtonSlot_(ItemStackBuilder.create(Material.LEATHER_HORSE_ARMOR).setName("Left").setCustomModelData(10).buildItemStack(), (c, m) -> move(c, m,-1, 0)))
+		.addItem('R', SlotBuilder.stickyButtonSlot_(ItemStackBuilder.create(Material.LEATHER_HORSE_ARMOR).setName("Right").setCustomModelData(11).buildItemStack(), (c, m) -> move(c, m,1, 0)))
 		;
 
 	private static void move(Click click, Menu menu, int x, int y)
@@ -50,7 +45,7 @@ public class ExpressionMenu
 	public static final Mask POPUP_BACKGROUND = Mask.createMask()
 		.addRow("", 5)
 		.addRow("....P....")
-		.addItem('P', SlotBuilder.create(ExpItems.POPUP_TEST.newItemStack()).setSticky());
+		.addItem('P', SlotBuilder.create(ExpItems.POPUP_BACKGROUND.newItemStack()).setSticky());
 
 	public static final Mask POPUP_NO_BACKGROUND = Mask.createMask()
 		.addRow("", 5)
@@ -69,8 +64,8 @@ public class ExpressionMenu
 		{
 			MetaUtil.removeMeta(c.player(), "target_exp");
 			MetaUtil.removeMeta(c.player(), "target_exp_type");
-			showMenuToPlayer(c.player());
-			m.removeMetadata("popup");
+			construct(c.player(), m);
+			m.applyMask(MAIN_MASK);
 		}))
 		.addItem('U', SlotBuilder.stickyButtonSlot_(MiscUtil.AIR, (c, m) ->
 		{
@@ -89,17 +84,11 @@ public class ExpressionMenu
 		}))
 		;
 
-	public static final SlotBuilder PLACEHOLDER = button(ExpItems.PLACEHOLDER.newItemStack(), (c, m) -> Response.cancel());
-
-	private static final MenuBuilder BUILDER = MenuBuilder.create(6, "Expressions").applyMask(MAIN_MASK);
-
-	private static SlotBuilder button(ItemStack icon, BiFunction<Click, Menu, Response> click)
+	private static final MenuBuilder BUILDER = MenuBuilder.create(6, "Expressions").setOnClose((m, p) ->
 	{
-		return SlotBuilder.create(icon)
-			.allow(ClickType.LEFT)
-			.allow(InventoryAction.PICKUP_ALL)
-			.onClick(click);
-	}
+		MetaUtil.removeMeta(p, "code_block");
+		return Response.allow();
+	}).applyMask(MAIN_MASK);
 
 	public static BiConsumer<Click, Menu> addExpression(Function<JSONObject, Expression> expressionSupplier)
 	{
@@ -110,31 +99,46 @@ public class ExpressionMenu
 			Preconditions.checkNotNull(target, "Target Expression is null!");
 			Preconditions.checkNotNull(targetType, "Target Expression is null!");
 			target.action(target.getTypes()[targetType], c, m, expressionSupplier.apply(new JSONObject()));
-			showMenuToPlayer(c.player());
+			construct(c.player(), m);
+			m.applyMask(MAIN_MASK);
 		};
 	}
 
-	public static void showMenuToPlayer(Player player)
+	public static void construct(Player player, Menu menu)
 	{
-		Menu menu = BUILDER.build();
+		Expression exp = MetaUtil.getValue(player, Expression.class, "code_block");
+		Preconditions.checkNotNull(exp);
 
-		CodeBlockExp codeBlock = MetaUtil.getValue(player, CodeBlockExp.class, "code_block");
-		if (codeBlock == null || codeBlock.isEmpty())
-		{
-			codeBlock = CodeBlockExp.body(null);
-			MetaUtil.setMeta(player, "code_block", codeBlock);
-		}
+		menu.clear();
 
 		ExpBuilder builder = new ExpBuilder(menu);
-		builder.build(codeBlock, 0, 0);
+		builder.build(exp, 0, 0);
 
 		Integer x = MetaUtil.getValue(player, Integer.class, "exp_menu_x");
 		Integer y = MetaUtil.getValue(player, Integer.class, "exp_menu_y");
 
 		// move calls reload()
 		menu.move(x == null ? 0 : x, y == null ? 0 : y);
+	}
+
+	public static CodeBlockExp showMenuToPlayer(Player player, CodeBlockExp code)
+	{
+		Menu menu = BUILDER.build();
+
+		if (code == null)
+			code = CodeBlockExp.body(null);
+
+		MetaUtil.setMeta(player, "code_block", code);
+		MetaUtil.setMeta(player, "exp_menu_x", 0);
+		MetaUtil.setMeta(player, "exp_menu_y", 0);
+		MetaUtil.removeMeta(player, "target_exp");
+		MetaUtil.removeMeta(player, "target_exp_type");
+
+		construct(player, menu);
+		menu.applyMask(MAIN_MASK);
 
 		menu.showToPlayer(player);
+		return code;
 	}
 
 	@Command
@@ -143,15 +147,6 @@ public class ExpressionMenu
 	public static boolean clearExpMenu(@NotNull Player player, @NotNull String[] args)
 	{
 		MetaUtil.removeMeta(player, "code_block");
-		return true;
-	}
-
-	@Command
-	@Description("Opens expression builder Menu")
-	@Usage("/expMenu")
-	public static boolean expMenu(@NotNull Player player, @NotNull String[] args)
-	{
-		showMenuToPlayer(player);
 		return true;
 	}
 
