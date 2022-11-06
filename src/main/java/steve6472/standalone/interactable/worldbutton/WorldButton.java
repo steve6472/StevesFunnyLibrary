@@ -7,11 +7,13 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import steve6472.funnylib.context.PlayerContext;
+import steve6472.funnylib.context.PlayerItemContext;
+import steve6472.funnylib.item.Items;
 import steve6472.funnylib.util.GlowingUtil;
 import steve6472.funnylib.util.MetaUtil;
 
@@ -27,7 +29,7 @@ public class WorldButton
 {
 	public static final String META_KEY = "world_button";
 
-	private final Consumer<PlayerContext> clickAction;
+	private final Consumer<PlayerItemContext> clickAction;
 
 	final ArmorStand icon, label;
 	final Slime hitbox;
@@ -44,7 +46,7 @@ public class WorldButton
 	public boolean labelSubtitle;
 	public boolean labelActionBar;
 
-	WorldButton(Location location, int size, @NotNull ItemStack item, @Nullable String labelText, @NotNull Consumer<PlayerContext> clickAction)
+	WorldButton(Location location, int size, @NotNull ItemStack item, @Nullable String labelText, @NotNull Consumer<PlayerItemContext> clickAction)
 	{
 		this.clickAction = clickAction;
 		this.labelText = labelText;
@@ -193,7 +195,7 @@ public class WorldButton
 
 	public void click(Player player)
 	{
-		clickAction.accept(new PlayerContext(player));
+		Items.callWithItemContext(player, EquipmentSlot.HAND, clickAction::accept);
 	}
 
 	public static WorldButtonBuilder builder()

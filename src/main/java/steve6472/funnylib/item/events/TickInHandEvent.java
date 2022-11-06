@@ -1,9 +1,6 @@
 package steve6472.funnylib.item.events;
 
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
-import steve6472.funnylib.context.PlayerContext;
+import steve6472.funnylib.context.PlayerItemContext;
 
 /**********************
  * Created by steve6472
@@ -13,5 +10,5 @@ import steve6472.funnylib.context.PlayerContext;
  ***********************/
 public interface TickInHandEvent
 {
-	default void tickInHand(PlayerContext context) {}
+	default void tickInHand(PlayerItemContext context) {}
 }

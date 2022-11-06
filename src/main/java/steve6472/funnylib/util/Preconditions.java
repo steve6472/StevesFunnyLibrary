@@ -58,4 +58,28 @@ public class Preconditions
 		if (number < 0)
 			throw new RuntimeException("Number is below zero");
 	}
+
+	public static void checkTrue(boolean flag)
+	{
+		if (!flag)
+			throw new RuntimeException("Flag is false");
+	}
+
+	public static void checkTrue(boolean flag, String message)
+	{
+		if (!flag)
+			throw new RuntimeException(message);
+	}
+
+	public static void checkFalse(boolean flag)
+	{
+		if (!flag)
+			throw new RuntimeException("Flag is true");
+	}
+
+	public static void checkFalse(boolean flag, String message)
+	{
+		if (!flag)
+			throw new RuntimeException(message);
+	}
 }

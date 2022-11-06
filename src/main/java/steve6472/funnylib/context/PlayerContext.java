@@ -6,11 +6,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
-import steve6472.funnylib.item.CustomItem;
-import steve6472.funnylib.item.Items;
-import steve6472.funnylib.item.builtin.MarkerItem;
-import steve6472.funnylib.util.MiscUtil;
 
 /**
  * Created by steve6472
@@ -19,43 +14,18 @@ import steve6472.funnylib.util.MiscUtil;
  */
 public class PlayerContext
 {
-	private final Player player;
-	private final ItemStack handItem;
-	private final EquipmentSlot hand;
-
-	private CustomItem customItem;
-
-	public PlayerContext(Player player)
-	{
-		this(player, EquipmentSlot.HAND);
-	}
+	protected final Player player;
+	protected final EquipmentSlot hand;
 
 	public PlayerContext(Player player, EquipmentSlot hand)
 	{
-		this(player, hand, player.getInventory().getItem(hand));
-	}
-
-	public PlayerContext(Player player, EquipmentSlot hand, ItemStack item)
-	{
 		this.player = player;
-		if (item == null)
-		{
-			handItem = MiscUtil.AIR;
-		} else
-		{
-			this.handItem = item;
-		}
 		this.hand = hand;
 	}
 
 	public Player getPlayer()
 	{
 		return player;
-	}
-
-	public ItemStack getHandItem()
-	{
-		return handItem;
 	}
 
 	public EquipmentSlot getHand()
@@ -72,16 +42,6 @@ public class PlayerContext
 	 * Fancy helpers
 	 */
 
-	public CustomItem getCustomItem()
-	{
-		if (customItem == null)
-		{
-			customItem = Items.getCustomItem(handItem);
-		}
-
-		return customItem;
-	}
-
 	public Location getLocation()
 	{
 		return player.getLocation();
@@ -90,11 +50,6 @@ public class PlayerContext
 	public Chunk getPlayerChunk()
 	{
 		return getLocation().getChunk();
-	}
-
-	public boolean holdsCustomItem(CustomItem item)
-	{
-		return getCustomItem() == item;
 	}
 
 	public boolean isCreative()

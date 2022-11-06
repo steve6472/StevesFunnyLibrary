@@ -2,6 +2,7 @@ package steve6472.funnylib.item.events;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import steve6472.funnylib.CancellableResult;
 import steve6472.funnylib.menu.Response;
 
 /**
@@ -11,5 +12,5 @@ import steve6472.funnylib.menu.Response;
  */
 public interface SwapHandEvent
 {
-	Response swapHands(Player player, ItemStack customMainHand, ItemStack offHand);
+	void swapHands(Player player, ItemStack customMainHand, ItemStack offHand, CancellableResult result);
 }

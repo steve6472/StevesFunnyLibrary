@@ -611,7 +611,7 @@ public class ElevatorEditorData extends CustomBlockData
 		}
 		ItemStack elevatorData = Interactable.ELEVATOR_DATA_ITEM.newItemStack();
 		ItemStackBuilder edit = ItemStackBuilder.editNonStatic(elevatorData);
-		edit.customTagString("data", data.toString());
+		edit.customTagJson("data", data);
 		return edit.buildItemStack();
 	}
 	// endregion

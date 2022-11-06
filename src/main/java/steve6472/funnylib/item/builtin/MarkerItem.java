@@ -1,13 +1,17 @@
 package steve6472.funnylib.item.builtin;
 
-import org.bukkit.*;
+import org.bukkit.ChatColor;
+import org.bukkit.Color;
+import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.block.Block;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import steve6472.funnylib.CancellableResult;
 import steve6472.funnylib.FunnyLib;
-import steve6472.funnylib.context.PlayerContext;
+import steve6472.funnylib.context.PlayerBlockContext;
+import steve6472.funnylib.context.PlayerItemContext;
+import steve6472.funnylib.context.UseType;
 import steve6472.funnylib.item.CustomItem;
-import steve6472.funnylib.item.events.ItemClickEvents;
 import steve6472.funnylib.item.events.TickInHandEvent;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.ParticleUtil;
@@ -17,7 +21,7 @@ import steve6472.funnylib.util.ParticleUtil;
  * Date: 9/10/2022
  * Project: StevesFunnyLibrary
  */
-public class MarkerItem extends CustomItem implements ItemClickEvents, TickInHandEvent
+public class MarkerItem extends CustomItem implements TickInHandEvent
 {
 	public static final String ID = "location_marker";
 	private static final Particle.DustOptions OPTIONS = new Particle.DustOptions(Color.WHITE, 0.75f);
@@ -29,23 +33,26 @@ public class MarkerItem extends CustomItem implements ItemClickEvents, TickInHan
 	}
 
 	@Override
-	public void leftClickBlock(ItemStack item, PlayerInteractEvent e)
+	public void useOnBlock(PlayerBlockContext context, UseType useType, CancellableResult result)
 	{
-		Block clickedBlock = e.getClickedBlock();
+		if (!useType.isLeft())
+			return;
+
+		Block clickedBlock = context.getBlock();
 		if (clickedBlock == null) return;
 
-		ItemStackBuilder.edit(item)
+		ItemStackBuilder.edit(context.getHandItem())
 			.customTagInt("x", clickedBlock.getX())
 			.customTagInt("y", clickedBlock.getY())
 			.customTagInt("z", clickedBlock.getZ())
 			.removeLore()
 			.addLore(ChatColor.DARK_GRAY + "Location: " + ChatColor.RED + clickedBlock.getX() + ChatColor.WHITE + "/" + ChatColor.GREEN + clickedBlock.getY() + ChatColor.WHITE + "/" + ChatColor.BLUE + clickedBlock.getZ())
 			.buildItemStack();
-		e.setCancelled(true);
+		result.setCancelled(true);
 	}
 
 	@Override
-	public void tickInHand(PlayerContext context)
+	public void tickInHand(PlayerItemContext context)
 	{
 		if (FunnyLib.getUptimeTicks() % 3 != 0) return;
 

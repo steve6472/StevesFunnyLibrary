@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -18,7 +19,7 @@ import steve6472.funnylib.item.ItemData;
  * Date: 9/17/2022
  * Project: StevesFunnyLibrary <br>
  */
-public record PlayerBlockContext(PlayerItemContext playerContext, BlockFaceContext blockContext)
+public record PlayerEntityContext(PlayerItemContext playerContext, EntityContext entityContext)
 {
 	/*
 	 * Player Context
@@ -48,7 +49,7 @@ public record PlayerBlockContext(PlayerItemContext playerContext, BlockFaceConte
 		return playerContext.isSurvival();
 	}
 
-	public boolean isPlayerSneaking()
+	public boolean isSneaking()
 	{
 		return playerContext.isSneaking();
 	}
@@ -65,11 +66,6 @@ public record PlayerBlockContext(PlayerItemContext playerContext, BlockFaceConte
 	public EquipmentSlot getHand()
 	{
 		return playerContext.getHand();
-	}
-
-	public void reduceItemAmount(int byAmount)
-	{
-		playerContext.reduceItemAmount(byAmount);
 	}
 
 	/*
@@ -112,51 +108,26 @@ public record PlayerBlockContext(PlayerItemContext playerContext, BlockFaceConte
 	}
 
 	/*
-	 * Block context
+	 * Entity context
 	 */
 
-	public BlockFace getFace()
+	public Entity getEntity()
 	{
-		return blockContext.getFace();
+		return entityContext.getEntity();
 	}
 
-	public Location getBlockLocation()
+	public World getEntityWorld()
 	{
-		return blockContext.getLocation();
+		return entityContext.getWorld();
 	}
 
-	public World getWorld()
+	public Chunk getEntityChunk()
 	{
-		return blockContext.getWorld();
+		return entityContext.getEntityChunk();
 	}
 
-	public Chunk getChunk()
+	public Location getEntityLocation()
 	{
-		return blockContext.getChunk();
-	}
-
-	public Block getBlock()
-	{
-		return blockContext.getBlock();
-	}
-
-	public State getState()
-	{
-		return blockContext.getState();
-	}
-
-	public CustomBlockData getBlockData()
-	{
-		return blockContext.getBlockData();
-	}
-
-	public <T extends CustomBlockData> T getBlockData(Class<T> expectedType)
-	{
-		return blockContext.getBlockData(expectedType);
-	}
-
-	public boolean testDataType(Class<? extends CustomBlockData> expectedType)
-	{
-		return blockContext.testDataType(expectedType);
+		return entityContext.getLocation();
 	}
 }

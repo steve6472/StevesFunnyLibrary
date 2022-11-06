@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -20,12 +21,10 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import steve6472.funnylib.CancellableResult;
 import steve6472.funnylib.FunnyLib;
-import steve6472.funnylib.context.BlockFaceContext;
-import steve6472.funnylib.context.PlayerBlockContext;
-import steve6472.funnylib.context.PlayerContext;
+import steve6472.funnylib.context.*;
 import steve6472.funnylib.item.events.*;
-import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.util.Checks;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.MetaUtil;
@@ -33,6 +32,8 @@ import steve6472.funnylib.util.MetaUtil;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**********************
  * Created by steve6472
@@ -115,17 +116,17 @@ public class Items implements Listener
 		for (Player player : Bukkit.getOnlinePlayers())
 		{
 			ItemStack handItem = player.getInventory().getItem(EquipmentSlot.HAND);
-			callEventOnCustomItem(player, TickInHandEvent.class, handItem, (ev, i) -> ev.tickInHand(new PlayerContext(player, EquipmentSlot.HAND)));
+			callEventOnCustomItem(player, TickInHandEvent.class, handItem, (ev, i) -> callWithItemContext(player, EquipmentSlot.HAND, i, ev::tickInHand));
 
 			ItemStack offHandItem = player.getInventory().getItem(EquipmentSlot.OFF_HAND);
-			callEventOnCustomItem(player, TickInHandEvent.class, offHandItem, (ev, i) -> ev.tickInHand(new PlayerContext(player, EquipmentSlot.OFF_HAND)));
+			callEventOnCustomItem(player, TickInHandEvent.class, offHandItem, (ev, i) -> callWithItemContext(player, EquipmentSlot.OFF_HAND, i, ev::tickInHand));
 
 
 			for (EquipmentSlot armorSlot : ARMOR_SLOTS)
 			{
 				ItemStack armorContent = player.getInventory().getItem(armorSlot);
 
-				callEventOnCustomItem(player, ArmorEvents.class, armorContent, (ev, i) -> ev.wearTick(player, i, armorSlot));
+				callEventOnCustomItem(player, ArmorEvents.class, armorContent, (ev, i) -> callWithItemContext(player, armorSlot, i, ev::wearTick));
 			}
 		}
 	}
@@ -137,7 +138,51 @@ public class Items implements Listener
 		if (customItemEntry.requireAdmin() && !player.isOp()) return;
 		CustomItem customItem = customItemEntry.customItem();
 		if (!eventClass.isAssignableFrom(customItem.getClass())) return;
+		//noinspection unchecked
 		event.accept((T) customItem, itemStack);
+	}
+
+	public static void callWithItemContext(EquipmentSlot hand, ItemStack itemStack, Consumer<CustomItemContext> consumer)
+	{
+		CustomItemContext context = new CustomItemContext(hand, itemStack);
+		consumer.accept(context);
+		if (isCustomItem(itemStack))
+		{
+			context.saveData();
+		}
+	}
+
+	public static void callWithItemContext(Player player, EquipmentSlot hand, ItemStack itemStack, Consumer<PlayerItemContext> consumer)
+	{
+		//noinspection deprecation
+		PlayerItemContext playerContext = new PlayerItemContext(player, hand, itemStack);
+		consumer.accept(playerContext);
+		if (isCustomItem(itemStack))
+		{
+			playerContext.saveItemData();
+		}
+	}
+
+	public static void callWithItemContext(Player player, EquipmentSlot hand, Consumer<PlayerItemContext> consumer)
+	{
+		callWithItemContext(player, hand, player.getInventory().getItem(hand), consumer);
+	}
+
+	public static <R> R callWithItemContextR(Player player, EquipmentSlot hand, ItemStack itemStack, Function<PlayerItemContext, R> consumer)
+	{
+		//noinspection deprecation
+		PlayerItemContext playerContext = new PlayerItemContext(player, hand, itemStack);
+		R r = consumer.apply(playerContext);
+		if (isCustomItem(itemStack))
+		{
+			playerContext.saveItemData();
+		}
+		return r;
+	}
+
+	public static <R> R callWithItemContextR(Player player, EquipmentSlot hand, Function<PlayerItemContext, R> func)
+	{
+		return callWithItemContextR(player, hand, player.getInventory().getItem(hand), func);
 	}
 
 	public static boolean isCustomItem(ItemStack itemStack)
@@ -179,7 +224,7 @@ public class Items implements Listener
 			e.getPlayer(),
 			SwapHandEvent.class,
 			e.getOffHandItem(),
-			(ev, i) -> e.setCancelled(ev.swapHands(e.getPlayer(), e.getOffHandItem(), e.getMainHandItem()) == Response.cancel())
+			(ev, i) -> callCancellable(e, new CancellableResult(), r -> ev.swapHands(e.getPlayer(), e.getOffHandItem(), e.getMainHandItem(), r))
 		);
 	}
 
@@ -198,11 +243,12 @@ public class Items implements Listener
 	@EventHandler
 	public void consumeEvent(PlayerItemConsumeEvent e)
 	{
+		// FIXME: add find a way to detect hand
 		ItemStack currentItem = e.getItem();
 		ItemEventEntry customItemEntry = getCustomItemEntry(currentItem);
 		if (customItemEntry != null && (customItemEntry.requireAdmin() && e.getPlayer().isOp() || !customItemEntry.requireAdmin()))
 		{
-			callEventOnCustomItem(e.getPlayer(), ConsumeEvent.class, currentItem, (ce, i) -> ce.consumed(new PlayerContext(e.getPlayer())));
+			callEventOnCustomItem(e.getPlayer(), ConsumeEvent.class, currentItem, (ce, i) -> callWithItemContext(e.getPlayer(), EquipmentSlot.HAND, i, ce::consumed));
 		}
 	}
 
@@ -215,17 +261,14 @@ public class Items implements Listener
 			{
 				ItemStack armorContent = player.getInventory().getItem(armorSlot);
 
-				callEventOnCustomItem(player, ArmorEvents.class, armorContent, (ev, i) -> ev.takeDamage(player, e, i, armorSlot));
+				callEventOnCustomItem(player, ArmorEvents.class, armorContent, (ev, i) -> callWithItemContext(player, armorSlot, i, ic -> ev.takeDamage(ic, e)));
 			}
-
-//			ItemStack handItem = player.getInventory().getItem(EquipmentSlot.HAND);
-//			callEventOnCustomItem(player, WeaponEvents.class, handItem, (we, i) -> we.dealDamage(player, e, i, EquipmentSlot.HAND));
 		}
 
 		if (e.getDamager() instanceof Player player)
 		{
 			ItemStack handItem = player.getInventory().getItem(EquipmentSlot.HAND);
-			callEventOnCustomItem(player, WeaponEvents.class, handItem, (we, i) -> we.dealDamage(player, e, i, EquipmentSlot.HAND));
+			callEventOnCustomItem(player, WeaponEvents.class, handItem, (we, i) -> callWithItemContext(player, EquipmentSlot.HAND, i, ic -> we.dealDamage(ic, e)));
 		}
 	}
 
@@ -251,10 +294,7 @@ public class Items implements Listener
 			return;
 
 		CustomItem customItem = itemEventEntry.customItem;
-		if (customItem instanceof ItemClickEvents itemEvent)
-		{
-			itemEvent.rightClickEntity(item, e);
-		}
+		callCancellable(e, new CancellableResult(), r -> callWithItemContext(e.getPlayer(), e.getHand(), item, ic -> customItem.useOnEntity(new PlayerEntityContext(ic, new EntityContext(e.getRightClicked())), r)));
 	}
 
 	@EventHandler
@@ -283,34 +323,43 @@ public class Items implements Listener
 			return;
 
 		CustomItem customItem = itemEventEntry.customItem;
-		if (customItem instanceof ItemClickEvents itemEvent)
+		if (e.getClickedBlock() == null)
 		{
-			if (e.getClickedBlock() == null)
+			if (e.getAction() == Action.LEFT_CLICK_AIR)
 			{
-				if (e.getAction() == Action.LEFT_CLICK_AIR)
-				{
-					itemEvent.leftClickAir(new PlayerContext(e.getPlayer(), EquipmentSlot.HAND, item), e);
-					itemEvent.leftClick(item, e);
-				}
-				else if (e.getAction() == Action.RIGHT_CLICK_AIR)
-				{
-					itemEvent.rightClickAir(new PlayerContext(e.getPlayer(), EquipmentSlot.HAND, item), e);
-					itemEvent.rightClick(item, e);
-				}
-			} else
+				callCancellable(e, new CancellableResult(), r -> callWithItemContext(e.getPlayer(), e.getHand(), item, ic -> customItem.useOnAir(ic, UseType.LEFT, r)));
+			}
+			else if (e.getAction() == Action.RIGHT_CLICK_AIR)
 			{
-				if (e.getAction() == Action.LEFT_CLICK_BLOCK)
-				{
-					itemEvent.leftClickBlock(item, e);
-					itemEvent.leftClick(item, e);
-				}
-				else if (e.getAction() == Action.RIGHT_CLICK_BLOCK)
-				{
-					itemEvent.rightClickBlock(item, e);
-					itemEvent.rightClick(item, e);
-				}
+				callCancellable(e, new CancellableResult(), r -> callWithItemContext(e.getPlayer(), e.getHand(), item, ic -> customItem.useOnAir(ic, UseType.RIGHT, r)));
+			}
+		} else
+		{
+			if (e.getAction() == Action.LEFT_CLICK_BLOCK)
+			{
+				callCancellable(e, new CancellableResult(), r -> callWithItemContext(e.getPlayer(), e.getHand(), item, ic -> customItem.useOnBlock(new PlayerBlockContext(ic, new BlockFaceContext(e
+					.getClickedBlock()
+					.getLocation(), e.getBlockFace())), UseType.LEFT, r)));
+			}
+			else if (e.getAction() == Action.RIGHT_CLICK_BLOCK)
+			{
+				callCancellable(e, new CancellableResult(), r -> callWithItemContext(e.getPlayer(), e.getHand(), item, ic -> customItem.useOnBlock(new PlayerBlockContext(ic, new BlockFaceContext(e
+					.getClickedBlock()
+					.getLocation(), e.getBlockFace())), UseType.RIGHT, r)));
 			}
 		}
+	}
+
+	/*
+	 * I made this function so I have a one line solution...
+	 * The line got so long I had to split it on multiple lines
+	 *
+	 * I have failed
+	 */
+	public void callCancellable(Cancellable cancallable, CancellableResult result, Consumer<CancellableResult> run)
+	{
+		run.accept(result);
+		cancallable.setCancelled(result.isCancelled());
 	}
 
 	@EventHandler
@@ -323,11 +372,8 @@ public class Items implements Listener
 		if (e.getPlayer().getGameMode() == GameMode.CREATIVE && Checks.isSwordMaterial(item.getType()))
 			return;
 
-		callEventOnCustomItem(
-			e.getPlayer(),
-			ItemBreakBlockEvent.class,
-			item,
-			(ev, i) -> e.setCancelled(!ev.breakBlock(new PlayerBlockContext(new PlayerContext(e.getPlayer()), new BlockFaceContext(e.getBlock().getLocation(), MetaUtil.getValue(e.getPlayer(), BlockFace.class, "last_face")))))
-		);
+		callEventOnCustomItem(e.getPlayer(), ItemBreakBlockEvent.class, item, (ev, i) -> callWithItemContext(e.getPlayer(), EquipmentSlot.HAND, item, ic -> e.setCancelled(!ev.breakBlock(new PlayerBlockContext(ic, new BlockFaceContext(e
+			.getBlock()
+			.getLocation(), MetaUtil.getValue(e.getPlayer(), BlockFace.class, "last_face")))))));
 	}
 }

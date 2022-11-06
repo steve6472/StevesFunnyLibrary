@@ -1,5 +1,6 @@
 package steve6472.funnylib.context;
 
+import com.google.errorprone.annotations.concurrent.LazyInit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -15,7 +16,7 @@ import steve6472.funnylib.blocks.stateengine.State;
  */
 public class BlockContext
 {
-	private final Location location;
+	protected final Location location;
 
 	/*
 	 * Lazy

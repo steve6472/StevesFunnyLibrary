@@ -1,9 +1,10 @@
-package steve6472.standalone.interactable.ex.impl;
+package steve6472.standalone.interactable.ex.impl.bool;
 
 import org.bukkit.inventory.ItemStack;
 import steve6472.standalone.interactable.ex.ExpContext;
 import steve6472.standalone.interactable.ex.ExpResult;
 import steve6472.standalone.interactable.ex.Expression;
+import steve6472.standalone.interactable.ex.impl.BiInputExp;
 
 /**
  * Created by steve6472

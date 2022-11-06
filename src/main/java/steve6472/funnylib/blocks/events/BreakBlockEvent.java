@@ -1,7 +1,7 @@
 package steve6472.funnylib.blocks.events;
 
 import steve6472.funnylib.context.BlockFaceContext;
-import steve6472.funnylib.context.PlayerContext;
+import steve6472.funnylib.context.PlayerItemContext;
 
 /**
  * Created by steve6472
@@ -10,5 +10,6 @@ import steve6472.funnylib.context.PlayerContext;
  */
 public interface BreakBlockEvent
 {
-	void playerBreakBlock(PlayerContext playerContext, BlockFaceContext blockContext, BlockBreakResult result);
+	// TODO: replace with PlayerBlockContext ???
+	void playerBreakBlock(PlayerItemContext playerContext, BlockFaceContext blockContext, BlockBreakResult result);
 }

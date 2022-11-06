@@ -7,6 +7,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import steve6472.funnylib.context.PlayerItemContext;
 import steve6472.funnylib.events.PlayerEquipArmorEvent;
 import steve6472.funnylib.events.PlayerUnequipArmorEvent;
 import steve6472.funnylib.item.Items;
@@ -72,7 +73,7 @@ public class ArmorEventListener implements Listener
 			if (itemEntry.requireAdmin() && admin || !itemEntry.requireAdmin())
 			{
 				itemStackMap.put(equipmentSlot, currentItem);
-				Items.callEventOnCustomItem(player, ArmorEvents.class, currentItem, (ae, i) -> ae.equip(player, i, equipmentSlot));
+				Items.callEventOnCustomItem(player, ArmorEvents.class, currentItem, (ae, i) -> Items.callWithItemContext(player, equipmentSlot, i, ae::equip));
 			}
 		}
 		else if (lastItem != null && itemEntry == null)
@@ -80,7 +81,7 @@ public class ArmorEventListener implements Listener
 			Items.ItemEventEntry lastCustomItem = Items.getCustomItemEntry(lastItem);
 			if (lastCustomItem != null && (lastCustomItem.requireAdmin() && admin || !lastCustomItem.requireAdmin()))
 			{
-				Items.callEventOnCustomItem(player, ArmorEvents.class, lastItem, (ae, i) -> ae.unequip(player, i, equipmentSlot));
+				Items.callEventOnCustomItem(player, ArmorEvents.class, lastItem, (ae, i) -> Items.callWithItemContext(player, equipmentSlot, i, ae::unequip));
 				itemStackMap.remove(equipmentSlot);
 			}
 		}

@@ -26,8 +26,6 @@ import java.util.Set;
  */
 public class BlockStateCodeGenerator
 {
-	private record Pair<A, B>(A a, B b) {}
-
 	private static final String FACES = """
 			public static Faces Faces()
 			{

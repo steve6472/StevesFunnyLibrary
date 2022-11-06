@@ -41,6 +41,7 @@ public abstract class Expression
 	{
 		CONTROL,
 		HIDDEN,
+		CUSTOM,
 
 		BOOL,
 		INT,

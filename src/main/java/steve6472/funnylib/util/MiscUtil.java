@@ -1,23 +1,25 @@
 package steve6472.funnylib.util;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scoreboard.Score;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.ScoreboardManager;
-import org.bukkit.scoreboard.Team;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Unmodifiable;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
-import steve6472.funnylib.FunnyLib;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.Objects;
-import java.util.function.Function;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -110,6 +112,205 @@ public class MiscUtil
 		}
 
 		return output.toString();
+	}
+
+	public static boolean isJSONValid(String test)
+	{
+		try {
+			new JSONObject(test);
+		} catch (JSONException ex) {
+			// edited, to include @Arthur's comment
+			// e.g. in case JSONArray is valid as well...
+			try {
+				new JSONArray(test);
+			} catch (JSONException ex1)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public static JSONObject getValidJsonObject(String test)
+	{
+		try
+		{
+			return new JSONObject(test);
+		} catch (JSONException ex)
+		{
+			return null;
+		}
+	}
+
+	public static JSONArray getValidJsonArray(String test)
+	{
+		try
+		{
+			return new JSONArray(test);
+		} catch (JSONException ex)
+		{
+			return null;
+		}
+	}
+
+	public static void recursiveSerialization(JSONArray jsonKeys, JSONArray jsonArrayKeys, JSONObject json, String key, Object value, boolean allowJsonification)
+	{
+//		if (jsonKeys != null && allowJsonification)
+//		{
+//			System.out.println(key + " => " + value.getClass().getSimpleName() + " -> " + value);
+//		}
+
+		if (value instanceof ConfigurationSerializable cs)
+		{
+			JSONObject child = new JSONObject();
+			Map<String, Object> serialize = cs.serialize();
+			serialize.forEach((k, v) -> recursiveSerialization(jsonKeys, jsonArrayKeys, child, k, v, allowJsonification));
+			json.put(key, child);
+		}
+		else if (key.equals("PublicBukkitValues") && value instanceof HashMap<?, ?> map)
+		{
+			JSONObject publicBukkitValues = new JSONObject();
+			map.forEach((k, v) -> recursiveSerialization(jsonKeys, jsonArrayKeys, publicBukkitValues, k.toString(), v, true));
+			json.put(key, publicBukkitValues);
+		} else if (allowJsonification && jsonKeys != null && jsonArrayKeys != null)
+		{
+			if (value instanceof String s)
+			{
+				JSONObject js;
+				JSONArray ja;
+				if (s.startsWith("{") && s.endsWith("}") && (js = getValidJsonObject(s)) != null)
+				{
+					jsonKeys.put(key);
+					json.put(key, js);
+				} else if (s.startsWith("[") && s.endsWith("]") && (ja = getValidJsonArray(s)) != null)
+				{
+					jsonArrayKeys.put(key);
+					json.put(key, ja);
+				} else
+				{
+					json.put(key, value);
+				}
+			} else if (value instanceof List<?> l)
+			{
+				String s = l.toString();
+				JSONArray ja;
+				if (s.startsWith("[") && s.endsWith("]") && (ja = getValidJsonArray(s)) != null)
+				{
+					jsonArrayKeys.put(key);
+					json.put(key, ja);
+				} else
+				{
+					json.put(key, value);
+				}
+			}
+		} else
+		{
+			json.put(key, value);
+		}
+
+	}
+
+	public static JSONObject serializeItemStack(JSONObject json, ItemStack itemStack)
+	{
+		Map<String, Object> serialize = itemStack.serialize();
+
+		serialize.forEach((k, v) -> recursiveSerialization(null, null, json, k, v, false));
+
+		return json;
+	}
+
+	public static JSONObject serializeItemStack(ItemStack itemStack)
+	{
+		JSONObject json = new JSONObject();
+		JSONArray jsonKeys = new JSONArray();
+		JSONArray jsonArrayKeys = new JSONArray();
+		Map<String, Object> serialize = itemStack.serialize();
+
+		serialize.forEach((k, v) -> recursiveSerialization(jsonKeys, jsonArrayKeys, json, k, v, false));
+
+		json.put("jsonKeys", jsonKeys);
+		json.put("jsonArrayKeys", jsonArrayKeys);
+
+		return json;
+	}
+
+	public static ItemStack deserializeItemStack(JSONObject json)
+	{
+		Set<String> jsonKeys = new HashSet<>();
+		JSONArray jsonKeysArray =  json.optJSONArray("jsonKeys");
+		if (jsonKeysArray != null)
+		{
+			for (int i = 0; i < jsonKeysArray.length(); i++)
+			{
+				jsonKeys.add(jsonKeysArray.getString(i));
+			}
+		}
+
+		Map<String, JSONArray> jsonArrayKeys = new HashMap<>();
+		JSONArray jsonArrayKeysArray =  json.optJSONArray("jsonArrayKeys");
+		if (jsonArrayKeysArray != null)
+		{
+			for (int i = 0; i < jsonArrayKeysArray.length(); i++)
+			{
+				jsonArrayKeys.put(jsonArrayKeysArray.getString(i), null);
+			}
+		}
+
+		Map<String, Object> map = new LinkedHashMap<>();
+		for (String key : json.keySet())
+		{
+			Object o = json.get(key);
+
+			if (key.equals("meta") && o instanceof JSONObject metaJson)
+			{
+				Map<String, Object> metaMap = new LinkedHashMap<>();
+				for (String metaKey : metaJson.keySet())
+				{
+					Object value = metaJson.get(metaKey);
+
+					if (metaKey.equals("PublicBukkitValues") && value instanceof JSONObject valuesJson)
+					{
+						Map<String, Object> publicBukkitValues = new HashMap<>();
+						for (String valuesKey : valuesJson.keySet())
+						{
+							if (jsonKeys.contains(valuesKey))
+							{
+								publicBukkitValues.put(valuesKey, valuesJson.getJSONObject(valuesKey).toString());
+							} else if (jsonArrayKeys.containsKey(valuesKey))
+							{
+								jsonArrayKeys.put(valuesKey, valuesJson.getJSONArray(valuesKey));
+//								publicBukkitValues.put(valuesKey, "\"" + valuesJson.getJSONArray(valuesKey).toString() + "\"");
+							} else
+							{
+								publicBukkitValues.put(valuesKey, valuesJson.get(valuesKey));
+							}
+						}
+						value = publicBukkitValues;
+						System.out.println(value);
+					}
+
+					metaMap.put(metaKey, value);
+				}
+				metaMap.put(ConfigurationSerialization.SERIALIZED_TYPE_KEY, "ItemMeta");
+
+				o = ConfigurationSerialization.deserializeObject(metaMap);
+			}
+
+			map.put(key, o);
+		}
+
+		ItemStack itemStack = (ItemStack) ConfigurationSerialization.deserializeObject(map, ItemStack.class);
+		if (!jsonArrayKeys.isEmpty() && itemStack != null)
+		{
+			ItemMeta itemMeta = itemStack.getItemMeta();
+			if (itemMeta != null)
+			{
+				PersistentDataContainer data = itemMeta.getPersistentDataContainer();
+				jsonArrayKeys.forEach((k, v) -> data.set(new NamespacedKey(k.split(":")[0], k.split(":")[1]), JsonArrayDataType.JSON_ARRAY, v));
+				itemStack.setItemMeta(itemMeta);
+			}
+		}
+		return itemStack;
 	}
 
 	/*

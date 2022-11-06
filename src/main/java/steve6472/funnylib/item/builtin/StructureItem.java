@@ -4,21 +4,21 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import steve6472.funnylib.CancellableResult;
 import steve6472.funnylib.FunnyLib;
-import steve6472.funnylib.context.PlayerContext;
+import steve6472.funnylib.context.PlayerBlockContext;
+import steve6472.funnylib.context.PlayerItemContext;
+import steve6472.funnylib.context.UseType;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.Items;
-import steve6472.funnylib.item.events.ItemClickEvents;
 import steve6472.funnylib.item.events.SwapHandEvent;
 import steve6472.funnylib.item.events.TickInHandEvent;
-import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.ParticleUtil;
@@ -31,12 +31,12 @@ import java.util.List;
  * Date: 9/20/2022
  * Project: StevesFunnyLibrary <br>
  */
-public class StructureItem extends CustomItem implements ItemClickEvents, TickInHandEvent, SwapHandEvent
+public class StructureItem extends CustomItem implements TickInHandEvent, SwapHandEvent
 {
 	private static final Particle.DustOptions OPTIONS = new Particle.DustOptions(Color.AQUA, 0.75f);
 
 	@Override
-	public void rightClickAir(PlayerContext context, PlayerInteractEvent e)
+	public void useOnAir(PlayerItemContext context, UseType useType, CancellableResult result)
 	{
 		ItemStackBuilder edit = ItemStackBuilder.edit(context.getHandItem());
 
@@ -69,92 +69,83 @@ public class StructureItem extends CustomItem implements ItemClickEvents, TickIn
 			}
 		}
 
-		JSONObject json = new JSONObject();
-		json.put("blocks", blocks);
-
 		edit
 			.customTagByte("selecting", (byte) 0)
-			.customTagString("blocks", json.toString())
+			.customTagJsonArray("blocks", blocks)
 			.customTagInt("lx", Math.abs(x1 - x0))
 			.customTagInt("ly", Math.abs(y1 - y0))
 			.customTagInt("lz", Math.abs(z1 - z0))
 			.buildItemStack();
 		updateLore(context.getHandItem());
-		e.setCancelled(true);
+		result.setCancelled(true);
+		context.getPlayer().sendMessage(ChatColor.GREEN + "Saved!");
 	}
 
 	@Override
-	public void leftClickBlock(ItemStack item, PlayerInteractEvent e)
+	public void useOnBlock(PlayerBlockContext context, UseType useType, CancellableResult result)
 	{
-		Block clickedBlock = e.getClickedBlock();
-		if (clickedBlock == null) return;
-
-		ItemStackBuilder edit = ItemStackBuilder.edit(item);
-
-		if (edit.getCustomTagByte("selecting") == 0)
-			return;
-
-		edit
-			.customTagInt("x0", clickedBlock.getX())
-			.customTagInt("y0", clickedBlock.getY())
-			.customTagInt("z0", clickedBlock.getZ())
-			.buildItemStack();
-		updateLore(item);
-		e.setCancelled(true);
-	}
-
-	@Override
-	public void rightClickBlock(ItemStack item, PlayerInteractEvent e)
-	{
-		Block clickedBlock = e.getClickedBlock();
-		if (clickedBlock == null) return;
-
-		ItemStackBuilder edit = ItemStackBuilder.edit(item);
-
-		if (edit.getCustomTagByte("selecting") == 1)
+		Block clickedBlock = context.getBlock();
+		if (useType == UseType.LEFT)
 		{
+			ItemStackBuilder edit = ItemStackBuilder.edit(context.getHandItem());
+
+			if (edit.getCustomTagByte("selecting") == 0)
+				return;
+
 			edit
-				.customTagInt("x1", clickedBlock.getX())
-				.customTagInt("y1", clickedBlock.getY())
-				.customTagInt("z1", clickedBlock.getZ())
+				.customTagInt("x0", clickedBlock.getX())
+				.customTagInt("y0", clickedBlock.getY())
+				.customTagInt("z0", clickedBlock.getZ())
 				.buildItemStack();
-			updateLore(item);
-			e.setCancelled(true);
-		} else if (edit.getCustomTagByte("placing") == 1)
+			updateLore(context.getHandItem());
+			result.setCancelled(true);
+		} else
 		{
-			String s = edit.getCustomTagString("blocks");
-			if (s == null)
-			{
-				e.getPlayer().sendMessage(ChatColor.RED + "No structure found!");
-				return;
-			}
-			int lx = edit.getCustomTagInt("lx");
-			int ly = edit.getCustomTagInt("ly");
-			int lz = edit.getCustomTagInt("lz");
-			if ((lx + 1) * (ly + 1) * (lz + 1) <= 0)
-			{
-				e.getPlayer().sendMessage(ChatColor.RED + "Structure does not contain any blocks!");
-				return;
-			}
+			ItemStackBuilder edit = ItemStackBuilder.edit(context.getHandItem());
 
-			JSONObject json = new JSONObject(s);
-			JSONArray blocks = json.getJSONArray("blocks");
-			if (blocks.length() != (lx + 1) * (ly + 1) * (lz + 1))
+			if (edit.getCustomTagByte("selecting") == 1)
 			{
-				e.getPlayer().sendMessage(ChatColor.RED + "Structure block count does not match with size! (" + (lx + 1) + "*" + (ly + 1) + "*" + (lz + 1) + ") " + blocks.length());
-				return;
-			}
-
-			Location location = clickedBlock.getLocation().add(e.getBlockFace().getDirection());
-
-			for (int i = 0; i < blocks.length(); i++)
+				edit
+					.customTagInt("x1", clickedBlock.getX())
+					.customTagInt("y1", clickedBlock.getY())
+					.customTagInt("z1", clickedBlock.getZ())
+					.buildItemStack();
+				updateLore(context.getHandItem());
+				result.setCancelled(true);
+			} else if (edit.getCustomTagByte("placing") == 1)
 			{
-				JSONObject js = blocks.getJSONObject(i);
-				BlockData blockData = Bukkit.createBlockData(js.getString("b"));
-				location.clone().add(js.getInt("x"), js.getInt("y"), js.getInt("z")).getBlock().setBlockData(blockData);
-			}
+				JSONArray blocks = edit.getCustomJsonArray("blocks");
+				if (blocks == null)
+				{
+					context.getPlayer().sendMessage(ChatColor.RED + "No structure found!");
+					return;
+				}
+				int lx = edit.getCustomTagInt("lx");
+				int ly = edit.getCustomTagInt("ly");
+				int lz = edit.getCustomTagInt("lz");
+				if ((lx + 1) * (ly + 1) * (lz + 1) <= 0)
+				{
+					context.getPlayer().sendMessage(ChatColor.RED + "Structure does not contain any blocks!");
+					return;
+				}
 
-			e.getPlayer().setCooldown(Material.BOOK, 5);
+				if (blocks.length() != (lx + 1) * (ly + 1) * (lz + 1))
+				{
+					context.getPlayer().sendMessage(ChatColor.RED + "Structure block count does not match with size! (" + (lx + 1) + "*" + (ly + 1) + "*" + (lz + 1) + ") " + blocks.length());
+					return;
+				}
+
+				Location location = clickedBlock.getLocation().add(context.getFace().getDirection());
+
+				for (int i = 0; i < blocks.length(); i++)
+				{
+					JSONObject js = blocks.getJSONObject(i);
+					BlockData blockData = Bukkit.createBlockData(js.getString("b"));
+					location.clone().add(js.getInt("x"), js.getInt("y"), js.getInt("z")).getBlock().setBlockData(blockData);
+				}
+
+				context.getPlayer().setCooldown(Material.BOOK, 5);
+			}
 		}
 	}
 
@@ -169,7 +160,7 @@ public class StructureItem extends CustomItem implements ItemClickEvents, TickIn
 
 		ItemStackBuilder edit = ItemStackBuilder.edit(item);
 
-		String s = edit.getCustomTagString("blocks");
+		JSONArray s = edit.getCustomJsonArray("blocks");
 		if (s == null)
 		{
 			return new Vector();
@@ -191,8 +182,8 @@ public class StructureItem extends CustomItem implements ItemClickEvents, TickIn
 
 		ItemStackBuilder edit = ItemStackBuilder.edit(item);
 
-		String s = edit.getCustomTagString("blocks");
-		if (s == null)
+		JSONArray blocks = edit.getCustomJsonArray("blocks");
+		if (blocks == null)
 		{
 			return list;
 		}
@@ -204,8 +195,6 @@ public class StructureItem extends CustomItem implements ItemClickEvents, TickIn
 			return list;
 		}
 
-		JSONObject json = new JSONObject(s);
-		JSONArray blocks = json.getJSONArray("blocks");
 		if (blocks.length() != (lx + 1) * (ly + 1) * (lz + 1))
 		{
 			return list;
@@ -269,7 +258,7 @@ public class StructureItem extends CustomItem implements ItemClickEvents, TickIn
 	}
 
 	@Override
-	public void tickInHand(PlayerContext context)
+	public void tickInHand(PlayerItemContext context)
 	{
 		if (FunnyLib.getUptimeTicks() % 3 != 0) return;
 
@@ -314,7 +303,7 @@ public class StructureItem extends CustomItem implements ItemClickEvents, TickIn
 	}
 
 	@Override
-	public Response swapHands(Player player, ItemStack customMainHand, ItemStack offHand)
+	public void swapHands(Player player, ItemStack customMainHand, ItemStack offHand, CancellableResult result)
 	{
 		ItemStackBuilder edit = ItemStackBuilder.edit(customMainHand);
 
@@ -345,7 +334,7 @@ public class StructureItem extends CustomItem implements ItemClickEvents, TickIn
 		updateLore(item);
 		player.getInventory().setItem(EquipmentSlot.HAND, item);
 
-		return Response.cancel();
+		result.cancel();
 	}
 
 	@Override

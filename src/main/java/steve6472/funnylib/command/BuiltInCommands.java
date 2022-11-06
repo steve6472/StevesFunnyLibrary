@@ -2,27 +2,28 @@ package steve6472.funnylib.command;
 
 import net.minecraft.nbt.Tag;
 import org.bukkit.*;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.craftbukkit.v1_19_R1.persistence.CraftPersistentDataContainer;
-import org.bukkit.craftbukkit.v1_19_R1.persistence.DirtyCraftPersistentDataContainer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomChunk;
 import steve6472.funnylib.item.Items;
+import steve6472.funnylib.json.JsonPrettify;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
+import steve6472.funnylib.util.MiscUtil;
 import steve6472.funnylib.util.RepeatingTask;
-import steve6472.standalone.FunnyLibStandalone;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -284,6 +285,50 @@ public class BuiltInCommands
 		return true;
 	}
 
+
+	@Command
+	@Description("Tests serialization")
+	@Usage("/testSer")
+	public static boolean testSer(@NotNull Player player, @NotNull String[] args)
+	{
+		JSONObject json = MiscUtil.serializeItemStack(player.getInventory().getItemInMainHand());
+		System.out.println(JsonPrettify.prettify(json));
+		ItemStack deserialize = MiscUtil.deserializeItemStack(json);
+		player.getInventory().addItem(deserialize);
+		return true;
+	}
+
+
+	@Command
+	@Description("Prints item into console")
+	@Usage("/printItem")
+	@Usage("[-p] -> send message to player as well")
+	public static boolean printItem(@NotNull Player player, @NotNull String[] args)
+	{
+		System.out.println(player.getInventory().getItemInMainHand());
+		if (hasFlag("-p", args))
+			player.sendMessage(player.getInventory().getItemInMainHand().toString());
+		return true;
+	}
+
+//	@Command
+//	@Usage("/printAliases")
+//	public static boolean printAliases(@NotNull Player player, @NotNull String[] args)
+//	{
+//		String alias = ConfigurationSerialization.getAlias(ItemMeta.class);
+//		player.sendMessage(alias);
+//				try
+//		{
+//			Field field = ConfigurationSerialization.class.getDeclaredField("aliases");
+//			field.setAccessible(true);
+//			Map<String, Class<? extends ConfigurationSerializable>> aliases = (Map<String, Class<? extends ConfigurationSerializable>>) field.get(null);
+//			aliases.forEach((k, v) -> System.out.println(k + " -> " + v));
+//		} catch (IllegalAccessException | NoSuchFieldException e)
+//		{
+//			throw new RuntimeException(e);
+//		}
+//		return true;
+//	}
 
 
 	public static boolean hasFlag(String flag, String[] args)

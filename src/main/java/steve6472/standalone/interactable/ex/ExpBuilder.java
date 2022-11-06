@@ -44,10 +44,10 @@ public class ExpBuilder
 		final Expression finalExp = currentExpression;
 		slotBuilder.onClick((click, menu) ->
 		{
-			Bukkit.broadcastMessage("" + menu.hasMetadata("popup"));
-			menu.getMetadataMap().forEach((k, v) -> {
-				Bukkit.broadcastMessage(k + " -> " + v);
-			});
+//			Bukkit.broadcastMessage("" + menu.hasMetadata("popup"));
+//			menu.getMetadataMap().forEach((k, v) -> {
+//				Bukkit.broadcastMessage(k + " -> " + v);
+//			});
 			if (click.type() == ClickType.MIDDLE && !menu.hasMetadata("popup"))
 			{
 //				Bukkit.broadcastMessage("Popup " + finalExp.getClass().getSimpleName().toUpperCase() + " " + Integer.toHexString(finalExp.hashCode()));

@@ -1,11 +1,13 @@
 package steve6472.funnylib.item.builtin;
 
-import org.bukkit.*;
-import org.bukkit.block.Block;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.Color;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+import steve6472.funnylib.CancellableResult;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlock;
@@ -13,9 +15,10 @@ import steve6472.funnylib.blocks.builtin.IMultiBlock;
 import steve6472.funnylib.blocks.stateengine.State;
 import steve6472.funnylib.context.BlockFaceContext;
 import steve6472.funnylib.context.PlayerBlockContext;
-import steve6472.funnylib.context.PlayerContext;
+import steve6472.funnylib.context.PlayerItemContext;
+import steve6472.funnylib.context.UseType;
 import steve6472.funnylib.item.GenericItem;
-import steve6472.funnylib.item.events.ItemClickEvents;
+import steve6472.funnylib.item.Items;
 import steve6472.funnylib.item.events.TickInHandEvent;
 import steve6472.funnylib.util.ParticleUtil;
 
@@ -24,7 +27,7 @@ import steve6472.funnylib.util.ParticleUtil;
  * Date: 9/25/2022
  * Project: StevesFunnyLibrary <br>
  */
-public class MultiBlockPlacerItem extends GenericItem implements ItemClickEvents, TickInHandEvent
+public class MultiBlockPlacerItem extends GenericItem implements TickInHandEvent
 {
 	private static final Particle.DustOptions OPTIONS = new Particle.DustOptions(Color.BLACK, 0.5f);
 
@@ -43,19 +46,19 @@ public class MultiBlockPlacerItem extends GenericItem implements ItemClickEvents
 	}
 
 	@Override
-	public void rightClickBlock(ItemStack item, PlayerInteractEvent e)
+	public void useOnBlock(PlayerBlockContext context, UseType useType, CancellableResult result)
 	{
-		Block clickedBlock = e.getClickedBlock();
-		if (clickedBlock == null) return;
+		if (useType != UseType.RIGHT)
+			return;
 
-		Location location = e.getClickedBlock().getLocation().add(e.getBlockFace().getDirection());
+		Location location = context.getBlockLocation().clone().add(context.getFace().getDirection());
 		if (location.getBlock().getType().isAir())
 		{
-			State stateForPlacement = block.getStateForPlacement(new PlayerBlockContext(new PlayerContext(e.getPlayer()), new BlockFaceContext(location, e.getBlockFace())));
+			State stateForPlacement = Items.callWithItemContextR(context.getPlayer(), EquipmentSlot.HAND, context.getHandItem(), ic -> block.getStateForPlacement(new PlayerBlockContext(ic, new BlockFaceContext(location, context.getFace()))));
 			Blocks.setBlockState(location, stateForPlacement);
-			if (e.getItem() != null && e.getPlayer().getGameMode() == GameMode.SURVIVAL)
+			if (context.getHandItem() != null && context.isSurvival())
 			{
-				e.getItem().setAmount(e.getItem().getAmount() - 1);
+				context.getHandItem().setAmount(context.getHandItem().getAmount() - 1);
 			}
 
 			Vector vector = multiBlock.multiblockSize();
@@ -76,7 +79,7 @@ public class MultiBlockPlacerItem extends GenericItem implements ItemClickEvents
 	}
 
 	@Override
-	public void tickInHand(PlayerContext context)
+	public void tickInHand(PlayerItemContext context)
 	{
 		if (FunnyLib.getUptimeTicks() % 3 != 0)
 			return;

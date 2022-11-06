@@ -15,12 +15,12 @@ public class ItemStackCodec extends Codec<ItemStack>
 	@Override
 	public ItemStack fromJson(JSONObject json)
 	{
-		return MiscUtil.itemFromBase64(json.getString("item"));
+		return MiscUtil.deserializeItemStack(json);
 	}
 
 	@Override
 	public void toJson(ItemStack obj, JSONObject json)
 	{
-		json.put("item", MiscUtil.itemToBase64(obj));
+		MiscUtil.serializeItemStack(json, obj);
 	}
 }

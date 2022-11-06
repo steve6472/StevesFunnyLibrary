@@ -1,5 +1,6 @@
 package steve6472.funnylib.blocks;
 
+import org.bukkit.Material;
 import org.bukkit.block.PistonMoveReaction;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
@@ -8,6 +9,7 @@ import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.blocks.stateengine.State;
 import steve6472.funnylib.blocks.stateengine.StateObject;
+import steve6472.funnylib.util.MiscUtil;
 
 import java.util.List;
 
@@ -80,5 +82,23 @@ public abstract class CustomBlock extends StateObject
 	public PistonMoveReaction pistonReaction()
 	{
 		return PistonMoveReaction.BLOCK;
+	}
+
+
+	/**
+	 * Can be used to override vanilla pick block <br>
+	 * FIXME: NOT IMPLEMENTED YET THO
+	 * @param context context for pick block
+	 * @return ItemStack to give player
+	 * @deprecated can not be implemented due to reasons
+	 */
+	@Deprecated
+	private ItemStack getPickBlockItem(PlayerBlockContext context)
+	{
+		Material material = getVanillaState(context.blockContext()).getMaterial();
+		if (material.isItem())
+			return new ItemStack(material);
+		else
+			return MiscUtil.AIR;
 	}
 }

@@ -1,30 +1,30 @@
-package steve6472.standalone.interactable.ex.impl;
+package steve6472.standalone.interactable.ex.impl.bool;
 
 import org.bukkit.inventory.ItemStack;
-import org.json.JSONObject;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.standalone.interactable.ex.ExpContext;
 import steve6472.standalone.interactable.ex.ExpItems;
 import steve6472.standalone.interactable.ex.ExpResult;
 import steve6472.standalone.interactable.ex.Expression;
+import steve6472.standalone.interactable.ex.impl.BiInputExp;
 
 /**
  * Created by steve6472
  * Date: 10/6/2022
  * Project: StevesFunnyLibrary <br>
  */
-public class LogicExpr extends BiInputExp
+public class EqualityExp extends BiInputExp
 {
-	public Operator operator = Operator.AND;
+	public Operator operator = Operator.EQUALS;
 
-	public LogicExpr(Expression left, Expression right)
+	public EqualityExp(Expression left, Expression right)
 	{
-		super(Type.BOOL, Type.BOOL, Type.BOOL, left, right);
+		super(Type.BOOL, Type.INT, Type.INT, left, right);
 	}
 
-	public LogicExpr(Operator operator, Expression left, Expression right)
+	public EqualityExp(Operator operator, Expression left, Expression right)
 	{
-		super(Type.BOOL, Type.BOOL, Type.BOOL, left, right);
+		super(Type.BOOL, Type.INT, Type.INT, left, right);
 		this.operator = operator;
 	}
 
@@ -47,29 +47,24 @@ public class LogicExpr extends BiInputExp
 
 		boolean r = switch (operator)
 			{
-				case AND -> left.getResult().asBoolean() && right.getResult().asBoolean();
-				case OR -> left.getResult().asBoolean() || right.getResult().asBoolean();
-				case EQUALS -> left.getResult().asBoolean() == right.getResult().asBoolean();
-				case XOR -> left.getResult().asBoolean() ^ right.getResult().asBoolean();
+				case EQUALS -> left.getResult().asInt() == right.getResult().asInt();
+				case BIGGER -> left.getResult().asInt() > right.getResult().asInt();
+				case BIGGER_EQUAL -> left.getResult().asInt() >= right.getResult().asInt();
+				case SMALLER -> left.getResult().asInt() < right.getResult().asInt();
+				case SMALLER_EQUAL -> left.getResult().asInt() <= right.getResult().asInt();
 			};
 
 		reset();
 		return new ExpResult(r);
 	}
 
-	@Override
-	public void save(JSONObject json)
-	{
-		super.save(json);
-		json.put("operator", operator);
-	}
-
 	public enum Operator
 	{
-		AND("&&", ExpItems.LOGIC_AND),
-		OR("||", ExpItems.LOGIC_OR),
-		EQUALS("==", ExpItems.PLACEHOLDER),
-		XOR("^", ExpItems.PLACEHOLDER),
+		EQUALS("==", ExpItems.EQUALITY_EQUALS),
+		BIGGER(">", ExpItems.EQUALITY_GREATER),
+		BIGGER_EQUAL(">=", ExpItems.EQUALITY_GREATER_EQUAL),
+		SMALLER("<", ExpItems.EQUALITY_LESS),
+		SMALLER_EQUAL("<=", ExpItems.EQUALITY_LESS_EQUAL),
 		;
 
 		private final String label;

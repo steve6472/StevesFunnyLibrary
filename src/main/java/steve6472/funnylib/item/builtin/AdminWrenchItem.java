@@ -1,9 +1,10 @@
 package steve6472.funnylib.item.builtin;
 
-import org.bukkit.*;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import steve6472.funnylib.CancellableResult;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlock;
 import steve6472.funnylib.blocks.CustomBlockData;
@@ -11,9 +12,10 @@ import steve6472.funnylib.blocks.builtin.AdminInterface;
 import steve6472.funnylib.blocks.stateengine.State;
 import steve6472.funnylib.context.BlockFaceContext;
 import steve6472.funnylib.context.PlayerBlockContext;
-import steve6472.funnylib.context.PlayerContext;
+import steve6472.funnylib.context.PlayerItemContext;
+import steve6472.funnylib.context.UseType;
 import steve6472.funnylib.item.CustomItem;
-import steve6472.funnylib.item.events.ItemClickEvents;
+import steve6472.funnylib.item.Items;
 import steve6472.funnylib.util.ItemStackBuilder;
 
 /**
@@ -21,7 +23,7 @@ import steve6472.funnylib.util.ItemStackBuilder;
  * Date: 9/10/2022
  * Project: StevesFunnyLibrary
  */
-public class AdminWrenchItem extends CustomItem implements ItemClickEvents
+public class AdminWrenchItem extends CustomItem
 {
 	@Override
 	public String id()
@@ -30,12 +32,14 @@ public class AdminWrenchItem extends CustomItem implements ItemClickEvents
 	}
 
 	@Override
-	public void leftClickBlock(ItemStack item, PlayerInteractEvent e)
+	public void useOnBlock(PlayerBlockContext context, UseType useType, CancellableResult result)
 	{
-		e.setCancelled(true);
+		if (!useType.isLeft())
+			return;
 
-		Block clickedBlock = e.getClickedBlock();
-		if (clickedBlock == null) return;
+		result.cancel();
+
+		Block clickedBlock = context.getBlock();
 
 		State blockState = Blocks.getBlockState(clickedBlock.getLocation());
 		if (blockState == null) return;
@@ -46,7 +50,7 @@ public class AdminWrenchItem extends CustomItem implements ItemClickEvents
 		{
 			CustomBlockData blockData = Blocks.getBlockData(clickedBlock.getLocation());
 			//noinspection unchecked
-			af.showInterface(blockData, new PlayerBlockContext(new PlayerContext(e.getPlayer()), new BlockFaceContext(clickedBlock.getLocation(), e.getBlockFace(), blockState, blockData)));
+			Items.callWithItemContext(context.getPlayer(), context.getHand(), context.getHandItem(), ic -> af.showInterface(blockData, new PlayerBlockContext(ic, new BlockFaceContext(clickedBlock.getLocation(), context.getFace(), blockState, blockData))));
 		}
 	}
 

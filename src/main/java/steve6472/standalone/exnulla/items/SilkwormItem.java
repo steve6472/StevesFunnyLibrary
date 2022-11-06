@@ -1,24 +1,15 @@
 package steve6472.standalone.exnulla.items;
 
 import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import steve6472.funnylib.FunnyLib;
+import steve6472.funnylib.CancellableResult;
 import steve6472.funnylib.blocks.Blocks;
+import steve6472.funnylib.context.PlayerBlockContext;
+import steve6472.funnylib.context.UseType;
 import steve6472.funnylib.item.CustomItem;
-import steve6472.funnylib.item.events.ItemBreakBlockEvent;
-import steve6472.funnylib.item.events.ItemClickEvents;
 import steve6472.funnylib.util.Checks;
 import steve6472.funnylib.util.ItemStackBuilder;
-import steve6472.funnylib.util.RandomUtil;
 import steve6472.standalone.exnulla.ExNulla;
 
 /**
@@ -26,7 +17,7 @@ import steve6472.standalone.exnulla.ExNulla;
  * Date: 9/16/2022
  * Project: StevesFunnyLibrary <br>
  */
-public class SilkwormItem extends CustomItem implements ItemClickEvents
+public class SilkwormItem extends CustomItem
 {
 	@Override
 	public String id()
@@ -45,12 +36,19 @@ public class SilkwormItem extends CustomItem implements ItemClickEvents
 	}
 
 	@Override
-	public void rightClickBlock(ItemStack item, PlayerInteractEvent e)
+	public void useOnBlock(PlayerBlockContext context, UseType useType, CancellableResult result)
 	{
-		if (Checks.isLeavesMaterial(e.getClickedBlock().getType()))
+		if (!useType.isRight())
+			return;
+
+		if (Checks.isLeavesMaterial(context.getBlock().getType()))
 		{
-			Blocks.setBlockState(e.getClickedBlock().getLocation(), ExNulla.SILK_LEAVES.getDefaultState());
+			Blocks.setBlockState(context.getBlockLocation(), ExNulla.SILK_LEAVES.getDefaultState());
+			if (!context.isCreative())
+			{
+				context.reduceItemAmount(1);
+			}
 		}
-		e.setCancelled(true);
+		result.cancel();
 	}
 }

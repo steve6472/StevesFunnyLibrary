@@ -69,7 +69,7 @@ public class ElevatorControllerData extends CustomBlockData
 
 		Location origin = new Location(location.getWorld(), pos.getX(), pos.getY(), pos.getZ());
 
-		JSONObject json = new JSONObject(ItemStackBuilder.edit(elevatorData).getCustomTagString("data"));
+		JSONObject json = ItemStackBuilder.edit(elevatorData).getCustomJson("data");
 		JSONObject structure = json.getJSONObject("structure");
 		lx = structure.getInt("lx");
 		ly = structure.getInt("ly");

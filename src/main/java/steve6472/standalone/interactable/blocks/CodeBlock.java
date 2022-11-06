@@ -22,15 +22,13 @@ import steve6472.funnylib.blocks.stateengine.properties.IProperty;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.BlockFaceContext;
 import steve6472.funnylib.context.PlayerBlockContext;
-import steve6472.funnylib.context.PlayerContext;
+import steve6472.funnylib.context.PlayerItemContext;
 import steve6472.funnylib.menu.ArbitraryData;
-import steve6472.funnylib.menu.Menu;
 import steve6472.funnylib.menu.MenuBuilder;
 import steve6472.funnylib.menu.SlotBuilder;
 import steve6472.funnylib.util.BlockGen;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.MetaUtil;
-import steve6472.funnylib.util.MiscUtil;
 import steve6472.standalone.interactable.ex.*;
 
 import java.util.List;
@@ -119,7 +117,7 @@ public class CodeBlock extends CustomBlock implements IBlockData, Activable, Blo
 			return;
 		}
 
-		if (executor.executeTick())
+		if (executor.executeTick(true))
 		{
 			Blocks.changeBlockState(context.getLocation(), context.getState().with(EXECUTING, false));
 			Bukkit.broadcastMessage(ChatColor.GREEN + "Block at " + context.getLocation().getBlockX() + "/" + context.getLocation().getBlockY() + "/" + context.getLocation().getBlockZ() + " finished executing");
@@ -133,7 +131,7 @@ public class CodeBlock extends CustomBlock implements IBlockData, Activable, Blo
 	}
 
 	@Override
-	public void playerBreakBlock(PlayerContext playerContext, BlockFaceContext blockContext, BlockBreakResult result)
+	public void playerBreakBlock(PlayerItemContext playerContext, BlockFaceContext blockContext, BlockBreakResult result)
 	{
 		if (playerContext.getCustomItem() == FunnyLib.ADMIN_WRENCH)
 		{

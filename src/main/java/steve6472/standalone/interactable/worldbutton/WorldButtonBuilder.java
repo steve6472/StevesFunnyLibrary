@@ -4,7 +4,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import steve6472.funnylib.context.PlayerContext;
+import steve6472.funnylib.context.PlayerItemContext;
 
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
@@ -19,7 +19,7 @@ public class WorldButtonBuilder
 	private String label;
 	private boolean followClosestPlayer;
 	private boolean isRemote;
-	private Consumer<PlayerContext> clickAction;
+	private Consumer<PlayerItemContext> clickAction;
 
 	private ItemStack icon;
 	private int size = 1;
@@ -54,7 +54,7 @@ public class WorldButtonBuilder
 		return this;
 	}
 
-	public WorldButtonBuilder clickAction(@NotNull Consumer<PlayerContext> clickAction)
+	public WorldButtonBuilder clickAction(@NotNull Consumer<PlayerItemContext> clickAction)
 	{
 		this.clickAction = clickAction;
 		return this;

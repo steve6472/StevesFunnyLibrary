@@ -4,6 +4,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import steve6472.funnylib.context.PlayerItemContext;
 
 /**********************
  * Created by steve6472
@@ -13,5 +14,5 @@ import org.bukkit.inventory.ItemStack;
  ***********************/
 public interface WeaponEvents
 {
-	default void dealDamage(Player player, EntityDamageByEntityEvent event, ItemStack itemStack, EquipmentSlot slot) {}
+	default void dealDamage(PlayerItemContext context, EntityDamageByEntityEvent event) {}
 }

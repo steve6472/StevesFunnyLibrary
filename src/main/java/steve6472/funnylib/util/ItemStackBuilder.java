@@ -13,6 +13,8 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import steve6472.funnylib.FunnyLib;
 
 import java.util.ArrayList;
@@ -353,6 +355,20 @@ public class ItemStackBuilder
 		return this;
 	}
 
+	public ItemStackBuilder customTagJson(String key, JSONObject value)
+	{
+		PersistentDataContainer dataContainer = meta.getPersistentDataContainer();
+		dataContainer.set(new NamespacedKey(FunnyLib.getPlugin(), key), JsonDataType.JSON, value);
+		return this;
+	}
+
+	public ItemStackBuilder customTagJsonArray(String key, JSONArray value)
+	{
+		PersistentDataContainer dataContainer = meta.getPersistentDataContainer();
+		dataContainer.set(new NamespacedKey(FunnyLib.getPlugin(), key), JsonArrayDataType.JSON_ARRAY, value);
+		return this;
+	}
+
 	public ItemStackBuilder customTagInt(String key, int value)
 	{
 		PersistentDataContainer dataContainer = meta.getPersistentDataContainer();
@@ -367,6 +383,18 @@ public class ItemStackBuilder
 		dataContainer.set(new NamespacedKey(FunnyLib.getPlugin(), key), PersistentDataType.BYTE, value);
 
 		return this;
+	}
+
+	public JSONObject getCustomJson(String key)
+	{
+		PersistentDataContainer dataContainer = meta.getPersistentDataContainer();
+		return dataContainer.get(new NamespacedKey(FunnyLib.getPlugin(), key), JsonDataType.JSON);
+	}
+
+	public JSONArray getCustomJsonArray(String key)
+	{
+		PersistentDataContainer dataContainer = meta.getPersistentDataContainer();
+		return dataContainer.get(new NamespacedKey(FunnyLib.getPlugin(), key), JsonArrayDataType.JSON_ARRAY);
 	}
 
 	public String getCustomTagString(String key)

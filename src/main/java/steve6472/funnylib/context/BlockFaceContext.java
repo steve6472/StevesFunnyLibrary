@@ -12,7 +12,7 @@ import steve6472.funnylib.blocks.stateengine.State;
  */
 public class BlockFaceContext extends BlockContext
 {
-	private final BlockFace face;
+	protected final BlockFace face;
 
 	public BlockFaceContext(Location location, BlockFace face)
 	{

@@ -1,26 +1,21 @@
 package steve6472.funnylib.item;
 
-import org.bukkit.*;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import steve6472.funnylib.CancellableResult;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlock;
 import steve6472.funnylib.blocks.stateengine.State;
 import steve6472.funnylib.context.BlockFaceContext;
 import steve6472.funnylib.context.PlayerBlockContext;
-import steve6472.funnylib.context.PlayerContext;
-import steve6472.funnylib.item.events.ItemClickEvents;
-import steve6472.funnylib.util.ItemStackBuilder;
-import steve6472.funnylib.util.MetaUtil;
+import steve6472.funnylib.context.UseType;
 
 /**
  * Created by steve6472
  * Date: 9/10/2022
  * Project: StevesFunnyLibrary
  */
-public class BlockPlacerItem extends GenericItem implements ItemClickEvents
+public class BlockPlacerItem extends GenericItem
 {
 	private final CustomBlock block;
 
@@ -31,19 +26,19 @@ public class BlockPlacerItem extends GenericItem implements ItemClickEvents
 	}
 
 	@Override
-	public void rightClickBlock(ItemStack item, PlayerInteractEvent e)
+	public void useOnBlock(PlayerBlockContext context, UseType useType, CancellableResult result)
 	{
-		Block clickedBlock = e.getClickedBlock();
-		if (clickedBlock == null) return;
+		if (useType != UseType.RIGHT)
+			return;
 
-		Location location = e.getClickedBlock().getLocation().add(e.getBlockFace().getDirection());
+		Location location = context.getBlockLocation().clone().add(context.getFace().getDirection());
 		if (location.getBlock().getType().isAir())
 		{
-			State stateForPlacement = block.getStateForPlacement(new PlayerBlockContext(new PlayerContext(e.getPlayer()), new BlockFaceContext(location, e.getBlockFace())));
+			State stateForPlacement = Items.callWithItemContextR(context.getPlayer(), context.getHand(), context.getHandItem(), ic -> block.getStateForPlacement(new PlayerBlockContext(ic, new BlockFaceContext(location, context.getFace()))));
 			Blocks.setBlockState(location, stateForPlacement);
-			if (e.getItem() != null && e.getPlayer().getGameMode() == GameMode.SURVIVAL)
+			if (context.getHandItem() != null && !context.isCreative())
 			{
-				e.getItem().setAmount(e.getItem().getAmount() - 1);
+				context.reduceItemAmount(1);
 			}
 		}
 	}

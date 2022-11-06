@@ -1,7 +1,6 @@
 package steve6472.funnylib.blocks;
 
 import it.unimi.dsi.fastutil.ints.IntIterator;
-import it.unimi.dsi.fastutil.ints.IntListIterator;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -10,9 +9,11 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
@@ -26,9 +27,10 @@ import steve6472.funnylib.blocks.stateengine.State;
 import steve6472.funnylib.blocks.stateengine.properties.IProperty;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.BlockFaceContext;
-import steve6472.funnylib.context.PlayerContext;
+import steve6472.funnylib.context.PlayerItemContext;
 import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.events.ServerTickEvent;
+import steve6472.funnylib.item.Items;
 import steve6472.funnylib.json.codec.Codec;
 import steve6472.funnylib.util.Log;
 import steve6472.funnylib.util.MetaUtil;
@@ -144,10 +146,8 @@ public class Blocks implements Listener
 		if (blockState != null)
 		{
 			CustomBlock block = ((CustomBlock) blockState.getObject());
-			PlayerContext playerContext = new PlayerContext(e.getPlayer());
-			BlockFaceContext blockContext = new BlockFaceContext(location, MetaUtil.getValue(e.getPlayer(), BlockFace.class, "last_face"));
 
-			if (!block.canPlayerBreak(new PlayerBlockContext(playerContext, blockContext)))
+			if (!Items.callWithItemContextR(e.getPlayer(), EquipmentSlot.HAND, ic -> block.canPlayerBreak(new PlayerBlockContext(ic, new BlockFaceContext(location, MetaUtil.getValue(e.getPlayer(), BlockFace.class, "last_face"))))))
 			{
 				e.setCancelled(true);
 				return;
@@ -158,7 +158,7 @@ public class Blocks implements Listener
 			if (blockState.getObject() instanceof BreakBlockEvent bbe)
 			{
 				BlockBreakResult result = new BlockBreakResult();
-				bbe.playerBreakBlock(playerContext, blockContext, result);
+				Items.callWithItemContext(e.getPlayer(), EquipmentSlot.HAND, ic -> bbe.playerBreakBlock(ic, new BlockFaceContext(location, MetaUtil.getValue(e.getPlayer(), BlockFace.class, "last_face")), result));
 				dropItems = result.dropsItems();
 
 				e.setCancelled(result.isCancelled());
@@ -184,7 +184,7 @@ public class Blocks implements Listener
 			if (dropItems && Boolean.TRUE.equals(world.getGameRuleValue(GameRule.DO_TILE_DROPS)))
 			{
 				List<ItemStack> drops = new ArrayList<>();
-				block.getDrops(new PlayerBlockContext(playerContext, blockContext), drops);
+				Items.callWithItemContext(e.getPlayer(), EquipmentSlot.HAND, ic -> block.getDrops(new PlayerBlockContext(ic, new BlockFaceContext(location, MetaUtil.getValue(e.getPlayer(), BlockFace.class, "last_face"))), drops));
 				dropItems(location, drops);
 			}
 
@@ -288,15 +288,12 @@ public class Blocks implements Listener
 
 		if (customBlock instanceof BlockClickEvents bce)
 		{
-			PlayerBlockContext context = new PlayerBlockContext(new PlayerContext(e.getPlayer(), e.getHand()), new BlockFaceContext(block.getLocation(), e.getBlockFace()));
-
 			if (e.getAction() == Action.RIGHT_CLICK_BLOCK)
 			{
-				bce.rightClick(context, e);
-			}
-			if (e.getAction() == Action.LEFT_CLICK_BLOCK)
+				Items.callWithItemContext(e.getPlayer(), e.getHand(), ic -> bce.rightClick(new PlayerBlockContext(ic, new BlockFaceContext(block.getLocation(), e.getBlockFace())), e));
+			} else if (e.getAction() == Action.LEFT_CLICK_BLOCK)
 			{
-				bce.leftClick(context, e);
+				Items.callWithItemContext(e.getPlayer(), e.getHand(), ic -> bce.leftClick(new PlayerBlockContext(ic, new BlockFaceContext(block.getLocation(), e.getBlockFace())), e));
 			}
 		}
 	}
