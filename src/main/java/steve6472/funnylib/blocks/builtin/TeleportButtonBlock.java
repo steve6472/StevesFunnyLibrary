@@ -24,7 +24,7 @@ import steve6472.funnylib.menu.Mask;
 import steve6472.funnylib.menu.MenuBuilder;
 import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.menu.SlotBuilder;
-import steve6472.funnylib.util.BlockGen;
+import steve6472.funnylib.util.generated.BlockGen;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.MiscUtil;
 

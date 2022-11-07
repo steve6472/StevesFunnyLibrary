@@ -2,17 +2,22 @@ package steve6472.funnylib;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.defaults.BukkitCommand;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.util.Vector;
 import org.json.JSONObject;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlock;
 import steve6472.funnylib.blocks.builtin.MultiBlock;
+import steve6472.funnylib.command.DebugCommands;
 import steve6472.funnylib.json.codec.ann.*;
 import steve6472.funnylib.json.codec.codecs.*;
 import steve6472.funnylib.util.GlowingUtil;
@@ -42,6 +47,8 @@ public class FunnyLib
 {
 	private static final ServerTickEvent SERVER_TICK_EVENT = new ServerTickEvent();
 
+	public static boolean NMS_FAILED = false;
+
 	private static Plugin PLUGIN;
 	private static long uptimeTicks;
 	private static ArmorEventListener armorEventListener;
@@ -68,6 +75,7 @@ public class FunnyLib
 		AnnotationCommand.registerCommands(MenuTest.class);
 
 		AnnotationCommand.registerCommands(BuiltInCommands.class);
+		AnnotationCommand.registerCommands(DebugCommands.class);
 		Bukkit.getPluginManager().registerEvents(armorEventListener = new ArmorEventListener(), plugin);
 		Bukkit.getPluginManager().registerEvents(menuListener = new MenuListener(), plugin);
 		Bukkit.getPluginManager().registerEvents(new CustomCommandRunner(), plugin);
@@ -178,6 +186,12 @@ public class FunnyLib
 		Codec.registerCodec(new EntityCodec());
 		Codec.registerCodec(new MarkerCodec());
 		Codec.registerCodec(new WorldCodec());
+
+		Codec.regDefCodec(Location.class, new LocationCodec());
+		Codec.regDefCodec(ItemStack.class, new ItemStackCodec());
+		Codec.regDefCodec(Entity.class, new EntityCodec());
+		Codec.regDefCodec(Vector.class, new MarkerCodec());
+		Codec.regDefCodec(World.class, new WorldCodec());
 
 		Blocks.registerBlock(TELEPORT_BUTTON_BLOCK = new TeleportButtonBlock());
 		Blocks.registerBlock(MULTI_BLOCK = new MultiBlock());

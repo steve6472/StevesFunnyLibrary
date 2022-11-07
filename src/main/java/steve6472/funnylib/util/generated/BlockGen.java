@@ -1,4 +1,4 @@
-package steve6472.funnylib.util;
+package steve6472.funnylib.util.generated;
 
 import org.bukkit.block.data.*;
 import org.bukkit.block.data.type.*;

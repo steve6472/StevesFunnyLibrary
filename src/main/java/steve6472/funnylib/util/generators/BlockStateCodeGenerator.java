@@ -1,4 +1,4 @@
-package steve6472.funnylib.util;
+package steve6472.funnylib.util.generators;
 
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -7,6 +7,7 @@ import org.bukkit.block.data.MultipleFacing;
 import org.bukkit.block.data.type.RedstoneWire;
 import org.bukkit.block.data.type.Wall;
 import org.bukkit.material.MaterialData;
+import steve6472.funnylib.util.Pair;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -120,7 +121,7 @@ public class BlockStateCodeGenerator
 	{
 		StringBuilder generator = new StringBuilder();
 		StringBuilder headerGenerator = new StringBuilder();
-		headerGenerator.append("package steve6472.funnylib.util;\n\n");
+		headerGenerator.append("package steve6472.funnylib.util.generated;\n\n");
 
 		Set<String> toBeImported = new HashSet<>();
 		toBeImported.add("org.bukkit.block.data.BlockData");
@@ -289,7 +290,7 @@ public class BlockStateCodeGenerator
 
 //		System.out.println(output);
 
-		File f = new File("src/main/java/steve6472/funnylib/util/BlockGen.java");
+		File f = new File("src/main/java/steve6472/funnylib/util/generated/BlockGen.java");
 		try
 		{
 			boolean newFile = f.createNewFile();

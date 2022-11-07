@@ -25,7 +25,7 @@ public class JsonArrayDataType implements PersistentDataType<String, JSONArray>
 	@Override
 	public @NotNull String toPrimitive(JSONArray complex, @NotNull PersistentDataAdapterContext context)
 	{
-		return complex.toString();
+		return "\"" + complex.toString() + "\"";
 	}
 
 	@Override

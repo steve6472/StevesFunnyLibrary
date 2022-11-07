@@ -236,7 +236,8 @@ public class Items implements Listener
 
 		if (customItemEntry != null && (customItemEntry.requireAdmin() && e.getWhoClicked().isOp() || !customItemEntry.requireAdmin()))
 		{
-			callEventOnCustomItem(((Player) e.getWhoClicked()), ItemInvEvents.class, currentItem, (ev, i) -> ev.clickInInventoryEvent(((Player) e.getWhoClicked()), i, e.getInventory(), e.getSlot(), e.getAction(), e));
+			Player player = ((Player) e.getWhoClicked());
+			callEventOnCustomItem(player, ItemInvEvents.class, currentItem, (ev, i) -> callWithItemContext(player, EquipmentSlot.HAND, i, ic -> ev.clickInInventoryEvent(ic, e.getInventory(), e.getSlot(), e.getAction(), e)));
 		}
 	}
 
@@ -300,9 +301,6 @@ public class Items implements Listener
 	@EventHandler
 	public void itemEvents(PlayerInteractEvent e)
 	{
-		if (e.getHand() != EquipmentSlot.HAND)
-			return;
-
 		ItemStack item = e.getItem();
 		if (item == null || item.getType() == Material.AIR)
 			return;

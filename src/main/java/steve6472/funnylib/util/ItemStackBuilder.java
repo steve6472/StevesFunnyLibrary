@@ -175,6 +175,58 @@ public class ItemStackBuilder
 	 * Lore
 	 */
 
+	public ItemStackBuilder addLoreRaw(String string)
+	{
+		item.setItemMeta(meta);
+		SafeNMS.nmsFunction(() ->
+		{
+			NMS.addLore(item, string);
+			meta = item.getItemMeta();
+		}, () ->
+		{
+			meta = item.getItemMeta();
+
+			if (meta == null)
+				throw new RuntimeException("Item meta is null! Adding lore failed! Pls fix thx");
+
+			List<String> lore = meta.getLore();
+			if (lore == null)
+			{
+				lore = new ArrayList<>(1);
+			}
+			lore.add(string);
+			meta.setLore(lore);
+		});
+
+		return this;
+	}
+
+	public ItemStackBuilder addLoreRaw(JSONMessage message)
+	{
+		item.setItemMeta(meta);
+		SafeNMS.nmsFunction(() ->
+		{
+			NMS.addLore(item, message);
+			meta = item.getItemMeta();
+		}, () ->
+		{
+			meta = item.getItemMeta();
+
+			if (meta == null)
+				throw new RuntimeException("Item meta is null! Adding lore failed! Pls fix thx");
+
+			List<String> lore = meta.getLore();
+			if (lore == null)
+			{
+				lore = new ArrayList<>(1);
+			}
+			lore.add(message.toLegacy());
+			meta.setLore(lore);
+		});
+
+		return this;
+	}
+
 	public ItemStackBuilder addLoreWithLines(String text)
 	{
 		String[] split = text.split("\n");
@@ -204,26 +256,12 @@ public class ItemStackBuilder
 
 	public ItemStackBuilder addLore(String text, ChatColor color)
 	{
-		List<String> lore = meta.getLore();
-		if (lore == null)
-		{
-			lore = new ArrayList<>(1);
-		}
-		lore.add(color + text);
-		meta.setLore(lore);
-		return this;
+		return addLoreRaw(color + text);
 	}
 
 	public ItemStackBuilder addLore(JSONMessage json)
 	{
-		List<String> lore = meta.getLore();
-		if (lore == null)
-		{
-			lore = new ArrayList<>(1);
-		}
-		lore.add(json.toLegacy());
-		meta.setLore(lore);
-		return this;
+		return addLoreRaw(json);
 	}
 
 	public ItemStackBuilder removeLoreLine(int line)

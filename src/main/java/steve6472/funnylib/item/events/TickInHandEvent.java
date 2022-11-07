@@ -10,5 +10,5 @@ import steve6472.funnylib.context.PlayerItemContext;
  ***********************/
 public interface TickInHandEvent
 {
-	default void tickInHand(PlayerItemContext context) {}
+	void tickInHand(PlayerItemContext context);
 }

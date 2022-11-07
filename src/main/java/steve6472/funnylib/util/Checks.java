@@ -1,7 +1,24 @@
 package steve6472.funnylib.util;
 
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Tier;
+import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Tag;
+import org.bukkit.craftbukkit.v1_19_R1.entity.CraftItem;
+import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_19_R1.util.CraftMagicNumbers;
+import org.bukkit.inventory.FurnaceRecipe;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
+import steve6472.funnylib.FunnyLib;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 /**
  * Created by steve6472
@@ -37,24 +54,58 @@ public class Checks
 
 	public static boolean isLeavesMaterial(Material material)
 	{
-		return switch (material)
+		return Tag.LEAVES.isTagged(material);
+	}
+
+	private static final Map<Material, FurnaceRecipe> COOK_TIME_MAP = new HashMap<>();
+
+	public static FurnaceRecipe getFurnaceRecipeByInput(ItemStack itemStack)
+	{
+		return COOK_TIME_MAP.computeIfAbsent(itemStack.getType(), m ->
+		{
+			for (Iterator<Recipe> iterator = Bukkit.recipeIterator(); iterator.hasNext(); )
 			{
-				case ACACIA_LEAVES,
-					AZALEA_LEAVES,
-					BIRCH_LEAVES,
-					DARK_OAK_LEAVES,
-					FLOWERING_AZALEA_LEAVES,
-					JUNGLE_LEAVES,
-					MANGROVE_LEAVES,
-					OAK_LEAVES,
-					SPRUCE_LEAVES -> true;
-				default -> false;
-			};
+				Recipe recipe = iterator.next();
+				if (recipe instanceof FurnaceRecipe fr)
+				{
+					if (fr.getInputChoice().test(itemStack))
+					{
+						return fr;
+					}
+//					if (fr.getInput().getType() == m)
+//					{
+//						return fr;
+//					}
+				}
+			}
+
+			return null;
+		});
+	}
+
+	public static int getCookTime(ItemStack itemStack)
+	{
+		FurnaceRecipe furnaceRecipe = getFurnaceRecipeByInput(itemStack);
+		return furnaceRecipe == null ? 0 : furnaceRecipe.getCookingTime();
 	}
 
 	@Deprecated
 	public static Tier getTier(Material material)
 	{
 		throw new RuntimeException("Not yet implemented");
+	}
+
+	/*
+	 * NMS
+	 */
+
+	public static int getBurnTime(Material material)
+	{
+		return SafeNMS.nmsFunction(() -> NMS.getBurnTime(material), 0);
+	}
+
+	public static boolean isFuel(Material material)
+	{
+		return SafeNMS.nmsFunction(() -> NMS.isFuel(material), false);
 	}
 }

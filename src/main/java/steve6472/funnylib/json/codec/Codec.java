@@ -1,9 +1,11 @@
 package steve6472.funnylib.json.codec;
 
+import org.bukkit.inventory.ItemStack;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import oshi.util.tuples.Triplet;
 import steve6472.funnylib.json.codec.ann.*;
+import steve6472.funnylib.json.codec.codecs.ItemStackCodec;
 import steve6472.funnylib.json.codec.codecs.ObjectCodec;
 import steve6472.funnylib.util.TriFunction;
 
@@ -35,6 +37,7 @@ public abstract class Codec<T>
 
 	static final Map<Class<?>, Codec<?>> CODECS = new HashMap<>();
 	static final Map<Class<?>, Triplet<Class<? extends Annotation>, TriFunction<JSONObject, String, ?, Object>, BiFunction<Object, ?, Object>>> DEFAULT_ANNOTATION_CODECS = new HashMap<>();
+	static final Map<Class<?>, Codec<?>> DEFAULT_CODECS = new HashMap<>();
 
 	private static <A, R> R nullDefault(A ann, Function<A, R> nonNull, R whenNull)
 	{
@@ -68,6 +71,11 @@ public abstract class Codec<T>
 	public static <A extends Annotation> void regDefAnnCodec(Class<?> clazz, Class<A> anno, TriFunction<JSONObject, String, A, Object> setField, BiFunction<Object, A, Object> castFromField)
 	{
 		DEFAULT_ANNOTATION_CODECS.put(clazz, new Triplet<>(anno, setField, castFromField));
+	}
+
+	public static <T> void regDefCodec(Class<T> clazz, Codec<T> codec)
+	{
+		DEFAULT_CODECS.put(clazz, codec);
 	}
 
 	public static <T> void registerCodec(Codec<T> codec)
@@ -179,13 +187,22 @@ public abstract class Codec<T>
 				}
 			} else if (saveAll)
 			{
-				Triplet<Class<? extends Annotation>, TriFunction<JSONObject, String, ?, Object>, BiFunction<Object, ?, Object>> var = DEFAULT_ANNOTATION_CODECS.get(declaredField.getType());
-				if (var != null)
+				Codec<?> codec = DEFAULT_CODECS.get(declaredField.getType());
+				if (codec == null)
 				{
-					json.put(declaredField.getName(), var.getC().apply(declaredField.get(object), null));
+					Triplet<Class<? extends Annotation>, TriFunction<JSONObject, String, ?, Object>, BiFunction<Object, ?, Object>> var = DEFAULT_ANNOTATION_CODECS.get(declaredField.getType());
+					if (var != null)
+					{
+						json.put(declaredField.getName(), var.getC().apply(declaredField.get(object), null));
+					} else
+					{
+						json.put(declaredField.getName(), save_(declaredField.get(object), saveAll));
+					}
 				} else
 				{
-					json.put(declaredField.getName(), save_(declaredField.get(object), saveAll));
+					JSONObject objSave = new JSONObject();
+					codec.toJSON(declaredField.get(object), objSave);
+					json.put(declaredField.getName(), objSave);
 				}
 			}
 		}
@@ -275,31 +292,46 @@ public abstract class Codec<T>
 				}
 			} else if (loadAll)
 			{
-				Triplet<Class<? extends Annotation>, TriFunction<JSONObject, String, ?, Object>, BiFunction<Object, ?, Object>> var = DEFAULT_ANNOTATION_CODECS.get(declaredField.getType());
-				if (var != null)
+				Codec<?> codec = DEFAULT_CODECS.get(declaredField.getType());
+				if (codec == null)
 				{
-					declaredField.set(object, var.getB().apply(json, declaredField.getName(), null));
-				} else
-				{
-					if (json.has(declaredField.getName()))
+					Triplet<Class<? extends Annotation>, TriFunction<JSONObject, String, ?, Object>, BiFunction<Object, ?, Object>> var = DEFAULT_ANNOTATION_CODECS.get(declaredField.getType());
+					if (var != null)
 					{
-						JSONObject jsonObject = json.getJSONObject(declaredField.getName());
-
-						if (jsonObject.optBoolean("__null__"))
-						{
-							declaredField.set(object, null);
-						} else
-						{
-							final Constructor<?> declaredConstructors = declaredField.getType().getDeclaredConstructor();
-							final Object o = declaredConstructors.newInstance();
-
-							load_(o, jsonObject, loadAll);
-
-							declaredField.set(object, o);
-						}
+						declaredField.set(object, var.getB().apply(json, declaredField.getName(), null));
 					} else
 					{
+						if (json.has(declaredField.getName()))
+						{
+							JSONObject jsonObject = json.getJSONObject(declaredField.getName());
+
+							if (jsonObject.optBoolean("__null__"))
+							{
+								declaredField.set(object, null);
+							} else
+							{
+								final Constructor<?> declaredConstructors = declaredField.getType().getDeclaredConstructor();
+								final Object o = declaredConstructors.newInstance();
+
+								load_(o, jsonObject, loadAll);
+
+								declaredField.set(object, o);
+							}
+						} else
+						{
+							declaredField.set(object, null);
+						}
+					}
+				} else
+				{
+					JSONObject jsonData = json.optJSONObject(declaredField.getName(), null);
+					if (jsonData == null)
+					{
 						declaredField.set(object, null);
+					} else
+					{
+						Object o = codec.fromJson(jsonData);
+						declaredField.set(object, o);
 					}
 				}
 			}

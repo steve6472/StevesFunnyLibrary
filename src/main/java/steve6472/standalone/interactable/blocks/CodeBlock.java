@@ -26,7 +26,7 @@ import steve6472.funnylib.context.PlayerItemContext;
 import steve6472.funnylib.menu.ArbitraryData;
 import steve6472.funnylib.menu.MenuBuilder;
 import steve6472.funnylib.menu.SlotBuilder;
-import steve6472.funnylib.util.BlockGen;
+import steve6472.funnylib.util.generated.BlockGen;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.MetaUtil;
 import steve6472.standalone.interactable.ex.*;
@@ -133,7 +133,7 @@ public class CodeBlock extends CustomBlock implements IBlockData, Activable, Blo
 	@Override
 	public void playerBreakBlock(PlayerItemContext playerContext, BlockFaceContext blockContext, BlockBreakResult result)
 	{
-		if (playerContext.getCustomItem() == FunnyLib.ADMIN_WRENCH)
+		if (playerContext.holdsCustomItem(FunnyLib.ADMIN_WRENCH))
 		{
 			result.cancel();
 		}

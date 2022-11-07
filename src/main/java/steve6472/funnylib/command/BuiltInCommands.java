@@ -285,32 +285,6 @@ public class BuiltInCommands
 		return true;
 	}
 
-
-	@Command
-	@Description("Tests serialization")
-	@Usage("/testSer")
-	public static boolean testSer(@NotNull Player player, @NotNull String[] args)
-	{
-		JSONObject json = MiscUtil.serializeItemStack(player.getInventory().getItemInMainHand());
-		System.out.println(JsonPrettify.prettify(json));
-		ItemStack deserialize = MiscUtil.deserializeItemStack(json);
-		player.getInventory().addItem(deserialize);
-		return true;
-	}
-
-
-	@Command
-	@Description("Prints item into console")
-	@Usage("/printItem")
-	@Usage("[-p] -> send message to player as well")
-	public static boolean printItem(@NotNull Player player, @NotNull String[] args)
-	{
-		System.out.println(player.getInventory().getItemInMainHand());
-		if (hasFlag("-p", args))
-			player.sendMessage(player.getInventory().getItemInMainHand().toString());
-		return true;
-	}
-
 //	@Command
 //	@Usage("/printAliases")
 //	public static boolean printAliases(@NotNull Player player, @NotNull String[] args)

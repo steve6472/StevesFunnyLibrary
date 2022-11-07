@@ -81,11 +81,26 @@ public class JSONMessage
 	 * Creates a new {@link JSONMessage} object
 	 *
 	 * @param text The text to start with
+	 */
+	private JSONMessage(String text, boolean translate)
+	{
+		parts.add(new MessagePart(text, translate));
+	}
+
+	/**
+	 * Creates a new {@link JSONMessage} object
+	 *
+	 * @param text The text to start with
 	 * @return A new {@link JSONMessage} object
 	 */
 	public static JSONMessage create(String text)
 	{
 		return new JSONMessage(text);
+	}
+
+	public static JSONMessage translate(String translationString)
+	{
+		return new JSONMessage(translationString, true);
 	}
 
 	/**
@@ -423,6 +438,11 @@ public class JSONMessage
 		return then(new MessagePart(text));
 	}
 
+	public JSONMessage thenTranslate(String text)
+	{
+		return then(new MessagePart(text, true));
+	}
+
 	public JSONMessage then(String text, ChatColor color)
 	{
 		return then(text).color(color);
@@ -741,10 +761,17 @@ public class JSONMessage
 		private ChatColor legacyColor;
 		private String font;
 		private String text;
+		private boolean isTranslation;
 
 		public MessagePart(String text)
 		{
 			this.text = text == null ? "null" : text;
+		}
+
+		public MessagePart(String text, boolean isTranslation)
+		{
+			this.text = text == null ? "null" : text;
+			this.isTranslation = isTranslation;
 		}
 
 		/**
@@ -757,7 +784,7 @@ public class JSONMessage
 			Objects.requireNonNull(text);
 
 			JsonObject obj = new JsonObject();
-			obj.addProperty("text", text);
+			obj.addProperty(isTranslation ? "translate" : "text", text);
 
 			if (color != null && !color.isEmpty())
 			{

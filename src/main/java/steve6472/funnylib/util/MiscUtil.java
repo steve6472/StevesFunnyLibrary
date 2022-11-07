@@ -10,8 +10,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Unmodifiable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -153,56 +151,20 @@ public class MiscUtil
 		}
 	}
 
-	public static void recursiveSerialization(JSONArray jsonKeys, JSONArray jsonArrayKeys, JSONObject json, String key, Object value, boolean allowJsonification)
+	public static void recursiveSerialization(JSONObject json, String key, Object value)
 	{
-//		if (jsonKeys != null && allowJsonification)
-//		{
-//			System.out.println(key + " => " + value.getClass().getSimpleName() + " -> " + value);
-//		}
-
 		if (value instanceof ConfigurationSerializable cs)
 		{
 			JSONObject child = new JSONObject();
 			Map<String, Object> serialize = cs.serialize();
-			serialize.forEach((k, v) -> recursiveSerialization(jsonKeys, jsonArrayKeys, child, k, v, allowJsonification));
+			serialize.forEach((k, v) -> recursiveSerialization(child, k, v));
 			json.put(key, child);
 		}
 		else if (key.equals("PublicBukkitValues") && value instanceof HashMap<?, ?> map)
 		{
 			JSONObject publicBukkitValues = new JSONObject();
-			map.forEach((k, v) -> recursiveSerialization(jsonKeys, jsonArrayKeys, publicBukkitValues, k.toString(), v, true));
+			map.forEach((k, v) -> recursiveSerialization(publicBukkitValues, k.toString(), v));
 			json.put(key, publicBukkitValues);
-		} else if (allowJsonification && jsonKeys != null && jsonArrayKeys != null)
-		{
-			if (value instanceof String s)
-			{
-				JSONObject js;
-				JSONArray ja;
-				if (s.startsWith("{") && s.endsWith("}") && (js = getValidJsonObject(s)) != null)
-				{
-					jsonKeys.put(key);
-					json.put(key, js);
-				} else if (s.startsWith("[") && s.endsWith("]") && (ja = getValidJsonArray(s)) != null)
-				{
-					jsonArrayKeys.put(key);
-					json.put(key, ja);
-				} else
-				{
-					json.put(key, value);
-				}
-			} else if (value instanceof List<?> l)
-			{
-				String s = l.toString();
-				JSONArray ja;
-				if (s.startsWith("[") && s.endsWith("]") && (ja = getValidJsonArray(s)) != null)
-				{
-					jsonArrayKeys.put(key);
-					json.put(key, ja);
-				} else
-				{
-					json.put(key, value);
-				}
-			}
 		} else
 		{
 			json.put(key, value);
@@ -214,7 +176,7 @@ public class MiscUtil
 	{
 		Map<String, Object> serialize = itemStack.serialize();
 
-		serialize.forEach((k, v) -> recursiveSerialization(null, null, json, k, v, false));
+		serialize.forEach((k, v) -> recursiveSerialization(json, k, v));
 
 		return json;
 	}
@@ -222,40 +184,15 @@ public class MiscUtil
 	public static JSONObject serializeItemStack(ItemStack itemStack)
 	{
 		JSONObject json = new JSONObject();
-		JSONArray jsonKeys = new JSONArray();
-		JSONArray jsonArrayKeys = new JSONArray();
 		Map<String, Object> serialize = itemStack.serialize();
 
-		serialize.forEach((k, v) -> recursiveSerialization(jsonKeys, jsonArrayKeys, json, k, v, false));
-
-		json.put("jsonKeys", jsonKeys);
-		json.put("jsonArrayKeys", jsonArrayKeys);
+		serialize.forEach((k, v) -> recursiveSerialization(json, k, v));
 
 		return json;
 	}
 
 	public static ItemStack deserializeItemStack(JSONObject json)
 	{
-		Set<String> jsonKeys = new HashSet<>();
-		JSONArray jsonKeysArray =  json.optJSONArray("jsonKeys");
-		if (jsonKeysArray != null)
-		{
-			for (int i = 0; i < jsonKeysArray.length(); i++)
-			{
-				jsonKeys.add(jsonKeysArray.getString(i));
-			}
-		}
-
-		Map<String, JSONArray> jsonArrayKeys = new HashMap<>();
-		JSONArray jsonArrayKeysArray =  json.optJSONArray("jsonArrayKeys");
-		if (jsonArrayKeysArray != null)
-		{
-			for (int i = 0; i < jsonArrayKeysArray.length(); i++)
-			{
-				jsonArrayKeys.put(jsonArrayKeysArray.getString(i), null);
-			}
-		}
-
 		Map<String, Object> map = new LinkedHashMap<>();
 		for (String key : json.keySet())
 		{
@@ -273,20 +210,9 @@ public class MiscUtil
 						Map<String, Object> publicBukkitValues = new HashMap<>();
 						for (String valuesKey : valuesJson.keySet())
 						{
-							if (jsonKeys.contains(valuesKey))
-							{
-								publicBukkitValues.put(valuesKey, valuesJson.getJSONObject(valuesKey).toString());
-							} else if (jsonArrayKeys.containsKey(valuesKey))
-							{
-								jsonArrayKeys.put(valuesKey, valuesJson.getJSONArray(valuesKey));
-//								publicBukkitValues.put(valuesKey, "\"" + valuesJson.getJSONArray(valuesKey).toString() + "\"");
-							} else
-							{
-								publicBukkitValues.put(valuesKey, valuesJson.get(valuesKey));
-							}
+							publicBukkitValues.put(valuesKey, valuesJson.get(valuesKey));
 						}
 						value = publicBukkitValues;
-						System.out.println(value);
 					}
 
 					metaMap.put(metaKey, value);
@@ -299,18 +225,19 @@ public class MiscUtil
 			map.put(key, o);
 		}
 
-		ItemStack itemStack = (ItemStack) ConfigurationSerialization.deserializeObject(map, ItemStack.class);
-		if (!jsonArrayKeys.isEmpty() && itemStack != null)
+		return (ItemStack) ConfigurationSerialization.deserializeObject(map, ItemStack.class);
+	}
+
+	public static JSONMessage nameToComponent(ItemStack item, ChatColor translateColor)
+	{
+		ItemMeta itemMeta = item.getItemMeta();
+		if (itemMeta == null || !itemMeta.hasDisplayName())
 		{
-			ItemMeta itemMeta = itemStack.getItemMeta();
-			if (itemMeta != null)
-			{
-				PersistentDataContainer data = itemMeta.getPersistentDataContainer();
-				jsonArrayKeys.forEach((k, v) -> data.set(new NamespacedKey(k.split(":")[0], k.split(":")[1]), JsonArrayDataType.JSON_ARRAY, v));
-				itemStack.setItemMeta(itemMeta);
-			}
+			return JSONMessage.translate((item.getType().isBlock() ? "block" : "item") + ".minecraft." + item.getType().name().toLowerCase()).color(translateColor);
+		} else
+		{
+			return JSONMessage.create(itemMeta.getDisplayName());
 		}
-		return itemStack;
 	}
 
 	/*

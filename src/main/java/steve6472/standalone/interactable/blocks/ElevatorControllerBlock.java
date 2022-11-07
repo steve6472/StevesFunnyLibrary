@@ -25,6 +25,7 @@ import steve6472.funnylib.menu.MenuBuilder;
 import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.menu.SlotBuilder;
 import steve6472.funnylib.util.*;
+import steve6472.funnylib.util.generated.BlockGen;
 import steve6472.standalone.interactable.Interactable;
 
 /**

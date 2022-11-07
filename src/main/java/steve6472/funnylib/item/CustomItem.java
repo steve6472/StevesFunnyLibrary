@@ -23,6 +23,8 @@ import steve6472.funnylib.util.Preconditions;
  ***********************/
 public abstract class CustomItem
 {
+	private static final NamespacedKey ITEM_DATA_KEY = new NamespacedKey(FunnyLib.getPlugin(), "item_data");
+
 	public abstract String id();
 
 	protected abstract ItemStack item();
@@ -62,15 +64,21 @@ public abstract class CustomItem
 		ItemMeta itemMeta = itemStack.getItemMeta();
 		Preconditions.checkNotNull(itemMeta, "ItemMeta is null (ItemStack is AIR)");
 		JSONObject value = Codec.saveAll(itemData);
-		NamespacedKey namespacedKey = new NamespacedKey(FunnyLib.getPlugin(), "item_data");
+
 		if (value.isEmpty())
 		{
-			itemMeta.getPersistentDataContainer().remove(namespacedKey);
+			itemMeta.getPersistentDataContainer().remove(ITEM_DATA_KEY);
 		} else
 		{
 			itemMeta
 				.getPersistentDataContainer()
-				.set(namespacedKey, JsonDataType.JSON, value);
+				.set(ITEM_DATA_KEY, JsonDataType.JSON, value);
+			itemStack.setItemMeta(itemMeta);
+
+			ItemStack edited = itemData.onSave(itemStack);
+			itemMeta = edited.getItemMeta();
+			itemStack.setAmount(edited.getAmount());
+			itemStack.setType(edited.getType());
 		}
 		itemStack.setItemMeta(itemMeta);
 	}
@@ -89,6 +97,9 @@ public abstract class CustomItem
 		JSONObject itemData = itemMeta
 			.getPersistentDataContainer()
 			.get(new NamespacedKey(FunnyLib.getPlugin(), "item_data"), JsonDataType.JSON);
-		return Codec.loadAll(customItem.createData(), itemData);
+		if (itemData == null)
+			return customItem.createData();
+		else
+			return Codec.loadAll(customItem.createData(), itemData);
 	}
 }
