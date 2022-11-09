@@ -227,6 +227,12 @@ public class Blocks implements Listener
 	}
 
 	@EventHandler
+	public void physics(BlockPhysicsEvent e)
+	{
+		// TODO: physics updates
+	}
+
+	@EventHandler
 	public void iHatePistons(BlockPistonExtendEvent e)
 	{
 		for (Block block : e.getBlocks())

@@ -84,11 +84,15 @@ public class ExpressionMenu
 		}))
 		;
 
-	private static final MenuBuilder BUILDER = MenuBuilder.create(6, "Expressions").setOnClose((m, p) ->
-	{
-		MetaUtil.removeMeta(p, "code_block");
-		return Response.allow();
-	}).applyMask(MAIN_MASK);
+	private static final MenuBuilder BUILDER = MenuBuilder
+		.create(6, "Expressions")
+		.allowPlayerInventory()
+		.setOnClose((m, p) ->
+		{
+			MetaUtil.removeMeta(p, "code_block");
+			return Response.allow();
+		})
+		.applyMask(MAIN_MASK);
 
 	public static BiConsumer<Click, Menu> addExpression(Function<JSONObject, Expression> expressionSupplier)
 	{

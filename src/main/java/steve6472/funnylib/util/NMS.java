@@ -79,46 +79,6 @@ public class NMS
 
 	public static void addLore(ItemStack bukkitStack, JSONMessage message)
 	{
-		try
-		{
-			boolean copy = false;
-			CraftItemStack craftStack;
-			if (bukkitStack instanceof CraftItemStack)
-			{
-				craftStack = (CraftItemStack) bukkitStack;
-			} else
-			{
-				craftStack = CraftItemStack.asCraftCopy(bukkitStack);
-				copy = true;
-			}
-
-			Field handle = craftStack.getClass().getDeclaredField("handle");
-			handle.setAccessible(true);
-			var nmsStack = (net.minecraft.world.item.ItemStack) handle.get(craftStack);
-
-			// get Lore tag
-			CompoundTag tag = nmsStack.getOrCreateTag();
-			CompoundTag display = tag.contains("display", Tag.TAG_COMPOUND) ? tag.getCompound("display") : new CompoundTag();
-			ListTag lore = display.getList("Lore", Tag.TAG_STRING);
-
-			// add lore line
-			String var0 = message.toJSON().toString();
-			lore.add(StringTag.valueOf(var0));
-
-			// put edited data back to itemstack
-			display.put("Lore", lore);
-			tag.put("display", display);
-
-			if (copy)
-			{
-				bukkitStack.setItemMeta(craftStack.getItemMeta());
-			}
-
-			// debug
-//			System.out.println(tag.getAsString());
-		} catch (ReflectiveOperationException exception)
-		{
-			throw new RuntimeException(exception);
-		}
+		addLore(bukkitStack, message.toJSON().toString());
 	}
 }
