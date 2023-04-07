@@ -175,28 +175,14 @@ public class ItemStackBuilder
 	 * Lore
 	 */
 
+	/**
+	 * Transforms legacy chat colors string into JSON format
+	 * @param string legacy string
+	 * @return builder
+	 */
 	public ItemStackBuilder addLoreRaw(String string)
 	{
-		item.setItemMeta(meta);
-		SafeNMS.nmsFunction(() ->
-		{
-			NMS.addLore(item, string);
-			meta = item.getItemMeta();
-		}, () ->
-		{
-			meta = item.getItemMeta();
-
-			if (meta == null)
-				throw new RuntimeException("Item meta is null! Adding lore failed! Pls fix thx");
-
-			List<String> lore = meta.getLore();
-			if (lore == null)
-			{
-				lore = new ArrayList<>(1);
-			}
-			lore.add(string);
-			meta.setLore(lore);
-		});
+		addLoreRaw(MiscUtil.legacyToJsonMessage(string));
 
 		return this;
 	}
@@ -227,6 +213,13 @@ public class ItemStackBuilder
 		return this;
 	}
 
+	/**
+	 *
+	 * @param text lines of lore separated with \n for new line
+	 * @return builder
+	 * @deprecated use {@link #addLore(JSONMessage)} instead
+	 */
+	@Deprecated
 	public ItemStackBuilder addLoreWithLines(String text)
 	{
 		String[] split = text.split("\n");
@@ -237,6 +230,11 @@ public class ItemStackBuilder
 		return this;
 	}
 
+	/**
+	 * Adds lore lines
+	 * @param json JSON formatted lore
+	 * @return builder
+	 */
 	public ItemStackBuilder addLore(JSONMessage[] json)
 	{
 		for (JSONMessage m : json)
@@ -249,16 +247,51 @@ public class ItemStackBuilder
 		return meta.getLore();
 	}
 
+	/**
+	 * Adds lore line <br>
+	 * If text does not start with a color, gray is selected as default
+	 *
+	 * @param text lore text
+	 * @return builder
+	 * @deprecated use {@link #addLore(JSONMessage)} instead
+	 */
+	@Deprecated
 	public ItemStackBuilder addLore(String text)
 	{
-		return addLore(text, ChatColor.GRAY);
+		Preconditions.checkNotEmpty(text);
+
+		/*
+		 * Check for color at start of string
+		 * so we don't add useless color information
+		 */
+		if (text.charAt(0) == ChatColor.COLOR_CHAR)
+		{
+			return addLoreRaw(text);
+		} else
+		{
+			return addLore(text, ChatColor.GRAY);
+		}
 	}
 
+	/**
+	 * Adds lore line with specified color
+	 *
+	 * @param text lore text
+	 * @param color line color
+	 * @return builder
+	 * @deprecated use {@link #addLore(JSONMessage)} instead
+	 */
+	@Deprecated
 	public ItemStackBuilder addLore(String text, ChatColor color)
 	{
 		return addLoreRaw(color + text);
 	}
 
+	/**
+	 * Adds lore line
+	 * @param json JSON formatted lore line
+	 * @return
+	 */
 	public ItemStackBuilder addLore(JSONMessage json)
 	{
 		return addLoreRaw(json);
@@ -288,6 +321,10 @@ public class ItemStackBuilder
 		return this;
 	}
 
+	/*
+	 * Name
+	 */
+
 	public ItemStackBuilder setName(String text, ChatColor color)
 	{
 		meta.setDisplayName(color + text);
@@ -309,6 +346,10 @@ public class ItemStackBuilder
 	{
 		return meta.getDisplayName();
 	}
+
+	/*
+	 *
+	 */
 
 	public ItemStackBuilder setArmorColor(int color)
 	{

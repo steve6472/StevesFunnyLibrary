@@ -1,0 +1,156 @@
+alias org.bukkit.Chunk: Chunk
+alias org.bukkit.World: World
+alias org.bukkit.Location: Location
+alias org.bukkit.Material: Material
+alias org.bukkit.HeightMap: HeightMap
+
+alias org.bukkit.inventory.ItemStack: ItemStack
+alias org.bukkit.inventory.meta.ItemMeta: ItemMeta
+alias org.bukkit.inventory.EquipmentSlot: EquipmentSlot
+
+alias org.bukkit.entity.Player: Player
+alias org.bukkit.entity.Entity: Entity
+alias org.bukkit.entity.Item: Item
+alias org.bukkit.entity.SpawnCategory: SpawnCategory
+alias org.bukkit.DyeColor: DyeColor
+
+alias org.bukkit.plugin.Plugin: Plugin
+alias org.bukkit.generator.structure.Structure: Structure
+alias org.bukkit.util.Vector: Vector
+alias org.bukkit.Sound: Sound
+alias org.bukkit.SoundCategory: SoundCategory
+alias org.bukkit.Difficulty: Difficulty
+alias org.bukkit.Particle: Particle
+alias org.bukkit.WeatherType: WeatherType
+alias org.bukkit.WorldBorder: WorldBorder
+
+alias org.bukkit.metadata.Metadatable: Metadatable
+
+alias org.bukkit.scoreboard.Scoreboard: Scoreboard
+
+alias org.bukkit.block.Block: Block
+alias org.bukkit.block.Biome: Biome
+
+class Player:
+{
+    type: allow_methods
+    methods:
+    {
+        java.net.InetSocketAddress getAddress(): deny
+        void openSign(org.bukkit.block.Sign): deny
+        org.bukkit.advancement.AdvancementProgress getAdvancementProgress(org.bukkit.advancement.Advancement): deny
+        void playEffect(Location org.bukkit.Effect Object int): deny
+        void playEffect(Location org.bukkit.Effect int int): deny
+        void playEffect(Location org.bukkit.Effect Object): deny
+        void playEffect(Location org.bukkit.Effect int): deny
+        void playNote(Location byte byte): deny
+        void playNote(Location org.bukkit.Instrument org.bukkit.Note): deny
+        void sendMap(org.bukkit.map.MapView): deny
+        void sendBlockChange(Location org.bukkit.block.data.BlockData): deny
+        void sendBlockChange(Location Material byte): deny
+        void setPlayerTime(long boolean): deny
+        void setResourcePack(String Object String boolean): deny
+        void setResourcePack(String Object boolean): deny
+        void setResourcePack(String Object): deny
+        void setResourcePack(String Object String): deny
+        void hidePlayer(Plugin Player): deny
+        void showEntity(Plugin Entity): deny
+        void showPlayer(Plugin Player): deny
+        void hideEntity(Plugin Entity): deny
+    }
+}
+
+class Metadatable:      { type: allow }
+class Scoreboard:       { type: allow }
+class WorldBorder:      { type: allow }
+class DyeColor:         { type: allow }
+class EquipmentSlot:    { type: allow }
+class WeatherType:      { type: allow }
+class Particle:         { type: allow }
+class Difficulty:       { type: allow }
+class Entity:           { type: allow_methods }
+class Sound:            { type: allow }
+class SoundCategory:    { type: allow }
+class Biome:            { type: allow }
+class Block:            { type: allow_methods }
+class Vector:           { type: allow }
+class HeightMap:        { type: allow_methods }
+class Structure:        { type: allow_methods }
+class Plugin:           { type: deny }
+class Chunk:            { type: allow_methods }
+class SpawnCategory:    { type: allow }
+class Material:         { type: allow }
+class ItemMeta:         { type: allow_methods }
+
+class Location:
+{
+    type: allow_methods
+    methods:
+    {
+        Location deserialize(java.util.Map): deny
+    }
+}
+
+class org.bukkit.StructureType:
+{
+    type: allow_methods
+}
+
+class org.bukkit.generator.structure.StructureType:
+{
+    type: allow_methods
+}
+
+class ItemStack:
+{
+    type: allow_methods
+    methods:
+    {
+        ItemStack ItemStack(ItemStack): deny
+        ItemStack ItemStack(Material int short byte): deny
+        ItemStack ItemStack(Material int short): deny
+    }
+}
+
+class World:
+{
+    type: allow_methods
+    methods:
+    {
+        void setTime(long): deny
+        void setFullTime(long): deny
+
+        void removePluginChunkTickets(Plugin): deny
+        boolean addPluginChunkTicket(int int Plugin): deny
+        boolean removePluginChunkTicket(int int Plugin): deny
+        boolean generateTree(Location org.bukkit.TreeType org.bukkit.BlockChangeDelegate): deny
+        boolean generateTree(Location org.bukkit.TreeType): deny
+
+        // These use lambda
+        Item dropItemNaturally(Location ItemStack org.bukkit.util.Consumer): deny
+        Item dropItem(Location ItemStack org.bukkit.util.Consumer): deny
+        org.bukkit.util.RayTraceResult rayTrace(Location Vector double org.bukkit.FluidCollisionMode boolean double java.util.function.Predicate): deny
+        org.bukkit.util.RayTraceResult rayTraceEntities(Location Vector double java.util.function.Predicate): deny
+        org.bukkit.util.RayTraceResult rayTraceEntities(Location Vector double double java.util.function.Predicate): deny
+        org.bukkit.util.RayTraceResult rayTraceBlocks(Location Vector double): deny
+        org.bukkit.util.RayTraceResult rayTraceBlocks(Location Vector double org.bukkit.FluidCollisionMode): deny
+        org.bukkit.util.RayTraceResult rayTraceBlocks(Location Vector double org.bukkit.FluidCollisionMode boolean): deny
+        java.util.Collection getNearbyEntities(Location double double double java.util.function.Predicate): deny
+        java.util.Collection getNearbyEntities(org.bukkit.util.BoundingBox java.util.function.Predicate): deny
+
+        // Can't reference classes
+        org.bukkit.entity.AbstractArrow spawnArrow(Location Vector float float java.lang.Class): deny
+        org.bukkit.entity.FallingBlock spawnFallingBlock(Location Material byte): deny
+        org.bukkit.entity.FallingBlock spawnFallingBlock(Location org.bukkit.block.data.BlockData): deny
+        org.bukkit.entity.FallingBlock spawnFallingBlock(Location org.bukkit.material.MaterialData): deny
+        void playEffect(Location org.bukkit.Effect Object int): deny
+        void playEffect(Location org.bukkit.Effect int int): deny
+        void playEffect(Location org.bukkit.Effect Object): deny
+        void playEffect(Location org.bukkit.Effect int): deny
+        Object getGameRuleValue(org.bukkit.GameRule): deny
+        Object getGameRuleDefault(org.bukkit.GameRule): deny
+        boolean setGameRule(org.bukkit.GameRule Object): deny
+        java.util.Collection getNearbyEntities(org.bukkit.util.BoundingBox): deny
+        java.util.Collection getEntitiesByClass(java.lang.Class): deny
+    }
+}

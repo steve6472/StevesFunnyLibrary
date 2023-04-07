@@ -230,7 +230,8 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 
 		builder.addLore(JSONMessage
 			.create("Mode: ").color(ChatColor.GRAY)
-			.then(mode).color(ChatColor.WHITE));
+			.then(mode).color(ChatColor.WHITE)
+			.setItalic(JSONMessage.ItalicType.FALSE));
 
 		if (builder.getCustomTagByte("selecting") == 1)
 		{
@@ -240,19 +241,22 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 				.then("/").color(ChatColor.WHITE)
 				.then("" + builder.getCustomTagInt("y0")).color(ChatColor.GREEN)
 				.then("/").color(ChatColor.WHITE)
-				.then("" + builder.getCustomTagInt("z0")).color(ChatColor.BLUE));
+				.then("" + builder.getCustomTagInt("z0")).color(ChatColor.BLUE)
+				.setItalic(JSONMessage.ItalicType.FALSE));
 			builder.addLore(JSONMessage
 				.create("End: ").color(ChatColor.GRAY)
 				.then("" + builder.getCustomTagInt("x1")).color(ChatColor.RED)
 				.then("/").color(ChatColor.WHITE)
 				.then("" + builder.getCustomTagInt("y1")).color(ChatColor.GREEN)
 				.then("/").color(ChatColor.WHITE)
-				.then("" + builder.getCustomTagInt("z1")).color(ChatColor.BLUE));
+				.then("" + builder.getCustomTagInt("z1")).color(ChatColor.BLUE)
+				.setItalic(JSONMessage.ItalicType.FALSE));
 		} else
 		{
 			builder.addLore(JSONMessage
 				.create("Size: ").color(ChatColor.GRAY)
-				.then("" + builder.getCustomTagInt("lx") + "/" + builder.getCustomTagInt("ly") + "/" + builder.getCustomTagInt("lz")).color(ChatColor.WHITE));
+				.then("" + builder.getCustomTagInt("lx") + "/" + builder.getCustomTagInt("ly") + "/" + builder.getCustomTagInt("lz")).color(ChatColor.WHITE)
+				.setItalic(JSONMessage.ItalicType.FALSE));
 		}
 		builder.buildItemStack();
 	}

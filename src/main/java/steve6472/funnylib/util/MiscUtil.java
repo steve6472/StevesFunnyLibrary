@@ -112,6 +112,74 @@ public class MiscUtil
 		return output.toString();
 	}
 
+	public static JSONMessage legacyToJsonMessage(String string)
+	{
+		StringBuilder builder = new StringBuilder(string.length());
+		JSONMessage message = null;
+		ChatColor lastColor = null;
+
+		for (int i = 0; i < string.length(); i++)
+		{
+			char c = string.charAt(i);
+			if (c == ChatColor.COLOR_CHAR)
+			{
+				// String is out of bounds
+				if (i + 1 >= string.length())
+					break;
+
+				char code = string.charAt(i + 1);
+
+				// Hex
+				if (code != 'x')
+				{
+					if (lastColor != null)
+					{
+						if (message == null)
+						{
+							message = JSONMessage.create(builder.toString());
+						} else
+						{
+							message.then(builder.toString());
+						}
+						if (lastColor.isColor())
+							message.color(lastColor);
+						else
+							message.style(lastColor);
+						builder.setLength(0);
+					}
+
+					lastColor = ChatColor.getByChar(string.charAt(i + 1));
+					Preconditions.checkNotNull(lastColor, "Unknown chat color code ? '" + string.charAt(i + 1) + "'");
+
+					i++;
+				} else {
+					throw new RuntimeException("Hex is not supported!");
+				}
+			} else
+			{
+				builder.append(c);
+			}
+		}
+
+		if (message == null)
+		{
+			message = JSONMessage.create(builder.toString());
+		} else
+		{
+			message.then(builder.toString());
+		}
+
+		if (lastColor != null)
+		{
+			if (lastColor.isColor())
+				message.color(lastColor);
+			else
+				message.style(lastColor);
+		}
+
+		return message;
+	}
+
 	public static boolean isJSONValid(String test)
 	{
 		try {
@@ -193,6 +261,9 @@ public class MiscUtil
 
 	public static ItemStack deserializeItemStack(JSONObject json)
 	{
+		if (json == null || json.isEmpty())
+			return MiscUtil.AIR;
+
 		Map<String, Object> map = new LinkedHashMap<>();
 		for (String key : json.keySet())
 		{

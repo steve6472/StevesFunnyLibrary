@@ -46,7 +46,7 @@ public class ActivatingButtonBlock extends CustomBlock implements IBlockData, Bl
 	public static class ActivatingData extends CustomBlockData
 	{
 		@Save(value = MarkerCodec.class)
-		private Vector block;
+		private MarkerCodec.Marker block;
 		@SaveString
 		private String material = Material.STONE_BUTTON.name();
 	}
@@ -170,7 +170,7 @@ public class ActivatingButtonBlock extends CustomBlock implements IBlockData, Bl
 				.onClick((c, cm) -> {
 
 					ItemStack item = c.itemOnCursor();
-					if (item.getType().isAir())
+					if (item.getType().isAir() || item.getType().isItem())
 					{
 						return Response.cancel();
 					}

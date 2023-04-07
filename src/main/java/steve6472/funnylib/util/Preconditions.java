@@ -23,6 +23,14 @@ public class Preconditions
 		return o;
 	}
 
+	public static void checkNotEmpty(String str)
+	{
+		if (str == null)
+			throw new NullPointerException();
+		else if (str.isEmpty())
+			throw new RuntimeException("String is empty");
+	}
+
 	public static void checkRange(Collection<?> collection, int index)
 	{
 		if (index < 0 || index > collection.size())

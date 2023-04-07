@@ -49,7 +49,15 @@ public class CustomChunk
 		for (int i = 0; i < states.length(); i++)
 		{
 			JSONObject locObj = states.getJSONObject(i);
-			State state = Blocks.jsonToState(locObj.getJSONObject("state"));
+			State state;
+			try
+			{
+				state = Blocks.jsonToState(locObj.getJSONObject("state"));
+			} catch (Exception ex)
+			{
+				int key = locObj.getInt("locKey");
+				throw new RuntimeException("Could not create state from json at " + bukkitChunk.getX() * keyToX(key) + "/" + keyToY(key) + "/" + bukkitChunk.getZ() * keyToZ(key), ex);
+			}
 			int key = locObj.getInt("locKey");
 			blocks.put(key, state);
 

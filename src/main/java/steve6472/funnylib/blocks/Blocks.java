@@ -442,7 +442,10 @@ public class Blocks implements Listener
 
 	public static State jsonToState(JSONObject json)
 	{
-		State defaultState = Blocks.getCustomBlockById(json.getString("id")).getDefaultState();
+		CustomBlock id = Blocks.getCustomBlockById(json.getString("id"));
+		if (id == null)
+			throw new RuntimeException("Old block '" + json.getString("id") + "' can not be created! " + json);
+		State defaultState = id.getDefaultState();
 		if (defaultState == null)
 			throw new RuntimeException("Block '" + json.getString("id") + "' returned null default state");
 		State state = defaultState;

@@ -1,5 +1,7 @@
 package steve6472.funnylib.util;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import steve6472.funnylib.FunnyLib;
 
 import java.util.function.Supplier;
@@ -23,6 +25,8 @@ public class SafeNMS
 				return r.get();
 			} catch (Exception exception)
 			{
+				Log.error("NMS Failed!");
+				Bukkit.broadcastMessage(ChatColor.RED + "NMS Failed!");
 				exception.printStackTrace();
 				FunnyLib.NMS_FAILED = true;
 				return failsafe;
@@ -42,6 +46,8 @@ public class SafeNMS
 				r.apply();
 			} catch (Exception exception)
 			{
+				Log.error("NMS Failed!");
+				Bukkit.broadcastMessage(ChatColor.RED + "NMS Failed!");
 				exception.printStackTrace();
 				FunnyLib.NMS_FAILED = true;
 				failsafe.apply();

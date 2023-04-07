@@ -558,11 +558,8 @@ public class ElevatorEditorData extends CustomBlockData
 
 		ItemStackBuilder edit = ItemStackBuilder.edit(structure);
 
-		String s = edit.getCustomTagString("blocks");
-		if (s == null)
-		{
-			return null;
-		}
+		JSONArray s = edit.getCustomJsonArray("blocks");
+
 		int lx = edit.getCustomTagInt("lx");
 		int ly = edit.getCustomTagInt("ly");
 		int lz = edit.getCustomTagInt("lz");
@@ -570,7 +567,7 @@ public class ElevatorEditorData extends CustomBlockData
 		JSONObject json = new JSONObject();
 
 		JSONObject struct = new JSONObject();
-		struct.put("blocks", new JSONObject(s));
+		struct.put("blocks", s);
 		struct.put("lx", lx);
 		struct.put("ly", ly);
 		struct.put("lz", lz);

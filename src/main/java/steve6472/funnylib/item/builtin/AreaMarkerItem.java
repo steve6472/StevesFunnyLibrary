@@ -38,9 +38,9 @@ public class AreaMarkerItem extends CustomItem implements TickInHandEvent
 	}
 
 	// FIXME: make this not create particles unless both location have been set at least once
-	protected static class MarkerData extends ItemData
+	public static class MarkerData extends ItemData
 	{
-		int x0, y0, z0, x1, y1, z1;
+		public int x0, y0, z0, x1, y1, z1;
 
 		@Override
 		public String toString()

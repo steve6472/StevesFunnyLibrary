@@ -52,6 +52,11 @@ public class ExpressionMenu
 		.addRow("....P....")
 		.addItem('P', SlotBuilder.create(ExpItems.POPUP_NO_BACKGROUND.newItemStack()).setSticky());
 
+	public static final Mask POPUP_NO_BACKGROUND_TOP = Mask.createMask()
+		.addRow("", 5)
+		.addRow("....P....")
+		.addItem('P', SlotBuilder.create(ExpItems.POPUP_NO_BACKGROUND_TOP.newItemStack()).setSticky());
+
 	public static final Mask POPUP = Mask.createMask()
 		.addRow("...___...")
 		.addRow(".______X.")

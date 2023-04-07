@@ -3,8 +3,10 @@ package steve6472.standalone.interactable.ex;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import steve6472.funnylib.item.CustomItem;
+import steve6472.funnylib.util.MiscUtil;
 import steve6472.standalone.interactable.ex.Expression.Type;
 import steve6472.standalone.interactable.ex.impl.BiInputExp;
+import steve6472.standalone.interactable.ex.impl.bool.AnyPlayerInArea;
 import steve6472.standalone.interactable.ex.impl.bool.EqualityExp;
 import steve6472.standalone.interactable.ex.impl.IfExp;
 import steve6472.standalone.interactable.ex.impl.bool.LogicExpr;
@@ -40,6 +42,7 @@ public class Expressions
 		register(Type.BOOL, ExpItems.EQUALITY_LESS_EQUAL_ICON, "less_equal", json -> BiInputExp.load(json, EqualityExp.Operator.SMALLER_EQUAL, EqualityExp::new));
 		register(Type.BOOL, ExpItems.EQUALITY_GREATER_ICON, "greater", json -> BiInputExp.load(json, EqualityExp.Operator.BIGGER, EqualityExp::new));
 		register(Type.BOOL, ExpItems.EQUALITY_GREATER_EQUAL_ICON, "greater_equal", json -> BiInputExp.load(json, EqualityExp.Operator.BIGGER_EQUAL, EqualityExp::new));
+		register(Type.BOOL, ExpItems.PLAYER_IN_AREA, "player_in_area", json -> new AnyPlayerInArea(MiscUtil.deserializeItemStack(json.optJSONObject("area"))));
 		register(Type.CONTROL, ExpItems.DEBUG_HERE_ICON, "debug_here", json -> new DebugHereExp(json.optInt("id")));
 		register(Type.CONTROL, ExpItems.DELAY_ICON, "delay", json -> new DelayExp(json.optLong("ticks")));
 		register(Type.INT, ExpItems.CONSTANT_NUMBER, "const_int", json -> new ConstantNumberExp(json.optInt("number")));

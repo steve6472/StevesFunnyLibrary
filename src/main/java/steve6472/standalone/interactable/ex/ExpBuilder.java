@@ -40,7 +40,7 @@ public class ExpBuilder
 	{
 		SlotBuilder slotBuilder = SlotBuilder.create(elementType.item());
 		slotBuilder.allow(ClickType.LEFT, ClickType.RIGHT, ClickType.SHIFT_LEFT, ClickType.SHIFT_RIGHT, ClickType.MIDDLE);
-		slotBuilder.allow(InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF, InventoryAction.CLONE_STACK, InventoryAction.MOVE_TO_OTHER_INVENTORY);
+		slotBuilder.allow(InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF, InventoryAction.CLONE_STACK, InventoryAction.MOVE_TO_OTHER_INVENTORY, InventoryAction.SWAP_WITH_CURSOR);
 		final Expression finalExp = currentExpression;
 		slotBuilder.onClick((click, menu) ->
 		{

@@ -36,9 +36,9 @@ public class CodeExecutor
 	 *
 	 * @return true if code finished executing
 	 */
-	public boolean executeTick(boolean ignoreRunning)
+	public boolean executeTick()
 	{
-		if (!running || ignoreRunning)
+		if (!running)
 			return true;
 
 		ExpResult result;

@@ -45,17 +45,17 @@ public class Items implements Listener
 {
 	private static final NamespacedKey CUSTOM_KEY = new NamespacedKey(FunnyLib.getPlugin(), ItemStackBuilder.CUSTOM_ID);
 
-	public record ItemEventEntry(boolean requireAdmin, CustomItem customItem)
+	public record ItemEventEntry(boolean requireAdmin, CustomItem customItem, boolean hidden)
 	{
 		private ItemEventEntry(CustomItem customItem)
 		{
-			this(false, customItem);
+			this(false, customItem, false);
 		}
 
 		@Override
 		public String toString()
 		{
-			return "ItemEventEntry{" + "requireAdmin=" + requireAdmin + ", customItem=" + customItem + '}';
+			return "ItemEventEntry{" + "requireAdmin=" + requireAdmin + ", customItem=" + customItem + ", hidden=" + hidden + '}';
 		}
 	}
 
@@ -69,7 +69,13 @@ public class Items implements Listener
 
 	public static CustomItem registerAdminItem(CustomItem customItem)
 	{
-		ITEMS.put(customItem.id(), new ItemEventEntry(true, customItem));
+		ITEMS.put(customItem.id(), new ItemEventEntry(true, customItem, false));
+		return customItem;
+	}
+
+	public static CustomItem registerAdminItem(CustomItem customItem, boolean hidden)
+	{
+		ITEMS.put(customItem.id(), new ItemEventEntry(true, customItem, hidden));
 		return customItem;
 	}
 

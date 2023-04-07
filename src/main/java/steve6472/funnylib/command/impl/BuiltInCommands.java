@@ -1,29 +1,24 @@
-package steve6472.funnylib.command;
+package steve6472.funnylib.command.impl;
 
 import net.minecraft.nbt.Tag;
 import org.bukkit.*;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
-import org.bukkit.craftbukkit.v1_19_R1.persistence.CraftPersistentDataContainer;
+import org.bukkit.craftbukkit.v1_19_R3.persistence.CraftPersistentDataContainer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomChunk;
+import steve6472.funnylib.command.*;
 import steve6472.funnylib.item.Items;
-import steve6472.funnylib.json.JsonPrettify;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
-import steve6472.funnylib.util.MiscUtil;
 import steve6472.funnylib.util.RepeatingTask;
+import steve6472.standalone.FunnyLibStandalone;
 
-import java.lang.reflect.Field;
 import java.util.Map;
 
 /**
@@ -162,12 +157,15 @@ public class BuiltInCommands
 	@Usage("/funnyItemDebug")
 	public static boolean funnyItemDebug(@NotNull Player player, @NotNull String[] args)
 	{
-		Items.ITEMS.forEach((k, v) -> {
-
-			JSONMessage msg = JSONMessage.create(k + ": ");
-
-
-			msg.send(player);
+		Items.ITEMS.forEach((k, v) ->
+		{
+			if (!v.hidden())
+			{
+				JSONMessage msg = JSONMessage.create("").then(k, v.requireAdmin() ? ChatColor.RED : ChatColor.WHITE);
+				msg.runCommand("/gib " + k);
+				msg.tooltip("Click to give");
+				msg.send(player);
+			}
 		});
 
 		return true;
@@ -282,6 +280,23 @@ public class BuiltInCommands
 				}
 			}
 		}.sendStopMessage(player);
+		return true;
+	}
+
+
+
+
+
+
+
+
+	@Command
+	@Description("Shows Markers GUI")
+	@Usage("/markers")
+	public static boolean markers(@NotNull Player player, @NotNull String[] args)
+	{
+		FunnyLibStandalone.markerStorage.showToPlayer(player);
+
 		return true;
 	}
 

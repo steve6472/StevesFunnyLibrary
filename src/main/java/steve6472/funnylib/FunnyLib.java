@@ -7,25 +7,23 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Marker;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.util.Vector;
-import org.json.JSONObject;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlock;
 import steve6472.funnylib.blocks.builtin.MultiBlock;
-import steve6472.funnylib.command.DebugCommands;
-import steve6472.funnylib.json.codec.ann.*;
+import steve6472.funnylib.command.impl.DebugCommands;
+import steve6472.funnylib.json.IJsonConfig;
+import steve6472.funnylib.json.JsonConfig;
 import steve6472.funnylib.json.codec.codecs.*;
 import steve6472.funnylib.util.GlowingUtil;
-import steve6472.standalone.exnulla.blocks.CrucibleBlock;
-import steve6472.standalone.exnulla.blocks.SilkLeavesBlock;
 import steve6472.funnylib.blocks.builtin.TeleportButtonBlock;
 import steve6472.funnylib.command.AnnotationCommand;
-import steve6472.funnylib.command.BuiltInCommands;
+import steve6472.funnylib.command.impl.BuiltInCommands;
 import steve6472.funnylib.events.ServerTickEvent;
 import steve6472.funnylib.item.BlockPlacerItem;
 import steve6472.funnylib.item.builtin.*;
@@ -35,8 +33,9 @@ import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.item.events.ArmorEventListener;
 import steve6472.funnylib.util.Log;
-import steve6472.standalone.exnulla.items.SilkwormItem;
-import steve6472.standalone.exnulla.items.WoodenCroockItem;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by steve6472
@@ -54,6 +53,9 @@ public class FunnyLib
 	private static ArmorEventListener armorEventListener;
 	private static MenuListener menuListener;
 	private static Blocks blocks;
+	private static JsonConfig config;
+
+	private static Set<IJsonConfig> configurations;
 
 	private FunnyLib()
 	{
@@ -63,6 +65,10 @@ public class FunnyLib
 	public static void init(Plugin plugin, LibSettings settings)
 	{
 		new MavenSux();
+
+		configurations = new HashSet<>();
+		config = new JsonConfig(plugin);
+
 //		if (FunnyLib.PLUGIN != null)
 //			throw new RuntimeException("Plugin %s tried to initialize FunnyLib again. This is not allowed!".formatted(plugin.getName()));
 
@@ -129,6 +135,26 @@ public class FunnyLib
 		return blocks;
 	}
 
+	public static JsonConfig getConfig()
+	{
+		return config;
+	}
+
+	public static void registerConfig(IJsonConfig config)
+	{
+		configurations.add(config);
+	}
+
+	public static void save()
+	{
+		configurations.forEach(c -> config.save(c::save));
+	}
+
+	public static void load()
+	{
+		configurations.forEach(c -> config.load(c::load));
+	}
+
 	private static class CustomCommandRunner implements Listener
 	{
 		@EventHandler
@@ -186,11 +212,12 @@ public class FunnyLib
 		Codec.registerCodec(new EntityCodec());
 		Codec.registerCodec(new MarkerCodec());
 		Codec.registerCodec(new WorldCodec());
+		Codec.registerCodec(new StringListCodec());
 
 		Codec.regDefCodec(Location.class, new LocationCodec());
 		Codec.regDefCodec(ItemStack.class, new ItemStackCodec());
 		Codec.regDefCodec(Entity.class, new EntityCodec());
-		Codec.regDefCodec(Vector.class, new MarkerCodec());
+		Codec.regDefCodec(MarkerCodec.Marker.class, new MarkerCodec());
 		Codec.regDefCodec(World.class, new WorldCodec());
 
 		Blocks.registerBlock(TELEPORT_BUTTON_BLOCK = new TeleportButtonBlock());

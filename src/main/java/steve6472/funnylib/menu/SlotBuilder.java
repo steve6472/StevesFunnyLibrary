@@ -86,6 +86,15 @@ public class SlotBuilder
 		});
 	}
 
+	public static SlotBuilder buttonSlot_(ItemStack icon, BiConsumer<Click, Menu> action)
+	{
+		return SlotBuilder.create(icon).allow(ClickType.LEFT).allow(InventoryAction.PICKUP_ALL).onClick((c, cm) ->
+		{
+			action.accept(c, cm);
+			return Response.cancel();
+		});
+	}
+
 	public static ISlotBuilder stickyButtonSlot(ItemStack icon, BiConsumer<Click, Menu> action)
 	{
 		return builder -> SlotBuilder.create(icon).setSticky().allow(ClickType.LEFT).allow(InventoryAction.PICKUP_ALL).onClick((c, cm) ->

@@ -36,7 +36,7 @@ import java.util.List;
 public class ElevatorControllerData extends CustomBlockData
 {
 	@Save(value = MarkerCodec.class)
-	public Vector pointA, pointB;
+	public MarkerCodec.Marker pointA, pointB;
 
 	@SaveDouble
 	public double speed = 1d, progress;
@@ -49,9 +49,6 @@ public class ElevatorControllerData extends CustomBlockData
 
 	@Save(ItemStackCodec.class)
 	public ItemStack elevatorData = MiscUtil.AIR;
-
-	@Save(EntityCodec.class)
-	ArmorStand dataLabel;
 
 	SolidBlockEntity sbe;
 	int lx, ly, lz;
@@ -74,7 +71,7 @@ public class ElevatorControllerData extends CustomBlockData
 		lx = structure.getInt("lx");
 		ly = structure.getInt("ly");
 		lz = structure.getInt("lz");
-		JSONArray blocks = structure.getJSONObject("blocks").getJSONArray("blocks");
+		JSONArray blocks = structure.getJSONArray("blocks");
 		List<StructureItem.BlockInfo> blockInfo = StructureItem.jsonToBlocks(new ArrayList<>(blocks.length()), blocks);
 		for (StructureItem.BlockInfo info : blockInfo)
 		{
@@ -119,13 +116,13 @@ public class ElevatorControllerData extends CustomBlockData
 		Bukkit.getScheduler().runTaskLater(FunnyLib.getPlugin(), () ->
 		{
 			JSONObject structure = json.getJSONObject("structure");
-			JSONArray blocks = structure.getJSONObject("blocks").getJSONArray("blocks");
+			JSONArray blocks = structure.getJSONArray("blocks");
 			List<StructureItem.BlockInfo> blockInfo = StructureItem.jsonToBlocks(new ArrayList<>(blocks.length()), blocks);
 
 			Location loc = pos.clone();
-			loc.setX((progress == 0 ? pointA : pointB).getX());
-			loc.setY((progress == 0 ? pointA : pointB).getY());
-			loc.setZ((progress == 0 ? pointA : pointB).getZ());
+			loc.setX((progress == 0 ? pointA : pointB).x());
+			loc.setY((progress == 0 ? pointA : pointB).y());
+			loc.setZ((progress == 0 ? pointA : pointB).z());
 
 			for (StructureItem.BlockInfo info : blockInfo)
 			{
@@ -162,9 +159,9 @@ public class ElevatorControllerData extends CustomBlockData
 
 	public Vector getPosition()
 	{
-		double x = lerp(pointA.getX(), pointB.getX(), progress);
-		double y = lerp(pointA.getY(), pointB.getY(), progress);
-		double z = lerp(pointA.getZ(), pointB.getZ(), progress);
+		double x = lerp(pointA.x(), pointB.x(), progress);
+		double y = lerp(pointA.y(), pointB.y(), progress);
+		double z = lerp(pointA.z(), pointB.z(), progress);
 		return new Vector(x, y, z);
 	}
 

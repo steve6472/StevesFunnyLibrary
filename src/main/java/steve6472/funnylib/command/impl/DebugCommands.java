@@ -1,19 +1,23 @@
-package steve6472.funnylib.command;
+package steve6472.funnylib.command.impl;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.BoundingBox;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import steve6472.funnylib.FunnyLib;
+import steve6472.funnylib.command.Command;
+import steve6472.funnylib.command.Description;
+import steve6472.funnylib.command.Usage;
 import steve6472.funnylib.coroutine.Coroutine;
 import steve6472.funnylib.coroutine.CoroutineExecutor;
 import steve6472.funnylib.json.JsonPrettify;
@@ -186,10 +190,11 @@ public class DebugCommands
 		}
 
 		Coroutine.create(player.getName() + "_test2")
-			.If(player::isSneaking)
+			.If(() -> player.isSneaking() && player.isOnGround())
 			.Loop(0, i -> i < 180, 1, l -> l
 				.Do(() -> player.getWorld().spawnParticle(Particle.COMPOSTER, player.getLocation().getX() + Math.sin(Math.toRadians(l.i() * 2)), player.getLocation().getY(), player.getLocation().getZ() + Math.cos(Math.toRadians(l.i() * 2)), 1))
 			)
+			.Do(() -> player.setVelocity(player.getEyeLocation().getDirection()))
 			.End()
 			.finish();
 

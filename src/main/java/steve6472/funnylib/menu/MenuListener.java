@@ -54,7 +54,7 @@ public class MenuListener implements Listener
 		e.setCancelled(true);
 	}
 
-		@EventHandler
+	@EventHandler
 	public void click(InventoryClickEvent e)
 	{
 		if (!(e.getWhoClicked() instanceof Player player))

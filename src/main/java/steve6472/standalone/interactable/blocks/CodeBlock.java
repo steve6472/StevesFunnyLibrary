@@ -53,18 +53,9 @@ public class CodeBlock extends CustomBlock implements IBlockData, Activable, Blo
 	{
 		if (context.getHandItem().getType().isAir())
 		{
-			if (e.getPlayer().isSneaking())
-			{
-				context.getPlayer().sendMessage(ChatColor.GREEN + "Executing code");
-				start(context.blockContext());
-				e.setCancelled(true);
-			} else
-			{
-				CodeBlockData blockData = context.getBlockData(CodeBlockData.class);
-				Expression expression = MetaUtil.getValue(context.getPlayer(), CodeBlockExp.class, "code_block");
-				blockData.executor = new CodeExecutor(expression, new ExpContext(context.getBlockLocation().clone()));
-				context.getPlayer().sendMessage(ChatColor.GREEN + "Successfully bound block to " + context.getPlayer().getName());
-			}
+			context.getPlayer().sendMessage(ChatColor.GREEN + "Executing code");
+			start(context.blockContext());
+			e.setCancelled(true);
 		}
 
 		e.setCancelled(true);
@@ -99,6 +90,12 @@ public class CodeBlock extends CustomBlock implements IBlockData, Activable, Blo
 	{
 		Blocks.changeBlockState(context.getLocation(), context.getState().with(EXECUTING, true));
 		context.updateLazy();
+		CodeBlockData blockData = context.getBlockData(CodeBlockData.class);
+		CodeExecutor executor = blockData.executor;
+		if (executor != null)
+		{
+			executor.start();
+		}
 		execute(context);
 	}
 
@@ -117,7 +114,7 @@ public class CodeBlock extends CustomBlock implements IBlockData, Activable, Blo
 			return;
 		}
 
-		if (executor.executeTick(true))
+		if (executor.executeTick())
 		{
 			Blocks.changeBlockState(context.getLocation(), context.getState().with(EXECUTING, false));
 			Bukkit.broadcastMessage(ChatColor.GREEN + "Block at " + context.getLocation().getBlockX() + "/" + context.getLocation().getBlockY() + "/" + context.getLocation().getBlockZ() + " finished executing");

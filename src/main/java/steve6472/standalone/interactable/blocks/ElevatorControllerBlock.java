@@ -8,6 +8,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.util.Vector;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlock;
@@ -58,7 +59,6 @@ public class ElevatorControllerBlock extends CustomBlock implements IBlockData, 
 	public void tick(BlockContext context)
 	{
 		ElevatorControllerData data = context.getBlockData(ElevatorControllerData.class);
-		data.dataLabel.setCustomName("dir= " + data.movingDirection + ", progress= " + ("%.4f".formatted(data.progress)) + ", speed= " + data.speed);
 
 		if (data.showPoints && data.pointA != null && FunnyLib.getUptimeTicks() % 10 == 0)
 		{
@@ -123,24 +123,16 @@ public class ElevatorControllerBlock extends CustomBlock implements IBlockData, 
 		return new ElevatorControllerData();
 	}
 
-	@Override
-	public void onPlace(BlockContext context)
-	{
-		if (!(context.getBlockData() instanceof ElevatorControllerData data)) return;
-
-		ArmorStand dataLabel = context.getWorld().spawn(context.getLocation().clone().add(0.5, 1.5, 0.5), ArmorStand.class);
-		dataLabel.setInvisible(true);
-		dataLabel.setMarker(true);
-		dataLabel.setGravity(false);
-		dataLabel.setCustomNameVisible(true);
-		data.dataLabel = dataLabel;
-	}
+//	@Override
+//	public void onPlace(BlockContext context)
+//	{
+//		if (!(context.getBlockData() instanceof ElevatorControllerData data)) return;
+//	}
 
 	@Override
 	public void onRemove(BlockContext context)
 	{
 		ElevatorControllerData data = context.getBlockData(ElevatorControllerData.class);
-		data.dataLabel.remove();
 		if (!data.elevatorData.getType().isAir())
 		{
 			context.getWorld().dropItem(context.getLocation(), data.elevatorData);

@@ -18,6 +18,8 @@ import steve6472.standalone.interactable.blocks.ElevatorEditorBlock;
 import steve6472.standalone.interactable.ex.ExpItems;
 import steve6472.standalone.interactable.ex.ExpressionCodec;
 import steve6472.standalone.interactable.ex.ExpressionMenu;
+import steve6472.standalone.interactable.script.ScriptCommands;
+import steve6472.standalone.interactable.script.ScriptRepository;
 import steve6472.standalone.interactable.worldbutton.WorldButtonListener;
 
 /**
@@ -27,6 +29,8 @@ import steve6472.standalone.interactable.worldbutton.WorldButtonListener;
  */
 public class Interactable
 {
+	public static ScriptRepository scriptRepository;
+
 	public static CustomBlock ELEVATOR_CONTROLLER_BLOCK;
 	public static CustomBlock ACTIVATING_BUTTON_BLOCK;
 	public static CustomBlock CODE_BLOCK;
@@ -57,5 +61,10 @@ public class Interactable
 
 		ExpItems.init();
 		AnnotationCommand.registerCommands(ExpressionMenu.class);
+
+		FunnyLib.getPlugin().saveResource("transformers/minecraft.txt", true);
+		scriptRepository = new ScriptRepository();
+		Bukkit.getPluginManager().registerEvents(scriptRepository, FunnyLib.getPlugin());
+		AnnotationCommand.registerCommands(ScriptCommands.class);
 	}
 }

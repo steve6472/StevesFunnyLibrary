@@ -66,6 +66,12 @@ public class JSONMessage
 
 	private final List<MessagePart> parts = new ArrayList<>();
 	private int centeringStartIndex = -1;
+	private ItalicType mainItalic = ItalicType.DEFAULT;
+
+	public enum ItalicType
+	{
+		DEFAULT, FALSE, TRUE
+	}
 
 	/**
 	 * Creates a new {@link JSONMessage} object
@@ -126,6 +132,12 @@ public class JSONMessage
 		return parts.get(parts.size() - 1);
 	}
 
+	public JSONMessage setItalic(ItalicType type)
+	{
+		mainItalic = type;
+		return this;
+	}
+
 	/**
 	 * Converts this {@link JSONMessage} instance to actual JSON
 	 *
@@ -136,6 +148,9 @@ public class JSONMessage
 		JsonObject obj = new JsonObject();
 
 		obj.addProperty("text", "");
+
+		if (mainItalic != ItalicType.DEFAULT)
+			obj.addProperty("italic", mainItalic == ItalicType.TRUE);
 
 		JsonArray array = new JsonArray();
 
@@ -791,17 +806,17 @@ public class JSONMessage
 				obj.addProperty("color", color.toLowerCase());
 			}
 
-			boolean hasItalic = false;
+//			boolean hasItalic = false;
 
 			for (ChatColor style : styles)
 			{
-				if (style == ChatColor.ITALIC)
-					hasItalic = true;
+//				if (style == ChatColor.ITALIC)
+//					hasItalic = true;
 				obj.addProperty(stylesToNames.get(style), true);
 			}
 
-			if (!hasItalic)
-				obj.addProperty(stylesToNames.get(ChatColor.ITALIC), false);
+//			if (!hasItalic)
+//				obj.addProperty(stylesToNames.get(ChatColor.ITALIC), false);
 
 			if (onClick != null)
 			{
