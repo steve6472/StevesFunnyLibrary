@@ -1,13 +1,21 @@
 package steve6472.funnylib.item.builtin;
 
+import org.apache.commons.lang3.tuple.Triple;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
+import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
+import org.joml.Quaternionf;
+import org.joml.Vector2i;
+import org.joml.Vector3f;
+import org.joml.Vector3i;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import steve6472.funnylib.CancellableResult;
@@ -23,8 +31,7 @@ import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.ParticleUtil;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by steve6472
@@ -261,12 +268,28 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 		builder.buildItemStack();
 	}
 
+	private static final HashMap<Player, Collection<BlockDisplay>> GHOST_PREVIEW = new HashMap<>();
+	private static final HashMap<Player, Triple<Vector3i, Vector3i, Vector2i>> LAST_LOC = new HashMap<>();
+
 	@Override
 	public void tickInHand(PlayerItemContext context)
 	{
 		if (FunnyLib.getUptimeTicks() % 3 != 0) return;
+		if (context.getHand() != EquipmentSlot.HAND) return;
 
 		ItemStackBuilder edit = ItemStackBuilder.edit(context.getHandItem());
+
+		if (edit.getCustomTagByte("placing") != 1)
+		{
+			Collection<BlockDisplay> displayList = GHOST_PREVIEW.get(context.getPlayer());
+			if (displayList != null)
+			{
+				displayList.forEach(Entity::remove);
+				displayList.clear();
+				GHOST_PREVIEW.remove(context.getPlayer());
+			}
+			LAST_LOC.remove(context.getPlayer());
+		}
 
 		if (edit.getCustomTagByte("selecting") == 1)
 		{
@@ -289,8 +312,26 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 		{
 			RayTraceResult rayTraceResult = context.getPlayer().rayTraceBlocks(10);
 			if (rayTraceResult == null || rayTraceResult.getHitBlock() == null || rayTraceResult.getHitBlockFace() == null)
+			{
+				Collection<BlockDisplay> displayList = GHOST_PREVIEW.get(context.getPlayer());
+				if (displayList != null)
+				{
+					displayList.forEach(Entity::remove);
+					displayList.clear();
+					GHOST_PREVIEW.remove(context.getPlayer());
+				}
+				LAST_LOC.remove(context.getPlayer());
 				return;
+			}
+
 			Location location = rayTraceResult.getHitBlock().getLocation().add(rayTraceResult.getHitBlockFace().getDirection());
+
+			// Pair of starting-location and last-location
+			Triple<Vector3i, Vector3i, Vector2i> locationPair = LAST_LOC.computeIfAbsent(context.getPlayer(),
+				p -> Triple.of(
+					new Vector3i(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
+					new Vector3i(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
+					new Vector2i()));
 
 			if ((edit.getCustomTagInt("lx") + 1) * (edit.getCustomTagInt("ly") + 1) * (edit.getCustomTagInt("lz") + 1) <= 0)
 				return;
@@ -303,6 +344,61 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 			int z1 = edit.getCustomTagInt("lz") + location.getBlockZ();
 
 			ParticleUtil.boxAbsolute(context.getPlayer(), Particle.REDSTONE, Math.min(x0, x1 + 1), Math.min(y0, y1 + 1), Math.min(z0, z1 + 1), Math.max(x0, x1 + 1), Math.max(y0, y1 + 1), Math.max(z0, z1 + 1), 0, 0.5, OPTIONS);
+
+			/*
+			 * Real fancy preview
+			 */
+
+			List<BlockInfo> blockInfos = toBlocks(context.getHandItem());
+
+			final boolean[] wasAbsent = {false};
+
+			Collection<BlockDisplay> displayList = GHOST_PREVIEW.computeIfAbsent(context.getPlayer(), k ->
+			{
+				LinkedList<BlockDisplay> blockDisplays = new LinkedList<>();
+				for (BlockInfo blockInfo : blockInfos)
+				{
+					// Ignore air blocks
+					if (blockInfo.data.getMaterial().isAir())
+						continue;
+
+					BlockDisplay blockDisplay = context.getWorld().spawn(location.clone().add(blockInfo.position), BlockDisplay.class, bd ->
+					{
+						bd.setBlock(blockInfo.data);
+						bd.setTransformation(new Transformation(new Vector3f(0.5f, 0.5f, 0.5f), new Quaternionf(), new Vector3f(0, 0, 0), new Quaternionf()));
+					});
+					blockDisplays.add(blockDisplay);
+				}
+				wasAbsent[0] = true;
+				return blockDisplays;
+			});
+
+			if (!wasAbsent[0] && locationPair.getRight().x == 0)
+			{
+				locationPair.getRight().x = 1;
+				displayList.forEach(bd ->
+				{
+					bd.setInterpolationDuration(5);
+					bd.setInterpolationDelay(0);
+					bd.setTransformation(new Transformation(new Vector3f(), new Quaternionf(), new Vector3f(1, 1, 1), new Quaternionf()));
+				});
+			}
+
+			if (!locationPair.getMiddle().equals(location.getBlockX(), location.getBlockY(), location.getBlockZ()))
+			{
+				locationPair.getMiddle().set(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+
+				int offsetX = location.getBlockX() - locationPair.getLeft().x;
+				int offsetY = location.getBlockY() - locationPair.getLeft().y;
+				int offsetZ = location.getBlockZ() - locationPair.getLeft().z;
+
+				displayList.forEach(bd ->
+				{
+					bd.setTransformation(new Transformation(new Vector3f(offsetX, offsetY, offsetZ), new Quaternionf(), new Vector3f(1, 1, 1), new Quaternionf()));
+					bd.setInterpolationDuration(5);
+					bd.setInterpolationDelay(0);
+				});
+			}
 		}
 	}
 
