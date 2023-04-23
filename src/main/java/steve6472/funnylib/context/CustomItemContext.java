@@ -4,8 +4,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.item.CustomItem;
-import steve6472.funnylib.item.ItemData;
 import steve6472.funnylib.item.Items;
+import steve6472.funnylib.util.NBT;
 import steve6472.funnylib.util.Preconditions;
 
 /**
@@ -18,7 +18,7 @@ public class CustomItemContext extends ItemContext
 	private static final String NOT_CUSTOM_ITEM = "ItemStack is not a Custom Item";
 
 	protected final CustomItem customItem;
-	protected final ItemData data;
+	protected final NBT data;
 
 	/**
 	 * Constructs {@code CustomItemContext} with item from {@code player} main hand
@@ -45,7 +45,7 @@ public class CustomItemContext extends ItemContext
 	{
 		super(hand, item);
 		this.customItem = Items.getCustomItem(item);
-		data = customItem != null ? CustomItem.loadItemData(item) : null;
+		data = customItem != null ? NBT.create(item) : null;
 	}
 
 	public CustomItemContext(ItemContext parent)
@@ -64,7 +64,7 @@ public class CustomItemContext extends ItemContext
 	public void saveData()
 	{
 		Preconditions.checkTrue(isCustomItem(), NOT_CUSTOM_ITEM);
-		CustomItem.saveItemData(itemStack, data);
+		data.save();
 	}
 
 	public CustomItem getCustomItem()
@@ -78,10 +78,8 @@ public class CustomItemContext extends ItemContext
 		return customItem == item;
 	}
 
-	public <T extends ItemData> T getData()
+	public NBT getData()
 	{
-		Preconditions.checkTrue(isCustomItem(), NOT_CUSTOM_ITEM);
-		//noinspection unchecked
-		return (T) data;
+		return data;
 	}
 }

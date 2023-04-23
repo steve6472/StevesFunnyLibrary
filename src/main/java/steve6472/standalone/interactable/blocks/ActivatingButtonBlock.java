@@ -11,7 +11,6 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
 import steve6472.funnylib.blocks.*;
 import steve6472.funnylib.blocks.builtin.AdminInterface;
 import steve6472.funnylib.blocks.events.BlockClickEvents;
@@ -21,8 +20,8 @@ import steve6472.funnylib.blocks.stateengine.properties.IProperty;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.BlockFaceContext;
 import steve6472.funnylib.context.PlayerBlockContext;
-import steve6472.funnylib.json.codec.ann.Save;
 import steve6472.funnylib.json.codec.ann.SaveString;
+import steve6472.funnylib.data.Marker;
 import steve6472.funnylib.json.codec.codecs.MarkerCodec;
 import steve6472.funnylib.menu.Mask;
 import steve6472.funnylib.menu.MenuBuilder;
@@ -45,8 +44,7 @@ public class ActivatingButtonBlock extends CustomBlock implements IBlockData, Bl
 
 	public static class ActivatingData extends CustomBlockData
 	{
-		@Save(value = MarkerCodec.class)
-		private MarkerCodec.Marker block;
+		private Marker block;
 		@SaveString
 		private String material = Material.STONE_BUTTON.name();
 	}

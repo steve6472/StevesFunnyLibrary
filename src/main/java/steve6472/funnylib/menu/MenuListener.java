@@ -145,6 +145,17 @@ public class MenuListener implements Listener
 			return;
 		}
 
+		if (response.getRedirectRaw() != null)
+		{
+			e.setCancelled(true);
+			menu.redirected = true;
+
+			Menu redirect = response.getRedirectRaw();
+
+			redirect.showToPlayer(player);
+			return;
+		}
+
 		if (response == Response.cancel())
 		{
 			e.setCancelled(true);

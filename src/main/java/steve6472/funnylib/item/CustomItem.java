@@ -13,6 +13,7 @@ import steve6472.funnylib.context.UseType;
 import steve6472.funnylib.json.codec.Codec;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JsonDataType;
+import steve6472.funnylib.util.NBT;
 import steve6472.funnylib.util.Preconditions;
 
 /**********************
@@ -32,13 +33,19 @@ public abstract class CustomItem
 	public ItemStack newItemStack()
 	{
 		ItemStack itemStack = ItemStackBuilder.editNonStatic(item()).setCustomId(id()).buildItemStack();
-		saveItemData(itemStack, createData());
+		NBT nbt = NBT.create(itemStack);
+		initCustomData(nbt);
+		nbt.save();
 		return itemStack;
 	}
 
-	public ItemData createData()
+	/**
+	 * Set default data for item
+	 * @param nbt nbt wrapper
+	 */
+	protected void initCustomData(NBT nbt)
 	{
-		return new ItemData();
+
 	}
 
 	/*
@@ -53,53 +60,5 @@ public abstract class CustomItem
 	public String toString()
 	{
 		return "CustomItem{id='" + id() + "', item=" + item().toString() + "}";
-	}
-
-	/*
-	 * Item Data saving/loading
-	 */
-
-	public static void saveItemData(ItemStack itemStack, ItemData itemData)
-	{
-		ItemMeta itemMeta = itemStack.getItemMeta();
-		Preconditions.checkNotNull(itemMeta, "ItemMeta is null (ItemStack is AIR)");
-		JSONObject value = Codec.saveAll(itemData);
-
-		if (value.isEmpty())
-		{
-			itemMeta.getPersistentDataContainer().remove(ITEM_DATA_KEY);
-		} else
-		{
-			itemMeta
-				.getPersistentDataContainer()
-				.set(ITEM_DATA_KEY, JsonDataType.JSON, value);
-			itemStack.setItemMeta(itemMeta);
-
-			ItemStack edited = itemData.onSave(itemStack);
-			itemMeta = edited.getItemMeta();
-			itemStack.setAmount(edited.getAmount());
-			itemStack.setType(edited.getType());
-		}
-		itemStack.setItemMeta(itemMeta);
-	}
-
-	public static ItemData loadItemData(ItemStack itemStack)
-	{
-		CustomItem customItem = Items.getCustomItem(itemStack);
-		Preconditions.checkNotNull(customItem, "ItemStack is not of CustomItem");
-		return loadItemData(itemStack, customItem);
-	}
-
-	public static ItemData loadItemData(ItemStack itemStack, CustomItem customItem)
-	{
-		ItemMeta itemMeta = itemStack.getItemMeta();
-		Preconditions.checkNotNull(itemMeta);
-		JSONObject itemData = itemMeta
-			.getPersistentDataContainer()
-			.get(new NamespacedKey(FunnyLib.getPlugin(), "item_data"), JsonDataType.JSON);
-		if (itemData == null)
-			return customItem.createData();
-		else
-			return Codec.loadAll(customItem.createData(), itemData);
 	}
 }

@@ -1,11 +1,8 @@
 package steve6472.standalone.exnulla.items;
 
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
@@ -18,13 +15,9 @@ import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.context.PlayerItemContext;
 import steve6472.funnylib.context.UseType;
 import steve6472.funnylib.item.GenericItem;
-import steve6472.funnylib.item.ItemData;
 import steve6472.funnylib.item.events.ItemInvEvents;
 import steve6472.funnylib.item.events.TickInHandEvent;
-import steve6472.funnylib.util.Checks;
-import steve6472.funnylib.util.ItemStackBuilder;
-import steve6472.funnylib.util.JSONMessage;
-import steve6472.funnylib.util.MiscUtil;
+import steve6472.funnylib.util.*;
 import steve6472.standalone.exnulla.blocks.SilkLeavesBlock;
 
 import java.util.UUID;
@@ -46,7 +39,7 @@ public class PocketFurnaceItem extends GenericItem implements ItemInvEvents, Tic
 	protected ItemStack item()
 	{
 		// Make them unstackable
-		return ItemStackBuilder.editNonStatic(super.item()).customTagString("uuid", UUID.randomUUID().toString()).buildItemStack();
+		return ItemStackBuilder.editNonStatic(super.item()).setString("uuid", UUID.randomUUID().toString()).buildItemStack();
 	}
 
 	@Override
@@ -62,7 +55,7 @@ public class PocketFurnaceItem extends GenericItem implements ItemInvEvents, Tic
 	@Override
 	public void clickInInventoryEvent(PlayerItemContext context, Inventory inventory, int slot, InventoryAction action, InventoryClickEvent theEvent)
 	{
-		PocketData data = context.getItemData();
+		PocketData data = new PocketData(context.getItemStack());
 
 		// Take out output
 		if (theEvent.getClick() == ClickType.CONTROL_DROP)
@@ -154,7 +147,7 @@ public class PocketFurnaceItem extends GenericItem implements ItemInvEvents, Tic
 	@Override
 	public void tickInHand(PlayerItemContext context)
 	{
-		PocketData data = context.getItemData();
+		PocketData data = new PocketData(context.getItemStack());
 
 		boolean isLit = data.burnTime > 0;
 		boolean isCooking = data.cookTimeTotal > 0;
@@ -233,22 +226,30 @@ public class PocketFurnaceItem extends GenericItem implements ItemInvEvents, Tic
 		}
 	}
 
-	@Override
-	public ItemData createData()
+	protected static class PocketData
 	{
-		return new PocketData();
-	}
+		private final NBT data;
 
-	protected static class PocketData extends ItemData
-	{
 		ItemStack fuel = MiscUtil.AIR;
 		ItemStack input = MiscUtil.AIR;
 		int burnTime;
 		int cookTime;
 		int cookTimeTotal;
 
-		@Override
-		public ItemStack onSave(ItemStack itemStack)
+		public PocketData(ItemStack itemStack)
+		{
+			data = NBT.create(itemStack);
+			cookTime = data.getInt("burnTime");
+			burnTime = data.getInt("cookTime");
+			cookTimeTotal = data.getInt("cookTimeTotal");
+		}
+
+		public void save()
+		{
+			data.save();
+		}
+
+		public ItemStack updateLore(ItemStack itemStack)
 		{
 			return ItemStackBuilder
 				.editNonStatic(itemStack)

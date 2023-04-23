@@ -1,9 +1,6 @@
 package steve6472.funnylib.command.impl;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.nbt.Tag;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
@@ -11,7 +8,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.BoundingBox;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import steve6472.funnylib.FunnyLib;
@@ -26,7 +22,6 @@ import steve6472.funnylib.util.generated.BlockGen;
 
 import java.lang.reflect.Field;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * Created by steve6472
@@ -46,7 +41,6 @@ public class DebugCommands
 		player.getInventory().addItem(deserialize);
 		return true;
 	}
-
 
 	@Command
 	@Description("Prints item into console")

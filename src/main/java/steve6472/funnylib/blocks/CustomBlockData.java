@@ -3,6 +3,7 @@ package steve6472.funnylib.blocks;
 import org.bukkit.Location;
 import org.json.JSONObject;
 import steve6472.funnylib.context.BlockContext;
+import steve6472.funnylib.json.IJsonConfig;
 
 /**
  * Created by steve6472

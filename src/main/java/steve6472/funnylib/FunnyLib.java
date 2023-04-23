@@ -8,6 +8,7 @@ import org.bukkit.World;
 import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Marker;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
@@ -19,6 +20,7 @@ import steve6472.funnylib.blocks.builtin.MultiBlock;
 import steve6472.funnylib.command.impl.DebugCommands;
 import steve6472.funnylib.json.IJsonConfig;
 import steve6472.funnylib.json.JsonConfig;
+import steve6472.funnylib.json.JsonPrettify;
 import steve6472.funnylib.json.codec.codecs.*;
 import steve6472.funnylib.util.GlowingUtil;
 import steve6472.funnylib.blocks.builtin.TeleportButtonBlock;
@@ -210,14 +212,12 @@ public class FunnyLib
 		Codec.registerCodec(new LocationCodec());
 		Codec.registerCodec(new ItemStackCodec());
 		Codec.registerCodec(new EntityCodec());
-		Codec.registerCodec(new MarkerCodec());
 		Codec.registerCodec(new WorldCodec());
 		Codec.registerCodec(new StringListCodec());
 
 		Codec.regDefCodec(Location.class, new LocationCodec());
 		Codec.regDefCodec(ItemStack.class, new ItemStackCodec());
 		Codec.regDefCodec(Entity.class, new EntityCodec());
-		Codec.regDefCodec(MarkerCodec.Marker.class, new MarkerCodec());
 		Codec.regDefCodec(World.class, new WorldCodec());
 
 		Blocks.registerBlock(TELEPORT_BUTTON_BLOCK = new TeleportButtonBlock());

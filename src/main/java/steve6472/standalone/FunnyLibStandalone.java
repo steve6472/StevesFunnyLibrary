@@ -4,6 +4,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.LibSettings;
 import steve6472.funnylib.category.Markers;
+import steve6472.funnylib.category.Structures;
 import steve6472.standalone.interactable.Interactable;
 
 /**
@@ -14,6 +15,7 @@ import steve6472.standalone.interactable.Interactable;
 public class FunnyLibStandalone extends JavaPlugin
 {
 	public static Markers markerStorage;
+	public static Structures structureStorage;
 
 	@Override
 	public void onEnable()
@@ -23,6 +25,7 @@ public class FunnyLibStandalone extends JavaPlugin
 		Interactable.init();
 
 		FunnyLib.registerConfig(markerStorage = new Markers());
+		FunnyLib.registerConfig(structureStorage = new Structures());
 
 		FunnyLib.load();
 	}

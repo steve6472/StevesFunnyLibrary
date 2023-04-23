@@ -2,7 +2,6 @@ package steve6472.standalone.interactable.blocks;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
@@ -12,21 +11,16 @@ import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.blocks.CustomBlockData;
 import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.item.Items;
-import steve6472.funnylib.item.builtin.StructureItem;
 import steve6472.funnylib.json.codec.ann.Save;
 import steve6472.funnylib.json.codec.ann.SaveBool;
 import steve6472.funnylib.json.codec.ann.SaveDouble;
 import steve6472.funnylib.json.codec.ann.SaveInt;
-import steve6472.funnylib.json.codec.codecs.EntityCodec;
 import steve6472.funnylib.json.codec.codecs.ItemStackCodec;
-import steve6472.funnylib.json.codec.codecs.MarkerCodec;
+import steve6472.funnylib.data.Marker;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.MiscUtil;
 import steve6472.standalone.interactable.Interactable;
 import steve6472.standalone.interactable.SolidBlockEntity;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by steve6472
@@ -35,8 +29,7 @@ import java.util.List;
  */
 public class ElevatorControllerData extends CustomBlockData
 {
-	@Save(value = MarkerCodec.class)
-	public MarkerCodec.Marker pointA, pointB;
+	public Marker pointA, pointB;
 
 	@SaveDouble
 	public double speed = 1d, progress;
@@ -72,6 +65,7 @@ public class ElevatorControllerData extends CustomBlockData
 		ly = structure.getInt("ly");
 		lz = structure.getInt("lz");
 		JSONArray blocks = structure.getJSONArray("blocks");
+		/*
 		List<StructureItem.BlockInfo> blockInfo = StructureItem.jsonToBlocks(new ArrayList<>(blocks.length()), blocks);
 		for (StructureItem.BlockInfo info : blockInfo)
 		{
@@ -98,7 +92,7 @@ public class ElevatorControllerData extends CustomBlockData
 			double z = seat.getDouble("z");
 
 			sbe.addSeat(origin, x, y, z);
-		}
+		}*/
 	}
 
 	public void solidify()
@@ -112,9 +106,9 @@ public class ElevatorControllerData extends CustomBlockData
 			solidifyProtection = false;
 		}, 7);
 
-		JSONObject json = new JSONObject(ItemStackBuilder.edit(elevatorData).getCustomTagString("data"));
+		JSONObject json = new JSONObject(ItemStackBuilder.edit(elevatorData).getString("data"));
 		Bukkit.getScheduler().runTaskLater(FunnyLib.getPlugin(), () ->
-		{
+		{/*
 			JSONObject structure = json.getJSONObject("structure");
 			JSONArray blocks = structure.getJSONArray("blocks");
 			List<StructureItem.BlockInfo> blockInfo = StructureItem.jsonToBlocks(new ArrayList<>(blocks.length()), blocks);
@@ -127,7 +121,7 @@ public class ElevatorControllerData extends CustomBlockData
 			for (StructureItem.BlockInfo info : blockInfo)
 			{
 				loc.clone().add(info.position()).getBlock().setBlockData(info.data());
-			}
+			}*/
 		}, 5);
 	}
 

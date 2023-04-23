@@ -6,8 +6,8 @@ import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.joml.Vector3i;
 import steve6472.funnylib.CancellableResult;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.context.PlayerBlockContext;
@@ -15,12 +15,9 @@ import steve6472.funnylib.context.PlayerItemContext;
 import steve6472.funnylib.context.UseType;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.events.TickInHandEvent;
-import steve6472.funnylib.json.codec.codecs.MarkerCodec;
-import steve6472.funnylib.util.ItemStackBuilder;
-import steve6472.funnylib.util.JSONMessage;
-import steve6472.funnylib.util.ParticleUtil;
+import steve6472.funnylib.data.Marker;
+import steve6472.funnylib.util.*;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 /**
@@ -50,70 +47,39 @@ public class MarkerItem extends CustomItem implements TickInHandEvent
 		Block clickedBlock = context.getBlock();
 		if (clickedBlock == null) return;
 
-		updateItem(context.getHandItem(), clickedBlock);
+		updateItem(context.getItemData(), clickedBlock);
 
 		result.setCancelled(true);
 	}
 
-	private static void updateItem(ItemStack itemStack, Block clickedBlock)
+	private static void updateItem(NBT data, Block clickedBlock)
 	{
-		ItemStackBuilder builder = ItemStackBuilder.edit(itemStack);
+		ItemStackBuilder builder = ItemStackBuilder.edit(data);
 
 		if (clickedBlock != null)
-			builder
-				.customTagInt("x", clickedBlock.getX())
-				.customTagInt("y", clickedBlock.getY())
-				.customTagInt("z", clickedBlock.getZ());
+			data.set3i("location", clickedBlock.getX(), clickedBlock.getY(), clickedBlock.getZ());
 
 		builder.removeLore();
 
-		if (builder.getCustomTagString("name") != null)
+		if (builder.hasString("name"))
 			builder
 				.addLore(
 					JSONMessage.create("Name: ").color(ChatColor.DARK_GRAY)
-						.then(builder.getCustomTagString("name")).color(ChatColor.WHITE)
+						.then(builder.getString("name")).color(ChatColor.WHITE)
 						.setItalic(JSONMessage.ItalicType.FALSE)
 				);
 
 		if (clickedBlock != null)
-			builder
-				.addLore(JSONMessage
-					.create("Location: ")
-					.color(ChatColor.DARK_GRAY)
-					.then(Integer.toString(clickedBlock.getX()))
-					.color(ChatColor.RED)
-					.then("/")
-					.color(ChatColor.WHITE)
-					.then(Integer.toString(clickedBlock.getY()))
-					.color(ChatColor.GREEN)
-					.then("/")
-					.color(ChatColor.WHITE)
-					.then(Integer.toString(clickedBlock.getZ()))
-					.color(ChatColor.BLUE)
-					.setItalic(JSONMessage.ItalicType.FALSE)
-				);
+			builder.addLore(Messages.createLocationMessage(clickedBlock.getX(), clickedBlock.getY(), clickedBlock.getZ()));
 		else
-			builder
-				.addLore(JSONMessage
-					.create("Location: ")
-					.color(ChatColor.DARK_GRAY)
-					.then(Integer.toString(builder.getCustomTagInt("x")))
-					.color(ChatColor.RED)
-					.then("/")
-					.color(ChatColor.WHITE)
-					.then(Integer.toString(builder.getCustomTagInt("y")))
-					.color(ChatColor.GREEN)
-					.then("/")
-					.color(ChatColor.WHITE)
-					.then(Integer.toString(builder.getCustomTagInt("z")))
-					.color(ChatColor.BLUE)
-					.setItalic(JSONMessage.ItalicType.FALSE)
-				);
+		{
+			Vector3i location = data.get3i("location");
+			builder.addLore(Messages.createLocationMessage(location.x, location.y, location.z));
+		}
 
 		builder
 			.addLore(HELP_TEXT_0)
-			.addLore(HELP_TEXT_1)
-			.buildItemStack();
+			.addLore(HELP_TEXT_1);
 	}
 
 	@Override
@@ -122,21 +88,11 @@ public class MarkerItem extends CustomItem implements TickInHandEvent
 		if (!useType.isRight())
 			return;
 
-		final ItemStack handItem = context.getHandItem();
-		int slot = context.getPlayer().getInventory().getHeldItemSlot();
-
 		new AnvilGUI.Builder()
 			.onComplete((completion) ->
 			{
-				ItemStack edited = ItemStackBuilder
-					.editNonStatic(handItem)
-					.customTagString("name", completion.getText())
-					.buildItemStack();
-
-				updateItem(edited, null);
-
-				context.getPlayer().getInventory().setHeldItemSlot(slot);
-				context.getPlayer().getInventory().setItem(EquipmentSlot.HAND, edited);
+				context.getItemData().setString("name", completion.getText());
+				updateItem(context.getItemData(), null);
 
 				return Collections.singletonList(AnvilGUI.ResponseAction.close());
 			})
@@ -152,10 +108,16 @@ public class MarkerItem extends CustomItem implements TickInHandEvent
 	{
 		if (FunnyLib.getUptimeTicks() % 3 != 0) return;
 
-		ItemStackBuilder edit = ItemStackBuilder.edit(context.getHandItem());
-		int x = edit.getCustomTagInt("x");
-		int y = edit.getCustomTagInt("y");
-		int z = edit.getCustomTagInt("z");
+		NBT data = context.getItemData();
+
+		if (!data.hasCompound("location"))
+			return;
+
+		Vector3i location = data.get3i("location");
+
+		int x = location.x;
+		int y = location.y;
+		int z = location.z;
 
 		ParticleUtil.boxAbsolute(context.getPlayer(), Particle.REDSTONE, x, y, z, x + 1, y + 1, z + 1, 0, 0.2, OPTIONS);
 	}
@@ -168,24 +130,19 @@ public class MarkerItem extends CustomItem implements TickInHandEvent
 
 	public static ItemStack newMarker(int x, int y, int z, String name, Material icon)
 	{
-		ItemStackBuilder itemStackBuilder = ItemStackBuilder
-			.editNonStatic(FunnyLib.LOCATION_MARKER.newItemStack())
-			.customTagInt("x", x)
-			.customTagInt("y", y)
-			.customTagInt("z", z)
-			.customTagString("icon", icon.name());
+		NBT data = NBT.create(FunnyLib.LOCATION_MARKER.newItemStack());
+		data.set3i("location", x, y, z);
 
+		data.setString("icon", icon.name());
 		if (name != null)
-			itemStackBuilder.customTagString("name", name);
+			data.setString("name", name);
 
-		ItemStack itemStack = itemStackBuilder.buildItemStack();
+		updateItem(data, null);
 
-		updateItem(itemStack, null);
-
-		return itemStack;
+		return data.save();
 	}
 
-	public static ItemStack newMarker(MarkerCodec.Marker marker)
+	public static ItemStack newMarker(Marker marker)
 	{
 		return newMarker(marker.x(), marker.y(), marker.z(), marker.name(), marker.icon());
 	}

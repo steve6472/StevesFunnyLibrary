@@ -2,6 +2,7 @@ package steve6472.funnylib;
 
 import org.json.JSONObject;
 import org.json.JSONString;
+import steve6472.funnylib.json.JsonPrettify;
 import steve6472.funnylib.menu.ArbitraryData;
 import steve6472.funnylib.util.Checks;
 import steve6472.funnylib.util.ParticleUtil;
@@ -29,5 +30,6 @@ public class MavenSux
 		};
 		new ParticleUtil();
 		new ReflectionHacker();
+		new JsonPrettify();
 	}
 }

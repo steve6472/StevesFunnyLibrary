@@ -11,7 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.blocks.CustomBlockData;
 import steve6472.funnylib.blocks.stateengine.State;
 import steve6472.funnylib.item.CustomItem;
-import steve6472.funnylib.item.ItemData;
+import steve6472.funnylib.util.NBT;
 
 /**
  * Created by steve6472
@@ -106,7 +106,7 @@ public record PlayerBlockContext(PlayerItemContext playerContext, BlockFaceConte
 		return playerContext.holdsCustomItem(item);
 	}
 
-	public <T extends ItemData> T getItemData()
+	public NBT getItemData()
 	{
 		return playerContext.getItemData();
 	}

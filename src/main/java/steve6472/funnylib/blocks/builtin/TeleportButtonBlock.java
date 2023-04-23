@@ -9,6 +9,8 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.joml.Vector3i;
+import org.json.JSONObject;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.context.PlayerBlockContext;
@@ -20,10 +22,12 @@ import steve6472.funnylib.blocks.stateengine.properties.IProperty;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.json.codec.ann.Save;
 import steve6472.funnylib.json.codec.codecs.ItemStackCodec;
+import steve6472.funnylib.json.codec.codecs.MarkerCodec;
 import steve6472.funnylib.menu.Mask;
 import steve6472.funnylib.menu.MenuBuilder;
 import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.menu.SlotBuilder;
+import steve6472.funnylib.util.NBT;
 import steve6472.funnylib.util.generated.BlockGen;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.MiscUtil;
@@ -44,6 +48,8 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 	{
 		@Save(value = ItemStackCodec.class)
 		private ItemStack item = MiscUtil.AIR;
+
+//		private MarkerCodec.Marker location;
 	}
 
 	@Override
@@ -100,10 +106,11 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 		if (Items.getCustomItem(item) != FunnyLib.LOCATION_MARKER)
 			return;
 
-		ItemStackBuilder edit = ItemStackBuilder.edit(item);
-		int x = edit.getCustomTagInt("x");
-		int y = edit.getCustomTagInt("y");
-		int z = edit.getCustomTagInt("z");
+		NBT data = NBT.create(item);
+		Vector3i location = data.get3i("location");
+		int x = location.x;
+		int y = location.y;
+		int z = location.z;
 		context.getPlayer().teleport(new Location(context.getWorld(), x + 0.5, y, z + 0.5, context.getPlayerLocation().getYaw(), context.getPlayerLocation().getPitch()));
 	}
 

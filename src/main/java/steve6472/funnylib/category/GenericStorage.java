@@ -11,103 +11,187 @@ import org.bukkit.inventory.ItemStack;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import steve6472.funnylib.FunnyLib;
-import steve6472.funnylib.item.builtin.MarkerItem;
 import steve6472.funnylib.json.IJsonConfig;
-import steve6472.funnylib.json.codec.Codec;
-import steve6472.funnylib.json.codec.codecs.MarkerCodec;
 import steve6472.funnylib.menu.*;
 import steve6472.funnylib.util.ItemStackBuilder;
+import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.MetaUtil;
 import steve6472.funnylib.util.MiscUtil;
 import steve6472.standalone.interactable.ex.ExpItems;
 import steve6472.standalone.interactable.ex.ExpressionMenu;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Created by steve6472
  * Date: 2/18/2023
  * Project: StevesFunnyLibrary <br>
  */
-public abstract class GenericStorage<T extends ICategorizable> implements IJsonConfig
+public abstract class GenericStorage implements IJsonConfig
 {
 	private record Point(int x, int y) {}
 
-	private final Class<T> clazz;
-	private final Codec<T> codec;
+	private final Supplier<GenericStorage> nestedStorageConstructor;
 
-	public GenericStorage(Class<T> clazz, Codec<T> codec)
+	private final List<ICategorizable> itemList = new ArrayList<>();
+
+	protected final Mask MAIN_MASK;
+	protected final Mask POPUP;
+	private final MenuBuilder BUILDER;
+
+	private record RegistratedType(
+		Supplier<ICategorizable> constructor,
+		Function<ICategorizable, ItemStack> icon,
+		Function<ICategorizable, ItemStack> itemFromObject,
+		Function<ItemStack, ICategorizable> objectFromItem,
+		Consumer<MenuBuilder> populatePopup) {}
+
+	private final Map<Function<ItemStack, Boolean>, RegistratedType> checks = new HashMap<>();
+	private final HashMap<String, RegistratedType> types = new HashMap<>();
+
+	public GenericStorage(Supplier<GenericStorage> nestedStorageConstructor)
 	{
-		this.clazz = clazz;
-		this.codec = codec;
-	}
+		this.nestedStorageConstructor = nestedStorageConstructor;
 
-	private final List<T> LIST = new ArrayList<>();
-
-	private final Function<T, SlotBuilder> SLOT = (object) -> SlotBuilder.create(createIcon(object))
-		.allow(ClickType.LEFT, ClickType.RIGHT)
-		.allow(InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF)
-		.onClick(ClickType.LEFT, (c, m) -> Response.setItemToCursor(createFromObject(object)))
-		.onClick(ClickType.RIGHT, (c, m) ->
-		{
-			MetaUtil.setMeta(c.player(), "clicked_object", object);
-			openPopup(m);
-			return Response.cancel();
-		});
-
-	protected final Mask MAIN_MASK = Mask.createMask()
+		MAIN_MASK = Mask.createMask()
 		.addRow(".........", 5)
-		.addRow("AXXXXXXLR")
+		.addRow("AXFBXXXLR")
 		.addItem('X', SlotBuilder
+			.create(ItemStackBuilder.create(Material.WHITE_STAINED_GLASS_PANE).setName("").buildItemStack()).setSticky())
+		.addItem('B', SlotBuilder
 			.create(ItemStackBuilder.create(Material.WHITE_STAINED_GLASS_PANE).setName("").buildItemStack()).setSticky())
 		.addItem('L', SlotBuilder.stickyButtonSlot_(ItemStackBuilder.create(Material.LEATHER_HORSE_ARMOR).setName("Left").setCustomModelData(10).setArmorColor(0xdddddd).setHideFlags(ItemFlag.HIDE_DYE).buildItemStack(), (c, m) -> m.move(-9, 0)))
 		.addItem('R', SlotBuilder.stickyButtonSlot_(ItemStackBuilder.create(Material.LEATHER_HORSE_ARMOR).setName("Right").setCustomModelData(11).setArmorColor(0xdddddd).setHideFlags(ItemFlag.HIDE_DYE).buildItemStack(), (c, m) -> m.move(9, 0)))
 		.addItem('A', SlotBuilder.stickyButtonSlot_(createAddSlot()
 			, (c, m) ->
 			{
-				if (canBeAdded(c.itemOnCursor()))
+				RegistratedType type = getType(c.itemOnCursor());
+				if (type != null)
 				{
-					T object = createFromItem(c.itemOnCursor());
-					LIST.add(object);
-					Point location = getItemLocation(LIST.size() - 1);
-					m.setSlot(location.x, location.y, SLOT.apply(object));
+					ICategorizable object = type.objectFromItem.apply(c.itemOnCursor());
+					itemList.add(object);
+					Point location = getItemLocation(itemList.size() - 1);
+					m.setSlot(location.x, location.y, slot(object));
 					m.reload();
 				}
 			}).allow(InventoryAction.SWAP_WITH_CURSOR))
+		.addItem('F', SlotBuilder.stickyButtonSlot_(ItemStackBuilder.quick(Material.CHEST, "Add Folder", "#FFA500")
+			, (c, m) ->
+			{
+				Folder folder = new Folder(nestedStorageConstructor.get());
+				folder.setPrevious(this);
+				itemList.add(folder);
+				Point location = getItemLocation(itemList.size() - 1);
+				m.setSlot(location.x, location.y, folderSlot(folder));
+				m.reload();
+			}).allow(InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF))
 		;
 
-	protected final Mask POPUP = Mask.createMask()
-		.addRow(".._____..")
-		.addRow(".______X.")
-		.addRow("._______.")
-		.addRow(".______U.")
-		.addRow(".______D.")
-		.addRow("____P____")
-		.addItem('_', SlotBuilder.create(MiscUtil.AIR).setSticky())
-		.addItem('X', SlotBuilder.stickyButtonSlot_(ExpItems.POPUP_CLOSE.newItemStack(), (c, m) ->
-		{
-			construct(c.player(), m);
-			m.applyMask(MAIN_MASK);
-		}))
-//		.addItem('U', SlotBuilder.stickyButtonSlot_(MiscUtil.AIR, (c, m) ->
-//		{
-//			Menu popupMenu = m.getMetadata("popup", Menu.class);
-//			popupMenu.move(0, -1);
-//			popupMenu.overlay(m, 1, 1, 6, 4);
-//			c.slot().setItem(popupMenu.getOffsetY() <= 0 ? MiscUtil.AIR : ExpItems.POPUP_UP.newItemStack());
-//		}))
-//		.addItem('D', SlotBuilder.stickyButtonSlot_(ExpItems.POPUP_DOWN.newItemStack(), (c, m) ->
-//		{
-//			Menu popupMenu = m.getMetadata("popup", Menu.class);
-//			popupMenu.move(0, 1);
-//			popupMenu.overlay(m, 1, 1, 6, 4);
-//
-//			m.getSlot(c.slot().getX(), c.slot().getY() - 1).setItem(popupMenu.getOffsetY() <= 0 ? MiscUtil.AIR : ExpItems.POPUP_UP.newItemStack());
-//		}))
+		POPUP = Mask.createMask()
+			.addRow(".._____..")
+			.addRow(".______X.")
+			.addRow("._______.")
+			.addRow(".______U.")
+			.addRow(".______D.")
+			.addRow("____P____")
+			.addItem('_', SlotBuilder.create(MiscUtil.AIR).setSticky())
+			.addItem('X', SlotBuilder.stickyButtonSlot_(ExpItems.POPUP_CLOSE.newItemStack(), (c, m) ->
+			{
+				construct(m);
+				m.applyMask(MAIN_MASK);
+			}))
 		;
+
+		BUILDER = MenuBuilder.create(6, itemName() + "s")
+			.applyMask(MAIN_MASK)
+			.allowPlayerInventory()
+		;
+
+		registerType("folder", () -> new Folder(this), Folder::createIcon, obj -> null, item -> null, item -> false);
+	}
+
+	private RegistratedType getType(ItemStack itemStack)
+	{
+		for (Function<ItemStack, Boolean> itemStackBooleanFunction : checks.keySet())
+		{
+			if (itemStackBooleanFunction.apply(itemStack))
+			{
+				return checks.get(itemStackBooleanFunction);
+			}
+		}
+
+		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends ICategorizable> void registerType(
+		String id,
+		Supplier<T> constructor,
+		Function<T, ItemStack> icon,
+		Function<T, ItemStack> itemFromObject,
+		Function<ItemStack, T> objectFromItem,
+		Consumer<MenuBuilder> populatePopup,
+		Function<ItemStack, Boolean> check)
+	{
+		RegistratedType registratedType = new RegistratedType(
+			(Supplier<ICategorizable>) constructor,
+			(Function<ICategorizable, ItemStack>) icon,
+			(Function<ICategorizable, ItemStack>) itemFromObject,
+			(Function<ItemStack, ICategorizable>) objectFromItem,
+			populatePopup);
+		types.put(id, registratedType);
+		checks.put(check, registratedType);
+	}
+
+	public <T extends ICategorizable> void registerType(
+		String id,
+		Supplier<T> constructor,
+		Function<T, ItemStack> icon,
+		Function<T, ItemStack> itemFromObject,
+		Function<ItemStack, T> objectFromItem,
+		Function<ItemStack, Boolean> check)
+	{
+		registerType(id, constructor, icon, itemFromObject, objectFromItem, null, check);
+	}
+
+	public void setPrevious(GenericStorage previous)
+	{
+		MAIN_MASK.addItem('B', SlotBuilder.create(
+			ItemStackBuilder
+				.create(Material.LEATHER_HORSE_ARMOR)
+				.setName("Back")
+				.setCustomModelData(10)
+				.setArmorColor(0x70c4ff)
+				.setHideFlags(ItemFlag.HIDE_DYE)
+				.buildItemStack())
+			.allow(ClickType.LEFT, ClickType.RIGHT)
+			.allow(InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF)
+			.onClick((c, m) -> Response.redirect(previous.createMenu())));
+
+		BUILDER.applyMask(MAIN_MASK);
+
+	}
+
+	private SlotBuilder slot(ICategorizable object)
+	{
+		RegistratedType registratedType = types.get(object.id());
+		ItemStack icon = registratedType.icon.apply(object);
+		ItemStackBuilder.editNonStatic(icon).addLore(JSONMessage.create()).addLore(JSONMessage.create("Type: " + object.id()).color(ChatColor.DARK_GRAY).setItalic(JSONMessage.ItalicType.FALSE));
+
+		return SlotBuilder.create(icon)
+			.allow(ClickType.LEFT, ClickType.RIGHT)
+			.allow(InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF)
+			.onClick(ClickType.LEFT, (c, m) -> Response.setItemToCursor(registratedType.itemFromObject.apply(object)))
+			.onClick(ClickType.RIGHT, (c, m) ->
+			{
+				MetaUtil.setMeta(c.player(), "clicked_object", object);
+				openPopup(object, m, true);
+				return Response.cancel();
+			});
+	}
 
 	private static Point getItemLocation(int item)
 	{
@@ -117,84 +201,98 @@ public abstract class GenericStorage<T extends ICategorizable> implements IJsonC
 		return new Point(x, y);
 	}
 
-	private final MenuBuilder BUILDER = MenuBuilder.create(6, "Markers")
-		.applyMask(MAIN_MASK)
-		.allowPlayerInventory();
+	public SlotBuilder folderSlot(Folder folder)
+	{
+		return SlotBuilder.create(folder.createIcon())
+		.allow(ClickType.LEFT, ClickType.RIGHT)
+		.allow(InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF)
+		.onClick(ClickType.LEFT, (c, m) -> Response.redirect(folder.getNestedStorage().createMenu()))
+		.onClick(ClickType.RIGHT, (c, m) ->
+		{
+			MetaUtil.setMeta(c.player(), "clicked_object", folder);
+			openPopup(folder, m, false);
+			return Response.cancel();
+		});
+	}
 
-	protected void construct(Player player, Menu menu)
+	public List<ICategorizable> getItemList()
+	{
+		return itemList;
+	}
+
+	protected void construct(Menu menu)
 	{
 		menu.clear();
 
-		for (int i = 0; i < LIST.size(); i++)
+		for (int i = 0; i < itemList.size(); i++)
 		{
-			T marker = LIST.get(i);
+			ICategorizable object = itemList.get(i);
 			Point itemLoc = getItemLocation(i);
-			menu.setSlot(itemLoc.x(), itemLoc.y(), SLOT.apply(marker));
+			if (object instanceof Folder folder)
+			{
+				menu.setSlot(itemLoc.x(), itemLoc.y(), folderSlot(folder));
+			} else
+			{
+				menu.setSlot(itemLoc.x(), itemLoc.y(), slot(object));
+			}
 		}
+	}
+
+	protected Menu createMenu()
+	{
+		Menu menu = BUILDER.build();
+
+		construct(menu);
+		menu.applyMask(MAIN_MASK);
+		return menu;
 	}
 
 	public void showToPlayer(Player player)
 	{
-		Menu menu = BUILDER.build();
-
-		construct(player, menu);
-		menu.applyMask(MAIN_MASK);
-
-		menu.showToPlayer(player);
+		createMenu().showToPlayer(player);
 	}
-
-	private void populatePopup(MenuBuilder builder)
+	
+	private void populatePopup(ICategorizable clicked, MenuBuilder builder, boolean customPopulate)
 	{
 		// Custom Icon
 		builder.slot(0, 0, SlotBuilder.stickyButtonSlot_(ItemStackBuilder.quick(Material.TORCH, "Set Icon"), (c, m) ->
 		{
-			T clickedObject = MetaUtil.getValue(c.player(), clazz, "clicked_object");
-			if (clickedObject == null)
-			{
-				c.player().sendMessage(ChatColor.RED + "'clicked_marker' meta is missing!");
-			} else
-			{
-				clickedObject.setIcon(c.itemOnCursor().getType().isAir() ? Material.PAPER : c.itemOnCursor().getType());
-				c.player().sendMessage(ChatColor.GREEN + "Icon for Marker " + ChatColor.WHITE + "'" + clickedObject.name() + "'" + ChatColor.GREEN + " changed!");
+			ICategorizable clickedObject = getClickedObject(c);
+			clickedObject.setIcon(c.itemOnCursor().getType().isAir() ? Material.PAPER : c.itemOnCursor().getType());
+			c.player().sendMessage(ChatColor.GREEN + "Icon for " + itemName() + " " + ChatColor.WHITE + "'" + clickedObject.name() + "'" + ChatColor.GREEN + " changed!");
 
-				construct(c.player(), m);
-				m.applyMask(MAIN_MASK);
-				openPopup(m);
-			}
+			construct(m);
+			m.applyMask(MAIN_MASK);
+			openPopup(clicked, m, true);
 		}).allow(InventoryAction.SWAP_WITH_CURSOR));
 
 		// Rename Marker
-		builder.slot(1, 0, SlotBuilder.stickyButtonSlot_(ItemStackBuilder.quick(Material.NAME_TAG, "Rename Marker"), (c, m) ->
+		builder.slot(1, 0, SlotBuilder.stickyButtonSlot_(ItemStackBuilder.quick(Material.NAME_TAG, "Rename " + itemName()), (c, m) ->
 		{
-			T clickedObject = MetaUtil.getValue(c.player(), clazz, "clicked_object");
-			if (clickedObject == null)
-			{
-				c.player().sendMessage(ChatColor.RED + "'clicked_marker' meta is missing!");
-			} else
-			{
-				showRenameGUI(clickedObject, m, c.player());
-			}
+			ICategorizable clickedObject = getClickedObject(c);
+			showRenameGUI(clickedObject, m, c.player());
 		}).allow(InventoryAction.SWAP_WITH_CURSOR));
 
 		// Remove Marker
-		builder.slot(5, 3, SlotBuilder.stickyButtonSlot_(ItemStackBuilder.quick(Material.BARRIER, "Remove Marker", ChatColor.RED), (c, m) ->
+		builder.slot(5, 3, SlotBuilder.stickyButtonSlot_(ItemStackBuilder.quick(Material.BARRIER, "Remove " + itemName(), ChatColor.RED), (c, m) ->
 		{
-			T clickedObject = MetaUtil.getValue(c.player(), clazz, "clicked_object");
-			if (clickedObject == null)
-			{
-				c.player().sendMessage(ChatColor.RED + "'clicked_marker' meta is missing!");
-			} else
-			{
-				LIST.remove(clickedObject);
-				c.player().sendMessage(ChatColor.GREEN + "Marker " + ChatColor.WHITE + "'" + clickedObject.name() + "'" + ChatColor.GREEN + " removed!");
+			ICategorizable clickedObject = getClickedObject(c);
+			itemList.remove(clickedObject);
+			c.player().sendMessage(ChatColor.GREEN + (clickedObject instanceof Folder ? "Folder" : itemName()) + " " + ChatColor.WHITE + "'" + clickedObject.name() + "'" + ChatColor.GREEN + " removed!");
 
-				construct(c.player(), m);
-				m.applyMask(MAIN_MASK);
-			}
+			construct(m);
+			m.applyMask(MAIN_MASK);
 		}).allow(InventoryAction.SWAP_WITH_CURSOR));
+
+		if (customPopulate)
+		{
+			Consumer<MenuBuilder> populatePopup = types.get(clicked.id()).populatePopup;
+			if (populatePopup != null)
+				populatePopup.accept(builder);
+		}
 	}
 
-	private void showRenameGUI(T object, Menu menu, Player player)
+	private void showRenameGUI(ICategorizable object, Menu menu, Player player)
 	{
 		MetaUtil.setMeta(player, "old_menu", menu);
 		player.closeInventory();
@@ -211,9 +309,9 @@ public abstract class GenericStorage<T extends ICategorizable> implements IJsonC
 						player.sendMessage(ChatColor.RED + "'old_menu' meta is missing!");
 					} else
 					{
-						construct(player, oldMenu);
+						construct(oldMenu);
 						oldMenu.applyMask(MAIN_MASK);
-						openPopup(oldMenu);
+						openPopup(object, oldMenu, true);
 						oldMenu.showToPlayer(player);
 					}
 				}));
@@ -225,51 +323,96 @@ public abstract class GenericStorage<T extends ICategorizable> implements IJsonC
 			.open(player);
 	}
 
-	protected Menu openPopup(Menu menu)
+	protected void openPopup(ICategorizable clicked, Menu menu, boolean customPopulate)
 	{
 		menu.applyMask(POPUP);
 		menu.applyMask(ExpressionMenu.POPUP_NO_BACKGROUND_TOP);
-		MenuBuilder builder = MenuBuilder.create(3, "POPUP_MENU_MARKER");
+		MenuBuilder builder = MenuBuilder.create(3, "POPUP_MENU_STORAGE");
 		builder.limitOffset(0, 0, 0, Integer.MAX_VALUE);
-		populatePopup(builder);
+		populatePopup(clicked, builder, customPopulate);
 
 		Menu popupMenu = builder.build();
 		menu.setMetadata("popup", popupMenu);
 		popupMenu.overlay(menu, 1, 1, 6, 4);
-
-		return popupMenu;
 	}
 
 	@Override
 	public void save(JSONObject json)
 	{
-		JSONArray markers = new JSONArray();
-		for (T marker : LIST)
+		JSONArray jsonArray = new JSONArray();
+		for (ICategorizable object : itemList)
 		{
 			JSONObject jsonObject = new JSONObject();
-			codec.toJson(marker, jsonObject);
-			markers.put(jsonObject);
+			if (object instanceof Folder folder)
+			{
+				jsonObject.put("_storage_folder", true);
+				folder.toJSON(jsonObject);
+				jsonArray.put(jsonObject);
+			} else
+			{
+				object.toJSON(jsonObject);
+				jsonObject.put("_id", object.id());
+				jsonArray.put(jsonObject);
+			}
 		}
-		json.put("markers", markers);
+		json.put(storageId(), jsonArray);
 	}
 
 	@Override
 	public void load(JSONObject json)
 	{
-		LIST.clear();
-		JSONArray markers = json.optJSONArray("markers");
-		if (markers == null)
+		itemList.clear();
+		JSONArray objects = json.optJSONArray(storageId());
+		if (objects == null)
 			return;
-		for (int i = 0; i < markers.length(); i++)
+		for (int i = 0; i < objects.length(); i++)
 		{
-			JSONObject jsonObject = markers.getJSONObject(i);
-			LIST.add(codec.fromJson(jsonObject));
+			JSONObject jsonObject = objects.getJSONObject(i);
+			if (jsonObject.optBoolean("_storage_folder", false))
+			{
+				Folder folder = new Folder(nestedStorageConstructor.get());
+				folder.setPrevious(this);
+				folder.fromJSON(jsonObject);
+				itemList.add(folder);
+			} else
+			{
+				String id = jsonObject.getString("_id");
+
+				ICategorizable byId = types.get(id).constructor.get();
+				byId.fromJSON(jsonObject);
+				itemList.add(byId);
+			}
+		}
+	}
+	
+	protected ICategorizable getClickedObject(Click c)
+	{
+		ICategorizable clickedObject = MetaUtil.getValue(c.player(), ICategorizable.class, "clicked_object");
+		if (clickedObject == null)
+		{
+			c.player().sendMessage(ChatColor.RED + "'clicked_object' meta is missing!");
+			throw new RuntimeException("'clicked_object' meta is missing!");
+		} else
+		{
+			return clickedObject;
 		}
 	}
 
-	protected abstract ItemStack createIcon(T obj);
+	@SuppressWarnings({"unchecked", "unused"})
+	protected <T> T getClickedObject(Class<T> clazz, Click c)
+	{
+		ICategorizable clickedObject = MetaUtil.getValue(c.player(), ICategorizable.class, "clicked_object");
+		if (clickedObject == null)
+		{
+			c.player().sendMessage(ChatColor.RED + "'clicked_object' meta is missing!");
+			throw new RuntimeException("'clicked_object' meta is missing!");
+		} else
+		{
+			return (T) clickedObject;
+		}
+	}
+
 	protected abstract ItemStack createAddSlot();
-	protected abstract T createFromItem(ItemStack itemStack);
-	protected abstract ItemStack createFromObject(T obj);
-	protected abstract boolean canBeAdded(ItemStack itemStack);
+	protected abstract String storageId();
+	protected abstract String itemName();
 }

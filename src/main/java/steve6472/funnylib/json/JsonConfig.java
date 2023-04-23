@@ -123,6 +123,9 @@ public class JsonConfig
 		if (file.renameTo(new File(file, ".backup")))
 		{
 			Log.debug("Created backup");
+		} else
+		{
+			Log.error("Backup could not be created");
 		}
 		if (file.delete())
 		{
@@ -134,7 +137,8 @@ public class JsonConfig
 		}
 
 		FileWriter writer = new FileWriter(file);
-		writer.write(json.toString(4));
+		writer.write(JsonPrettify.prettify(json));
+//		writer.write(json.toString(4));
 		writer.flush();
 		writer.close();
 	}
@@ -150,6 +154,9 @@ public class JsonConfig
 		}
 		reader.close();
 
-		return new JSONObject(builder.toString());
+		if (builder.isEmpty())
+			return new JSONObject();
+		else
+			return new JSONObject(builder.toString());
 	}
 }

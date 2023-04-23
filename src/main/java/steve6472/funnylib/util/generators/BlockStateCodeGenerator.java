@@ -117,6 +117,22 @@ public class BlockStateCodeGenerator
 			}
 		""";
 
+	private static final String CHISELED_BOOKSHELF = """
+			/**
+			 * @param occupied - mask for slots, left to right
+			 */
+			public static BlockData ChiseledBookshelf(int occupied, BlockFace facing)
+		 	{
+		 		ChiseledBookshelf data = (ChiseledBookshelf) Material.CHISELED_BOOKSHELF.createBlockData();
+		 		for (int i = 0; i < 6; i++)
+		 		{
+		 		    data.setSlotOccupied(i, ((occupied >> (5 - i)) & 1) == 1);
+		 		}
+		 		data.setFacing(facing);
+		 		return data;
+		 	}
+		""";
+
 	public static void main(String[] args)
 	{
 		StringBuilder generator = new StringBuilder();
@@ -124,10 +140,9 @@ public class BlockStateCodeGenerator
 		headerGenerator.append("package steve6472.funnylib.util.generated;\n\n");
 
 		Set<String> toBeImported = new HashSet<>();
-		toBeImported.add("org.bukkit.block.data.BlockData");
+		toBeImported.add("org.bukkit.block.data.*");
+		toBeImported.add("org.bukkit.block.data.type.*");
 		toBeImported.add("org.bukkit.Material");
-		toBeImported.add("org.bukkit.block.data.MultipleFacing");
-		toBeImported.add("org.bukkit.block.BlockFace");
 		toBeImported.add("java.util.HashMap");
 
 		generator.append("public class BlockGen\n");
@@ -152,6 +167,12 @@ public class BlockStateCodeGenerator
 			{
 				generator.append(BREWING_STAND).append("\n");
 				toBeImported.add("org.bukkit.block.data.type.BrewingStand");
+				continue;
+			}
+
+			if (value == Material.CHISELED_BOOKSHELF)
+			{
+				generator.append(CHISELED_BOOKSHELF).append("\n");
 				continue;
 			}
 
@@ -295,7 +316,18 @@ public class BlockStateCodeGenerator
 		{
 			boolean newFile = f.createNewFile();
 			if (!newFile)
-				throw new IOException("Probably already exists or whatever");
+			{
+				if (f.delete())
+				{
+					System.out.println("Deleted existing file");
+					if (!f.createNewFile())
+					{
+						throw new IOException("Error creating new file");
+					}
+				}
+
+//				throw new IOException("Probably already exists or whatever");
+			}
 
 			BufferedWriter writer = new BufferedWriter(new FileWriter(f));
 			writer.write(output);

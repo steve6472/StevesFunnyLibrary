@@ -3,16 +3,12 @@ package steve6472.funnylib.context;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import steve6472.funnylib.blocks.CustomBlockData;
-import steve6472.funnylib.blocks.stateengine.State;
 import steve6472.funnylib.item.CustomItem;
-import steve6472.funnylib.item.ItemData;
+import steve6472.funnylib.util.NBT;
 
 /**
  * Created by steve6472
@@ -102,7 +98,7 @@ public record PlayerEntityContext(PlayerItemContext playerContext, EntityContext
 		return playerContext.holdsCustomItem(item);
 	}
 
-	public <T extends ItemData> T getItemData()
+	public NBT getItemData()
 	{
 		return playerContext.getItemData();
 	}

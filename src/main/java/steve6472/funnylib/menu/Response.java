@@ -16,6 +16,7 @@ public class Response
 
 	private ItemStack setItemToCursor;
 	private MenuBuilder redirect;
+	private Menu redirectRaw;
 	private ArbitraryData redirectData;
 
 	public static Response cancel()
@@ -45,6 +46,13 @@ public class Response
 		return response;
 	}
 
+	public static Response redirect(Menu menu)
+	{
+		Response response = new Response();
+		response.redirectRaw = menu;
+		return response;
+	}
+
 	public static Response redirect(MenuBuilder menu, ArbitraryData redirectData)
 	{
 		Response response = new Response();
@@ -67,6 +75,11 @@ public class Response
 	public MenuBuilder getRedirect()
 	{
 		return redirect;
+	}
+
+	public Menu getRedirectRaw()
+	{
+		return redirectRaw;
 	}
 
 	public ArbitraryData getRedirectData()

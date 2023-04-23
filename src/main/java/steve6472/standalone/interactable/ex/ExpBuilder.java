@@ -65,7 +65,7 @@ public class ExpBuilder
 		builder.addLore(JSONMessage.create("Element: ").color(ChatColor.GRAY).then(elementType.label()).color(ChatColor.WHITE));
 		builder.addLore("");
 		builder.addLore(Integer.toHexString(currentExpression.hashCode()), ChatColor.DARK_GRAY);
-		builder.customTagInt(ELEMENT_TYPE, elementType.ordinal());
+		builder.setInt(ELEMENT_TYPE, elementType.ordinal());
 		slot.setItem(builder.buildItemStack());
 	}
 

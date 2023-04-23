@@ -240,7 +240,7 @@ public class BuiltInCommands
 	{
 		ItemStack item = player.getInventory().getItem(EquipmentSlot.HAND);
 		ItemStackBuilder edit = ItemStackBuilder.edit(item);
-		String originalName = edit.getCustomTagString("original_name");
+		String originalName = edit.hasString("original_name") ? edit.getString("original_name") : null;
 		if (args.length == 0)
 		{
 			if (originalName == null || originalName.isBlank())
@@ -250,7 +250,7 @@ public class BuiltInCommands
 		{
 			if (originalName == null || originalName.isBlank())
 			{
-				edit.customTagString("original_name", edit.getNameLegacy());
+				edit.setString("original_name", edit.getNameLegacy());
 				originalName = edit.getNameLegacy();
 			}
 			edit.setName(JSONMessage.create(ChatColor.AQUA + originalName + ChatColor.ITALIC + " (" + args[0] + ")"));
@@ -289,6 +289,7 @@ public class BuiltInCommands
 
 
 
+	// TODO: Replace with /storage <storage> command
 
 	@Command
 	@Description("Shows Markers GUI")
@@ -296,6 +297,16 @@ public class BuiltInCommands
 	public static boolean markers(@NotNull Player player, @NotNull String[] args)
 	{
 		FunnyLibStandalone.markerStorage.showToPlayer(player);
+
+		return true;
+	}
+
+	@Command
+	@Description("Shows Structures GUI")
+	@Usage("/structures")
+	public static boolean structures(@NotNull Player player, @NotNull String[] args)
+	{
+		FunnyLibStandalone.structureStorage.showToPlayer(player);
 
 		return true;
 	}

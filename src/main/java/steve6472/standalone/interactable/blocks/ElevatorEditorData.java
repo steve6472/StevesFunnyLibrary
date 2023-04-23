@@ -1,6 +1,8 @@
 package steve6472.standalone.interactable.blocks;
 
-import org.bukkit.*;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
@@ -11,7 +13,6 @@ import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.blocks.CustomBlockData;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.item.Items;
-import steve6472.funnylib.item.builtin.StructureItem;
 import steve6472.funnylib.json.codec.ann.Save;
 import steve6472.funnylib.json.codec.ann.SaveBool;
 import steve6472.funnylib.json.codec.codecs.ItemStackCodec;
@@ -560,9 +561,9 @@ public class ElevatorEditorData extends CustomBlockData
 
 		JSONArray s = edit.getCustomJsonArray("blocks");
 
-		int lx = edit.getCustomTagInt("lx");
-		int ly = edit.getCustomTagInt("ly");
-		int lz = edit.getCustomTagInt("lz");
+		int lx = edit.getInt("lx");
+		int ly = edit.getInt("ly");
+		int lz = edit.getInt("lz");
 
 		JSONObject json = new JSONObject();
 
@@ -615,16 +616,16 @@ public class ElevatorEditorData extends CustomBlockData
 
 	// region Actions
 	public void loadStructure(Location location, @Nullable Player activator)
-	{
-		List<StructureItem.BlockInfo> blockInfos = StructureItem.toBlocks(structure);
-		for (StructureItem.BlockInfo blockInfo : blockInfos)
+	{/*
+		List<StructureCodec.BlockInfo> blockInfos = StructureCodec.toBlocks(NBT.create(structure).getCompound("block_states"));
+		for (StructureCodec.BlockInfo blockInfo : blockInfos)
 		{
-			location.clone().add(1, 0, 2).add(blockInfo.position()).getBlock().setBlockData(blockInfo.data());
+			location.clone().add(1, 0, 2).add(blockInfo.position().x, blockInfo.position().y, blockInfo.position().z).getBlock().setBlockData(blockInfo.data());
 		}
 		if (activator != null)
 		{
 			activator.sendMessage(ChatColor.GREEN + "Loaded!");
-		}
+		}*/
 	}
 	// endregion
 }

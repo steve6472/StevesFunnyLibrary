@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.metadata.Metadatable;
+import org.jetbrains.annotations.Nullable;
 import steve6472.funnylib.FunnyLib;
 
 import java.util.List;
@@ -49,7 +50,7 @@ public class MetaUtil
 		return null;
 	}
 
-	public static <T> T getValue(Metadatable metadatable, Class<T> expectedType, String key)
+	public static <T> T getValue(Metadatable metadatable, @Nullable  Class<T> expectedType, String key)
 	{
 		List<MetadataValue> metadata = metadatable.getMetadata(key);
 
@@ -62,7 +63,12 @@ public class MetaUtil
 				{
 					return null;
 				}
-				if (expectedType.isAssignableFrom(value.getClass()))
+
+				if (expectedType == null)
+				{
+					return (T) value;
+				}
+				else if (expectedType.isAssignableFrom(value.getClass()))
 				{
 					return (T) value;
 				}

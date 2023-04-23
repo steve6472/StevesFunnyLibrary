@@ -3,7 +3,6 @@ package steve6472.funnylib.item.builtin;
 import org.apache.commons.lang3.tuple.Triple;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -11,25 +10,21 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Transformation;
-import org.bukkit.util.Vector;
 import org.joml.Quaternionf;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import steve6472.funnylib.CancellableResult;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.context.PlayerItemContext;
 import steve6472.funnylib.context.UseType;
+import steve6472.funnylib.data.BlockInfo;
 import steve6472.funnylib.item.CustomItem;
-import steve6472.funnylib.item.Items;
 import steve6472.funnylib.item.events.SwapHandEvent;
 import steve6472.funnylib.item.events.TickInHandEvent;
-import steve6472.funnylib.util.ItemStackBuilder;
-import steve6472.funnylib.util.JSONMessage;
-import steve6472.funnylib.util.ParticleUtil;
+import steve6472.funnylib.data.GameStructure;
+import steve6472.funnylib.util.*;
 
 import java.util.*;
 
@@ -41,49 +36,61 @@ import java.util.*;
 public class StructureItem extends CustomItem implements TickInHandEvent, SwapHandEvent
 {
 	private static final Particle.DustOptions OPTIONS = new Particle.DustOptions(Color.AQUA, 0.75f);
+	public static final String KEY = "block_states";
+
+	public enum Mode
+	{
+		SELECTING(JSONMessage.create("Selecting").color(ChatColor.GREEN)),
+		SAVING(JSONMessage.create("Saving").color(ChatColor.GREEN)),
+		LOADING(JSONMessage.create("Loading").color(ChatColor.GREEN)),
+		NONE(JSONMessage.create("None").color(ChatColor.GRAY));
+
+		private final JSONMessage name;
+
+		Mode(JSONMessage name)
+		{
+			this.name = name;
+		}
+
+		public JSONMessage getName()
+		{
+			return name;
+		}
+
+		// Create a private copy of array to avoid copying the array each time next() is called
+		private static final Mode[] VALS = values();
+
+		public Mode next()
+		{
+			return VALS[(this.ordinal() + 1) % VALS.length];
+		}
+
+		public Mode previous()
+		{
+			return VALS[Math.floorMod((this.ordinal() - 1), VALS.length)];
+		}
+	}
 
 	@Override
 	public void useOnAir(PlayerItemContext context, UseType useType, CancellableResult result)
 	{
-		ItemStackBuilder edit = ItemStackBuilder.edit(context.getHandItem());
+		NBT itemData = context.getItemData();
+		Mode mode = itemData.getEnum(Mode.class, "mode");
 
-		if (edit.getCustomTagByte("saving") == 0)
-			return;
+		if (mode != Mode.SAVING) return;
 
-		JSONArray blocks = new JSONArray();
+		Vector3i start = itemData.get3i("start");
+		Vector3i end = itemData.get3i("end");
 
-		int x0 = edit.getCustomTagInt("x0");
-		int y0 = edit.getCustomTagInt("y0");
-		int z0 = edit.getCustomTagInt("z0");
-		int x1 = edit.getCustomTagInt("x1");
-		int y1 = edit.getCustomTagInt("y1");
-		int z1 = edit.getCustomTagInt("z1");
+		NBT compound = itemData.createCompound();
+		GameStructure
+			.fromWorld(context.getWorld(), start.x, start.y, start.z, end.x, end.y, end.z)
+			.toNBT(compound);
+		compound.remove("start");
+		compound.remove("end");
+		itemData.setCompound(KEY, compound);
 
-		for (int i = x0; i <= x1; i++)
-		{
-			for (int j = y0; j <= y1; j++)
-			{
-				for (int k = z0; k <= z1; k++)
-				{
-					Block blockAt = context.getWorld().getBlockAt(i, j, k);
-					JSONObject js = new JSONObject();
-					js.put("x", i - x0);
-					js.put("y", j - y0);
-					js.put("z", k - z0);
-					js.put("b", blockAt.getBlockData().getAsString());
-					blocks.put(js);
-				}
-			}
-		}
-
-		edit
-			.customTagByte("selecting", (byte) 0)
-			.customTagJsonArray("blocks", blocks)
-			.customTagInt("lx", Math.abs(x1 - x0))
-			.customTagInt("ly", Math.abs(y1 - y0))
-			.customTagInt("lz", Math.abs(z1 - z0))
-			.buildItemStack();
-		updateLore(context.getHandItem());
+		updateLore(itemData);
 		result.setCancelled(true);
 		context.getPlayer().sendMessage(ChatColor.GREEN + "Saved!");
 	}
@@ -91,64 +98,41 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 	@Override
 	public void useOnBlock(PlayerBlockContext context, UseType useType, CancellableResult result)
 	{
+		NBT itemData = context.getItemData();
+		Mode currentMode = itemData.getEnum(Mode.class, "mode");
+
 		Block clickedBlock = context.getBlock();
 		if (useType == UseType.LEFT)
 		{
-			ItemStackBuilder edit = ItemStackBuilder.edit(context.getHandItem());
-
-			if (edit.getCustomTagByte("selecting") == 0)
+			if (currentMode != Mode.SELECTING)
 				return;
 
-			edit
-				.customTagInt("x0", clickedBlock.getX())
-				.customTagInt("y0", clickedBlock.getY())
-				.customTagInt("z0", clickedBlock.getZ())
-				.buildItemStack();
-			updateLore(context.getHandItem());
+			itemData.set3i("start", clickedBlock.getX(), clickedBlock.getY(), clickedBlock.getZ());
+			AreaMarkerItem.fixCoordinates(itemData, "start", "end");
+			updateLore(itemData);
 			result.setCancelled(true);
 		} else
 		{
-			ItemStackBuilder edit = ItemStackBuilder.edit(context.getHandItem());
-
-			if (edit.getCustomTagByte("selecting") == 1)
+			if (currentMode == Mode.SELECTING)
 			{
-				edit
-					.customTagInt("x1", clickedBlock.getX())
-					.customTagInt("y1", clickedBlock.getY())
-					.customTagInt("z1", clickedBlock.getZ())
-					.buildItemStack();
-				updateLore(context.getHandItem());
+				itemData.set3i("end", clickedBlock.getX(), clickedBlock.getY(), clickedBlock.getZ());
+				AreaMarkerItem.fixCoordinates(itemData, "start", "end");
+				updateLore(itemData);
 				result.setCancelled(true);
-			} else if (edit.getCustomTagByte("placing") == 1)
+			} else if (currentMode == Mode.LOADING)
 			{
-				JSONArray blocks = edit.getCustomJsonArray("blocks");
-				if (blocks == null)
-				{
-					context.getPlayer().sendMessage(ChatColor.RED + "No structure found!");
-					return;
-				}
-				int lx = edit.getCustomTagInt("lx");
-				int ly = edit.getCustomTagInt("ly");
-				int lz = edit.getCustomTagInt("lz");
-				if ((lx + 1) * (ly + 1) * (lz + 1) <= 0)
-				{
-					context.getPlayer().sendMessage(ChatColor.RED + "Structure does not contain any blocks!");
-					return;
-				}
-
-				if (blocks.length() != (lx + 1) * (ly + 1) * (lz + 1))
-				{
-					context.getPlayer().sendMessage(ChatColor.RED + "Structure block count does not match with size! (" + (lx + 1) + "*" + (ly + 1) + "*" + (lz + 1) + ") " + blocks.length());
-					return;
-				}
-
 				Location location = clickedBlock.getLocation().add(context.getFace().getDirection());
 
-				for (int i = 0; i < blocks.length(); i++)
+				GameStructure structure = GameStructure.structureFromNBT(itemData.getCompound(KEY));
+				BlockInfo[] blockStates = structure.getBlocks();
+
+				for (BlockInfo blockInfo : blockStates)
 				{
-					JSONObject js = blocks.getJSONObject(i);
-					BlockData blockData = Bukkit.createBlockData(js.getString("b"));
-					location.clone().add(js.getInt("x"), js.getInt("y"), js.getInt("z")).getBlock().setBlockData(blockData);
+					location
+						.clone()
+						.add(blockInfo.position().x(), blockInfo.position().y(), blockInfo.position().z())
+						.getBlock()
+						.setBlockData(blockInfo.data());
 				}
 
 				context.getPlayer().setCooldown(Material.BOOK, 5);
@@ -156,114 +140,60 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 		}
 	}
 
-	public record BlockInfo(BlockData data, Vector position) {}
-
-	public static Vector getSize(ItemStack item)
+	private static void updateLore(NBT itemData)
 	{
-		if (Items.getCustomItemId(item) == null)
-		{
-			return new Vector();
-		}
+		ItemStackBuilder builder = ItemStackBuilder.edit(itemData).removeLore();
+		Mode currentMode = builder.nbt().getEnum(Mode.class, "mode");
 
-		ItemStackBuilder edit = ItemStackBuilder.edit(item);
-
-		JSONArray s = edit.getCustomJsonArray("blocks");
-		if (s == null)
-		{
-			return new Vector();
-		}
-		int lx = edit.getCustomTagInt("lx");
-		int ly = edit.getCustomTagInt("ly");
-		int lz = edit.getCustomTagInt("lz");
-
-		return new Vector(lx, ly, lz);
-	}
-
-	public static List<BlockInfo> toBlocks(ItemStack item)
-	{
-		ArrayList<BlockInfo> list = new ArrayList<>();
-		if (Items.getCustomItemId(item) == null)
-		{
-			return list;
-		}
-
-		ItemStackBuilder edit = ItemStackBuilder.edit(item);
-
-		JSONArray blocks = edit.getCustomJsonArray("blocks");
-		if (blocks == null)
-		{
-			return list;
-		}
-		int lx = edit.getCustomTagInt("lx");
-		int ly = edit.getCustomTagInt("ly");
-		int lz = edit.getCustomTagInt("lz");
-		if ((lx + 1) * (ly + 1) * (lz + 1) <= 0)
-		{
-			return list;
-		}
-
-		if (blocks.length() != (lx + 1) * (ly + 1) * (lz + 1))
-		{
-			return list;
-		}
-
-		jsonToBlocks(list, blocks);
-
-		return list;
-	}
-
-	public static List<BlockInfo> jsonToBlocks(ArrayList<BlockInfo> list, JSONArray blocks)
-	{
-		for (int i = 0; i < blocks.length(); i++)
-		{
-			JSONObject js = blocks.getJSONObject(i);
-			BlockData blockData = Bukkit.createBlockData(js.getString("b"));
-			BlockInfo blockThing = new BlockInfo(blockData, new Vector(js.getInt("x"), js.getInt("y"), js.getInt("z")));
-			list.add(blockThing);
-		}
-
-		return list;
-	}
-
-	private void updateLore(ItemStack item)
-	{
-		ItemStackBuilder builder = ItemStackBuilder.edit(item).removeLore();
-
-		String mode = "None";
-
-		if (builder.getCustomTagByte("selecting") == 1) mode = "Selecting";
-		if (builder.getCustomTagByte("saving") == 1) mode = "Saving";
-		if (builder.getCustomTagByte("placing") == 1) mode = "Placing";
+		if (builder.hasString("name"))
+			builder
+				.addLore(
+					JSONMessage.create("Name: ").color(ChatColor.DARK_GRAY)
+						.then(builder.getString("name")).color(ChatColor.WHITE)
+						.setItalic(JSONMessage.ItalicType.FALSE)
+				);
 
 		builder.addLore(JSONMessage
-			.create("Mode: ").color(ChatColor.GRAY)
-			.then(mode).color(ChatColor.WHITE)
+			.create("Mode: ").color(ChatColor.DARK_GRAY)
+			.then(currentMode.getName())
 			.setItalic(JSONMessage.ItalicType.FALSE));
 
-		if (builder.getCustomTagByte("selecting") == 1)
+		if (currentMode == Mode.SELECTING)
 		{
-			builder.addLore(JSONMessage
-				.create("Start: ").color(ChatColor.GRAY)
-				.then("" + builder.getCustomTagInt("x0")).color(ChatColor.RED)
-				.then("/").color(ChatColor.WHITE)
-				.then("" + builder.getCustomTagInt("y0")).color(ChatColor.GREEN)
-				.then("/").color(ChatColor.WHITE)
-				.then("" + builder.getCustomTagInt("z0")).color(ChatColor.BLUE)
-				.setItalic(JSONMessage.ItalicType.FALSE));
-			builder.addLore(JSONMessage
-				.create("End: ").color(ChatColor.GRAY)
-				.then("" + builder.getCustomTagInt("x1")).color(ChatColor.RED)
-				.then("/").color(ChatColor.WHITE)
-				.then("" + builder.getCustomTagInt("y1")).color(ChatColor.GREEN)
-				.then("/").color(ChatColor.WHITE)
-				.then("" + builder.getCustomTagInt("z1")).color(ChatColor.BLUE)
-				.setItalic(JSONMessage.ItalicType.FALSE));
+			if (itemData.has3i("start"))
+			{
+				Vector3i start = itemData.get3i("start");
+				builder.addLore(JSONMessage
+					.create("Start: ").color(ChatColor.DARK_GRAY)
+					.then("" + start.x, ChatColor.RED)
+					.then("/", ChatColor.WHITE)
+					.then("" + start.y, ChatColor.GREEN)
+					.then("/", ChatColor.WHITE)
+					.then("" + start.z, ChatColor.BLUE)
+					.setItalic(JSONMessage.ItalicType.FALSE));
+			}
+			if (itemData.has3i("end"))
+			{
+				Vector3i end = itemData.get3i("end");
+				builder.addLore(JSONMessage
+					.create("End: ").color(ChatColor.DARK_GRAY)
+					.then("" + end.x, ChatColor.RED)
+					.then("/", ChatColor.WHITE)
+					.then("" + end.y, ChatColor.GREEN)
+					.then("/", ChatColor.WHITE)
+					.then("" + end.z, ChatColor.BLUE)
+					.setItalic(JSONMessage.ItalicType.FALSE));
+			}
 		} else
 		{
-			builder.addLore(JSONMessage
-				.create("Size: ").color(ChatColor.GRAY)
-				.then("" + builder.getCustomTagInt("lx") + "/" + builder.getCustomTagInt("ly") + "/" + builder.getCustomTagInt("lz")).color(ChatColor.WHITE)
-				.setItalic(JSONMessage.ItalicType.FALSE));
+			if (itemData.hasCompound(KEY))
+			{
+				Vector3i size = itemData.getCompound(KEY).get3i("size");
+				builder.addLore(JSONMessage
+					.create("Size: ").color(ChatColor.DARK_GRAY)
+					.then("" + size.x + "/" + size.y + "/" + size.z, ChatColor.WHITE)
+					.setItalic(JSONMessage.ItalicType.FALSE));
+			}
 		}
 		builder.buildItemStack();
 	}
@@ -274,12 +204,12 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 	@Override
 	public void tickInHand(PlayerItemContext context)
 	{
-		if (FunnyLib.getUptimeTicks() % 3 != 0) return;
 		if (context.getHand() != EquipmentSlot.HAND) return;
 
-		ItemStackBuilder edit = ItemStackBuilder.edit(context.getHandItem());
+		NBT itemData = context.getItemData();
+		Mode currentMode = itemData.getEnum(Mode.class, "mode");
 
-		if (edit.getCustomTagByte("placing") != 1)
+		if (currentMode != Mode.LOADING)
 		{
 			Collection<BlockDisplay> displayList = GHOST_PREVIEW.get(context.getPlayer());
 			if (displayList != null)
@@ -291,114 +221,129 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 			LAST_LOC.remove(context.getPlayer());
 		}
 
-		if (edit.getCustomTagByte("selecting") == 1)
+		if (currentMode == Mode.SELECTING)
 		{
-			int x0 = edit.getCustomTagInt("x0");
-			int y0 = edit.getCustomTagInt("y0");
-			int z0 = edit.getCustomTagInt("z0");
-			int x1 = edit.getCustomTagInt("x1");
-			int y1 = edit.getCustomTagInt("y1");
-			int z1 = edit.getCustomTagInt("z1");
+			if (FunnyLib.getUptimeTicks() % 3 != 0) return;
 
-			if (Math.abs(x0 - x1) > 64)
-				return;
-			if (Math.abs(y0 - y1) > 64)
-				return;
-			if (Math.abs(z0 - z1) > 64)
+			if (!itemData.has3i("start") || !itemData.has3i("end"))
 				return;
 
-			ParticleUtil.boxAbsolute(context.getPlayer(), Particle.REDSTONE, Math.min(x0, x1 + 1), Math.min(y0, y1 + 1), Math.min(z0, z1 + 1), Math.max(x0, x1 + 1), Math.max(y0, y1 + 1), Math.max(z0, z1 + 1), 0, 0.5, OPTIONS);
-		} else if (edit.getCustomTagByte("placing") == 1)
+			Vector3i start = itemData.get3i("start");
+			Vector3i end = itemData.get3i("end");
+
+			int x0 = start.x;
+			int y0 = start.y;
+			int z0 = start.z;
+			int x1 = end.x + 1;
+			int y1 = end.y + 1;
+			int z1 = end.z + 1;
+
+			ParticleUtil.boxAbsolute(context.getPlayer(), Particle.REDSTONE, x0, y0, z0, x1, y1, z1, 0, 0.5, OPTIONS);
+		} else if (currentMode == Mode.LOADING)
 		{
-			RayTraceResult rayTraceResult = context.getPlayer().rayTraceBlocks(10);
-			if (rayTraceResult == null || rayTraceResult.getHitBlock() == null || rayTraceResult.getHitBlockFace() == null)
+			renderPreview(context);
+		}
+	}
+
+	private void renderPreview(PlayerItemContext context)
+	{
+
+		RayTraceResult rayTraceResult = context.getPlayer().rayTraceBlocks(10);
+		if (rayTraceResult == null || rayTraceResult.getHitBlock() == null || rayTraceResult.getHitBlockFace() == null)
+		{
+			Collection<BlockDisplay> displayList = GHOST_PREVIEW.get(context.getPlayer());
+			if (displayList != null)
 			{
-				Collection<BlockDisplay> displayList = GHOST_PREVIEW.get(context.getPlayer());
-				if (displayList != null)
-				{
-					displayList.forEach(Entity::remove);
-					displayList.clear();
-					GHOST_PREVIEW.remove(context.getPlayer());
-				}
-				LAST_LOC.remove(context.getPlayer());
-				return;
+				displayList.forEach(Entity::remove);
+				displayList.clear();
+				GHOST_PREVIEW.remove(context.getPlayer());
 			}
+			LAST_LOC.remove(context.getPlayer());
+			return;
+		}
 
-			Location location = rayTraceResult.getHitBlock().getLocation().add(rayTraceResult.getHitBlockFace().getDirection());
+		NBT itemData = context.getItemData();
+		Location location = rayTraceResult.getHitBlock().getLocation().add(rayTraceResult.getHitBlockFace().getDirection());
 
-			// Pair of starting-location and last-location
-			Triple<Vector3i, Vector3i, Vector2i> locationPair = LAST_LOC.computeIfAbsent(context.getPlayer(),
-				p -> Triple.of(
-					new Vector3i(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
-					new Vector3i(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
-					new Vector2i()));
+		GameStructure structure = GameStructure.structureFromNBT(itemData.getCompound(KEY));
 
-			if ((edit.getCustomTagInt("lx") + 1) * (edit.getCustomTagInt("ly") + 1) * (edit.getCustomTagInt("lz") + 1) <= 0)
+		if (FunnyLib.getUptimeTicks() % 3 == 0)
+		{
+			Vector3i size = structure.getSize();
+			if ((size.x + 1) * (size.y + 1) * (size.z + 1) <= 0)
 				return;
 
 			int x0 = location.getBlockX();
 			int y0 = location.getBlockY();
 			int z0 = location.getBlockZ();
-			int x1 = edit.getCustomTagInt("lx") + location.getBlockX();
-			int y1 = edit.getCustomTagInt("ly") + location.getBlockY();
-			int z1 = edit.getCustomTagInt("lz") + location.getBlockZ();
+			int x1 = size.x + location.getBlockX() + 1;
+			int y1 = size.y + location.getBlockY() + 1;
+			int z1 = size.z + location.getBlockZ() + 1;
 
-			ParticleUtil.boxAbsolute(context.getPlayer(), Particle.REDSTONE, Math.min(x0, x1 + 1), Math.min(y0, y1 + 1), Math.min(z0, z1 + 1), Math.max(x0, x1 + 1), Math.max(y0, y1 + 1), Math.max(z0, z1 + 1), 0, 0.5, OPTIONS);
+			ParticleUtil.boxAbsolute(context.getPlayer(), Particle.REDSTONE, x0, y0, z0, x1, y1, z1, 0, 0.5, OPTIONS);
+		}
 
-			/*
-			 * Real fancy preview
-			 */
+		renderFancyPreview(context, structure, location);
+	}
 
-			List<BlockInfo> blockInfos = toBlocks(context.getHandItem());
+	private void renderFancyPreview(PlayerItemContext context, GameStructure structure, Location location)
+	{
+		// Pair of starting-location and last-location
+		Triple<Vector3i, Vector3i, Vector2i> locationPair = LAST_LOC.computeIfAbsent(context.getPlayer(),
+			p -> Triple.of(
+				new Vector3i(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
+				new Vector3i(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
+				new Vector2i()));
 
-			final boolean[] wasAbsent = {false};
+		BlockInfo[] blockInfos = structure.getBlocks();
 
-			Collection<BlockDisplay> displayList = GHOST_PREVIEW.computeIfAbsent(context.getPlayer(), k ->
+		final boolean[] wasAbsent = {false};
+
+		Collection<BlockDisplay> displayList = GHOST_PREVIEW.computeIfAbsent(context.getPlayer(), k ->
+		{
+			LinkedList<BlockDisplay> blockDisplays = new LinkedList<>();
+			for (BlockInfo blockInfo : blockInfos)
 			{
-				LinkedList<BlockDisplay> blockDisplays = new LinkedList<>();
-				for (BlockInfo blockInfo : blockInfos)
-				{
-					// Ignore air blocks
-					if (blockInfo.data.getMaterial().isAir())
-						continue;
+				// Ignore air blocks
+				if (blockInfo.data().getMaterial().isAir())
+					continue;
 
-					BlockDisplay blockDisplay = context.getWorld().spawn(location.clone().add(blockInfo.position), BlockDisplay.class, bd ->
-					{
-						bd.setBlock(blockInfo.data);
-						bd.setTransformation(new Transformation(new Vector3f(0.5f, 0.5f, 0.5f), new Quaternionf(), new Vector3f(0, 0, 0), new Quaternionf()));
-					});
-					blockDisplays.add(blockDisplay);
-				}
-				wasAbsent[0] = true;
-				return blockDisplays;
+				BlockDisplay blockDisplay = context.getWorld().spawn(location.clone().add(blockInfo.position().x, blockInfo.position().y, blockInfo.position().z), BlockDisplay.class, bd ->
+				{
+					bd.setBlock(blockInfo.data());
+					bd.setTransformation(new Transformation(new Vector3f(0.5f, 0.5f, 0.5f), new Quaternionf(), new Vector3f(0, 0, 0), new Quaternionf()));
+				});
+				blockDisplays.add(blockDisplay);
+			}
+			wasAbsent[0] = true;
+			return blockDisplays;
+		});
+
+		if (!wasAbsent[0] && locationPair.getRight().x == 0)
+		{
+			locationPair.getRight().x = 1;
+			displayList.forEach(bd ->
+			{
+				bd.setInterpolationDuration(5);
+				bd.setInterpolationDelay(0);
+				bd.setTransformation(new Transformation(new Vector3f(), new Quaternionf(), new Vector3f(1, 1, 1), new Quaternionf()));
 			});
+		}
 
-			if (!wasAbsent[0] && locationPair.getRight().x == 0)
+		if (!locationPair.getMiddle().equals(location.getBlockX(), location.getBlockY(), location.getBlockZ()))
+		{
+			locationPair.getMiddle().set(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+
+			int offsetX = location.getBlockX() - locationPair.getLeft().x;
+			int offsetY = location.getBlockY() - locationPair.getLeft().y;
+			int offsetZ = location.getBlockZ() - locationPair.getLeft().z;
+
+			displayList.forEach(bd ->
 			{
-				locationPair.getRight().x = 1;
-				displayList.forEach(bd ->
-				{
-					bd.setInterpolationDuration(5);
-					bd.setInterpolationDelay(0);
-					bd.setTransformation(new Transformation(new Vector3f(), new Quaternionf(), new Vector3f(1, 1, 1), new Quaternionf()));
-				});
-			}
-
-			if (!locationPair.getMiddle().equals(location.getBlockX(), location.getBlockY(), location.getBlockZ()))
-			{
-				locationPair.getMiddle().set(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-
-				int offsetX = location.getBlockX() - locationPair.getLeft().x;
-				int offsetY = location.getBlockY() - locationPair.getLeft().y;
-				int offsetZ = location.getBlockZ() - locationPair.getLeft().z;
-
-				displayList.forEach(bd ->
-				{
-					bd.setTransformation(new Transformation(new Vector3f(offsetX, offsetY, offsetZ), new Quaternionf(), new Vector3f(1, 1, 1), new Quaternionf()));
-					bd.setInterpolationDuration(5);
-					bd.setInterpolationDelay(0);
-				});
-			}
+				bd.setTransformation(new Transformation(new Vector3f(offsetX, offsetY, offsetZ), new Quaternionf(), new Vector3f(1, 1, 1), new Quaternionf()));
+				bd.setInterpolationDuration(5);
+				bd.setInterpolationDelay(0);
+			});
 		}
 	}
 
@@ -406,32 +351,15 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 	public void swapHands(Player player, ItemStack customMainHand, ItemStack offHand, CancellableResult result)
 	{
 		ItemStackBuilder edit = ItemStackBuilder.edit(customMainHand);
+		Mode currentMode = edit.nbt().getEnum(Mode.class, "mode");
 
-		if (edit.getCustomTagByte("selecting") == 1)
-		{
-			edit.customTagByte("selecting", (byte) 0);
-			edit.customTagByte("saving", (byte) 1);
-			JSONMessage.create("Current Mode: ").then("Saving").color(ChatColor.GREEN).send(player);
-		} else if (edit.getCustomTagByte("saving") == 1)
-		{
-			edit.customTagByte("saving", (byte) 0);
-			edit.customTagByte("placing", (byte) 1);
-			JSONMessage.create("Current Mode: ").then("Placing").color(ChatColor.GREEN).send(player);
-		} else if (edit.getCustomTagByte("placing") == 1)
-		{
-			edit.customTagByte("placing", (byte) 0);
-			edit.customTagByte("selecting", (byte) 1);
-			JSONMessage.create("Current Mode: ").then("Selecting").color(ChatColor.GREEN).send(player);
-		} else
-		{
-			edit.customTagByte("selecting", (byte) 0);
-			edit.customTagByte("placing", (byte) 0);
-			edit.customTagByte("saving", (byte) 1);
-			JSONMessage.create("Current Mode: ").then("Saving").color(ChatColor.GREEN).send(player);
-		}
+		JSONMessage.create("Current Mode: ").then(currentMode.next().getName()).send(player);
+		edit.nbt().setEnum("mode", currentMode.next());
 
+		updateLore(edit.nbt());
+
+		// 'cause reasons
 		ItemStack item = edit.buildItemStack();
-		updateLore(item);
 		player.getInventory().setItem(EquipmentSlot.HAND, item);
 
 		result.cancel();
@@ -446,6 +374,27 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 	@Override
 	protected ItemStack item()
 	{
-		return ItemStackBuilder.create(Material.BOOK).setName("Structue", ChatColor.DARK_AQUA).customTagByte("selecting", (byte) 1).buildItemStack();
+		ItemStackBuilder structue = ItemStackBuilder.create(Material.BOOK).setName("Structue", ChatColor.DARK_AQUA);
+		structue.nbt().setEnum("mode", Mode.NONE);
+		return structue.buildItemStack();
+	}
+
+	public static ItemStack newStructureItem(GameStructure structure, String name, Material icon)
+	{
+		NBT data = NBT.create(FunnyLib.STRUCTURE.newItemStack());
+		NBT structureNBT = data.createCompound();
+		structure.toNBT(structureNBT);
+		data.set3i("start", GameStructure.startFromCompound(structureNBT));
+		data.set3i("end", GameStructure.endFromCompound(structureNBT));
+		structureNBT.remove("start");
+		structureNBT.remove("end");
+		data.setCompound(KEY, structureNBT);
+
+		data.setString("icon", icon.name());
+		if (name != null)
+			data.setString("name", name);
+
+		updateLore(data);
+		return data.save();
 	}
 }

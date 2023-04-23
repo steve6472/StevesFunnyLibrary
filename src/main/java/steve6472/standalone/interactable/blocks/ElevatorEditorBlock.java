@@ -69,7 +69,7 @@ public class ElevatorEditorBlock extends CustomBlock implements IBlockData, Admi
 		if (blockData == null) return;
 
 		if (FunnyLib.getUptimeTicks() % 7 == 0)
-		{
+		{/*
 			Vector size = StructureItem.getSize(blockData.structure);
 
 			Location location = context.getLocation().clone().add(1, 0, 2);
@@ -81,7 +81,7 @@ public class ElevatorEditorBlock extends CustomBlock implements IBlockData, Admi
 			int y1 = size.getBlockY() + location.getBlockY();
 			int z1 = size.getBlockZ() + location.getBlockZ();
 
-			ParticleUtil.boxAbsolute(context.getWorld(), Particle.REDSTONE, x0, y0, z0, x1 + 1, y1 + 1, z1 + 1, 0, 1.0, OPTIONS);
+			ParticleUtil.boxAbsolute(context.getWorld(), Particle.REDSTONE, x0, y0, z0, x1 + 1, y1 + 1, z1 + 1, 0, 1.0, OPTIONS);*/
 		}
 
 		for (Player player : context.getWorld().getPlayers())

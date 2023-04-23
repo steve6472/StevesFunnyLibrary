@@ -207,12 +207,22 @@
             <version>1.6.3-SNAPSHOT</version>
         </dependency>
         <!--<dependency>
+            <groupId>com.github.Querz</groupId>
+            <artifactId>NBT</artifactId>
+            <version>6.1</version>
+        </dependency>-->
+        <!--<dependency>
             <groupId>dev.sergiferry.playernpc</groupId>
             <artifactId>api</artifactId>
             <version>1.0</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/PlayerNPC.jar</systemPath>
         </dependency>-->
+        <dependency>
+            <groupId>org.openjdk.jol</groupId>
+            <artifactId>jol-core</artifactId>
+            <version>0.10</version>
+        </dependency>
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>

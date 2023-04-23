@@ -28,6 +28,7 @@ import steve6472.funnylib.item.events.*;
 import steve6472.funnylib.util.Checks;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.MetaUtil;
+import steve6472.funnylib.util.NBT;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -314,10 +315,12 @@ public class Items implements Listener
 		if (e.getPlayer().getCooldown(item.getType()) != 0)
 			return;
 
-		if (ItemStackBuilder.edit(item).getCustomId() == null)
+		NBT data = NBT.create(item);
+
+		if (!data.hasString(ItemStackBuilder.CUSTOM_ID))
 			return;
 
-		String id = ItemStackBuilder.edit(item).getCustomId();
+		String id = data.getString(ItemStackBuilder.CUSTOM_ID);
 
 		ItemEventEntry itemEventEntry = ITEMS.get(id);
 		if (itemEventEntry == null)

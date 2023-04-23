@@ -15,6 +15,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.openjdk.jol.vm.VM;
 import steve6472.funnylib.FunnyLib;
 
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ public class ItemStackBuilder
 {
 	private ItemStack item;
 	private ItemMeta meta;
+	private NBT customData;
 
 	private ItemStackBuilder(Material material)
 	{
@@ -38,6 +40,7 @@ public class ItemStackBuilder
 		this.meta = item.getItemMeta();
 		if (meta == null)
 			throw new RuntimeException("Item meta is null! Pls fix thx");
+		customData = NBT.create(item, meta);
 	}
 
 	private ItemStackBuilder(ItemStack itemStack)
@@ -46,6 +49,16 @@ public class ItemStackBuilder
 		this.meta = itemStack.getItemMeta();
 		if (meta == null)
 			throw new RuntimeException("Item meta is null! Pls fix thx");
+		customData = NBT.create(item, meta);
+	}
+
+	public ItemStackBuilder(NBT data)
+	{
+		this.item = data.getItemStack();
+		this.meta = data.getMeta();
+		if (meta == null)
+			throw new RuntimeException("Item meta is null! Pls fix thx");
+		customData = data;
 	}
 
 	/*
@@ -87,6 +100,11 @@ public class ItemStackBuilder
 		return new ItemStackBuilder(bukkitItemStack);
 	}
 
+	public static ItemStackBuilder editNonStatic(NBT data)
+	{
+		return new ItemStackBuilder(data);
+	}
+
 	/*
 	 * Static builder
 	 */
@@ -95,16 +113,32 @@ public class ItemStackBuilder
 
 	public static ItemStackBuilder edit(ItemStack itemStack)
 	{
-		STATIC_STACK_BUILDER.staticEdit(itemStack);
+		STATIC_STACK_BUILDER.staticEdit(itemStack, null);
 		return STATIC_STACK_BUILDER;
 	}
 
-	private void staticEdit(ItemStack itemStack)
+	public static ItemStackBuilder edit(NBT customData)
 	{
-		this.item = itemStack;
-		this.meta = item.getItemMeta();
-		if (meta == null)
-			throw new RuntimeException("Item meta is null! Pls fix thx");
+		STATIC_STACK_BUILDER.staticEdit(customData.getItemStack(), customData);
+		return STATIC_STACK_BUILDER;
+	}
+
+	private void staticEdit(ItemStack itemStack, NBT customData)
+	{
+		if (customData == null)
+		{
+			this.item = itemStack;
+			this.meta = item.getItemMeta();
+			if (meta == null)
+				throw new RuntimeException("Item meta is null! Pls fix thx");
+			this.customData = NBT.create(item, meta);
+		} else
+		{
+			Preconditions.checkTrue(itemStack.equals(customData.getItemStack()), "Item mismatch between passed itemStack and customData");
+			this.item = itemStack;
+			this.meta = customData.getMeta();
+			this.customData = customData;
+		}
 	}
 
 	/*
@@ -114,6 +148,11 @@ public class ItemStackBuilder
 	public ItemMeta meta()
 	{
 		return meta;
+	}
+
+	public NBT nbt()
+	{
+		return customData;
 	}
 
 	public ItemStackBuilder setType(Material material)
@@ -194,9 +233,11 @@ public class ItemStackBuilder
 		{
 			NMS.addLore(item, message);
 			meta = item.getItemMeta();
+			customData.change(item, meta);
 		}, () ->
 		{
 			meta = item.getItemMeta();
+			customData.change(item, meta);
 
 			if (meta == null)
 				throw new RuntimeException("Item meta is null! Adding lore failed! Pls fix thx");
@@ -418,20 +459,13 @@ public class ItemStackBuilder
 
 	public ItemStackBuilder setCustomId(String id)
 	{
-		customTagString(CUSTOM_ID, id);
+		setString(CUSTOM_ID, id);
 		return this;
 	}
 
 	public String getCustomId()
 	{
-		return getCustomTagString(CUSTOM_ID);
-	}
-
-	public ItemStackBuilder customTagString(String key, String value)
-	{
-		PersistentDataContainer dataContainer = meta.getPersistentDataContainer();
-		dataContainer.set(new NamespacedKey(FunnyLib.getPlugin(), key), PersistentDataType.STRING, value);
-		return this;
+		return getString(CUSTOM_ID);
 	}
 
 	public ItemStackBuilder customTagJson(String key, JSONObject value)
@@ -448,22 +482,6 @@ public class ItemStackBuilder
 		return this;
 	}
 
-	public ItemStackBuilder customTagInt(String key, int value)
-	{
-		PersistentDataContainer dataContainer = meta.getPersistentDataContainer();
-		dataContainer.set(new NamespacedKey(FunnyLib.getPlugin(), key), PersistentDataType.INTEGER, value);
-
-		return this;
-	}
-
-	public ItemStackBuilder customTagByte(String key, byte value)
-	{
-		PersistentDataContainer dataContainer = meta.getPersistentDataContainer();
-		dataContainer.set(new NamespacedKey(FunnyLib.getPlugin(), key), PersistentDataType.BYTE, value);
-
-		return this;
-	}
-
 	public JSONObject getCustomJson(String key)
 	{
 		PersistentDataContainer dataContainer = meta.getPersistentDataContainer();
@@ -476,25 +494,67 @@ public class ItemStackBuilder
 		return dataContainer.get(new NamespacedKey(FunnyLib.getPlugin(), key), JsonArrayDataType.JSON_ARRAY);
 	}
 
-	public String getCustomTagString(String key)
+	// region NBT
+
+	public int getInt(String key)
 	{
-		PersistentDataContainer dataContainer = meta.getPersistentDataContainer();
-		return dataContainer.get(new NamespacedKey(FunnyLib.getPlugin(), key), PersistentDataType.STRING);
+		return customData.getInt(key);
 	}
 
-	public int getCustomTagInt(String key)
+	public ItemStackBuilder setInt(String key, int value)
 	{
-		PersistentDataContainer dataContainer = meta.getPersistentDataContainer();
-		Integer integer = dataContainer.get(new NamespacedKey(FunnyLib.getPlugin(), key), PersistentDataType.INTEGER);
-		return integer == null ? 0 : integer;
+		customData.setInt(key, value);
+		return this;
 	}
 
-	public byte getCustomTagByte(String key)
+	public boolean hasInt(String key)
 	{
-		PersistentDataContainer dataContainer = meta.getPersistentDataContainer();
-		Byte abyte = dataContainer.get(new NamespacedKey(FunnyLib.getPlugin(), key), PersistentDataType.BYTE);
-		return abyte == null ? 0 : abyte;
+		return customData.hasInt(key);
 	}
+
+	public byte getByte(String key)
+	{
+		return customData.getByte(key);
+	}
+
+	public ItemStackBuilder setByte(String key, byte value)
+	{
+		customData.setByte(key, value);
+		return this;
+	}
+
+	public boolean hasByte(String key)
+	{
+		return customData.hasByte(key);
+	}
+
+	public String getString(String key)
+	{
+		return customData.getString(key);
+	}
+
+	public ItemStackBuilder setString(String key, String value)
+	{
+		customData.setString(key, value);
+		return this;
+	}
+
+	public boolean hasString(String key)
+	{
+		return customData.hasString(key);
+	}
+
+	public NBT getCompound(String key)
+	{
+		return customData.getCompound(key);
+	}
+
+	public boolean hasCompound(String key)
+	{
+		return customData.hasCompound(key);
+	}
+
+	// endregion NBT
 
 	/*
 	 * Enchantments

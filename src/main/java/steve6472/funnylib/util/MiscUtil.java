@@ -58,6 +58,8 @@ public class MiscUtil
 		}
 	}
 
+
+
 	private static final String MAP_FROM = "0123456789abcdef";
 	private static final String MAP_TO = "fedcba9876543210";
 
@@ -322,7 +324,7 @@ public class MiscUtil
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
 
-			dataOutput.writeObject(Objects.requireNonNullElseGet(itemStack, () -> AIR));
+			dataOutput.writeObject(Objects.requireNonNullElse(itemStack, AIR));
 
 			dataOutput.close();
 
