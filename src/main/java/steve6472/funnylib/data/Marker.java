@@ -7,13 +7,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 import org.joml.Vector3i;
-import org.json.JSONObject;
 import steve6472.funnylib.category.ICategorizable;
 import steve6472.funnylib.item.builtin.MarkerItem;
-import steve6472.funnylib.json.INBT;
 import steve6472.funnylib.json.Itemizable;
 import steve6472.funnylib.serialize.ItemNBT;
-import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.serialize.NBT;
 
 /**
@@ -21,7 +18,7 @@ import steve6472.funnylib.serialize.NBT;
  * Date: 4/23/2023
  * Project: StevesFunnyLibrary <br>
  */
-public final class Marker implements ICategorizable, INBT, Itemizable<Marker>
+public final class Marker implements ICategorizable, Itemizable<Marker>
 {
 	private final Vector3i location;
 	private String name;
@@ -132,24 +129,5 @@ public final class Marker implements ICategorizable, INBT, Itemizable<Marker>
 		compound.get3i("location", location);
 		this.setName(compound.getString("name", null));
 		this.setIcon(compound.getEnum(Material.class, "icon", Material.BOOK));
-	}
-
-	@Override
-	public void toJSON(JSONObject json)
-	{
-		json.put("x", x());
-		json.put("y", y());
-		json.put("z", z());
-		if (name != null)
-			json.put("name", name);
-		json.put("icon", icon);
-	}
-
-	@Override
-	public void fromJSON(JSONObject json)
-	{
-		location.set(json.getInt("x"), json.getInt("y"), json.getInt("z"));
-		name = json.optString("name", null);
-		icon = json.optEnum(Material.class, "icon", Material.PAPER);
 	}
 }

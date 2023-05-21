@@ -3,7 +3,7 @@ package steve6472.funnylib.category;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.json.JSONObject;
+import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
 
@@ -76,24 +76,24 @@ class Folder implements ICategorizable
 	}
 
 	@Override
-	public void toJSON(JSONObject json)
+	public void toNBT(NBT compound)
 	{
-		JSONObject nestedJson = new JSONObject();
-		nestedStorage.save(nestedJson);
+		NBT nestedNbt = compound.createCompound();
+		nestedStorage.save(nestedNbt);
 
-		json.put("nested_storage", nestedJson);
-		json.put("name", name);
-		json.put("icon", icon.name());
+		compound.setCompound("nested_storage", nestedNbt);
+		compound.setString("name", name);
+		compound.setEnum("icon", icon);
 	}
 
 	@Override
-	public void fromJSON(JSONObject json)
+	public void fromNBT(NBT compound)
 	{
-		JSONObject nestedJson = json.getJSONObject("nested_storage");
+		NBT nestedNbt = compound.getCompound("nested_storage");
 
-		name = json.getString("name");
-		icon = Material.valueOf(json.getString("icon"));
+		name = compound.getString("name");
+		icon = compound.getEnum(Material.class, "icon");
 
-		nestedStorage.load(nestedJson);
+		nestedStorage.load(nestedNbt);
 	}
 }

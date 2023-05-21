@@ -103,6 +103,36 @@ public class NBT
 	}
 
 	/*
+	 * Boolean
+	 */
+
+	public boolean getBoolean(String key)
+	{
+		Byte aByte = container.get(newKey(key), PersistentDataType.BYTE);
+		Preconditions.checkNotNull(aByte);
+		return aByte == 1;
+	}
+
+	public boolean getBoolean(String key, boolean defaultValue)
+	{
+		Byte aByte = container.get(newKey(key), PersistentDataType.BYTE);
+		if (aByte == null)
+			return defaultValue;
+		else
+			return aByte == 1;
+	}
+
+	public void setBoolean(String key, boolean value)
+	{
+		container.set(newKey(key), PersistentDataType.BYTE, (byte) (value ? 1 : 0));
+	}
+
+	public boolean hasBoolean(String key)
+	{
+		return container.has(newKey(key), PersistentDataType.BYTE);
+	}
+
+	/*
 	 * Short
 	 */
 

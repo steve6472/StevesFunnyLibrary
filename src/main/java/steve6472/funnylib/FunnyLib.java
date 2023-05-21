@@ -7,21 +7,22 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Marker;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.json.JSONObject;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlock;
 import steve6472.funnylib.blocks.builtin.MultiBlock;
 import steve6472.funnylib.command.impl.DebugCommands;
 import steve6472.funnylib.json.IJsonConfig;
+import steve6472.funnylib.json.INbtConfig;
 import steve6472.funnylib.json.JsonConfig;
-import steve6472.funnylib.json.JsonPrettify;
+import steve6472.funnylib.json.JsonNBT;
 import steve6472.funnylib.json.codec.codecs.*;
+import steve6472.funnylib.serialize.PdcNBT;
 import steve6472.funnylib.util.GlowingUtil;
 import steve6472.funnylib.blocks.builtin.TeleportButtonBlock;
 import steve6472.funnylib.command.AnnotationCommand;
@@ -35,6 +36,7 @@ import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.item.events.ArmorEventListener;
 import steve6472.funnylib.util.Log;
+import steve6472.funnylib.util.NMS;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -55,9 +57,10 @@ public class FunnyLib
 	private static ArmorEventListener armorEventListener;
 	private static MenuListener menuListener;
 	private static Blocks blocks;
-	private static JsonConfig config;
+	private static JsonConfig configJson, configNbt;
 
-	private static Set<IJsonConfig> configurations;
+	private static Set<IJsonConfig> configurationsJson;
+	private static Set<INbtConfig> configurationsNbt;
 
 	private FunnyLib()
 	{
@@ -68,8 +71,10 @@ public class FunnyLib
 	{
 		new MavenSux();
 
-		configurations = new HashSet<>();
-		config = new JsonConfig(plugin);
+		configurationsJson = new HashSet<>();
+		configurationsNbt = new HashSet<>();
+		configJson = new JsonConfig("config", plugin);
+		configNbt = new JsonConfig("config_nbt", plugin);
 
 //		if (FunnyLib.PLUGIN != null)
 //			throw new RuntimeException("Plugin %s tried to initialize FunnyLib again. This is not allowed!".formatted(plugin.getName()));
@@ -137,24 +142,38 @@ public class FunnyLib
 		return blocks;
 	}
 
-	public static JsonConfig getConfig()
-	{
-		return config;
-	}
-
 	public static void registerConfig(IJsonConfig config)
 	{
-		configurations.add(config);
+		configurationsJson.add(config);
+	}
+
+	public static void registerConfig(INbtConfig config)
+	{
+		configurationsNbt.add(config);
 	}
 
 	public static void save()
 	{
-		configurations.forEach(c -> config.save(c::save));
+		configurationsJson.forEach(c -> configJson.save(c::save));
+		configurationsNbt.forEach(c -> configNbt.save(json ->
+		{
+			PdcNBT nbt = PdcNBT.fromPDC(NMS.newCraftContainer());
+			c.save(nbt);
+			JSONObject jsonObject = JsonNBT.containertoJSON(nbt.getContainer());
+			for (String s : jsonObject.keySet())
+			{
+				json.put(s, jsonObject.get(s));
+			}
+		}));
 	}
 
 	public static void load()
 	{
-		configurations.forEach(c -> config.load(c::load));
+		configurationsJson.forEach(c -> configJson.load(c::load));
+		configurationsNbt.forEach(c -> configNbt.load(nbt ->
+		{
+			c.load(PdcNBT.fromPDC(JsonNBT.JSONtoNBT(nbt)));
+		}));
 	}
 
 	private static class CustomCommandRunner implements Listener

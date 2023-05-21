@@ -6,6 +6,8 @@ import org.json.JSONObject;
 import steve6472.funnylib.util.Log;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.function.Consumer;
 
 /**
@@ -28,10 +30,10 @@ public class JsonConfig
 		canSave = false;
 	}
 
-	public JsonConfig(Plugin plugin)
+	public JsonConfig(String configName, Plugin plugin)
 	{
 		this.plugin = plugin;
-		jsonConfigFile = new File(plugin.getDataFolder(), "config.json");
+		jsonConfigFile = new File(plugin.getDataFolder(), configName + ".json");
 
 		if (!jsonConfigFile.exists())
 		{
@@ -120,12 +122,20 @@ public class JsonConfig
 
 	private static void writeJSON(File file, JSONObject json) throws IOException
 	{
-		if (file.renameTo(new File(file, ".backup")))
+		if (file.renameTo(new File(file.getAbsolutePath() + ".backup")))
 		{
 			Log.debug("Created backup");
 		} else
 		{
-			Log.error("Backup could not be created");
+			Log.error("Backup could not be created, using Move");
+			try
+			{
+				Files.move(file.toPath(), new File(file.getAbsolutePath() + ".backup").toPath(), StandardCopyOption.REPLACE_EXISTING);
+			} catch (IOException e)
+			{
+				Log.error("Failed to create a backup!");
+				e.printStackTrace();
+			}
 		}
 		if (file.delete())
 		{
@@ -145,13 +155,15 @@ public class JsonConfig
 
 	private static JSONObject readJSON(File file) throws IOException
 	{
-		BufferedReader reader = new BufferedReader(new FileReader(file));
+		FileReader in = new FileReader(file);
+		BufferedReader reader = new BufferedReader(in);
 		String line;
 		StringBuilder builder = new StringBuilder();
 		while ((line = reader.readLine()) != null)
 		{
 			builder.append(line);
 		}
+		in.close();
 		reader.close();
 
 		if (builder.isEmpty())

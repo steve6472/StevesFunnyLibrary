@@ -3,11 +3,9 @@ package steve6472.funnylib.data;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.joml.Vector3i;
-import org.json.JSONObject;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.category.ICategorizable;
 import steve6472.funnylib.item.builtin.AreaMarkerItem;
-import steve6472.funnylib.json.INBT;
 import steve6472.funnylib.json.Itemizable;
 import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.serialize.NBT;
@@ -17,7 +15,7 @@ import steve6472.funnylib.serialize.NBT;
  * Date: 4/23/2023
  * Project: StevesFunnyLibrary <br>
  */
-public final class AreaSelection implements ICategorizable, INBT, Itemizable<AreaSelection>
+public final class AreaSelection implements ICategorizable, Itemizable<AreaSelection>
 {
 	private final Vector3i start, end;
 	private String name;
@@ -108,26 +106,5 @@ public final class AreaSelection implements ICategorizable, INBT, Itemizable<Are
 		compound.get3i("end", end);
 		this.setName(compound.getString("name", null));
 		this.setIcon(compound.getEnum(Material.class, "icon", Material.PAPER));
-	}
-
-	@Override
-	public void toJSON(JSONObject json)
-	{
-		json.put("start", new JSONObject().put("x", start.x).put("y", start.y).put("z", start.z));
-		json.put("end", new JSONObject().put("x", end.x).put("y", end.y).put("z", end.z));
-		if (name != null)
-			json.put("name", name);
-		json.put("icon", icon);
-	}
-
-	@Override
-	public void fromJSON(JSONObject json)
-	{
-		JSONObject startJson = json.getJSONObject("start");
-		JSONObject endJson = json.getJSONObject("end");
-		start.set(startJson.getInt("x"), startJson.getInt("y"), startJson.getInt("z"));
-		end.set(endJson.getInt("x"), endJson.getInt("y"), endJson.getInt("z"));
-		name = json.optString("name", null);
-		icon = json.optEnum(Material.class, "icon", Material.PAPER);
 	}
 }

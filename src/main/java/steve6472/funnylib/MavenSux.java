@@ -1,5 +1,6 @@
 package steve6472.funnylib;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONString;
 import steve6472.funnylib.json.JsonPrettify;
@@ -18,6 +19,7 @@ public class MavenSux
 	public MavenSux()
 	{
 		new JSONObject();
+		new JSONArray();
 		new Checks();
 		new ArbitraryData();
 		new JSONString()

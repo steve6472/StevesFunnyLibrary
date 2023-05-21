@@ -8,11 +8,10 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import steve6472.funnylib.FunnyLib;
-import steve6472.funnylib.json.IJsonConfig;
+import steve6472.funnylib.json.INbtConfig;
 import steve6472.funnylib.menu.*;
+import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.MetaUtil;
@@ -30,7 +29,7 @@ import java.util.function.Supplier;
  * Date: 2/18/2023
  * Project: StevesFunnyLibrary <br>
  */
-public abstract class GenericStorage implements IJsonConfig
+public abstract class GenericStorage implements INbtConfig
 {
 	private record Point(int x, int y) {}
 
@@ -337,49 +336,47 @@ public abstract class GenericStorage implements IJsonConfig
 	}
 
 	@Override
-	public void save(JSONObject json)
+	public void save(NBT nbt)
 	{
-		JSONArray jsonArray = new JSONArray();
-		for (ICategorizable object : itemList)
+		NBT[] compoundArray = nbt.createCompoundArray(itemList.size());
+		for (int i = 0; i < itemList.size(); i++)
 		{
-			JSONObject jsonObject = new JSONObject();
+			ICategorizable object = itemList.get(i);
+			NBT nbtObject = compoundArray[i];
 			if (object instanceof Folder folder)
 			{
-				jsonObject.put("_storage_folder", true);
-				folder.toJSON(jsonObject);
-				jsonArray.put(jsonObject);
+				nbtObject.setBoolean("_storage_folder", true);
+				folder.toNBT(nbtObject);
 			} else
 			{
-				object.toJSON(jsonObject);
-				jsonObject.put("_id", object.id());
-				jsonArray.put(jsonObject);
+				object.toNBT(nbtObject);
+				nbtObject.setString("_id", object.id());
 			}
 		}
-		json.put(storageId(), jsonArray);
+		nbt.setCompoundArray(storageId(), compoundArray);
 	}
 
 	@Override
-	public void load(JSONObject json)
+	public void load(NBT nbt)
 	{
 		itemList.clear();
-		JSONArray objects = json.optJSONArray(storageId());
-		if (objects == null)
+		if (!nbt.hasCompoundArray(storageId()))
 			return;
-		for (int i = 0; i < objects.length(); i++)
+		NBT[] objects = nbt.getCompoundArray(storageId());
+		for (NBT nbtObject : objects)
 		{
-			JSONObject jsonObject = objects.getJSONObject(i);
-			if (jsonObject.optBoolean("_storage_folder", false))
+			if (nbtObject.getBoolean("_storage_folder", false))
 			{
 				Folder folder = new Folder(nestedStorageConstructor.get());
 				folder.setPrevious(this);
-				folder.fromJSON(jsonObject);
+				folder.fromNBT(nbtObject);
 				itemList.add(folder);
 			} else
 			{
-				String id = jsonObject.getString("_id");
+				String id = nbtObject.getString("_id");
 
 				ICategorizable byId = types.get(id).constructor.get();
-				byId.fromJSON(jsonObject);
+				byId.fromNBT(nbtObject);
 				itemList.add(byId);
 			}
 		}

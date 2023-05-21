@@ -4,6 +4,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.serialize.PdcNBT;
 import steve6472.funnylib.util.MiscUtil;
@@ -12,9 +13,10 @@ import steve6472.funnylib.util.NMS;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -24,9 +26,9 @@ import java.util.stream.IntStream;
  */
 public class JsonNBT
 {
-	private static final Pattern BYTE_REGEX = Pattern.compile("\\[B;(\\d+B(?:,\\d+B)*)\\]");
-	private static final Pattern INT_REGEX = Pattern.compile("\\[I;(\\d+(?:,\\d+)*)\\]");
-	private static final Pattern LONG_REGEX = Pattern.compile("\\[L;(\\d+L(?:,\\d+L)*)\\]");
+	private static final Pattern BYTE_REGEX = Pattern.compile("\\[B;(\\d+B(?:\\s*,\\s*\\d+B)*)\\]");
+	private static final Pattern INT_REGEX = Pattern.compile("\\[I;(\\d+(?:\\s*,\\s*\\d+)*)\\]");
+	private static final Pattern LONG_REGEX = Pattern.compile("\\[L;(\\d+L(?:\\s*,\\s*\\d+L)*)\\]");
 
 	public static JSONObject NBTtoJSON(NBT nbt)
 	{
@@ -36,7 +38,72 @@ public class JsonNBT
 	public static JSONObject containertoJSON(PersistentDataContainer container)
 	{
 		Map<String, Object> stringObjectMap = NMS.serializePDC(container);
+		stringObjectMap = iterateRemoveNamespace(stringObjectMap);
 		return new JSONObject(stringObjectMap);
+	}
+
+	private static String stripNamespace(String key)
+	{
+		if (key.contains(":"))
+		{
+			return key.substring(key.indexOf(':') + 1);
+		} else
+		{
+			return key;
+		}
+	}
+
+	private static String addNamespace(String key)
+	{
+		if (!key.contains(":"))
+		{
+			return FunnyLib.getPlugin().getName().toLowerCase(Locale.ROOT) + ":" + key;
+		} else
+		{
+			return key;
+		}
+	}
+
+	private static Map<String, Object> iterateRemoveNamespace(Map<String, Object> map)
+	{
+		Map<String, Object> updated = new HashMap<>(map.size());
+		map.forEach((k, v) -> addToMap(updated, k, v));
+		return updated;
+	}
+
+	private static void addToMap(Map<String, Object> newMap, String key, Object obj)
+	{
+		if (obj instanceof ArrayList<?> al)
+		{
+			newMap.put(stripNamespace(key), iterateList(al));
+		} else if (obj instanceof Map<?, ?> m)
+		{
+			newMap.put(stripNamespace(key), iterateRemoveNamespace((Map<String, Object>) m));
+		} else
+		{
+			newMap.put(stripNamespace(key), obj);
+		}
+	}
+
+	private static ArrayList<?> iterateList(ArrayList<?> list)
+	{
+		ArrayList<Object> newList = new ArrayList<>(list.size());
+
+		for (Object o : list)
+		{
+			if (o instanceof ArrayList<?> al)
+			{
+				newList.add(iterateList(al));
+			} else if (o instanceof Map m)
+			{
+				newList.add(iterateRemoveNamespace(m));
+			} else
+			{
+				newList.add(o);
+			}
+		}
+
+		return newList;
 	}
 
 	private static NBT[] parseArray(NBT nbt, JSONArray array)
@@ -75,9 +142,10 @@ public class JsonNBT
 		PersistentDataContainer container = NMS.newCraftContainer();
 		PdcNBT nbt = PdcNBT.fromPDC(container);
 
-		for (String key : jsonObject.keySet())
+		for (String keyRaw : jsonObject.keySet())
 		{
-			Object o = jsonObject.get(key);
+			String key = addNamespace(keyRaw);
+			Object o = jsonObject.get(keyRaw);
 			if (o instanceof JSONObject nestedJson)
 			{
 				nbt.setCompound(key, JSONtoNBT(nestedJson));
@@ -90,7 +158,7 @@ public class JsonNBT
 				continue;
 			}
 
-			String string = jsonObject.getString(key);
+			String string = jsonObject.getString(keyRaw);
 
 			if (isNumeric(string, 'b')) nbt.setByte(key, toNumber(string).byteValue());
 			else if (isNumeric(string, 's')) nbt.setShort(key, toNumber(string).shortValue());
@@ -125,11 +193,10 @@ public class JsonNBT
 
 		for (int i = 0; i < numberArr.length; i++)
 		{
-			numbers[i] = Byte.parseByte(numberArr[i].replace("B", ""));
+			numbers[i] = Byte.parseByte(numberArr[i].replace("B", "").trim());
 		}
 
 		return numbers;
-
 	}
 
 	public static int[] extractIntegers(String input)
@@ -145,11 +212,10 @@ public class JsonNBT
 
 		for (int i = 0; i < numberArr.length; i++)
 		{
-			numbers[i] = Integer.parseInt(numberArr[i]);
+			numbers[i] = Integer.parseInt(numberArr[i].trim());
 		}
 
 		return numbers;
-
 	}
 
 	public static long[] extractLongs(String input)
@@ -165,11 +231,10 @@ public class JsonNBT
 
 		for (int i = 0; i < numberArr.length; i++)
 		{
-			numbers[i] = Long.parseLong(numberArr[i].replace("L", ""));
+			numbers[i] = Long.parseLong(numberArr[i].replace("L", "").trim());
 		}
 
 		return numbers;
-
 	}
 
 	private static Number toNumber(String s)

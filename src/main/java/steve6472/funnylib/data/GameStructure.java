@@ -8,13 +8,9 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
 import org.joml.Vector3i;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import steve6472.funnylib.category.ICategorizable;
 import steve6472.funnylib.item.builtin.StructureItem;
-import steve6472.funnylib.json.INBT;
 import steve6472.funnylib.serialize.ItemNBT;
-import steve6472.funnylib.util.MiscUtil;
 import steve6472.funnylib.serialize.NBT;
 
 import java.util.HashSet;
@@ -25,7 +21,7 @@ import java.util.Set;
  * Date: 4/22/2023
  * Project: StevesFunnyLibrary <br>
  */
-public final class GameStructure implements ICategorizable, INBT
+public final class GameStructure implements ICategorizable
 {
 	private String name;
 	private Material icon;
@@ -326,53 +322,5 @@ public final class GameStructure implements ICategorizable, INBT
 		this.end.set(end);
 		this.setName(compound.getString("name", null));
 		this.setIcon(compound.getEnum(Material.class, "icon", Material.BOOK));
-	}
-
-	@Override
-	public void toJSON(JSONObject json)
-	{
-		String[] palette = createPalette();
-		int[] data = createDataWithPalette(palette);
-		Vector3i size = getSize();
-
-		JSONArray paletteArray = new JSONArray();
-		for (String s : palette)
-		{
-			paletteArray.put(s);
-		}
-		JSONArray dataArray = new JSONArray();
-		for (int datum : data)
-		{
-			dataArray.put(datum);
-		}
-		json.put("palette", paletteArray);
-		json.put("data", dataArray);
-		json.put("size", new JSONObject().put("x", size.x).put("y", size.y).put("z", size.z));
-		json.put("start", new JSONObject().put("x", start.x).put("y", start.y).put("z", start.z));
-		json.put("end", new JSONObject().put("x", end.x).put("y", end.y).put("z", end.z));
-
-		if (name != null)
-			json.put("name", name);
-		json.put("icon", icon);
-	}
-
-	@Override
-	public void fromJSON(JSONObject json)
-	{
-		JSONArray paletteArray = json.getJSONArray("palette");
-		JSONArray dataArray = json.getJSONArray("data");
-		JSONObject size = json.getJSONObject("size");
-		JSONObject start = json.getJSONObject("start");
-		JSONObject end = json.getJSONObject("end");
-
-		this.size.set(size.getInt("x"), size.getInt("y"), size.getInt("z"));
-		this.start.set(start.getInt("x"), start.getInt("y"), start.getInt("z"));
-		this.end.set(end.getInt("x"), end.getInt("y"), end.getInt("z"));
-		String[] palette = paletteArray.toList().stream().map(o -> (String) o).toArray(String[]::new);
-		int[] data = dataArray.toList().stream().mapToInt(a -> (int) a).toArray();
-		this.blocks = blocksFromData(palette, data, this.size);
-		this.uniqueBlocks = palette.length;
-		this.setName(json.optString("name", null));
-		this.setIcon(json.optEnum(Material.class, "icon", Material.BOOK));
 	}
 }
