@@ -15,6 +15,7 @@ import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.json.codec.ann.Save;
 import steve6472.funnylib.json.codec.codecs.EntityCodec;
+import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.ItemStackBuilder;
 
 /**
@@ -28,6 +29,18 @@ public abstract class ItemFrameBlock extends CustomBlock implements IBlockData, 
 	{
 		@Save(value = EntityCodec.class)
 		Entity frame;
+
+		@Override
+		public void toNBT(NBT compound)
+		{
+
+		}
+
+		@Override
+		public void fromNBT(NBT compound)
+		{
+
+		}
 	}
 
 	@Override

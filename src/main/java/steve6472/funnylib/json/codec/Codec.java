@@ -54,18 +54,15 @@ public abstract class Codec<T>
 	{
 		regDefAnnCodec(Integer.class, SaveInt.class, (json, key, ann) -> json.optInt(key, nullDefault(ann, SaveInt::defVal, 0)), (got, ann) -> nullDefault(got, n -> n, 0));
 		regDefAnnCodec(Double.class, SaveDouble.class, (json, key, ann) -> json.optDouble(key, nullDefault(ann, SaveDouble::defVal, 0.0)), (got, ann) -> nullDefault(got, n -> n, 0.0));
-		regDefAnnCodec(Float.class, SaveFloat.class, (json, key, ann) -> json.optFloat(key, nullDefault(ann, SaveFloat::defVal, 0.0f)), (got, ann) -> nullDefault(got, n -> n, 0.0f));
 		regDefAnnCodec(Long.class, SaveLong.class, (json, key, ann) -> json.optLong(key, nullDefault(ann, SaveLong::defVal, 0L)), (got, ann) -> nullDefault(got, n -> n, 0L));
 		regDefAnnCodec(Boolean.class, SaveBool.class, (json, key, ann) -> json.optBoolean(key, nullDefault(ann, SaveBool::defVal, false)), (got, ann) -> nullDefault(got, n -> n, false));
 
 		regDefAnnCodec(int.class, SaveInt.class, (json, key, ann) -> json.optInt(key, nullDefault(ann, SaveInt::defVal, 0)), (got, ann) -> nullDefault(got, n -> n, 0));
 		regDefAnnCodec(double.class, SaveDouble.class, (json, key, ann) -> json.optDouble(key, nullDefault(ann, SaveDouble::defVal, 0.0)), (got, ann) -> nullDefault(got, n -> n, 0.0));
-		regDefAnnCodec(float.class, SaveFloat.class, (json, key, ann) -> json.optFloat(key, nullDefault(ann, SaveFloat::defVal, 0.0f)), (got, ann) -> nullDefault(got, n -> n, 0.0f));
 		regDefAnnCodec(long.class, SaveLong.class, (json, key, ann) -> json.optLong(key, nullDefault(ann, SaveLong::defVal, 0L)), (got, ann) -> nullDefault(got, n -> n, 0L));
 		regDefAnnCodec(boolean.class, SaveBool.class, (json, key, ann) -> json.optBoolean(key, nullDefault(ann, SaveBool::defVal, false)), (got, ann) -> nullDefault(got, n -> n, false));
 
 		regDefAnnCodec(String.class, SaveString.class, (json, key, ann) -> json.optString(key, nullDefault(ann, SaveString::defVal, "")), (got, ann) -> nullDefault(got, n -> n, ""));
-		regDefAnnCodec(double[].class, SaveDoubleArr.class, (json, key, ann) -> Objects.requireNonNullElse(json.optJSONArray(key), new JSONArray()).toList().stream().mapToDouble(d -> (double) d).toArray(), (got, ann) -> new JSONArray(nullDefault(got, n -> n, 0.0)));
 	}
 
 	public static <A extends Annotation> void regDefAnnCodec(Class<?> clazz, Class<A> anno, TriFunction<JSONObject, String, A, Object> setField, BiFunction<Object, A, Object> castFromField)
@@ -154,10 +151,6 @@ public abstract class Codec<T>
 			{
 				json.put(declaredField.getName(), (double) declaredField.get(object));
 			}
-			else if (declaredField.isAnnotationPresent(SaveFloat.class))
-			{
-				json.put(declaredField.getName(), (float) declaredField.get(object));
-			}
 			else if (declaredField.isAnnotationPresent(SaveBool.class))
 			{
 				json.put(declaredField.getName(), (boolean) declaredField.get(object));
@@ -165,10 +158,6 @@ public abstract class Codec<T>
 			else if (declaredField.isAnnotationPresent(SaveString.class))
 			{
 				json.put(declaredField.getName(), declaredField.get(object));
-			}
-			else if (declaredField.isAnnotationPresent(SaveDoubleArr.class))
-			{
-				json.put(declaredField.getName(), new JSONArray(declaredField.get(object)));
 			}
 			else if (declaredField.isAnnotationPresent(Save.class))
 			{
@@ -227,10 +216,6 @@ public abstract class Codec<T>
 			{
 				declaredField.set(object, json.optDouble(declaredField.getName(), declaredField.getAnnotation(SaveDouble.class).defVal()));
 			}
-			else if (declaredField.isAnnotationPresent(SaveFloat.class))
-			{
-				declaredField.set(object, json.optFloat(declaredField.getName(), declaredField.getAnnotation(SaveFloat.class).defVal()));
-			}
 			else if (declaredField.isAnnotationPresent(SaveBool.class))
 			{
 				declaredField.set(object, json.optBoolean(declaredField.getName(), declaredField.getAnnotation(SaveBool.class).defVal()));
@@ -238,17 +223,6 @@ public abstract class Codec<T>
 			else if (declaredField.isAnnotationPresent(SaveString.class))
 			{
 				declaredField.set(object, json.optString(declaredField.getName(), declaredField.getAnnotation(SaveString.class).defVal()));
-			}
-			else if (declaredField.isAnnotationPresent(SaveDoubleArr.class))
-			{
-//				JSONArray objects = json.optJSONArray(declaredField.getName());
-//				double[] arr = new double[objects.length()];
-//				for (int i = 0; i < objects.length(); i++)
-//				{
-//					arr[i] = objects.getDouble(i);
-//				}
-				// A cheeky one liner here
-				declaredField.set(object, Objects.requireNonNullElse(json.optJSONArray(declaredField.getName()), new JSONArray()).toList().stream().mapToDouble(d -> (double) d).toArray());
 			}
 			else if (declaredField.isAnnotationPresent(Save.class))
 			{

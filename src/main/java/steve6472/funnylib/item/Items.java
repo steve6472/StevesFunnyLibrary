@@ -25,10 +25,11 @@ import steve6472.funnylib.CancellableResult;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.context.*;
 import steve6472.funnylib.item.events.*;
+import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.util.Checks;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.MetaUtil;
-import steve6472.funnylib.util.NBT;
+import steve6472.funnylib.serialize.NBT;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -309,13 +310,14 @@ public class Items implements Listener
 	public void itemEvents(PlayerInteractEvent e)
 	{
 		ItemStack item = e.getItem();
+
 		if (item == null || item.getType() == Material.AIR)
 			return;
 
 		if (e.getPlayer().getCooldown(item.getType()) != 0)
 			return;
 
-		NBT data = NBT.create(item);
+		ItemNBT data = ItemNBT.create(item);
 
 		if (!data.hasString(ItemStackBuilder.CUSTOM_ID))
 			return;

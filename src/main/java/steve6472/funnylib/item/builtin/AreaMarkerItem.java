@@ -2,24 +2,18 @@ package steve6472.funnylib.item.builtin;
 
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.joml.Vector3i;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import steve6472.funnylib.CancellableResult;
 import steve6472.funnylib.FunnyLib;
-import steve6472.funnylib.context.CustomItemContext;
 import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.context.PlayerItemContext;
 import steve6472.funnylib.context.UseType;
 import steve6472.funnylib.item.CustomItem;
-import steve6472.funnylib.item.events.SwapHandEvent;
 import steve6472.funnylib.item.events.TickInHandEvent;
+import steve6472.funnylib.serialize.ItemNBT;
+import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by steve6472
@@ -87,7 +81,7 @@ public class AreaMarkerItem extends CustomItem implements TickInHandEvent
 		return false;
 	}
 
-	public static void updateLore(NBT data)
+	public static void updateLore(ItemNBT data)
 	{
 		ItemStackBuilder builder = ItemStackBuilder.edit(data).removeLore();
 

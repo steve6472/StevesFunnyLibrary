@@ -2,19 +2,15 @@ package steve6472.funnylib.item;
 
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.json.JSONObject;
 import steve6472.funnylib.CancellableResult;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.context.PlayerEntityContext;
 import steve6472.funnylib.context.PlayerItemContext;
 import steve6472.funnylib.context.UseType;
-import steve6472.funnylib.json.codec.Codec;
+import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.util.ItemStackBuilder;
-import steve6472.funnylib.util.JsonDataType;
-import steve6472.funnylib.util.NBT;
-import steve6472.funnylib.util.Preconditions;
+import steve6472.funnylib.serialize.NBT;
 
 /**********************
  * Created by steve6472
@@ -33,7 +29,7 @@ public abstract class CustomItem
 	public ItemStack newItemStack()
 	{
 		ItemStack itemStack = ItemStackBuilder.editNonStatic(item()).setCustomId(id()).buildItemStack();
-		NBT nbt = NBT.create(itemStack);
+		ItemNBT nbt = ItemNBT.create(itemStack);
 		initCustomData(nbt);
 		nbt.save();
 		return itemStack;
@@ -43,7 +39,7 @@ public abstract class CustomItem
 	 * Set default data for item
 	 * @param nbt nbt wrapper
 	 */
-	protected void initCustomData(NBT nbt)
+	protected void initCustomData(ItemNBT nbt)
 	{
 
 	}

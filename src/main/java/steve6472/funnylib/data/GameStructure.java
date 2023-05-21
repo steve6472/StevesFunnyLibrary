@@ -13,10 +13,10 @@ import org.json.JSONObject;
 import steve6472.funnylib.category.ICategorizable;
 import steve6472.funnylib.item.builtin.StructureItem;
 import steve6472.funnylib.json.INBT;
+import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.util.MiscUtil;
-import steve6472.funnylib.util.NBT;
+import steve6472.funnylib.serialize.NBT;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -134,7 +134,7 @@ public final class GameStructure implements ICategorizable, INBT
 
 	public ItemStack toItem()
 	{
-		return toItem(this);
+		return StructureItem.newStructureItem(this, name(), icon());
 	}
 
 	public static GameStructure fromWorld(World world, int startX, int startY, int startZ, int endX, int endY, int endZ)
@@ -269,20 +269,12 @@ public final class GameStructure implements ICategorizable, INBT
 		return -1;
 	}
 
-	public static ItemStack toItem(GameStructure structure)
-	{
-		if (structure == null)
-			return MiscUtil.AIR;
-
-		return StructureItem.newStructureItem(structure, structure.name(), structure.icon());
-	}
-
 	public static GameStructure fromItem(ItemStack item)
 	{
 		if (item.getType().isAir())
 			return null;
 
-		NBT nbt = NBT.create(item);
+		ItemNBT nbt = ItemNBT.create(item);
 
 		if (!nbt.hasCompound(StructureItem.KEY))
 			return new GameStructure();

@@ -36,8 +36,6 @@ public abstract class CustomBlock extends StateObject
 
 	public void onPlace(BlockContext context) {}
 	public void onRemove(BlockContext context) {}
-	public void save(JSONObject json, boolean unloading) {}
-	public void load(JSONObject json) {}
 
 	/**
 	 * Called only when canBurn() returns true<br>

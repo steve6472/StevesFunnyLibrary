@@ -17,6 +17,8 @@ import steve6472.funnylib.context.UseType;
 import steve6472.funnylib.item.GenericItem;
 import steve6472.funnylib.item.events.ItemInvEvents;
 import steve6472.funnylib.item.events.TickInHandEvent;
+import steve6472.funnylib.serialize.ItemNBT;
+import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.*;
 import steve6472.standalone.exnulla.blocks.SilkLeavesBlock;
 
@@ -238,7 +240,7 @@ public class PocketFurnaceItem extends GenericItem implements ItemInvEvents, Tic
 
 		public PocketData(ItemStack itemStack)
 		{
-			data = NBT.create(itemStack);
+			data = ItemNBT.create(itemStack);
 			cookTime = data.getInt("burnTime");
 			burnTime = data.getInt("cookTime");
 			cookTimeTotal = data.getInt("cookTimeTotal");

@@ -9,7 +9,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
@@ -17,7 +16,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONObject;
+import org.joml.Vector3i;
 import steve6472.funnylib.*;
 import steve6472.funnylib.blocks.events.BlockBreakResult;
 import steve6472.funnylib.blocks.events.BlockClickEvents;
@@ -27,14 +26,16 @@ import steve6472.funnylib.blocks.stateengine.State;
 import steve6472.funnylib.blocks.stateengine.properties.IProperty;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.BlockFaceContext;
-import steve6472.funnylib.context.PlayerItemContext;
 import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.events.ServerTickEvent;
 import steve6472.funnylib.item.Items;
-import steve6472.funnylib.json.codec.Codec;
+import steve6472.funnylib.serialize.ChunkNBT;
 import steve6472.funnylib.util.Log;
 import steve6472.funnylib.util.MetaUtil;
+import steve6472.funnylib.serialize.NBT;
+import steve6472.funnylib.util.MiscUtil;
 
+import javax.naming.Name;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
@@ -317,22 +318,24 @@ public class Blocks implements Listener
 		loadChunk(e.getChunk());
 	}
 
-	public static void loadChunk(Chunk chunk)
-	{
-		currentLoadingChunk = chunk;
-		CustomChunk customChunk = new CustomChunk(chunk);
-		String custom_blocks = chunk
-			.getPersistentDataContainer()
-			.get(CUSTOM_BLOCKS_KEY, PersistentDataType.STRING);
-		customChunk.fromJson(new JSONObject(custom_blocks == null ? "{}" : custom_blocks));
-		CHUNK_MAP.put(chunk, customChunk);
-		currentLoadingChunk = null;
-	}
-
 	@EventHandler
 	public void unloadChunk(ChunkUnloadEvent e)
 	{
 		saveChunk(e.getChunk(), true);
+	}
+
+	public static void loadChunk(Chunk chunk)
+	{
+		currentLoadingChunk = chunk;
+		CustomChunk customChunk = new CustomChunk(chunk);
+		ChunkNBT chunkNBT = ChunkNBT.create(chunk);
+		if (chunkNBT.hasCompound("custom_blocks"))
+		{
+			NBT customBlocks = chunkNBT.getCompound("custom_blocks");
+			customChunk.fromNBT(customBlocks);
+		}
+		CHUNK_MAP.put(chunk, customChunk);
+		currentLoadingChunk = null;
 	}
 
 	public static void saveChunk(Chunk chunk, boolean unloading)
@@ -340,9 +343,15 @@ public class Blocks implements Listener
 		CustomChunk customChunk = CHUNK_MAP.get(chunk);
 		if (customChunk == null)
 			return;
-		JSONObject json = new JSONObject();
-		customChunk.toJson(json, unloading);
-		chunk.getPersistentDataContainer().set(CUSTOM_BLOCKS_KEY, PersistentDataType.STRING, json.toString());
+		if (unloading)
+		{
+			customChunk.unload();
+			CHUNK_MAP.remove(chunk);
+		}
+		ChunkNBT chunkNBT = ChunkNBT.create(chunk);
+		NBT customBlocks = chunkNBT.createCompound();
+		customChunk.toNBT(customBlocks);
+		chunkNBT.setCompound("custom_blocks", customBlocks);
 	}
 
 	@EventHandler
@@ -427,39 +436,40 @@ public class Blocks implements Listener
 	 * State
 	 */
 
-	public static JSONObject stateToJson(State state, boolean unloading)
+	public static void stateToCompound(NBT compound, State state)
 	{
-		JSONObject json = new JSONObject();
 		CustomBlock block = ((CustomBlock) state.getObject());
-		json.put("id", block.id());
+		compound.setString("id", block.id());
+		NBT stateTag = compound.createCompound();
 		if (state.getProperties() != null)
 		{
-			state.getProperties().forEach((k, v) -> json.put(k.getName(), k.toString(v)));
+			state.getProperties().forEach((k, v) -> stateTag.setString(k.getName(), k.toString(v)));
 		}
-		block.save(json, unloading);
-		return json;
+		compound.setCompound("state", stateTag);
 	}
 
-	public static State jsonToState(JSONObject json)
+	public static State compoundToState(NBT compound)
 	{
-		CustomBlock id = Blocks.getCustomBlockById(json.getString("id"));
-		if (id == null)
-			throw new RuntimeException("Old block '" + json.getString("id") + "' can not be created! " + json);
-		State defaultState = id.getDefaultState();
+		String id = compound.getString("id");
+		CustomBlock blockById = Blocks.getCustomBlockById(id);
+		if (blockById == null)
+			throw new RuntimeException("Old block '" + id + "' can not be created! " + compound);
+		State defaultState = blockById.getDefaultState();
 		if (defaultState == null)
-			throw new RuntimeException("Block '" + json.getString("id") + "' returned null default state");
+			throw new RuntimeException("Block '" + id + "' returned null default state");
 		State state = defaultState;
 		if (state.getProperties() != null)
 		{
+			NBT stateTag = compound.getCompound("state");
 			//noinspection rawtypes
 			for (IProperty iProperty : defaultState.getProperties().keySet())
 			{
-				String string = json.getString(iProperty.getName());
+				String string = stateTag.getString(iProperty.getName());
 				//noinspection unchecked
 				state = state.with(iProperty, iProperty.fromString(string));
 			}
 		}
-		((CustomBlock) state.getObject()).load(json);
+
 		return state;
 	}
 
@@ -467,37 +477,38 @@ public class Blocks implements Listener
 	 * Block Data
 	 */
 
-	public static JSONObject dataToJson(CustomBlockData data, boolean unloading)
+	public static void dataToCompound(NBT compound, CustomBlockData data, boolean unloading)
 	{
-		JSONObject blockData = Codec.save(data);
-		JSONObject json = new JSONObject();
-		json.put("blockData", blockData);
-		json.put("dataClass", data.getClass().getName());
-		json.put("blockId", data.getBlock().id());
-		json.put("worldName", data.pos.getWorld().getName());
-		json.put("x", data.pos.getBlockX());
-		json.put("y", data.pos.getBlockY());
-		json.put("z", data.pos.getBlockZ());
-		data.save(blockData, unloading);
-		return json;
+		compound.setString("data_class", data.getClass().getName());
+		compound.setString("block_id", data.getBlock().id());
+		compound.setString("world_name", data.pos.getWorld().getName());
+		compound.set3i("pos", data.pos.getBlockX(), data.pos.getBlockY(), data.pos.getBlockZ());
+
+		NBT dataCompound = compound.createCompound();
+		data.toNBT(dataCompound);
+		compound.setCompound("block_data", dataCompound);
+
+		if (unloading)
+			data.unload();
 	}
 
-	public static CustomBlockData jsonToData(JSONObject json)
+	public static CustomBlockData compoundToData(NBT compound)
 	{
-		// TODO: replace this with registry
-		String classPath = json.getString("dataClass");
+		String classPath = compound.getString("data_class");
+
 		try
 		{
 			Class<?> clazz = Class.forName(classPath);
-			Object o = clazz.getConstructor().newInstance();
-			JSONObject data = json.getJSONObject("blockData");
-			CustomBlockData blockData = (CustomBlockData) Codec.load(o, data);
+			CustomBlockData blockData = (CustomBlockData) clazz.getConstructor().newInstance();
 
-			CustomBlock block = Blocks.getCustomBlockById(json.getString("blockId"));
+			NBT data = compound.getCompound("block_data");
+			blockData.fromNBT(data);
+
+			CustomBlock block = Blocks.getCustomBlockById(compound.getString("block_id"));
 			blockData.setLogic(block);
-			Location location = new Location(Bukkit.getWorld(json.getString("worldName")), json.getInt("x"), json.getInt("y"), json.getInt("z"));
+			Vector3i pos = compound.get3i("pos");
+			Location location = new Location(Bukkit.getWorld(compound.getString("world_name")), pos.x, pos.y, pos.z);
 			blockData.setPos(location);
-			blockData.load(data);
 
 			return blockData;
 		} catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException |

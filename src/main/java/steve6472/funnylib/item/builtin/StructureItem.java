@@ -24,6 +24,8 @@ import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.events.SwapHandEvent;
 import steve6472.funnylib.item.events.TickInHandEvent;
 import steve6472.funnylib.data.GameStructure;
+import steve6472.funnylib.serialize.ItemNBT;
+import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.*;
 
 import java.util.*;
@@ -74,7 +76,7 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 	@Override
 	public void useOnAir(PlayerItemContext context, UseType useType, CancellableResult result)
 	{
-		NBT itemData = context.getItemData();
+		ItemNBT itemData = context.getItemData();
 		Mode mode = itemData.getEnum(Mode.class, "mode");
 
 		if (mode != Mode.SAVING) return;
@@ -98,7 +100,7 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 	@Override
 	public void useOnBlock(PlayerBlockContext context, UseType useType, CancellableResult result)
 	{
-		NBT itemData = context.getItemData();
+		ItemNBT itemData = context.getItemData();
 		Mode currentMode = itemData.getEnum(Mode.class, "mode");
 
 		Block clickedBlock = context.getBlock();
@@ -140,7 +142,7 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 		}
 	}
 
-	private static void updateLore(NBT itemData)
+	private static void updateLore(ItemNBT itemData)
 	{
 		ItemStackBuilder builder = ItemStackBuilder.edit(itemData).removeLore();
 		Mode currentMode = builder.nbt().getEnum(Mode.class, "mode");
@@ -381,7 +383,7 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 
 	public static ItemStack newStructureItem(GameStructure structure, String name, Material icon)
 	{
-		NBT data = NBT.create(FunnyLib.STRUCTURE.newItemStack());
+		ItemNBT data = ItemNBT.create(FunnyLib.STRUCTURE.newItemStack());
 		NBT structureNBT = data.createCompound();
 		structure.toNBT(structureNBT);
 		data.set3i("start", GameStructure.startFromCompound(structureNBT));
@@ -395,6 +397,7 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 			data.setString("name", name);
 
 		updateLore(data);
-		return data.save();
+		data.save();
+		return data.getItemStack();
 	}
 }

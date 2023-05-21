@@ -1,9 +1,11 @@
 package steve6472.funnylib.util;
 
+import net.minecraft.nbt.Tag;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.craftbukkit.v1_19_R3.persistence.CraftPersistentDataContainer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -58,7 +60,18 @@ public class MiscUtil
 		}
 	}
 
-
+	public static String dataToString(PersistentDataContainer container)
+	{
+		CraftPersistentDataContainer container_ = (CraftPersistentDataContainer) container;
+		Map<String, Tag> stringTagMap = container_.getRaw();
+		final String[] out = {""};
+		stringTagMap.forEach((k, v) ->
+		{
+			String msg = k + " " + v.toString();
+			out[0] += msg + "\n";
+		});
+		return out[0];
+	}
 
 	private static final String MAP_FROM = "0123456789abcdef";
 	private static final String MAP_TO = "fedcba9876543210";

@@ -7,10 +7,11 @@ import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.item.builtin.StructureItem;
 import steve6472.funnylib.data.GameStructure;
+import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.Messages;
-import steve6472.funnylib.util.NBT;
+import steve6472.funnylib.serialize.NBT;
 
 /**
  * Created by steve6472
@@ -28,10 +29,10 @@ public class Structures extends GenericStorage
 			.setName(obj.name() == null ? "Structure" : obj.name(), ChatColor.DARK_AQUA)
 			.addLore(Messages.createLocationMessage("Size: ", obj.getSize().x, obj.getSize().y, obj.getSize().z))
 			.buildItemStack(),
-			obj -> obj.toItem(),
+			GameStructure::toItem,
 			itemStack ->
 			{
-				NBT data = NBT.create(itemStack);
+				ItemNBT data = ItemNBT.create(itemStack);
 				String icon = data.getString("icon", null);
 				NBT compound = data.getCompound(StructureItem.KEY);
 				compound.set3i("start", data.get3i("start"));
@@ -45,7 +46,7 @@ public class Structures extends GenericStorage
 			{
 				if (Items.getCustomItem(itemStack) != FunnyLib.STRUCTURE) return false;
 
-				NBT nbt = NBT.create(itemStack);
+				ItemNBT nbt = ItemNBT.create(itemStack);
 
 				if (!nbt.hasCompound(StructureItem.KEY)) return false;
 

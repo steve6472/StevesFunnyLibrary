@@ -1,21 +1,16 @@
 package steve6472.funnylib.util;
 
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Tier;
-import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
-import steve6472.funnylib.FunnyLib;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.Supplier;
 
 /**
  * Created by steve6472

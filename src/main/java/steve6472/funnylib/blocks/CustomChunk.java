@@ -1,7 +1,6 @@
 package steve6472.funnylib.blocks;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -14,19 +13,24 @@ import org.json.JSONObject;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.blocks.events.BlockTick;
 import steve6472.funnylib.blocks.stateengine.State;
+import steve6472.funnylib.data.BlockInfo;
+import steve6472.funnylib.json.INBT;
 import steve6472.funnylib.util.Log;
+import steve6472.funnylib.serialize.NBT;
 
-import static steve6472.funnylib.blocks.Blocks.CALL_ON_REMOVE;
-import static steve6472.funnylib.blocks.Blocks.CREATE_DATA;
+import java.util.*;
+
+import static steve6472.funnylib.blocks.Blocks.*;
 
 /**
  * Created by steve6472
  * Date: 9/17/2022
  * Project: StevesFunnyLibrary <br>
  */
-public class CustomChunk
+public class CustomChunk implements INBT
 {
 	private final Chunk bukkitChunk;
+	public boolean isUnloading;
 
 	public Int2ObjectLinkedOpenHashMap<State> blocks = new Int2ObjectLinkedOpenHashMap<>();
 	public Int2ObjectLinkedOpenHashMap<CustomBlockData> blockData = new Int2ObjectLinkedOpenHashMap<>();
@@ -37,47 +41,114 @@ public class CustomChunk
 		this.bukkitChunk = bukkitChunk;
 	}
 
-	public void fromJson(JSONObject json)
+	public void unload()
 	{
-		if (!json.has("states"))
+		if (isUnloading)
+			throw new RuntimeException("Chunk has already been unloaded!");
+		isUnloading = true;
+	}
+
+	@Override
+	public void toNBT(NBT compound)
+	{
+		NBT[] states = compound.createCompoundArray(blocks.size());
+		NBT[] data = compound.createCompoundArray(blockData.size());
+		int i = 0;
+
+		List<State> paletteList = new ArrayList<>();
+		Map<State, Integer> paletteMap = new HashMap<>();
+		for (Map.Entry<Integer, State> entry : blocks.int2ObjectEntrySet())
+		{
+			State value = entry.getValue();
+			if (!paletteList.contains(value))
+			{
+				paletteList.add(value);
+				paletteMap.put(value, i);
+			}
+			i++;
+		}
+
+		NBT[] palette = compound.createCompoundArray(paletteList.size());
+		for (i = 0; i < paletteList.size(); i++)
+		{
+			State state = paletteList.get(i);
+			Blocks.stateToCompound(palette[i], state);
+		}
+
+		i = 0;
+		for (Map.Entry<Integer, State> entry : blocks.int2ObjectEntrySet())
+		{
+			Integer k = entry.getKey();
+			State state = entry.getValue();
+			NBT locObj = states[i];
+			locObj.setInt("loc_key", k);
+			locObj.setInt("state", paletteMap.get(state));
+			i++;
+		}
+
+		i = 0;
+		for (Map.Entry<Integer, CustomBlockData> entry : blockData.int2ObjectEntrySet())
+		{
+			Integer key = entry.getKey();
+			CustomBlockData datum = entry.getValue();
+			NBT locObj = data[i];
+			locObj.setInt("loc_key", key);
+			try
+			{
+				NBT dataCompound = locObj.createCompound();
+				Blocks.dataToCompound(dataCompound, datum, isUnloading);
+				locObj.setCompound("data", dataCompound);
+			} catch (Exception ex)
+			{
+				Log.error("Exception thrown when saving data of " + datum
+					.getBlock()
+					.id() + " at " + keyToX(key) + "/" + keyToY(key) + "/" + keyToZ(key));
+				ex.printStackTrace();
+			}
+			i++;
+		}
+		compound.setCompoundArray("palette", palette);
+		compound.setCompoundArray("states", states);
+		compound.setCompoundArray("data", data);
+	}
+
+	@Override
+	public void fromNBT(NBT compound)
+	{
+		if (!compound.hasCompoundArray("states"))
 		{
 			return;
 		}
 
-		JSONArray states = json.getJSONArray("states");
+		NBT[] paletteNbts = compound.getCompoundArray("palette");
+		NBT[] states = compound.getCompoundArray("states");
+		NBT[] data = compound.getCompoundArray("data");
 
-		for (int i = 0; i < states.length(); i++)
+		State[] palette = new State[paletteNbts.length];
+
+		for (int i = 0; i < paletteNbts.length; i++)
 		{
-			JSONObject locObj = states.getJSONObject(i);
-			State state;
-			try
-			{
-				state = Blocks.jsonToState(locObj.getJSONObject("state"));
-			} catch (Exception ex)
-			{
-				int key = locObj.getInt("locKey");
-				throw new RuntimeException("Could not create state from json at " + bukkitChunk.getX() * keyToX(key) + "/" + keyToY(key) + "/" + bukkitChunk.getZ() * keyToZ(key), ex);
-			}
-			int key = locObj.getInt("locKey");
+			NBT paletteNbt = paletteNbts[i];
+			palette[i] = Blocks.compoundToState(paletteNbt);
+		}
+
+		for (NBT locObj : states)
+		{
+			int key = locObj.getInt("loc_key");
+			int stateIndex = locObj.getInt("state");
+			State state = palette[stateIndex];
 			blocks.put(key, state);
 
 			if (state.getObject() instanceof BlockTick)
 				ticking.add(key);
 		}
 
-		if (!json.has("data"))
+		for (NBT locObj : data)
 		{
-			return;
-		}
-
-		JSONArray data = json.getJSONArray("data");
-		for (int i = 0; i < data.length(); i++)
-		{
-			JSONObject locObj = data.getJSONObject(i);
-			int key = locObj.getInt("locKey");
+			int key = locObj.getInt("loc_key");
 			try
 			{
-				CustomBlockData customData = Blocks.jsonToData(locObj.getJSONObject("data"));
+				CustomBlockData customData = Blocks.compoundToData(locObj.getCompound("data"));
 				blockData.put(key, customData);
 			} catch (Exception ex)
 			{
@@ -86,33 +157,6 @@ public class CustomChunk
 				blockData.remove(key);
 			}
 		}
-	}
-
-	public void toJson(JSONObject json, boolean unloading)
-	{
-		JSONArray states = new JSONArray();
-		JSONArray data = new JSONArray();
-		blocks.forEach((key, state) -> {
-			JSONObject locObj = new JSONObject();
-			locObj.put("locKey", key);
-			locObj.put("state", Blocks.stateToJson(state, unloading));
-			states.put(locObj);
-		});
-		blockData.forEach((key, datum) -> {
-			JSONObject locObj = new JSONObject();
-			locObj.put("locKey", key);
-			try
-			{
-				locObj.put("data", Blocks.dataToJson(datum, unloading));
-				data.put(locObj);
-			} catch (Exception ex)
-			{
-				Log.error("Exception thrown when saving data of " + datum.getBlock().id() + " at " + keyToX(key) + "/" + keyToY(key) + "/" + keyToZ(key));
-				ex.printStackTrace();
-			}
-		});
-		json.put("states", states);
-		json.put("data", data);
 	}
 
 	/*

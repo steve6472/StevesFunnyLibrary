@@ -1,5 +1,6 @@
 package steve6472.funnylib.blocks.builtin;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -10,7 +11,6 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.joml.Vector3i;
-import org.json.JSONObject;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.context.PlayerBlockContext;
@@ -19,15 +19,16 @@ import steve6472.funnylib.blocks.events.BlockClickEvents;
 import steve6472.funnylib.blocks.stateengine.State;
 import steve6472.funnylib.blocks.stateengine.properties.EnumProperty;
 import steve6472.funnylib.blocks.stateengine.properties.IProperty;
+import steve6472.funnylib.data.Marker;
+import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.json.codec.ann.Save;
 import steve6472.funnylib.json.codec.codecs.ItemStackCodec;
-import steve6472.funnylib.json.codec.codecs.MarkerCodec;
 import steve6472.funnylib.menu.Mask;
 import steve6472.funnylib.menu.MenuBuilder;
 import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.menu.SlotBuilder;
-import steve6472.funnylib.util.NBT;
+import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.generated.BlockGen;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.MiscUtil;
@@ -46,10 +47,26 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 
 	public static class TeleportButtonData extends CustomBlockData
 	{
-		@Save(value = ItemStackCodec.class)
-		private ItemStack item = MiscUtil.AIR;
+		private Marker location;
 
-//		private MarkerCodec.Marker location;
+		@Override
+		public void toNBT(NBT compound)
+		{
+			if (location == null)
+				return;
+			location.toNBT(compound);
+		}
+
+		@Override
+		public void fromNBT(NBT compound)
+		{
+			if (!compound.hasCompound("location"))
+				return;
+
+			location = new Marker(0, 0, 0, null);
+			location.fromNBT(compound);
+		}
+
 	}
 
 	@Override
@@ -102,23 +119,20 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 	{
 		TeleportButtonData blockData = context.getBlockData(TeleportButtonData.class);
 
-		ItemStack item = blockData.item;
-		if (Items.getCustomItem(item) != FunnyLib.LOCATION_MARKER)
+		Marker loc = blockData.location;
+		if (loc == null)
 			return;
 
-		NBT data = NBT.create(item);
-		Vector3i location = data.get3i("location");
-		int x = location.x;
-		int y = location.y;
-		int z = location.z;
-		context.getPlayer().teleport(new Location(context.getWorld(), x + 0.5, y, z + 0.5, context.getPlayerLocation().getYaw(), context.getPlayerLocation().getPitch()));
+		context.getPlayer().teleport(new Location(context.getWorld(), loc.x() + 0.5, loc.y(), loc.z() + 0.5, context.getPlayerLocation().getYaw(), context.getPlayerLocation().getPitch()));
 	}
 
 	@Override
 	public void getDrops(BlockContext blockContext, List<ItemStack> drops)
 	{
 		drops.add(FunnyLib.TELEPORT_BUTTON_ITEM.newItemStack());
-		drops.add(blockContext.getBlockData(TeleportButtonData.class).item);
+		Marker location = blockContext.getBlockData(TeleportButtonData.class).location;
+		if (location != null)
+			drops.add(location.toItem());
 	}
 
 	@Override
@@ -126,7 +140,9 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 	{
 		if (!context.isCreative())
 			drops.add(FunnyLib.TELEPORT_BUTTON_ITEM.newItemStack());
-		drops.add(context.getBlockData(TeleportButtonData.class).item);
+		Marker location = context.getBlockData(TeleportButtonData.class).location;
+		if (location != null)
+			drops.add(location.toItem());
 	}
 
 	/*
@@ -136,7 +152,6 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 	@Override
 	public void showInterface(TeleportButtonData data, PlayerBlockContext context)
 	{
-		MENU.setData("location", data.item);
 		MENU.setData("data", data);
 		MENU.build().showToPlayers(context.getPlayer());
 	}
@@ -154,8 +169,14 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 		.allowPlayerInventory()
 		.slot(4, 1, m ->
 		{
-			ItemStack item = m.getData("location", ItemStack.class);
-			if (item == null) item = MiscUtil.AIR;
+			TeleportButtonData data = m.getData("data", TeleportButtonData.class);
+
+			Marker location = data.location;
+			ItemStack item;
+			if (location == null)
+				item = MiscUtil.AIR;
+			else
+				item = location.toItem();
 
 			return SlotBuilder
 				.create(item)
@@ -163,13 +184,18 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 				.allow(ClickType.LEFT)
 				.onClick((c, cm) ->
 				{
-					TeleportButtonData data = cm.getPassedData().getData("data", TeleportButtonData.class);
-					if (c.itemOnCursor() != null && !c.itemOnCursor().getType().isAir())
+					boolean markerInHand = Items.getCustomItem(c.itemOnCursor()) == FunnyLib.LOCATION_MARKER;
+
+					// Cancel if item in hand is not Air and is not Marker
+					if (!markerInHand && !c.itemOnCursor().getType().isAir())
+						return Response.cancel();
+
+					if (markerInHand && !c.itemOnCursor().getType().isAir())
 					{
-						data.item = c.itemOnCursor().clone();
+						data.location = Marker.fromItem(c.itemOnCursor().clone());
 					} else
 					{
-						data.item = MiscUtil.AIR;
+						data.location = null;
 					}
 					return Response.allow();
 				});

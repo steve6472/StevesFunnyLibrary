@@ -21,6 +21,7 @@ import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.json.codec.ann.Save;
 import steve6472.funnylib.json.codec.ann.SaveInt;
 import steve6472.funnylib.json.codec.codecs.EntityCodec;
+import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.Checks;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.standalone.exnulla.ExNulla;
@@ -44,6 +45,18 @@ public class CrucibleBlock extends CustomBlock implements IBlockData, BlockClick
 		ArmorStand indicator, dataLabel;
 
 		boolean zeroedOut = false;
+
+		@Override
+		public void toNBT(NBT compound)
+		{
+
+		}
+
+		@Override
+		public void fromNBT(NBT compound)
+		{
+
+		}
 	}
 
 	@Override

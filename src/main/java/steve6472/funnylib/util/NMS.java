@@ -5,8 +5,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_19_R3.persistence.CraftPersistentDataContainer;
+import org.bukkit.craftbukkit.v1_19_R3.persistence.CraftPersistentDataTypeRegistry;
 import org.bukkit.craftbukkit.v1_19_R3.util.CraftMagicNumbers;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
 
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -30,6 +33,15 @@ public class NMS
 	{
 		Item item = CraftMagicNumbers.getItem(material);
 		return BURN_TIME.containsKey(item);
+	}
+
+	public static Map<String, Object> serializePDC(PersistentDataContainer pdc)
+	{
+		if (pdc instanceof CraftPersistentDataContainer cpdc)
+		{
+			return cpdc.serialize();
+		}
+		throw new RuntimeException("PDC not instance of CraftPersistentDataContainer");
 	}
 
 	public static void addLore(ItemStack bukkitStack, String json)
@@ -80,5 +92,10 @@ public class NMS
 	public static void addLore(ItemStack bukkitStack, JSONMessage message)
 	{
 		addLore(bukkitStack, message.toJSON().toString());
+	}
+
+	public static PersistentDataContainer newCraftContainer()
+	{
+		return new CraftPersistentDataContainer(new CraftPersistentDataTypeRegistry());
 	}
 }

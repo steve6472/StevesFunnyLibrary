@@ -6,15 +6,14 @@ import org.bukkit.util.BoundingBox;
 import org.joml.Vector3i;
 import org.json.JSONObject;
 import steve6472.funnylib.FunnyLib;
-import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.Items;
-import steve6472.funnylib.item.builtin.AreaMarkerItem;
 import steve6472.funnylib.menu.Click;
 import steve6472.funnylib.menu.Menu;
 import steve6472.funnylib.menu.Response;
+import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.MiscUtil;
-import steve6472.funnylib.util.NBT;
+import steve6472.funnylib.serialize.NBT;
 import steve6472.standalone.interactable.ex.*;
 
 import java.util.List;
@@ -58,7 +57,7 @@ public class AnyPlayerInArea extends Expression
 	{
 		if (Items.getCustomItem(areaStack) == FunnyLib.AREA_LOCATION_MARKER)
 		{
-			NBT itemData = NBT.create(areaStack);
+			ItemNBT itemData = ItemNBT.create(areaStack);
 			Vector3i start = itemData.get3i("start");
 			Vector3i end = itemData.get3i("end");
 			BOX.resize(start.x, start.y, start.z, end.x + 1, end.y + 1, end.z + 1);

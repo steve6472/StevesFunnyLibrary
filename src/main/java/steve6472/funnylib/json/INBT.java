@@ -1,6 +1,6 @@
 package steve6472.funnylib.json;
 
-import steve6472.funnylib.util.NBT;
+import steve6472.funnylib.serialize.NBT;
 
 /**
  * Created by steve6472

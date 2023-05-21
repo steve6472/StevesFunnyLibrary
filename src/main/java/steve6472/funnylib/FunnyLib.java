@@ -213,7 +213,6 @@ public class FunnyLib
 		Codec.registerCodec(new ItemStackCodec());
 		Codec.registerCodec(new EntityCodec());
 		Codec.registerCodec(new WorldCodec());
-		Codec.registerCodec(new StringListCodec());
 
 		Codec.regDefCodec(Location.class, new LocationCodec());
 		Codec.regDefCodec(ItemStack.class, new ItemStackCodec());

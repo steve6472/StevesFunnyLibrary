@@ -10,13 +10,13 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
 import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.openjdk.jol.vm.VM;
 import steve6472.funnylib.FunnyLib;
+import steve6472.funnylib.serialize.ItemNBT;
+import steve6472.funnylib.serialize.NBT;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ public class ItemStackBuilder
 {
 	private ItemStack item;
 	private ItemMeta meta;
-	private NBT customData;
+	private ItemNBT customData;
 
 	private ItemStackBuilder(Material material)
 	{
@@ -40,7 +40,7 @@ public class ItemStackBuilder
 		this.meta = item.getItemMeta();
 		if (meta == null)
 			throw new RuntimeException("Item meta is null! Pls fix thx");
-		customData = NBT.create(item, meta);
+		customData = ItemNBT.create(item, meta);
 	}
 
 	private ItemStackBuilder(ItemStack itemStack)
@@ -49,10 +49,10 @@ public class ItemStackBuilder
 		this.meta = itemStack.getItemMeta();
 		if (meta == null)
 			throw new RuntimeException("Item meta is null! Pls fix thx");
-		customData = NBT.create(item, meta);
+		customData = ItemNBT.create(item, meta);
 	}
 
-	public ItemStackBuilder(NBT data)
+	public ItemStackBuilder(ItemNBT data)
 	{
 		this.item = data.getItemStack();
 		this.meta = data.getMeta();
@@ -100,7 +100,7 @@ public class ItemStackBuilder
 		return new ItemStackBuilder(bukkitItemStack);
 	}
 
-	public static ItemStackBuilder editNonStatic(NBT data)
+	public static ItemStackBuilder editNonStatic(ItemNBT data)
 	{
 		return new ItemStackBuilder(data);
 	}
@@ -117,13 +117,13 @@ public class ItemStackBuilder
 		return STATIC_STACK_BUILDER;
 	}
 
-	public static ItemStackBuilder edit(NBT customData)
+	public static ItemStackBuilder edit(ItemNBT customData)
 	{
 		STATIC_STACK_BUILDER.staticEdit(customData.getItemStack(), customData);
 		return STATIC_STACK_BUILDER;
 	}
 
-	private void staticEdit(ItemStack itemStack, NBT customData)
+	private void staticEdit(ItemStack itemStack, ItemNBT customData)
 	{
 		if (customData == null)
 		{
@@ -131,7 +131,7 @@ public class ItemStackBuilder
 			this.meta = item.getItemMeta();
 			if (meta == null)
 				throw new RuntimeException("Item meta is null! Pls fix thx");
-			this.customData = NBT.create(item, meta);
+			this.customData = ItemNBT.create(item, meta);
 		} else
 		{
 			Preconditions.checkTrue(itemStack.equals(customData.getItemStack()), "Item mismatch between passed itemStack and customData");
@@ -150,7 +150,7 @@ public class ItemStackBuilder
 		return meta;
 	}
 
-	public NBT nbt()
+	public ItemNBT nbt()
 	{
 		return customData;
 	}

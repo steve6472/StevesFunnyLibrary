@@ -7,7 +7,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.item.CustomItem;
-import steve6472.funnylib.util.NBT;
+import steve6472.funnylib.serialize.ItemNBT;
+import steve6472.funnylib.serialize.NBT;
 
 /**
  * Created by steve6472
@@ -136,7 +137,7 @@ public record PlayerItemContext(PlayerContext playerContext, CustomItemContext c
 		return customItemContext.holdsCustomItem(item);
 	}
 
-	public NBT getItemData()
+	public ItemNBT getItemData()
 	{
 		return customItemContext.getData();
 	}

@@ -12,8 +12,9 @@ import steve6472.funnylib.category.ICategorizable;
 import steve6472.funnylib.item.builtin.MarkerItem;
 import steve6472.funnylib.json.INBT;
 import steve6472.funnylib.json.Itemizable;
+import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.util.ItemStackBuilder;
-import steve6472.funnylib.util.NBT;
+import steve6472.funnylib.serialize.NBT;
 
 /**
  * Created by steve6472
@@ -107,21 +108,17 @@ public final class Marker implements ICategorizable, INBT, Itemizable<Marker>
 
 	public static Marker fromItem(ItemStack item)
 	{
-		if (item.getType().isAir())
-			return null;
+		ItemNBT itemNBT = ItemNBT.create(item);
 
-		ItemStackBuilder edit = ItemStackBuilder.edit(item);
-		int x = edit.getInt("x");
-		int y = edit.getInt("y");
-		int z = edit.getInt("z");
-		String name = edit.nbt().getString("name", null);
-		String icon = edit.nbt().getString("icon", null);
+		String name = itemNBT.getString("name", null);
+		String icon = itemNBT.getString("icon", null);
+		Vector3i location1 = itemNBT.get3i("location");
 
-		return new Marker(x, y, z, name, Material.valueOf(icon));
+		return new Marker(location1.x, location1.y, location1.z, name, Material.valueOf(icon));
 	}
 
 	@Override
-	public void fromNBT(NBT compound)
+	public void toNBT(NBT compound)
 	{
 		compound.set3i("location", location);
 		compound.setEnum("icon", icon);
@@ -130,7 +127,7 @@ public final class Marker implements ICategorizable, INBT, Itemizable<Marker>
 	}
 
 	@Override
-	public void toNBT(NBT compound)
+	public void fromNBT(NBT compound)
 	{
 		compound.get3i("location", location);
 		this.setName(compound.getString("name", null));

@@ -16,6 +16,8 @@ import steve6472.funnylib.context.UseType;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.events.TickInHandEvent;
 import steve6472.funnylib.data.Marker;
+import steve6472.funnylib.serialize.ItemNBT;
+import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.*;
 
 import java.util.Collections;
@@ -52,7 +54,7 @@ public class MarkerItem extends CustomItem implements TickInHandEvent
 		result.setCancelled(true);
 	}
 
-	private static void updateItem(NBT data, Block clickedBlock)
+	private static void updateItem(ItemNBT data, Block clickedBlock)
 	{
 		ItemStackBuilder builder = ItemStackBuilder.edit(data);
 
@@ -108,7 +110,7 @@ public class MarkerItem extends CustomItem implements TickInHandEvent
 	{
 		if (FunnyLib.getUptimeTicks() % 3 != 0) return;
 
-		NBT data = context.getItemData();
+		ItemNBT data = context.getItemData();
 
 		if (!data.hasCompound("location"))
 			return;
@@ -130,7 +132,7 @@ public class MarkerItem extends CustomItem implements TickInHandEvent
 
 	public static ItemStack newMarker(int x, int y, int z, String name, Material icon)
 	{
-		NBT data = NBT.create(FunnyLib.LOCATION_MARKER.newItemStack());
+		ItemNBT data = ItemNBT.create(FunnyLib.LOCATION_MARKER.newItemStack());
 		data.set3i("location", x, y, z);
 
 		data.setString("icon", icon.name());
@@ -139,7 +141,8 @@ public class MarkerItem extends CustomItem implements TickInHandEvent
 
 		updateItem(data, null);
 
-		return data.save();
+		data.save();
+		return data.getItemStack();
 	}
 
 	public static ItemStack newMarker(Marker marker)

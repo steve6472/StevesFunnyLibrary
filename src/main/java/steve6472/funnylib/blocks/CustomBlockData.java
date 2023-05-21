@@ -4,13 +4,14 @@ import org.bukkit.Location;
 import org.json.JSONObject;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.json.IJsonConfig;
+import steve6472.funnylib.json.INBT;
 
 /**
  * Created by steve6472
  * Date: 9/15/2022
  * Project: StevesFunnyLibrary <br>
  */
-public abstract class CustomBlockData
+public abstract class CustomBlockData implements INBT
 {
 	private CustomBlock block;
 	protected Location pos;
@@ -27,8 +28,7 @@ public abstract class CustomBlockData
 
 	public void onPlace(BlockContext context) {}
 	public void onRemove(BlockContext context) {}
-	public void save(JSONObject json, boolean unloading) {}
-	public void load(JSONObject json) {}
+	public void unload() {}
 
 	public void setLogic(CustomBlock block)
 	{

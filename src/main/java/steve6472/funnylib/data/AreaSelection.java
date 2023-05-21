@@ -9,7 +9,8 @@ import steve6472.funnylib.category.ICategorizable;
 import steve6472.funnylib.item.builtin.AreaMarkerItem;
 import steve6472.funnylib.json.INBT;
 import steve6472.funnylib.json.Itemizable;
-import steve6472.funnylib.util.NBT;
+import steve6472.funnylib.serialize.ItemNBT;
+import steve6472.funnylib.serialize.NBT;
 
 /**
  * Created by steve6472
@@ -72,10 +73,11 @@ public final class AreaSelection implements ICategorizable, INBT, Itemizable<Are
 
 	public ItemStack toItem()
 	{
-		NBT nbt = NBT.create(FunnyLib.AREA_LOCATION_MARKER.newItemStack());
+		ItemNBT nbt = ItemNBT.create(FunnyLib.AREA_LOCATION_MARKER.newItemStack());
 		toNBT(nbt);
 		AreaMarkerItem.updateLore(nbt);
-		return nbt.save();
+		nbt.save();
+		return nbt.getItemStack();
 	}
 
 	public static AreaSelection fromItem(ItemStack item)
@@ -83,19 +85,10 @@ public final class AreaSelection implements ICategorizable, INBT, Itemizable<Are
 		if (item.getType().isAir())
 			return null;
 
-		NBT nbt = NBT.create(item);
+		ItemNBT nbt = ItemNBT.create(item);
 		AreaSelection areaSelection = new AreaSelection(new Vector3i(), new Vector3i(), null, Material.PAPER);
 		areaSelection.fromNBT(nbt);
 		return areaSelection;
-	}
-
-	@Override
-	public void fromNBT(NBT compound)
-	{
-		compound.get3i("start", start);
-		compound.get3i("end", end);
-		this.setName(compound.getString("name", null));
-		this.setIcon(compound.getEnum(Material.class, "icon", Material.PAPER));
 	}
 
 	@Override
@@ -106,6 +99,15 @@ public final class AreaSelection implements ICategorizable, INBT, Itemizable<Are
 		compound.setEnum("icon", icon);
 		if (name != null)
 			compound.setString("name", name);
+	}
+
+	@Override
+	public void fromNBT(NBT compound)
+	{
+		compound.get3i("start", start);
+		compound.get3i("end", end);
+		this.setName(compound.getString("name", null));
+		this.setIcon(compound.getEnum(Material.class, "icon", Material.PAPER));
 	}
 
 	@Override

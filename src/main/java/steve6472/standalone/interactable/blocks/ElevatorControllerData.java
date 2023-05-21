@@ -17,6 +17,7 @@ import steve6472.funnylib.json.codec.ann.SaveDouble;
 import steve6472.funnylib.json.codec.ann.SaveInt;
 import steve6472.funnylib.json.codec.codecs.ItemStackCodec;
 import steve6472.funnylib.data.Marker;
+import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.MiscUtil;
 import steve6472.standalone.interactable.Interactable;
@@ -173,21 +174,33 @@ public class ElevatorControllerData extends CustomBlockData
 		return a + percentage * (b - a);
 	}
 
+//	@Override
+//	public void load(JSONObject json)
+//	{
+//	}
+//
+//	@Override
+//	public void save(JSONObject json, boolean unloading)
+//	{
+//		if (unloading)
+//		{
+//			if (sbe != null)
+//			{
+//				sbe.destroy(0);
+//				sbe = null;
+//			}
+//		}
+//	}
+
 	@Override
-	public void load(JSONObject json)
+	public void toNBT(NBT compound)
 	{
+
 	}
 
 	@Override
-	public void save(JSONObject json, boolean unloading)
+	public void fromNBT(NBT compound)
 	{
-		if (unloading)
-		{
-			if (sbe != null)
-			{
-				sbe.destroy(0);
-				sbe = null;
-			}
-		}
+
 	}
 }

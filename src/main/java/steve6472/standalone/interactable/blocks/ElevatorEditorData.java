@@ -16,6 +16,7 @@ import steve6472.funnylib.item.Items;
 import steve6472.funnylib.json.codec.ann.Save;
 import steve6472.funnylib.json.codec.ann.SaveBool;
 import steve6472.funnylib.json.codec.codecs.ItemStackCodec;
+import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.MiscUtil;
 import steve6472.standalone.interactable.Interactable;
@@ -65,120 +66,120 @@ public class ElevatorEditorData extends CustomBlockData
 	}
 
 	// region Saving/Loading
-	@Override
-	public void load(JSONObject json)
-	{
-		if (json.optBoolean("type", true))
-		{
-			createCollisionUi(pos);
-		} else
-		{
-			createSeatUi(pos);
-		}
+//	@Override
+//	public void load(JSONObject json)
+//	{
+//		if (json.optBoolean("type", true))
+//		{
+//			createCollisionUi(pos);
+//		} else
+//		{
+//			createSeatUi(pos);
+//		}
+//
+//		if (json.optBoolean("editingCollisions", false))
+//		{
+//			editingCollision.offsetX = json.optDouble("offsetX", 0.0);
+//			editingCollision.offsetY = json.optDouble("offsetY", 0.0);
+//			editingCollision.offsetZ = json.optDouble("offsetZ", 0.0);
+//
+//			editingCollision.create(pos);
+//		}
+//
+//		if (json.optBoolean("editingSeat", false))
+//		{
+//			editingSeat.offsetX = json.optDouble("offsetX", 0.0);
+//			editingSeat.offsetY = json.optDouble("offsetY", 0.0);
+//			editingSeat.offsetZ = json.optDouble("offsetZ", 0.0);
+//
+//			editingSeat.create(pos);
+//		}
+//
+//
+//		this.offsets.clear();
+//		JSONArray offsets = json.optJSONArray("offsets");
+//		if (offsets == null) offsets = new JSONArray();
+//		for (int i = 0; i < offsets.length(); i++)
+//		{
+//			JSONObject off = offsets.getJSONObject(i);
+//			double x = off.getDouble("x");
+//			double y = off.getDouble("y");
+//			double z = off.getDouble("z");
+//			this.offsets.add(new Vector(x, y, z));
+//		}
+//
+//		createMainUi(pos);
+//		createCollisions(pos);
+//
+//		this.seats.clear();
+//		JSONArray seats = json.optJSONArray("seats");
+//		if (seats == null) seats = new JSONArray();
+//		for (int i = 0; i < seats.length(); i++)
+//		{
+//			JSONObject seat = seats.getJSONObject(i);
+//			double x = seat.getDouble("x");
+//			double y = seat.getDouble("y");
+//			double z = seat.getDouble("z");
+//			this.seats.add(new Vector(x, y, z));
+//		}
+//
+//		createSeats(pos);
+//	}
 
-		if (json.optBoolean("editingCollisions", false))
-		{
-			editingCollision.offsetX = json.optDouble("offsetX", 0.0);
-			editingCollision.offsetY = json.optDouble("offsetY", 0.0);
-			editingCollision.offsetZ = json.optDouble("offsetZ", 0.0);
-
-			editingCollision.create(pos);
-		}
-
-		if (json.optBoolean("editingSeat", false))
-		{
-			editingSeat.offsetX = json.optDouble("offsetX", 0.0);
-			editingSeat.offsetY = json.optDouble("offsetY", 0.0);
-			editingSeat.offsetZ = json.optDouble("offsetZ", 0.0);
-
-			editingSeat.create(pos);
-		}
-
-
-		this.offsets.clear();
-		JSONArray offsets = json.optJSONArray("offsets");
-		if (offsets == null) offsets = new JSONArray();
-		for (int i = 0; i < offsets.length(); i++)
-		{
-			JSONObject off = offsets.getJSONObject(i);
-			double x = off.getDouble("x");
-			double y = off.getDouble("y");
-			double z = off.getDouble("z");
-			this.offsets.add(new Vector(x, y, z));
-		}
-
-		createMainUi(pos);
-		createCollisions(pos);
-
-		this.seats.clear();
-		JSONArray seats = json.optJSONArray("seats");
-		if (seats == null) seats = new JSONArray();
-		for (int i = 0; i < seats.length(); i++)
-		{
-			JSONObject seat = seats.getJSONObject(i);
-			double x = seat.getDouble("x");
-			double y = seat.getDouble("y");
-			double z = seat.getDouble("z");
-			this.seats.add(new Vector(x, y, z));
-		}
-
-		createSeats(pos);
-	}
-
-	@Override
-	public void save(JSONObject json, boolean unloading)
-	{
-		if (editingCollision.editing)
-		{
-			json.put("editingCollisions", true);
-
-			json.put("offsetX", editingCollision.offsetX);
-			json.put("offsetY", editingCollision.offsetY);
-			json.put("offsetZ", editingCollision.offsetZ);
-		}
-
-		if (editingSeat.editing)
-		{
-			json.put("editingSeat", true);
-
-			json.put("offsetX", editingSeat.offsetX);
-			json.put("offsetY", editingSeat.offsetY);
-			json.put("offsetZ", editingSeat.offsetZ);
-		}
-
-		json.put("type", collisionsMode);
-
-		if (unloading)
-		{
-			clearMainUi();
-			clearCollisionUi();
-			clearCollisions();
-			clearSeatUi();
-			clearSeats();
-		}
-
-		JSONArray offsetArray = new JSONArray();
-		for (Vector offset : offsets)
-		{
-			JSONObject off = new JSONObject();
-			off.put("x", offset.getX());
-			off.put("y", offset.getY());
-			off.put("z", offset.getZ());
-			offsetArray.put(off);
-		}
-		json.put("offsets", offsetArray);
-
-		JSONArray seatsArray = new JSONArray();
-		for (Vector seat : seats)
-		{
-			JSONObject s = new JSONObject();
-			s.put("x", seat.getX());
-			s.put("y", seat.getY());
-			s.put("z", seat.getZ());
-			seatsArray.put(s);
-		}
-		json.put("seats", seatsArray);
-	}
+//	@Override
+//	public void save(JSONObject json, boolean unloading)
+//	{
+//		if (editingCollision.editing)
+//		{
+//			json.put("editingCollisions", true);
+//
+//			json.put("offsetX", editingCollision.offsetX);
+//			json.put("offsetY", editingCollision.offsetY);
+//			json.put("offsetZ", editingCollision.offsetZ);
+//		}
+//
+//		if (editingSeat.editing)
+//		{
+//			json.put("editingSeat", true);
+//
+//			json.put("offsetX", editingSeat.offsetX);
+//			json.put("offsetY", editingSeat.offsetY);
+//			json.put("offsetZ", editingSeat.offsetZ);
+//		}
+//
+//		json.put("type", collisionsMode);
+//
+//		if (unloading)
+//		{
+//			clearMainUi();
+//			clearCollisionUi();
+//			clearCollisions();
+//			clearSeatUi();
+//			clearSeats();
+//		}
+//
+//		JSONArray offsetArray = new JSONArray();
+//		for (Vector offset : offsets)
+//		{
+//			JSONObject off = new JSONObject();
+//			off.put("x", offset.getX());
+//			off.put("y", offset.getY());
+//			off.put("z", offset.getZ());
+//			offsetArray.put(off);
+//		}
+//		json.put("offsets", offsetArray);
+//
+//		JSONArray seatsArray = new JSONArray();
+//		for (Vector seat : seats)
+//		{
+//			JSONObject s = new JSONObject();
+//			s.put("x", seat.getX());
+//			s.put("y", seat.getY());
+//			s.put("z", seat.getZ());
+//			seatsArray.put(s);
+//		}
+//		json.put("seats", seatsArray);
+//	}
 	// endregion
 
 	// region Main UI
@@ -626,6 +627,18 @@ public class ElevatorEditorData extends CustomBlockData
 		{
 			activator.sendMessage(ChatColor.GREEN + "Loaded!");
 		}*/
+	}
+
+	@Override
+	public void toNBT(NBT compound)
+	{
+
+	}
+
+	@Override
+	public void fromNBT(NBT compound)
+	{
+
 	}
 	// endregion
 }

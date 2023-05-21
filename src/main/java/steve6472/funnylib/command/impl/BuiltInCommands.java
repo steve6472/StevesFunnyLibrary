@@ -184,11 +184,13 @@ public class BuiltInCommands
 	@Description("Prints content of PersistantDataContainer of this chunk")
 	@Usage("/debugChunkData")
 	@Usage("[-b] -> broadcast")
+	@Usage("[-s] -> disable saving")
 	public static boolean debugChunkData(@NotNull Player player, @NotNull String[] args)
 	{
 		boolean broadcast = hasFlag("-b", args);
+		boolean disableSave = hasFlag("-s", args);
 
-		if (player.getLocation().getWorld() != null)
+		if (!disableSave && player.getLocation().getWorld() != null)
 			player.getLocation().getWorld().save();
 
 		PersistentDataContainer chunkData = player.getLocation().getChunk().getPersistentDataContainer();

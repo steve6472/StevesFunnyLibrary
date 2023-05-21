@@ -5,6 +5,7 @@ import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.LibSettings;
 import steve6472.funnylib.category.Markers;
 import steve6472.funnylib.category.Structures;
+import steve6472.standalone.exnulla.ExNulla;
 import steve6472.standalone.interactable.Interactable;
 
 /**
@@ -21,7 +22,7 @@ public class FunnyLibStandalone extends JavaPlugin
 	public void onEnable()
 	{
 		FunnyLib.init(this, new LibSettings());
-//		ExNulla.init();
+		ExNulla.init();
 		Interactable.init();
 
 		FunnyLib.registerConfig(markerStorage = new Markers());
