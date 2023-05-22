@@ -14,7 +14,6 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3i;
 import steve6472.funnylib.*;
@@ -33,9 +32,8 @@ import steve6472.funnylib.serialize.ChunkNBT;
 import steve6472.funnylib.util.Log;
 import steve6472.funnylib.util.MetaUtil;
 import steve6472.funnylib.serialize.NBT;
-import steve6472.funnylib.util.MiscUtil;
+import steve6472.funnylib.util.Pair;
 
-import javax.naming.Name;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
@@ -90,7 +88,14 @@ public class Blocks implements Listener
 		{
 			for (Chunk loadedChunk : world.getLoadedChunks())
 			{
-				CustomChunk chunk = CHUNK_MAP.get(loadedChunk);
+				if (!loadedChunk.isEntitiesLoaded())
+					continue;
+
+				Chunk.LoadLevel loadLevel = loadedChunk.getLoadLevel();
+				if (loadLevel == Chunk.LoadLevel.INACCESSIBLE || loadLevel == Chunk.LoadLevel.BORDER)
+					continue;
+
+				CustomChunk chunk = getCustomChunk(loadedChunk);
 				if (chunk == null)
 				{
 					toLoad.add(loadedChunk);
@@ -109,7 +114,7 @@ public class Blocks implements Listener
 						Location location = new Location(world, CustomChunk.keyToX(key) + loadedChunk.getX() * 16, CustomChunk.keyToY(key), CustomChunk.keyToZ(key) + loadedChunk.getZ() * 16);
 						try
 						{
-							((BlockTick) state.getObject()).tick(new BlockContext(location, state));
+							((BlockTick) state.getObject()).tick(new BlockContext(location, state, chunk.getBlockData(location)));
 						} catch (Exception ex)
 						{
 							Log.error("Error while ticking custom block at location " + location);
@@ -141,7 +146,7 @@ public class Blocks implements Listener
 
 		Location location = e.getBlock().getLocation();
 
-		CustomChunk chunk = CHUNK_MAP.get(e.getBlock().getChunk());
+		CustomChunk chunk = getCustomChunk(e.getBlock().getChunk());
 		State blockState = chunk.getBlockState(location);
 		World world = e.getBlock().getWorld();
 		if (blockState != null)
@@ -205,7 +210,7 @@ public class Blocks implements Listener
 
 		Location location = e.getBlock().getLocation();
 
-		CustomChunk chunk = CHUNK_MAP.get(e.getBlock().getChunk());
+		CustomChunk chunk = getCustomChunk(e.getBlock().getChunk());
 		State blockState = chunk.getBlockState(location);
 		World world = e.getBlock().getWorld();
 		if (blockState != null)
@@ -273,6 +278,7 @@ public class Blocks implements Listener
 		} else
 		{
 			block.onBurn(new BlockContext(e.getBlock().getLocation(), blockState));
+			// TODO: remove the custom state
 		}
 	}
 
@@ -310,7 +316,31 @@ public class Blocks implements Listener
 	 */
 
 	// TODO: maybe replace with long map . . . inside world hash map
-	public static final Map<Chunk, CustomChunk> CHUNK_MAP = new HashMap<>();
+	private static final Map<Chunk, CustomChunk> CHUNK_MAP = new HashMap<>();
+
+	public static void addCustomChunk(Chunk chunk, CustomChunk customChunk)
+	{
+		CHUNK_MAP.put(chunk, customChunk);
+		Log.debug("Added custom chunk " + chunk.getX() + "/" + chunk.getZ());
+	}
+
+	public static void removeCustomChunk(Chunk chunk)
+	{
+		CustomChunk remove = CHUNK_MAP.remove(chunk);
+		if (remove == null)
+			Log.warning("Tried to remove non custom chunk " + chunk.getX() + "/" + chunk.getZ());
+		Log.debug("Removed custom chunk " + chunk.getX() + "/" + chunk.getZ() + ", cur= " + CHUNK_MAP.size());
+	}
+
+	public static CustomChunk getCustomChunk(Chunk chunk)
+	{
+		return CHUNK_MAP.get(chunk);
+	}
+
+	public static Map<Chunk, CustomChunk> getCustomChunks()
+	{
+		return CHUNK_MAP;
+	}
 
 	@EventHandler
 	public void loadChunk(ChunkLoadEvent e)
@@ -322,6 +352,8 @@ public class Blocks implements Listener
 	public void unloadChunk(ChunkUnloadEvent e)
 	{
 		saveChunk(e.getChunk(), true);
+
+		Log.debug("Chunk " + e.getChunk().getX() + "/" + e.getChunk().getZ() + " unloaded (save=" + e.isSaveChunk() + ", async=" + e.isAsynchronous() + ")");
 	}
 
 	public static void loadChunk(Chunk chunk)
@@ -334,19 +366,19 @@ public class Blocks implements Listener
 			NBT customBlocks = chunkNBT.getCompound("custom_blocks");
 			customChunk.fromNBT(customBlocks);
 		}
-		CHUNK_MAP.put(chunk, customChunk);
+		addCustomChunk(chunk, customChunk);
 		currentLoadingChunk = null;
 	}
 
 	public static void saveChunk(Chunk chunk, boolean unloading)
 	{
-		CustomChunk customChunk = CHUNK_MAP.get(chunk);
+		CustomChunk customChunk = getCustomChunk(chunk);
 		if (customChunk == null)
 			return;
 		if (unloading)
 		{
 			customChunk.unload();
-			CHUNK_MAP.remove(chunk);
+			removeCustomChunk(chunk);
 		}
 		ChunkNBT chunkNBT = ChunkNBT.create(chunk);
 		NBT customBlocks = chunkNBT.createCompound();
@@ -370,27 +402,27 @@ public class Blocks implements Listener
 
 	public static void setBlockState(Location location, State state)
 	{
-		CHUNK_MAP.get(location.getChunk()).setBlockState(location, state);
+		getCustomChunk(location.getChunk()).setBlockState(location, state);
 	}
 
 	public static void changeBlockState(Location location, State state)
 	{
-		CHUNK_MAP.get(location.getChunk()).changeBlockState(location, state);
+		getCustomChunk(location.getChunk()).changeBlockState(location, state);
 	}
 
 	public static void setBlockState(Location location, State state, int flags)
 	{
-		CHUNK_MAP.get(location.getChunk()).setBlockState(location, state, flags);
+		getCustomChunk(location.getChunk()).setBlockState(location, state, flags);
 	}
 
 	public static State getBlockState(Location location)
 	{
-		return CHUNK_MAP.get(location.getChunk()).getBlockState(location);
+		return getCustomChunk(location.getChunk()).getBlockState(location);
 	}
 
 	public static CustomBlockData getBlockData(Location location)
 	{
-		return CHUNK_MAP.get(location.getChunk()).getBlockData(location);
+		return getCustomChunk(location.getChunk()).getBlockData(location);
 	}
 
 	public static <T extends CustomBlockData> T getBlockData(Location location, Class<T> expectedType)
@@ -404,7 +436,7 @@ public class Blocks implements Listener
 
 	public static void setBlockData(Location location, CustomBlockData data)
 	{
-		CHUNK_MAP.get(location.getChunk()).setBlockData(location, data);
+		getCustomChunk(location.getChunk()).setBlockData(location, data);
 	}
 
 	/*
@@ -489,10 +521,15 @@ public class Blocks implements Listener
 		compound.setCompound("block_data", dataCompound);
 
 		if (unloading)
-			data.unload();
+		{
+			if (data instanceof IBlockEntity iBlockEntity)
+			{
+				iBlockEntity.despawnEntities(new BlockContext(data.pos.clone()));
+			}
+		}
 	}
 
-	public static CustomBlockData compoundToData(NBT compound)
+	public static CustomBlockData compoundToData(NBT compound, State state)
 	{
 		String classPath = compound.getString("data_class");
 
@@ -509,6 +546,10 @@ public class Blocks implements Listener
 			Vector3i pos = compound.get3i("pos");
 			Location location = new Location(Bukkit.getWorld(compound.getString("world_name")), pos.x, pos.y, pos.z);
 			blockData.setPos(location);
+			if (blockData instanceof IBlockEntity iBlockEntity)
+			{
+				iBlockEntity.spawnEntities(new BlockContext(location, state, blockData));
+			}
 
 			return blockData;
 		} catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException |

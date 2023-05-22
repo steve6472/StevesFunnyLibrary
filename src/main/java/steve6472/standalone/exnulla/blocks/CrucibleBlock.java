@@ -10,17 +10,11 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
-import steve6472.funnylib.blocks.Blocks;
-import steve6472.funnylib.blocks.CustomBlock;
-import steve6472.funnylib.blocks.CustomBlockData;
-import steve6472.funnylib.blocks.IBlockData;
+import steve6472.funnylib.blocks.*;
 import steve6472.funnylib.blocks.events.BlockClickEvents;
 import steve6472.funnylib.blocks.events.BlockTick;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.PlayerBlockContext;
-import steve6472.funnylib.json.codec.ann.Save;
-import steve6472.funnylib.json.codec.ann.SaveInt;
-import steve6472.funnylib.json.codec.codecs.EntityCodec;
 import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.Checks;
 import steve6472.funnylib.util.ItemStackBuilder;
@@ -35,13 +29,11 @@ import java.util.List;
  */
 public class CrucibleBlock extends CustomBlock implements IBlockData, BlockClickEvents, BlockTick
 {
-	public static class CrucibleBlockData extends CustomBlockData
+	public static class CrucibleBlockData extends CustomBlockData implements IBlockEntity
 	{
-		@SaveInt
 		int cobblestoneAmount, lavaAmount;
-		@Save(value = EntityCodec.class)
-		Entity frame;
-		@Save(value = EntityCodec.class)
+
+		ItemFrame frame;
 		ArmorStand indicator, dataLabel;
 
 		boolean zeroedOut = false;
@@ -49,13 +41,44 @@ public class CrucibleBlock extends CustomBlock implements IBlockData, BlockClick
 		@Override
 		public void toNBT(NBT compound)
 		{
-
+			compound.setInt("cobblestone_amount", cobblestoneAmount);
+			compound.setInt("lava_amount", lavaAmount);
 		}
 
 		@Override
 		public void fromNBT(NBT compound)
 		{
+			cobblestoneAmount = compound.getInt("cobblestone_amount");
+			lavaAmount = compound.getInt("lava_amount");
+		}
 
+		@Override
+		public void spawnEntities(BlockContext context)
+		{
+			frame = context.getWorld().spawn(context.getLocation(), ItemFrame.class);
+			frame.setFixed(true);
+			frame.setFacingDirection(BlockFace.UP);
+			frame.setVisible(false);
+			frame.setInvulnerable(true);
+			frame.setItem(ItemStackBuilder.create(Material.COMMAND_BLOCK).setCustomModelData(2).buildItemStack());
+
+			indicator = context.getWorld().spawn(context.getLocation().clone().add(0.5, 0.0, 0.5), ArmorStand.class);
+			indicator.setInvisible(true);
+			indicator.setMarker(true);
+			indicator.setGravity(false);
+			indicator.getEquipment().setHelmet(ItemStackBuilder.create(Material.LEATHER_HORSE_ARMOR).setCustomModelData(1).buildItemStack());
+
+			dataLabel = context.getWorld().spawn(context.getLocation().clone().add(0.5, 1.5, 0.5), ArmorStand.class);
+			dataLabel.setInvisible(true);
+			dataLabel.setMarker(true);
+			dataLabel.setGravity(false);
+			dataLabel.setCustomNameVisible(true);
+		}
+
+		@Override
+		public Entity[] getEntities()
+		{
+			return new Entity[] {frame, indicator, dataLabel};
 		}
 	}
 
@@ -178,44 +201,6 @@ public class CrucibleBlock extends CustomBlock implements IBlockData, BlockClick
 				data.lavaAmount -= 1000;
 			}
 		}
-	}
-
-	@Override
-	public void onPlace(BlockContext context)
-	{
-		if (!(context.getBlockData() instanceof CrucibleBlockData data)) return;
-
-		ItemFrame frame = context.getWorld().spawn(context.getLocation(), ItemFrame.class);
-		frame.setFixed(true);
-		frame.setFacingDirection(BlockFace.UP);
-		frame.setVisible(false);
-		frame.setInvulnerable(true);
-		frame.setItem(ItemStackBuilder.create(Material.COMMAND_BLOCK).setCustomModelData(2).buildItemStack());
-
-		data.frame = frame;
-
-		ArmorStand indicator = context.getWorld().spawn(context.getLocation().clone().add(0.5, 0.0, 0.5), ArmorStand.class);
-		indicator.setInvisible(true);
-		indicator.setMarker(true);
-		indicator.setGravity(false);
-		indicator.getEquipment().setHelmet(ItemStackBuilder.create(Material.LEATHER_HORSE_ARMOR).setCustomModelData(1).buildItemStack());
-		data.indicator = indicator;
-
-		ArmorStand dataLabel = context.getWorld().spawn(context.getLocation().clone().add(0.5, 1.5, 0.5), ArmorStand.class);
-		dataLabel.setInvisible(true);
-		dataLabel.setMarker(true);
-		dataLabel.setGravity(false);
-		dataLabel.setCustomNameVisible(true);
-		data.dataLabel = dataLabel;
-	}
-
-	@Override
-	public void onRemove(BlockContext context)
-	{
-		CrucibleBlockData data = context.getBlockData(CrucibleBlockData.class);
-		data.frame.remove();
-		data.indicator.remove();
-		data.dataLabel.remove();
 	}
 
 	@Override

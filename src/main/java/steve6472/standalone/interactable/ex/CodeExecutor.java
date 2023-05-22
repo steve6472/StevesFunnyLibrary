@@ -2,19 +2,21 @@ package steve6472.standalone.interactable.ex;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import steve6472.funnylib.json.INBT;
 import steve6472.funnylib.json.codec.ann.Save;
 import steve6472.funnylib.json.codec.ann.SaveBool;
+import steve6472.funnylib.serialize.NBT;
 
 /**
  * Created by steve6472
  * Date: 10/24/2022
  * Project: StevesFunnyLibrary <br>
  */
-public class CodeExecutor
+public class CodeExecutor implements INBT
 {
 	@Save(ExpressionCodec.class)    public Expression expression;
-	@Save                           public ExpContext context;
-	@SaveBool                       public boolean running;
+	public ExpContext context;
+	public boolean running;
 
 	public CodeExecutor()
 	{
@@ -25,6 +27,25 @@ public class CodeExecutor
 	{
 		this.expression = expression;
 		this.context = context;
+	}
+
+	@Override
+	public void toNBT(NBT compound)
+	{
+		compound.setBoolean("running", running);
+
+		NBT contextCompound = compound.createCompound();
+		context.toNBT(contextCompound);
+		compound.setCompound("context", contextCompound);
+	}
+
+	@Override
+	public void fromNBT(NBT compound)
+	{
+		running = compound.getBoolean("running", false);
+
+		context = new ExpContext();
+		context.fromNBT(compound.getCompound("context"));
 	}
 
 	public void start()

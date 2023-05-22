@@ -1,8 +1,10 @@
 package steve6472.standalone.exnulla.blocks;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.blocks.*;
@@ -28,24 +30,39 @@ import java.util.List;
  */
 public class SilkLeavesBlock extends CustomBlock implements IBlockData, BlockTick
 {
-	public static class SilkLeavesBlockData extends CustomBlockData
+	public static class SilkLeavesBlockData extends CustomBlockData implements IBlockEntity
 	{
-		@SaveDouble
 		public double percentage;
 
-		@Save(value = EntityCodec.class)
-		public ItemFrame itemFrame;
+		public ItemFrame frame;
 
 		@Override
 		public void toNBT(NBT compound)
 		{
-
+			compound.setDouble("percentage", percentage);
 		}
 
 		@Override
 		public void fromNBT(NBT compound)
 		{
+			percentage = compound.getDouble("percentage", 0);
+		}
 
+		@Override
+		public void spawnEntities(BlockContext context)
+		{
+			frame = context.getWorld().spawn(context.getLocation(), ItemFrame.class);
+			frame.setFixed(true);
+			frame.setFacingDirection(States.FACING_HORIZONTAL.getPossibleValues()[RandomUtil.randomInt(0, 3)]);
+			frame.setVisible(false);
+			frame.setInvulnerable(true);
+			frame.setItem(ItemStackBuilder.create(Material.LEATHER_HORSE_ARMOR).setCustomModelData(4).setArmorColor(blend(0x77AB2F, 0xffffff, (float) (percentage / 100f))).buildItemStack());
+		}
+
+		@Override
+		public Entity[] getEntities()
+		{
+			return new Entity[] {frame};
 		}
 	}
 
@@ -77,7 +94,7 @@ public class SilkLeavesBlock extends CustomBlock implements IBlockData, BlockTic
 			silkData.percentage += RandomUtil.randomDouble(1, 5);
 			if (silkData.percentage > 100)
 				silkData.percentage = 100;
-			silkData.itemFrame.setItem(ItemStackBuilder.create(Material.LEATHER_HORSE_ARMOR).setCustomModelData(4).setArmorColor(blend(0x77AB2F, 0xffffff, (float) (silkData.percentage / 100f))).buildItemStack());
+			silkData.frame.setItem(ItemStackBuilder.create(Material.LEATHER_HORSE_ARMOR).setCustomModelData(4).setArmorColor(blend(0x77AB2F, 0xffffff, (float) (silkData.percentage / 100f))).buildItemStack());
 		}
 
 		if (RandomUtil.decide(40) && silkData.percentage > 25)
@@ -92,27 +109,6 @@ public class SilkLeavesBlock extends CustomBlock implements IBlockData, BlockTic
 				Blocks.setBlockState(block.getLocation(), ExNulla.SILK_LEAVES.getDefaultState());
 			}
 		}
-	}
-
-	@Override
-	public void onPlace(BlockContext context)
-	{
-		if (!(context.getBlockData() instanceof SilkLeavesBlockData silkData)) return;
-
-		ItemFrame frame = context.getWorld().spawn(context.getLocation(), ItemFrame.class);
-		frame.setFixed(true);
-		frame.setFacingDirection(States.FACING_HORIZONTAL.getPossibleValues()[RandomUtil.randomInt(0, 3)]);
-		frame.setVisible(false);
-		frame.setInvulnerable(true);
-		frame.setItem(ItemStackBuilder.create(Material.LEATHER_HORSE_ARMOR).setCustomModelData(4).setArmorColor(0x77AB2F).buildItemStack());
-
-		silkData.itemFrame = frame;
-	}
-
-	@Override
-	public void onRemove(BlockContext context)
-	{
-		context.getBlockData(SilkLeavesBlockData.class).itemFrame.remove();
 	}
 
 	@Override

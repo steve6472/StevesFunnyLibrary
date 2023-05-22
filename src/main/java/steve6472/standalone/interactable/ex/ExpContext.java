@@ -1,11 +1,10 @@
 package steve6472.standalone.interactable.ex;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import steve6472.funnylib.json.codec.ann.Save;
-import steve6472.funnylib.json.codec.ann.SaveLong;
-import steve6472.funnylib.json.codec.codecs.LocationCodec;
-import steve6472.funnylib.json.codec.codecs.WorldCodec;
+import steve6472.funnylib.json.INBT;
+import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.Preconditions;
 
 /**
@@ -13,11 +12,11 @@ import steve6472.funnylib.util.Preconditions;
  * Date: 10/6/2022
  * Project: StevesFunnyLibrary <br>
  */
-public class ExpContext
+public class ExpContext implements INBT
 {
-	@Save(WorldCodec.class)     private final World world;
-	@Save(LocationCodec.class)  private final Location executionLocation;
-	@SaveLong                   long delayTicks;
+	private World world;
+	private Location executionLocation;
+	long delayTicks;
 
 	public ExpContext()
 	{
@@ -29,6 +28,26 @@ public class ExpContext
 	{
 		this.world = location.getWorld();
 		this.executionLocation = location;
+	}
+
+	@Override
+	public void toNBT(NBT compound)
+	{
+		compound.setLong("delay_ticks", delayTicks);
+		if (world != null)
+			compound.setUUID("world", world.getUID());
+		if (executionLocation != null)
+			compound.setLocation("execution_location", executionLocation);
+	}
+
+	@Override
+	public void fromNBT(NBT compound)
+	{
+		delayTicks = compound.getLong("delay_ticks");
+		if (compound.hasUUID("world"))
+			world = Bukkit.getWorld(compound.getUUID("world"));
+		if (compound.hasLocation("execution_location"))
+			executionLocation = compound.getLocation("execution_location");
 	}
 
 	public void delay(long ticks)

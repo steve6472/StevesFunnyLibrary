@@ -1,9 +1,15 @@
 package steve6472.funnylib.serialize;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
+import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 import org.joml.Vector3i;
 import org.json.JSONObject;
 import steve6472.funnylib.FunnyLib;
@@ -11,6 +17,7 @@ import steve6472.funnylib.util.MiscUtil;
 import steve6472.funnylib.util.Preconditions;
 
 import java.util.Locale;
+import java.util.UUID;
 
 /**
  * Created by steve6472
@@ -445,7 +452,7 @@ public class NBT
 		return nbtArray;
 	}
 
-	public void setCompoundArray(String key, NBT[] compoundArray)
+	public void setCompoundArray(String key, @NotNull NBT[] compoundArray)
 	{
 		PersistentDataContainer[] array = new PersistentDataContainer[compoundArray.length];
 		for (int i = 0; i < array.length; i++)
@@ -477,14 +484,14 @@ public class NBT
 	 * Enum (string but stfu)
 	 */
 
-	public <T extends Enum<T>> T getEnum(Class<T> clazz, String key)
+	public <T extends Enum<T>> T getEnum(@NotNull Class<T> clazz, String key)
 	{
 		String string = container.get(newKey(key), PersistentDataType.STRING);
 		Preconditions.checkNotNull(string, "No Enum value found for key '" + key + "'");
 		return Enum.valueOf(clazz, string);
 	}
 
-	public <T extends Enum<T>> T getEnum(Class<T> clazz, String key, T defaultValue)
+	public <T extends Enum<T>> T getEnum(@NotNull Class<T> clazz, String key, @Nullable T defaultValue)
 	{
 		String string = container.get(newKey(key), PersistentDataType.STRING);
 		if (string == null)
@@ -493,7 +500,7 @@ public class NBT
 			return Enum.valueOf(clazz, string);
 	}
 
-	public void setEnum(String key, Enum<?> value)
+	public void setEnum(String key, @NotNull Enum<?> value)
 	{
 		container.set(newKey(key), PersistentDataType.STRING, value.name());
 	}
@@ -512,7 +519,7 @@ public class NBT
 		return MiscUtil.deserializeItemStack(new JSONObject(getString(key)));
 	}
 
-	public void setItemStack(String key, ItemStack value)
+	public void setItemStack(String key, @NotNull ItemStack value)
 	{
 		JSONObject jsonObject = MiscUtil.serializeItemStack(value);
 		setString(key, jsonObject.toString());
@@ -522,7 +529,11 @@ public class NBT
 	 * Fancy compounds
 	 */
 
-	public void set3i(String key, Vector3i vec)
+	/*
+	 * 3i
+	 */
+
+	public void set3i(String key, @NotNull Vector3i vec)
 	{
 		set3i(key, vec.x, vec.y, vec.z);
 	}
@@ -541,7 +552,7 @@ public class NBT
 		return get3i(key, new Vector3i());
 	}
 
-	public Vector3i get3i(String key, Vector3i store)
+	public Vector3i get3i(String key, @NotNull Vector3i store)
 	{
 		NBT compound = getCompound(key);
 		return store.set(compound.getInt("x"), compound.getInt("y"), compound.getInt("z"));
@@ -550,5 +561,108 @@ public class NBT
 	public boolean has3i(String key)
 	{
 		return hasCompound(key);
+	}
+
+	/*
+	 * 3d
+	 */
+
+	public void set3d(String key, @NotNull Vector3d vec)
+	{
+		set3d(key, vec.x, vec.y, vec.z);
+	}
+
+	public void set3d(String key, double x, double y, double z)
+	{
+		NBT compound = createCompound();
+		compound.setDouble("x", x);
+		compound.setDouble("y", y);
+		compound.setDouble("z", z);
+		setCompound(key, compound);
+	}
+
+	public Vector3d get3d(String key)
+	{
+		return get3d(key, new Vector3d());
+	}
+
+	public Vector3d get3d(String key, @NotNull Vector3d store)
+	{
+		NBT compound = getCompound(key);
+		return store.set(compound.getDouble("x"), compound.getDouble("y"), compound.getDouble("z"));
+	}
+
+	public boolean has3d(String key)
+	{
+		return hasCompound(key);
+	}
+
+	/*
+	 * UUID
+	 */
+
+	public void setUUID(String key, @NotNull UUID uuid)
+	{
+		setString(key, uuid.toString());
+	}
+
+	public boolean hasUUID(String key)
+	{
+		return hasString(key);
+	}
+
+	public UUID getUUID(String key)
+	{
+		return UUID.fromString(getString(key));
+	}
+
+	public UUID getUUID(String key, @Nullable UUID defaultValue)
+	{
+		if (!hasUUID(key))
+			return defaultValue;
+		else
+			return getUUID(key);
+	}
+
+	/*
+	 * Location
+	 */
+
+	public void setLocation(String key, @NotNull Location location)
+	{
+		NBT compound = createCompound();
+
+		if (location.getWorld() != null)
+			compound.setUUID("world", location.getWorld().getUID());
+		compound.set3d("pos", location.getX(), location.getY(), location.getZ());
+		compound.setFloat("yaw", location.getYaw());
+		compound.setFloat("pitch", location.getPitch());
+
+		setCompound(key, compound);
+	}
+
+	public boolean hasLocation(String key)
+	{
+		return hasCompound(key);
+	}
+
+	public Location getLocation(String key)
+	{
+		NBT compound = getCompound(key);
+		UUID worldUUID = compound.getUUID("world", null);
+		World world = worldUUID == null ? null : Bukkit.getWorld(worldUUID);
+		Vector3d pos = compound.get3d("pos");
+		float yaw = compound.getFloat("yaw");
+		float pitch = compound.getFloat("pitch");
+
+		return new Location(world, pos.x, pos.y, pos.z, yaw, pitch);
+	}
+
+	public Location getLocation(String key, @Nullable Location defaultValue)
+	{
+		if (hasLong(key))
+			return getLocation(key);
+		else
+			return defaultValue;
 	}
 }

@@ -148,7 +148,7 @@ public class CustomChunk implements INBT
 			int key = locObj.getInt("loc_key");
 			try
 			{
-				CustomBlockData customData = Blocks.compoundToData(locObj.getCompound("data"));
+				CustomBlockData customData = Blocks.compoundToData(locObj.getCompound("data"), blocks.get(key));
 				blockData.put(key, customData);
 			} catch (Exception ex)
 			{
@@ -189,9 +189,15 @@ public class CustomChunk implements INBT
 				CustomBlockData blockData = getBlockData(location);
 				BlockContext context = new BlockContext(location, existingState);
 				((CustomBlock) existingState.getObject()).onRemove(context);
+
 				if (blockData != null)
 				{
 					blockData.onRemove(context);
+
+					if (blockData instanceof IBlockEntity iBlockEntity)
+					{
+						iBlockEntity.despawnEntities(context);
+					}
 				}
 				setBlockData(location, null);
 				blocks.remove(key);
@@ -221,6 +227,11 @@ public class CustomChunk implements INBT
 			if (blockData != null)
 			{
 				blockData.onRemove(context);
+
+				if (blockData instanceof IBlockEntity iBlockEntity)
+				{
+					iBlockEntity.despawnEntities(context);
+				}
 			}
 
 			cb.onRemove(context);
@@ -249,6 +260,10 @@ public class CustomChunk implements INBT
 			BlockContext context = new BlockContext(location, state, blockData);
 			blockData.onPlace(context);
 			cb.onPlace(context);
+			if (blockData instanceof IBlockEntity iBlockEntity)
+			{
+				iBlockEntity.spawnEntities(context);
+			}
 		} else
 		{
 			cb.onPlace(new BlockContext(location, state));

@@ -131,4 +131,10 @@ public class BlockContext
 			return false;
 		return data.getClass().isAssignableFrom(expectedType);
 	}
+
+	@Override
+	public String toString()
+	{
+		return "BlockContext{" + "location=" + location + ", block=" + block + ", customState=" + customState + '}';
+	}
 }

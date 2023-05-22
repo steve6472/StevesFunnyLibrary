@@ -28,7 +28,6 @@ public abstract class CustomBlockData implements INBT
 
 	public void onPlace(BlockContext context) {}
 	public void onRemove(BlockContext context) {}
-	public void unload() {}
 
 	public void setLogic(CustomBlock block)
 	{

@@ -1,5 +1,6 @@
 package steve6472.funnylib.command.impl;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import net.minecraft.nbt.Tag;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_19_R3.persistence.CraftPersistentDataContainer;
@@ -12,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomChunk;
+import steve6472.funnylib.blocks.stateengine.State;
 import steve6472.funnylib.command.*;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.util.ItemStackBuilder;
@@ -19,6 +21,7 @@ import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.RepeatingTask;
 import steve6472.standalone.FunnyLibStandalone;
 
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -208,6 +211,59 @@ public class BuiltInCommands
 	}
 
 	@Command
+	@Description("Shows all custom chunks with at least one custom block")
+	@Usage("/debugChunks")
+	@Usage("[-b] -> broadcast")
+	@Usage("[-a] -> Show all custom chunks")
+	@Usage("[-d] -> Show blockData")
+	public static boolean debugChunks(@NotNull Player player, @NotNull String[] args)
+	{
+		boolean broadcast = hasFlag("-b", args);
+		boolean all = hasFlag("-a", args);
+
+		Blocks.getCustomChunks().forEach((c, cc) ->
+		{
+			Int2ObjectLinkedOpenHashMap<State> blocks = cc.blocks;
+			if (all || blocks.size() > 0)
+			{
+				String msg = c.getX() + "/" + c.getZ() + " -> " + blocks.size();
+
+				if (broadcast)
+					Bukkit.broadcastMessage(msg);
+				else
+					player.sendMessage(msg);
+			}
+		});
+		return true;
+	}
+
+	@Command
+	@Description("Prints CUSTOM_CHUNKS map")
+	@Usage("/printMap")
+	@Usage("[-b] -> broadcast")
+	public static boolean printMap(@NotNull Player player, @NotNull String[] args)
+	{
+		boolean broadcast = hasFlag("-b", args);
+		Bukkit.broadcastMessage(Arrays.toString(args));
+
+//		for (Chunk loadedChunk : player.getWorld().getLoadedChunks())
+//		{
+//			if (Blocks.isWatched(loadedChunk))
+//			{
+//				Log.warning("[" + FunnyLib.getUptimeTicks() + "] Chunk " + loadedChunk.getX() + "/" + loadedChunk.getZ() + " is loaded!");
+//			}
+//		}
+//		String msg = Blocks.getCustomChunks().toString();
+//
+//		if (broadcast)
+//			Bukkit.broadcastMessage(msg);
+//		else
+//			player.sendMessage(msg);
+
+		return true;
+	}
+
+	@Command
 	@Description("Prints block debug")
 	@Usage("/debugChunkBlocks")
 	@Usage("[-b] -> broadcast")
@@ -217,7 +273,7 @@ public class BuiltInCommands
 
 		if (player.getLocation().getWorld() != null)
 			player.getLocation().getWorld().save();
-		CustomChunk chunk = Blocks.CHUNK_MAP.get(player.getLocation().getChunk());
+		CustomChunk chunk = Blocks.getCustomChunk(player.getLocation().getChunk());
 		chunk.blockData.forEach((k, v) -> {
 			player.sendMessage(k + "(" + CustomChunk.keyToX(k) + "/" + CustomChunk.keyToY(k) + "/" + CustomChunk.keyToZ(k) + " -> " + v);
 		});
@@ -230,7 +286,7 @@ public class BuiltInCommands
 	public static boolean clearCustomBlocks(@NotNull Player player, @NotNull String[] args)
 	{
 		PersistentDataContainer chunkData = player.getLocation().getChunk().getPersistentDataContainer();
-		Blocks.CHUNK_MAP.remove(player.getLocation().getChunk());
+		Blocks.removeCustomChunk(player.getLocation().getChunk());
 		chunkData.remove(new NamespacedKey(FunnyLib.getPlugin(), "custom_blocks"));
 		return true;
 	}
@@ -276,7 +332,7 @@ public class BuiltInCommands
 					for (Chunk loadedChunk : world.getLoadedChunks())
 					{
 						PersistentDataContainer chunkData = loadedChunk.getPersistentDataContainer();
-						Blocks.CHUNK_MAP.remove(loadedChunk);
+						Blocks.removeCustomChunk(loadedChunk);
 						chunkData.remove(new NamespacedKey("akmashorts", "custom_blocks"));
 					}
 				}

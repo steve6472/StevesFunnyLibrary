@@ -20,7 +20,6 @@ import steve6472.funnylib.blocks.stateengine.properties.IProperty;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.BlockFaceContext;
 import steve6472.funnylib.context.PlayerBlockContext;
-import steve6472.funnylib.json.codec.ann.SaveString;
 import steve6472.funnylib.data.Marker;
 import steve6472.funnylib.json.codec.codecs.MarkerCodec;
 import steve6472.funnylib.menu.Mask;
@@ -46,19 +45,18 @@ public class ActivatingButtonBlock extends CustomBlock implements IBlockData, Bl
 	public static class ActivatingData extends CustomBlockData
 	{
 		private Marker block;
-		@SaveString
-		private String material = Material.STONE_BUTTON.name();
+		private Material material = Material.STONE_BUTTON;
 
 		@Override
 		public void toNBT(NBT compound)
 		{
-
+			compound.setEnum("material", material);
 		}
 
 		@Override
 		public void fromNBT(NBT compound)
 		{
-
+			material = compound.getEnum(Material.class, "material");
 		}
 	}
 
@@ -82,7 +80,7 @@ public class ActivatingButtonBlock extends CustomBlock implements IBlockData, Bl
 		if (context.testDataType(ActivatingData.class))
 		{
 			ActivatingData data = context.getBlockData(ActivatingData.class);
-			switchData = (Switch) Material.valueOf(data.material).createBlockData();
+			switchData = (Switch) data.material.createBlockData();
 		} else
 		{
 			switchData = (Switch) Material.STONE_BUTTON.createBlockData();
@@ -175,7 +173,7 @@ public class ActivatingButtonBlock extends CustomBlock implements IBlockData, Bl
 			ActivatingData data = m.getData("data", ActivatingData.class);
 			Location location = m.getData("location", Location.class);
 
-			return SlotBuilder.create(ItemStackBuilder.quick(Material.valueOf(data.material), "Material"))
+			return SlotBuilder.create(ItemStackBuilder.quick(data.material, "Material"))
 				.allow(InventoryAction.PICKUP_ALL, InventoryAction.SWAP_WITH_CURSOR)
 				.allow(ClickType.LEFT)
 				.onClick((c, cm) -> {
@@ -189,9 +187,9 @@ public class ActivatingButtonBlock extends CustomBlock implements IBlockData, Bl
 					BlockData blockData = item.getType().createBlockData();
 					if (blockData instanceof Switch)
 					{
-						data.material = item.getType().name();
+						data.material = item.getType();
 						location.getBlock().setBlockData(Interactable.ACTIVATING_BUTTON_BLOCK.getVanillaState(new BlockContext(location)));
-						c.slot().setItem(ItemStackBuilder.quick(Material.valueOf(data.material), "Material"));
+						c.slot().setItem(ItemStackBuilder.quick(data.material, "Material"));
 					}
 
 					return Response.cancel();

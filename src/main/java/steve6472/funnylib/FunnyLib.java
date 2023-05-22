@@ -228,15 +228,11 @@ public class FunnyLib
 
 	private static void initBuiltin()
 	{
-		Codec.registerCodec(new LocationCodec());
 		Codec.registerCodec(new ItemStackCodec());
 		Codec.registerCodec(new EntityCodec());
-		Codec.registerCodec(new WorldCodec());
 
-		Codec.regDefCodec(Location.class, new LocationCodec());
 		Codec.regDefCodec(ItemStack.class, new ItemStackCodec());
 		Codec.regDefCodec(Entity.class, new EntityCodec());
-		Codec.regDefCodec(World.class, new WorldCodec());
 
 		Blocks.registerBlock(TELEPORT_BUTTON_BLOCK = new TeleportButtonBlock());
 		Blocks.registerBlock(MULTI_BLOCK = new MultiBlock());
