@@ -24,6 +24,11 @@ public final class Marker implements ICategorizable, Itemizable<Marker>
 	private String name;
 	private Material icon;
 
+	public Marker()
+	{
+		this.location = new Vector3i(0, 0, 0);
+	}
+
 	public Marker(int x, int y, int z, String name, Material icon)
 	{
 		this.location = new Vector3i(x, y, z);

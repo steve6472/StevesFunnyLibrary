@@ -3,8 +3,9 @@ package steve6472.standalone.interactable.worldbutton;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Interaction;
+import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Slime;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -13,6 +14,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.util.*;
 import org.bukkit.util.Vector;
+import org.joml.Quaterniond;
 import steve6472.funnylib.events.ServerTickEvent;
 import steve6472.funnylib.util.MetaUtil;
 
@@ -55,10 +57,9 @@ public class WorldButtonListener implements Listener
 	public void damageEntity(EntityDamageByEntityEvent e)
 	{
 		if (!(e.getDamager() instanceof Player player)) return;
-		if (!(e.getEntity() instanceof Slime slime)) return;
-		if (slime.getSize() != 1) return;
+		if (!(e.getEntity() instanceof Interaction interaction)) return;
 
-		WorldButton worldButton = MetaUtil.getValue(slime, WorldButton.class, WorldButton.META_KEY);
+		WorldButton worldButton = MetaUtil.getValue(interaction, WorldButton.class, WorldButton.META_KEY);
 
 		// Not a world button, just a normal slime
 		if (worldButton == null) return;
@@ -69,10 +70,9 @@ public class WorldButtonListener implements Listener
 
 	private boolean trySlimeInteract(PlayerInteractEntityEvent e)
 	{
-		if (!(e.getRightClicked() instanceof Slime slime)) return false;
-		if (slime.getSize() != 1) return false;
+		if (!(e.getRightClicked() instanceof Interaction interaction)) return false;
 
-		WorldButton worldButton = MetaUtil.getValue(slime, WorldButton.class, WorldButton.META_KEY);
+		WorldButton worldButton = MetaUtil.getValue(interaction, WorldButton.class, WorldButton.META_KEY);
 
 		// Not a world button, just a normal slime
 		if (worldButton == null) return false;
@@ -131,8 +131,6 @@ public class WorldButtonListener implements Listener
 
 				double maxPlayerDistance = player.getGameMode() == GameMode.CREATIVE ? 4.5 : 3.0;
 
-				BoundingBox testingBox = new BoundingBox();
-
 				for (Iterator<WorldButton> iter = entry.getValue().iterator(); iter.hasNext(); )
 				{
 					WorldButton worldButton = iter.next();
@@ -144,10 +142,8 @@ public class WorldButtonListener implements Listener
 
 					double maxDistance = worldButton.isRemote ? 16.0 : maxPlayerDistance;
 
-					double size = worldButton.hitbox.getSize() * 0.51;
-					testingBox.resize(0, 0, 0, size, size, size);
-					testingBox.shift(worldButton.hitbox.getLocation());
-					testingBox.shift(-size / 2.0, 0, -size / 2.0);
+					double size = worldButton.hitbox.getWidth() * 0.51;
+					BoundingBox testingBox = worldButton.hitbox.getBoundingBox();
 
 					Vector center = testingBox.getCenter();
 					double distance = playerEyePosition.distance(center) + ((size / 2.0) * Math.sqrt(2.0) - (size / 2.0));
@@ -216,26 +212,27 @@ public class WorldButtonListener implements Listener
 		if (ray == null)
 			return;
 
-		final double _2PI = 2 * Math.PI;
-		final double x = ray.getX();
-		final double z = ray.getZ();
+//		final double _2PI = 2 * Math.PI;
+//		final double x = ray.getX();
+//		final double z = ray.getZ();
+//
+//		double pitch, yaw;
+//
+//		if (x == 0 && z == 0)
+//		{
+//			pitch = ray.getY() > 0 ? -90 : 90;
+//		} else
+//		{
+//			double x2 = NumberConversions.square(x);
+//			double z2 = NumberConversions.square(z);
+//			double xz = Math.sqrt(x2 + z2);
+//			pitch = Math.atan(-ray.getY() / xz);
+//		}
+//
+//		double theta = Math.atan2(-x, z);
+//		yaw = (theta + _2PI) % _2PI;
 
-		double pitch, yaw;
-
-		if (x == 0 && z == 0)
-		{
-			pitch = ray.getY() > 0 ? -90 : 90;
-		} else
-		{
-			double x2 = NumberConversions.square(x);
-			double z2 = NumberConversions.square(z);
-			double xz = Math.sqrt(x2 + z2);
-			pitch = Math.atan(-ray.getY() / xz);
-		}
-
-		double theta = Math.atan2(-x, z);
-		yaw = (theta + _2PI) % _2PI;
-
-		worldButton.icon.setHeadPose(new EulerAngle(pitch, yaw, 0));
+		worldButton.icon.getTransformation().getLeftRotation().set(new Quaterniond().lookAlong(ray.getX(), ray.getY(), ray.getZ(), 0, 1, 0));
+//		worldButton.icon.getTransformation().(new EulerAngle(pitch, yaw, 0));
 	}
 }

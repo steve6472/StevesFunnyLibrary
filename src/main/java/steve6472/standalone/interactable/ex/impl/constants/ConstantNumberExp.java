@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import steve6472.funnylib.menu.Click;
 import steve6472.funnylib.menu.Menu;
 import steve6472.funnylib.menu.Response;
+import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.standalone.interactable.ex.*;
 
@@ -20,9 +21,9 @@ public class ConstantNumberExp extends Expression
 
 	private final ElementType LABEL = new ElementType("label", 0, () -> ItemStackBuilder.edit(ExpItems.CONSTANT_NUMBER.newItemStack()).setName(ChatColor.DARK_AQUA + "Number: " + ChatColor.WHITE + number).buildItemStack());
 
-	public ConstantNumberExp(int number)
+	public ConstantNumberExp()
 	{
-		this.number = number;
+
 	}
 
 	@Override
@@ -86,8 +87,14 @@ public class ConstantNumberExp extends Expression
 	}
 
 	@Override
-	public void save(JSONObject json)
+	public void toNBT(NBT compound)
 	{
-		json.put("number", number);
+		compound.setInt("number", number);
+	}
+
+	@Override
+	public void fromNBT(NBT compound)
+	{
+		number = compound.getInt("number", 0);
 	}
 }

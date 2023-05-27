@@ -14,7 +14,7 @@ import steve6472.funnylib.serialize.NBT;
  */
 public class CodeExecutor implements INBT
 {
-	@Save(ExpressionCodec.class)    public Expression expression;
+	public Expression expression;
 	public ExpContext context;
 	public boolean running;
 
@@ -37,6 +37,8 @@ public class CodeExecutor implements INBT
 		NBT contextCompound = compound.createCompound();
 		context.toNBT(contextCompound);
 		compound.setCompound("context", contextCompound);
+
+		compound.setCompound("expression", Expressions.saveExpression(compound.createCompound(), expression));
 	}
 
 	@Override
@@ -46,6 +48,10 @@ public class CodeExecutor implements INBT
 
 		context = new ExpContext();
 		context.fromNBT(compound.getCompound("context"));
+
+		expression = Expressions.loadExpression(compound.getCompound("expression"));
+
+		System.out.println(context + ", " + expression);
 	}
 
 	public void start()

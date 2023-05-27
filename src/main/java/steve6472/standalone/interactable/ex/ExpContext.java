@@ -14,19 +14,16 @@ import steve6472.funnylib.util.Preconditions;
  */
 public class ExpContext implements INBT
 {
-	private World world;
 	private Location executionLocation;
 	long delayTicks;
 
 	public ExpContext()
 	{
-		world = null;
 		executionLocation = null;
 	}
 
 	public ExpContext(Location location)
 	{
-		this.world = location.getWorld();
 		this.executionLocation = location;
 	}
 
@@ -34,8 +31,6 @@ public class ExpContext implements INBT
 	public void toNBT(NBT compound)
 	{
 		compound.setLong("delay_ticks", delayTicks);
-		if (world != null)
-			compound.setUUID("world", world.getUID());
 		if (executionLocation != null)
 			compound.setLocation("execution_location", executionLocation);
 	}
@@ -44,8 +39,6 @@ public class ExpContext implements INBT
 	public void fromNBT(NBT compound)
 	{
 		delayTicks = compound.getLong("delay_ticks");
-		if (compound.hasUUID("world"))
-			world = Bukkit.getWorld(compound.getUUID("world"));
 		if (compound.hasLocation("execution_location"))
 			executionLocation = compound.getLocation("execution_location");
 	}
@@ -68,6 +61,6 @@ public class ExpContext implements INBT
 
 	public World getWorld()
 	{
-		return world;
+		return executionLocation.getWorld();
 	}
 }

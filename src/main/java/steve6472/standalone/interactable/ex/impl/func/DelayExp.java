@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import steve6472.funnylib.menu.Click;
 import steve6472.funnylib.menu.Menu;
 import steve6472.funnylib.menu.Response;
+import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.standalone.interactable.ex.*;
 
@@ -22,6 +23,11 @@ public class DelayExp extends Expression
 
 	long ticks;
 	private final ElementType LABEL = new ElementType("label", 3, () -> ItemStackBuilder.edit(ExpItems.DELAY_ID.newItemStack()).setName(ChatColor.DARK_AQUA + "Current Delay: " + ticks + " ticks").buildItemStack());
+
+	public DelayExp()
+	{
+
+	}
 
 	public DelayExp(long ticks)
 	{
@@ -100,8 +106,14 @@ public class DelayExp extends Expression
 	}
 
 	@Override
-	public void save(JSONObject json)
+	public void toNBT(NBT compound)
 	{
-		json.put("ticks", ticks);
+		compound.setLong("ticks", ticks);
+	}
+
+	@Override
+	public void fromNBT(NBT compound)
+	{
+		ticks = compound.getLong("ticks", 0);
 	}
 }

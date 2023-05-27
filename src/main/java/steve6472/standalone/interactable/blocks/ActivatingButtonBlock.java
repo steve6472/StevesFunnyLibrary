@@ -11,6 +11,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.blocks.*;
 import steve6472.funnylib.blocks.builtin.AdminInterface;
 import steve6472.funnylib.blocks.events.BlockClickEvents;
@@ -21,13 +22,14 @@ import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.BlockFaceContext;
 import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.data.Marker;
-import steve6472.funnylib.json.codec.codecs.MarkerCodec;
+import steve6472.funnylib.item.Items;
 import steve6472.funnylib.menu.Mask;
 import steve6472.funnylib.menu.MenuBuilder;
 import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.menu.SlotBuilder;
 import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.ItemStackBuilder;
+import steve6472.funnylib.util.MiscUtil;
 import steve6472.standalone.interactable.Interactable;
 
 import java.util.List;
@@ -51,12 +53,17 @@ public class ActivatingButtonBlock extends CustomBlock implements IBlockData, Bl
 		public void toNBT(NBT compound)
 		{
 			compound.setEnum("material", material);
+			NBT blockNbt = compound.createCompound();
+			block.toNBT(blockNbt);
+			compound.setCompound("location", blockNbt);
 		}
 
 		@Override
 		public void fromNBT(NBT compound)
 		{
 			material = compound.getEnum(Material.class, "material");
+			block = new Marker();
+			block.fromNBT(compound.getOrCreateCompound("location"));
 		}
 	}
 
@@ -166,7 +173,35 @@ public class ActivatingButtonBlock extends CustomBlock implements IBlockData, Bl
 		.slot(2, 1, m ->
 		{
 			ActivatingData data = m.getData("data", ActivatingData.class);
-			return MarkerCodec.slotBuilder(data.block, v -> data.block = v);
+
+			Marker location = data.block;
+			ItemStack item;
+			if (location == null)
+				item = MiscUtil.AIR;
+			else
+				item = location.toItem();
+
+			return SlotBuilder
+				.create(item)
+				.allow(InventoryAction.PICKUP_ALL, InventoryAction.PLACE_ALL)
+				.allow(ClickType.LEFT)
+				.onClick((c, cm) ->
+				{
+					boolean markerInHand = Items.getCustomItem(c.itemOnCursor()) == FunnyLib.LOCATION_MARKER;
+
+					// Cancel if item in hand is not Air and is not Marker
+					if (!markerInHand && !c.itemOnCursor().getType().isAir())
+						return Response.cancel();
+
+					if (markerInHand && !c.itemOnCursor().getType().isAir())
+					{
+						data.block = Marker.fromItem(c.itemOnCursor().clone());
+					} else
+					{
+						data.block = null;
+					}
+					return Response.allow();
+				});
 		})
 		.slot(6, 1, m ->
 		{

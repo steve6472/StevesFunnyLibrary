@@ -2,10 +2,10 @@ package steve6472.standalone.interactable.ex.impl.func;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.json.JSONObject;
 import steve6472.funnylib.menu.Click;
 import steve6472.funnylib.menu.Menu;
 import steve6472.funnylib.menu.Response;
+import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.standalone.interactable.ex.*;
 
@@ -22,6 +22,11 @@ public class DebugHereExp extends Expression
 
 	int id;
 	private final ElementType ID = new ElementType("id", 3, () -> ItemStackBuilder.edit(ExpItems.DEBUG_HERE_ID.newItemStack()).setName(ChatColor.DARK_AQUA + "Debug ID: " + id).buildItemStack());
+
+	public DebugHereExp()
+	{
+
+	}
 
 	public DebugHereExp(int id)
 	{
@@ -99,8 +104,14 @@ public class DebugHereExp extends Expression
 	}
 
 	@Override
-	public void save(JSONObject json)
+	public void toNBT(NBT compound)
 	{
-		json.put("id", id);
+		compound.setInt("id", id);
+	}
+
+	@Override
+	public void fromNBT(NBT compound)
+	{
+		id = compound.getInt("id", 0);
 	}
 }

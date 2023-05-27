@@ -238,32 +238,6 @@ public class BuiltInCommands
 	}
 
 	@Command
-	@Description("Prints CUSTOM_CHUNKS map")
-	@Usage("/printMap")
-	@Usage("[-b] -> broadcast")
-	public static boolean printMap(@NotNull Player player, @NotNull String[] args)
-	{
-		boolean broadcast = hasFlag("-b", args);
-		Bukkit.broadcastMessage(Arrays.toString(args));
-
-//		for (Chunk loadedChunk : player.getWorld().getLoadedChunks())
-//		{
-//			if (Blocks.isWatched(loadedChunk))
-//			{
-//				Log.warning("[" + FunnyLib.getUptimeTicks() + "] Chunk " + loadedChunk.getX() + "/" + loadedChunk.getZ() + " is loaded!");
-//			}
-//		}
-//		String msg = Blocks.getCustomChunks().toString();
-//
-//		if (broadcast)
-//			Bukkit.broadcastMessage(msg);
-//		else
-//			player.sendMessage(msg);
-
-		return true;
-	}
-
-	@Command
 	@Description("Prints block debug")
 	@Usage("/debugChunkBlocks")
 	@Usage("[-b] -> broadcast")

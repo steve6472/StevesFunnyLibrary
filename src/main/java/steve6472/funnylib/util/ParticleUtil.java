@@ -295,6 +295,12 @@ public class ParticleUtil
 
 	public static <T> void boxAbsolute(Player player, Particle particle, BoundingBox box, double particleSpeed, double spacing, @Nullable T data)
 	{
+		if (box.getVolume() <= 0.001)
+		{
+			player.spawnParticle(particle, box.getCenterX(), box.getCenterY(), box.getCenterZ(), 0, data);
+			return;
+		}
+
 		boxAbsolute(player, particle, box.getMinX(), box.getMinY(), box.getMinZ(), box.getMaxX(), box.getMaxY(), box.getMaxZ(), particleSpeed, spacing, data);
 	}
 

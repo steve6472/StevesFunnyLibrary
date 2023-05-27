@@ -62,9 +62,9 @@ public class ExpBuilder
 		menu.setSlot(x, y, slot);
 
 		ItemStackBuilder builder = ItemStackBuilder.editNonStatic(slot.item());
-		builder.addLore(JSONMessage.create("Element: ").color(ChatColor.GRAY).then(elementType.label()).color(ChatColor.WHITE));
-		builder.addLore("");
-		builder.addLore(Integer.toHexString(currentExpression.hashCode()), ChatColor.DARK_GRAY);
+		builder.addLore(JSONMessage.create("Element: ").color(ChatColor.GRAY).then(elementType.label()).color(ChatColor.WHITE).setItalic(JSONMessage.ItalicType.FALSE));
+		builder.addLore(JSONMessage.create(""));
+		builder.addLore(JSONMessage.create(Integer.toHexString(currentExpression.hashCode())).color(ChatColor.DARK_GRAY));
 		builder.setInt(ELEMENT_TYPE, elementType.ordinal());
 		slot.setItem(builder.buildItemStack());
 	}

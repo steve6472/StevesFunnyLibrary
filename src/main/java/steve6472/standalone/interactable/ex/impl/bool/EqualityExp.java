@@ -2,6 +2,7 @@ package steve6472.standalone.interactable.ex.impl.bool;
 
 import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.item.CustomItem;
+import steve6472.funnylib.serialize.NBT;
 import steve6472.standalone.interactable.ex.ExpContext;
 import steve6472.standalone.interactable.ex.ExpItems;
 import steve6472.standalone.interactable.ex.ExpResult;
@@ -15,16 +16,11 @@ import steve6472.standalone.interactable.ex.impl.BiInputExp;
  */
 public class EqualityExp extends BiInputExp
 {
-	public Operator operator = Operator.EQUALS;
+	public Operator operator;
 
-	public EqualityExp(Expression left, Expression right)
+	public EqualityExp(Operator operator)
 	{
-		super(Type.BOOL, Type.INT, Type.INT, left, right);
-	}
-
-	public EqualityExp(Operator operator, Expression left, Expression right)
-	{
-		super(Type.BOOL, Type.INT, Type.INT, left, right);
+		super(Type.BOOL, Type.INT, Type.INT);
 		this.operator = operator;
 	}
 
@@ -56,6 +52,20 @@ public class EqualityExp extends BiInputExp
 
 		reset();
 		return new ExpResult(r);
+	}
+
+	@Override
+	public void toNBT(NBT compound)
+	{
+		super.toNBT(compound);
+		compound.setEnum("operator", operator);
+	}
+
+	@Override
+	public void fromNBT(NBT compound)
+	{
+		super.fromNBT(compound);
+		operator = compound.getEnum(Operator.class, "operator");
 	}
 
 	public enum Operator

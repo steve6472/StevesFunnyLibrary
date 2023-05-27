@@ -10,13 +10,11 @@ import steve6472.funnylib.item.BlockPlacerItem;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.GenericItem;
 import steve6472.funnylib.item.Items;
-import steve6472.funnylib.json.codec.Codec;
 import steve6472.standalone.interactable.blocks.ActivatingButtonBlock;
 import steve6472.standalone.interactable.blocks.CodeBlock;
 import steve6472.standalone.interactable.blocks.ElevatorControllerBlock;
 import steve6472.standalone.interactable.blocks.ElevatorEditorBlock;
 import steve6472.standalone.interactable.ex.ExpItems;
-import steve6472.standalone.interactable.ex.ExpressionCodec;
 import steve6472.standalone.interactable.ex.ExpressionMenu;
 import steve6472.standalone.interactable.script.ScriptCommands;
 import steve6472.standalone.interactable.script.ScriptRepository;
@@ -44,8 +42,6 @@ public class Interactable
 
 	public static void init()
 	{
-		Codec.registerCodec(new ExpressionCodec());
-
 		Bukkit.getPluginManager().registerEvents(new WorldButtonListener(), FunnyLib.getPlugin());
 
 		Blocks.registerBlock(ELEVATOR_CONTROLLER_BLOCK = new ElevatorControllerBlock());

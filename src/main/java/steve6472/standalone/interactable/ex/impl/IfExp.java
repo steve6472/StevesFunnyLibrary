@@ -5,6 +5,7 @@ import org.bukkit.inventory.ItemStack;
 import org.json.JSONObject;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.menu.*;
+import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.standalone.interactable.ex.*;
 
@@ -15,7 +16,13 @@ import steve6472.standalone.interactable.ex.*;
  */
 public class IfExp extends Expression
 {
-	private final CodeBlockExp body, condition;
+	private CodeBlockExp body, condition;
+
+	public IfExp()
+	{
+		body = CodeBlockExp.body(this);
+		condition = CodeBlockExp.executor(this, Type.BOOL);
+	}
 
 	public IfExp(Expression condition, Expression body)
 	{
@@ -128,16 +135,23 @@ public class IfExp extends Expression
 	}
 
 	@Override
-	public void save(JSONObject json)
-	{
-		json.put("body", Expressions.saveExpression(body));
-		json.put("condition", Expressions.saveExpression(condition));
-	}
-
-	@Override
 	public Type getType()
 	{
 		return Type.CONTROL;
+	}
+
+	@Override
+	public void toNBT(NBT compound)
+	{
+		compound.setCompound("body", Expressions.saveExpression(compound.createCompound(), body));
+		compound.setCompound("condition", Expressions.saveExpression(compound.createCompound(), condition));
+	}
+
+	@Override
+	public void fromNBT(NBT compound)
+	{
+		body = Expressions.loadExpression(compound.getCompound("body"), CodeBlockExp.class);
+		condition = Expressions.loadExpression(compound.getCompound("condition"), CodeBlockExp.class);
 	}
 
 	public enum ElementType implements IElementType

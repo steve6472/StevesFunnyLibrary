@@ -12,17 +12,26 @@ import steve6472.standalone.interactable.ex.CodeExecutor;
  */
 public class CodeBlockData extends CustomBlockData
 {
-	@Save CodeExecutor executor;
+	CodeExecutor executor;
 
 	@Override
 	public void toNBT(NBT compound)
 	{
-
+		if (executor != null)
+		{
+			NBT executorCompound = compound.createCompound();
+			executor.toNBT(executorCompound);
+			compound.setCompound("executor", executorCompound);
+		}
 	}
 
 	@Override
 	public void fromNBT(NBT compound)
 	{
-
+		if (compound.hasCompound("executor"))
+		{
+			executor = new CodeExecutor();
+			executor.fromNBT(compound.getCompound("executor"));
+		}
 	}
 }

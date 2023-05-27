@@ -52,6 +52,11 @@ public class NBT
 		return container;
 	}
 
+	public boolean isEmpty()
+	{
+		return container.isEmpty();
+	}
+
 	public void save()
 	{
 
@@ -420,6 +425,14 @@ public class NBT
 		PersistentDataContainer compound = container.get(newKey(key), PersistentDataType.TAG_CONTAINER);
 		Preconditions.checkNotNull(compound, "Compound '" + key + "' not found in tag " + MiscUtil.dataToString(container));
 		return NBT.create(compound);
+	}
+
+	public NBT getOrCreateCompound(String key)
+	{
+		if (hasCompound(key))
+			return getCompound(key);
+		else
+			return createCompound();
 	}
 
 	public void setCompound(String key, PersistentDataContainer container)

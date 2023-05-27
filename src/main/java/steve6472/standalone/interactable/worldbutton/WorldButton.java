@@ -4,9 +4,7 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Slime;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
@@ -31,14 +29,15 @@ public class WorldButton
 
 	private final Consumer<PlayerItemContext> clickAction;
 
-	final ArmorStand icon, label;
-	final Slime hitbox;
+	final ItemDisplay icon;
+	final TextDisplay label;
+	final Interaction hitbox;
 
 	public boolean followClosestPlayer;
 	public boolean isRemote;
 	public boolean isActivated;
 
-	private ChatColor activeColor, disabledColor;
+	private Color activeColor, disabledColor;
 	private boolean glowAlways;
 
 	public String labelText;
@@ -46,7 +45,7 @@ public class WorldButton
 	public boolean labelSubtitle;
 	public boolean labelActionBar;
 
-	WorldButton(Location location, int size, @NotNull ItemStack item, @Nullable String labelText, @NotNull Consumer<PlayerItemContext> clickAction)
+	WorldButton(Location location, float size, @NotNull ItemStack item, @Nullable String labelText, @NotNull Consumer<PlayerItemContext> clickAction)
 	{
 		this.clickAction = clickAction;
 		this.labelText = labelText;
@@ -55,52 +54,41 @@ public class WorldButton
 		if (world == null)
 			throw new NullPointerException("World is null!");
 
-		icon = world.spawn(location.clone().add(0, -1.7 + ((size - 1) * 0.255), 0), ArmorStand.class, e ->
+		icon = world.spawn(location.clone().add(0, 0, 0), ItemDisplay.class, e ->
 		{
 			e.setGravity(false);
-			e.setMarker(true);
-			e.setInvisible(true);
-			e.setBasePlate(false);
 			e.setGlowing(false);
-			e.setHeadPose(new EulerAngle(0, Math.PI, 0));
 			e.setPersistent(false);
 		});
-		Objects.requireNonNull(icon.getEquipment()).setHelmet(item);
+		icon.setItemStack(item);
 
 		if (labelText == null)
 		{
 			label = null;
 		} else
 		{
-			label = world.spawn(location.clone().add(0, 0.05 + ((size - 1) * 0.255), 0), ArmorStand.class, e ->
+			label = world.spawn(location.clone().add(0, size / 2f, 0), TextDisplay.class, e ->
 			{
 				e.setGravity(false);
-				e.setMarker(true);
-				e.setInvisible(true);
-				e.setBasePlate(false);
-				e.setSmall(true);
 				e.setPersistent(false);
+				e.setBillboard(Display.Billboard.FIXED);
 			});
 		}
 
-		hitbox = world.spawn(location.clone().add(0, -size * 0.255, 0), Slime.class, e ->
+		hitbox = world.spawn(location.clone().add(0, -size / 2f, 0), Interaction.class, e ->
 		{
-			e.setSize(size);
-			e.setInvisible(true);
-			e.setGravity(false);
-			e.setAI(false);
+			e.setInteractionHeight(size);
+			e.setInteractionWidth(size);
 			e.setPersistent(false);
-			e.setCollidable(false);
+			e.setResponsive(true);
 		});
-		Objects.requireNonNull(hitbox.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(2048.0);
-		hitbox.setHealth(2048.0);
 
 		MetaUtil.setMeta(hitbox, META_KEY, this);
 
 		WorldButtonListener.addWorldButton(this);
 	}
 
-	public void glow(ChatColor activeColor, ChatColor disbledColor, boolean glowAlways)
+	public void glow(Color activeColor, Color disbledColor, boolean glowAlways)
 	{
 		this.glowAlways = glowAlways;
 
@@ -114,17 +102,16 @@ public class WorldButton
 
 		if (isActivated)
 		{
-			GlowingUtil.setGlowColor(icon, activeColor);
+			icon.setGlowColorOverride(activeColor);
 		} else
 		{
-			GlowingUtil.setGlowColor(icon, disbledColor);
+			icon.setGlowColorOverride(disabledColor);
 		}
 	}
 
 	public void setIcon(ItemStack item)
 	{
-		assert icon.getEquipment() != null;
-		icon.getEquipment().setHelmet(item);
+		icon.setItemStack(item);
 	}
 
 	public void activate()
@@ -133,11 +120,12 @@ public class WorldButton
 
 		if (label != null)
 		{
-			label.setCustomName(labelText);
-			label.setCustomNameVisible(true);
+			label.setText(labelText);
+			label.setTextOpacity((byte) -1);
+			label.setDefaultBackground(true);
 		}
 
-		GlowingUtil.setGlowColor(icon, activeColor);
+		icon.setGlowColorOverride(activeColor);
 		icon.setGlowing(true);
 	}
 
@@ -147,7 +135,9 @@ public class WorldButton
 
 		if (label != null)
 		{
-			label.setCustomNameVisible(false);
+			label.setTextOpacity((byte) 4);
+			label.setDefaultBackground(false);
+			label.setText("");
 		}
 
 		if (!glowAlways)
@@ -155,7 +145,7 @@ public class WorldButton
 			icon.setGlowing(false);
 		} else
 		{
-			GlowingUtil.setGlowColor(icon, disabledColor);
+			icon.setGlowColorOverride(disabledColor);
 		}
 	}
 
@@ -187,15 +177,15 @@ public class WorldButton
 	{
 		if (label != null)
 		{
-			label.teleport(location.clone().add(0, 0.05 + ((hitbox.getSize() - 1) * 0.255), 0));
+			label.teleport(location.clone().add(0, hitbox.getInteractionHeight() / 2f, 0));
 		}
-		icon.teleport(location.clone().add(0, -1.7 + ((hitbox.getSize() - 1) * 0.255), 0));
-		hitbox.teleport(location.clone().add(0, -hitbox.getSize() * 0.255, 0));
+		icon.teleport(location);
+		hitbox.teleport(location.clone().add(0, -hitbox.getInteractionHeight() / 2f, 0));
 	}
 
 	public void click(Player player)
 	{
-		Items.callWithItemContext(player, EquipmentSlot.HAND, clickAction::accept);
+		Items.callWithItemContext(player, EquipmentSlot.HAND, clickAction);
 	}
 
 	public static WorldButtonBuilder builder()

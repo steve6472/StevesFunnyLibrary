@@ -3,7 +3,9 @@ package steve6472.standalone.interactable.ex.impl;
 import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 import org.json.JSONObject;
+import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.ItemStackBuilder;
+import steve6472.funnylib.util.JSONMessage;
 import steve6472.standalone.interactable.ex.*;
 
 /**
@@ -17,11 +19,11 @@ public abstract class BiInputExp extends Expression
 	private final OperatorIcon icon;
 	public CodeBlockExp left, right;
 
-	public BiInputExp(Type returnType, Type leftType, Type rightType, Expression left, Expression right)
+	public BiInputExp(Type returnType, Type leftType, Type rightType)
 	{
 		this.returnType = returnType;
-		this.left = CodeBlockExp.executor(this, leftType, left);
-		this.right = CodeBlockExp.executor(this, rightType, right);
+		this.left = CodeBlockExp.executor(this, leftType);
+		this.right = CodeBlockExp.executor(this, rightType);
 		this.icon = new OperatorIcon();
 	}
 
@@ -49,24 +51,17 @@ public abstract class BiInputExp extends Expression
 	}
 
 	@Override
-	public void save(JSONObject json)
+	public void toNBT(NBT compound)
 	{
-		json.put("left", Expressions.saveExpression(left));
-		json.put("right", Expressions.saveExpression(right));
+		compound.setCompound("left", Expressions.saveExpression(compound.createCompound(), left));
+		compound.setCompound("right", Expressions.saveExpression(compound.createCompound(), right));
 	}
 
-	@FunctionalInterface
-	public interface TriFunction<T>
+	@Override
+	public void fromNBT(NBT compound)
 	{
-		Expression construct(T operator, Expression left, Expression right);
-	}
-
-	public static <T> Expression load(JSONObject json, T operator, TriFunction<T> constructor)
-	{
-		Expression leftExpr = Expressions.loadExpression(json.optJSONObject("left"));
-		Expression rightExpr = Expressions.loadExpression(json.optJSONObject("right"));
-
-		return constructor.construct(operator, leftExpr, rightExpr);
+		left = Expressions.loadExpression(compound.getOrCreateCompound("left"), CodeBlockExp.class);
+		right = Expressions.loadExpression(compound.getOrCreateCompound("right"), CodeBlockExp.class);
 	}
 
 	protected boolean runBoth(ExpContext context)
@@ -138,12 +133,14 @@ public abstract class BiInputExp extends Expression
 			ItemStackBuilder edit = ItemStackBuilder.edit(item.clone());
 			if (parent instanceof BiInputExp bix)
 			{
-				edit.addLoreWithLines(recursion(bix));
+//				edit.addLoreWithLines(recursion(bix));
+				edit.addLore(JSONMessage.create(recursion(bix)).setItalic(JSONMessage.ItalicType.FALSE));
 			} else
 			{
-				edit.addLoreWithLines(stringify(true));
+//				edit.addLoreWithLines(stringify(true));
+				edit.addLore(JSONMessage.create(stringify(true)).setItalic(JSONMessage.ItalicType.FALSE));
 			}
-			edit.addLore("");
+			edit.addLore(JSONMessage.create(""));
 			return edit.buildItemStack();
 		}
 

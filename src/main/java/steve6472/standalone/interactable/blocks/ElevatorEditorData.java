@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.*;
+import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
@@ -49,6 +50,18 @@ public class ElevatorEditorData extends CustomBlockData
 	private final List<ArmorStand> seatEntities = new ArrayList<>();
 
 	@Override
+	public void toNBT(NBT compound)
+	{
+
+	}
+
+	@Override
+	public void fromNBT(NBT compound)
+	{
+
+	}
+
+	@Override
 	public void onPlace(BlockContext context)
 	{
 		createMainUi(context.getLocation());
@@ -64,123 +77,6 @@ public class ElevatorEditorData extends CustomBlockData
 		clearSeatUi();
 		clearSeats();
 	}
-
-	// region Saving/Loading
-//	@Override
-//	public void load(JSONObject json)
-//	{
-//		if (json.optBoolean("type", true))
-//		{
-//			createCollisionUi(pos);
-//		} else
-//		{
-//			createSeatUi(pos);
-//		}
-//
-//		if (json.optBoolean("editingCollisions", false))
-//		{
-//			editingCollision.offsetX = json.optDouble("offsetX", 0.0);
-//			editingCollision.offsetY = json.optDouble("offsetY", 0.0);
-//			editingCollision.offsetZ = json.optDouble("offsetZ", 0.0);
-//
-//			editingCollision.create(pos);
-//		}
-//
-//		if (json.optBoolean("editingSeat", false))
-//		{
-//			editingSeat.offsetX = json.optDouble("offsetX", 0.0);
-//			editingSeat.offsetY = json.optDouble("offsetY", 0.0);
-//			editingSeat.offsetZ = json.optDouble("offsetZ", 0.0);
-//
-//			editingSeat.create(pos);
-//		}
-//
-//
-//		this.offsets.clear();
-//		JSONArray offsets = json.optJSONArray("offsets");
-//		if (offsets == null) offsets = new JSONArray();
-//		for (int i = 0; i < offsets.length(); i++)
-//		{
-//			JSONObject off = offsets.getJSONObject(i);
-//			double x = off.getDouble("x");
-//			double y = off.getDouble("y");
-//			double z = off.getDouble("z");
-//			this.offsets.add(new Vector(x, y, z));
-//		}
-//
-//		createMainUi(pos);
-//		createCollisions(pos);
-//
-//		this.seats.clear();
-//		JSONArray seats = json.optJSONArray("seats");
-//		if (seats == null) seats = new JSONArray();
-//		for (int i = 0; i < seats.length(); i++)
-//		{
-//			JSONObject seat = seats.getJSONObject(i);
-//			double x = seat.getDouble("x");
-//			double y = seat.getDouble("y");
-//			double z = seat.getDouble("z");
-//			this.seats.add(new Vector(x, y, z));
-//		}
-//
-//		createSeats(pos);
-//	}
-
-//	@Override
-//	public void save(JSONObject json, boolean unloading)
-//	{
-//		if (editingCollision.editing)
-//		{
-//			json.put("editingCollisions", true);
-//
-//			json.put("offsetX", editingCollision.offsetX);
-//			json.put("offsetY", editingCollision.offsetY);
-//			json.put("offsetZ", editingCollision.offsetZ);
-//		}
-//
-//		if (editingSeat.editing)
-//		{
-//			json.put("editingSeat", true);
-//
-//			json.put("offsetX", editingSeat.offsetX);
-//			json.put("offsetY", editingSeat.offsetY);
-//			json.put("offsetZ", editingSeat.offsetZ);
-//		}
-//
-//		json.put("type", collisionsMode);
-//
-//		if (unloading)
-//		{
-//			clearMainUi();
-//			clearCollisionUi();
-//			clearCollisions();
-//			clearSeatUi();
-//			clearSeats();
-//		}
-//
-//		JSONArray offsetArray = new JSONArray();
-//		for (Vector offset : offsets)
-//		{
-//			JSONObject off = new JSONObject();
-//			off.put("x", offset.getX());
-//			off.put("y", offset.getY());
-//			off.put("z", offset.getZ());
-//			offsetArray.put(off);
-//		}
-//		json.put("offsets", offsetArray);
-//
-//		JSONArray seatsArray = new JSONArray();
-//		for (Vector seat : seats)
-//		{
-//			JSONObject s = new JSONObject();
-//			s.put("x", seat.getX());
-//			s.put("y", seat.getY());
-//			s.put("z", seat.getZ());
-//			seatsArray.put(s);
-//		}
-//		json.put("seats", seatsArray);
-//	}
-	// endregion
 
 	// region Main UI
 
@@ -204,12 +100,14 @@ public class ElevatorEditorData extends CustomBlockData
 					createSeatUi(location);
 				}
 			})
-			.build(location.clone().add(0.5, 1.4, 0.5));
+			.size(1.0f)
+			.build(location.clone().add(0.5, 1.5, 0.5));
 	}
 
 	public void clearMainUi()
 	{
-		toggleMode.remove();
+		if (toggleMode != null)
+			toggleMode.remove();
 	}
 
 	// endregion
@@ -278,11 +176,16 @@ public class ElevatorEditorData extends CustomBlockData
 		if (world == null)
 			return;
 
+		final double itemScale = 0.8;
+		final float size = 0.7f;
+
 		addSeat = WorldButton
 			.builder()
 			.label("Seat")
 			.icon(ItemStackBuilder.create(Material.COMMAND_BLOCK).setCustomModelData(3).buildItemStack())
 			.clickAction(pc -> editingSeat.create(location))
+			.scaleItem(itemScale)
+			.size(size)
 			.build(location.clone().add(1.5, 1.3, 0.5));
 
 		removeCurrentSeat = WorldButton
@@ -290,6 +193,8 @@ public class ElevatorEditorData extends CustomBlockData
 			.icon(ItemStackBuilder.create(Material.COMMAND_BLOCK).setCustomModelData(5).buildItemStack())
 			.label("Remove Seat")
 			.clickAction(pc -> editingSeat.remove())
+			.scaleItem(itemScale)
+			.size(size)
 			.build(location.clone().add(1.5, 2.0, 0.5));
 
 		saveSeat = WorldButton
@@ -304,6 +209,8 @@ public class ElevatorEditorData extends CustomBlockData
 				reloadSeats(location);
 				editingSeat.remove();
 			})
+			.scaleItem(itemScale)
+			.size(size)
 			.build(location.clone().add(1.5, 0.3, 0.5));
 
 		nextSeat = WorldButton
@@ -329,6 +236,8 @@ public class ElevatorEditorData extends CustomBlockData
 				reloadSeats(location);
 				editingSeat.create(location, first.getX(), first.getY() - 0.5, first.getZ());
 			})
+			.scaleItem(itemScale)
+			.size(size)
 			.build(location.clone().add(2.5, 1.3, 0.5));
 
 		previousSeat = WorldButton
@@ -354,6 +263,8 @@ public class ElevatorEditorData extends CustomBlockData
 				reloadSeats(location);
 				editingSeat.create(location, first.getX(), first.getY() - 0.5, first.getZ());
 			})
+			.scaleItem(itemScale)
+			.size(size)
 			.build(location.clone().add(3.5, 1.3, 0.5));
 	}
 
@@ -437,11 +348,16 @@ public class ElevatorEditorData extends CustomBlockData
 		if (world == null)
 			return;
 
+		final double itemScale = 0.8;
+		final float size = 0.7f;
+
 		addCollision = WorldButton
 			.builder()
 			.label("Collision")
 			.icon(ItemStackBuilder.create(Material.COMMAND_BLOCK).setCustomModelData(3).buildItemStack())
 			.clickAction(pc -> editingCollision.create(location))
+			.scaleItem(itemScale)
+			.size(size)
 			.build(location.clone().add(1.5, 1.3, 0.5));
 
 		removeCurrentCollision = WorldButton
@@ -449,6 +365,8 @@ public class ElevatorEditorData extends CustomBlockData
 			.icon(ItemStackBuilder.create(Material.COMMAND_BLOCK).setCustomModelData(5).buildItemStack())
 			.label("Remove Collision")
 			.clickAction(pc -> editingCollision.remove())
+			.scaleItem(itemScale)
+			.size(size)
 			.build(location.clone().add(1.5, 2.0, 0.5));
 
 		saveCollision = WorldButton
@@ -463,6 +381,8 @@ public class ElevatorEditorData extends CustomBlockData
 				reloadCollisions(location);
 				editingCollision.remove();
 			})
+			.scaleItem(itemScale)
+			.size(size)
 			.build(location.clone().add(1.5, 0.3, 0.5));
 
 		showCollisionsToggle = WorldButton
@@ -485,7 +405,10 @@ public class ElevatorEditorData extends CustomBlockData
 					.filter(passenger -> passenger instanceof Shulker)
 					.map(passenger -> (Shulker) passenger)
 					.forEach(shulker -> shulker.setInvisible(!showCollisions));
-			}).build(location.clone().add(3.0, 0.4, 0.5));
+			})
+			.scaleItem(itemScale)
+			.size(size)
+			.build(location.clone().add(3.0, 0.4, 0.5));
 
 
 		nextCollision = WorldButton
@@ -511,6 +434,8 @@ public class ElevatorEditorData extends CustomBlockData
 				reloadCollisions(location);
 				editingCollision.create(location, first.getX(), first.getY(), first.getZ());
 			})
+			.scaleItem(itemScale)
+			.size(size)
 			.build(location.clone().add(2.5, 1.3, 0.5));
 
 		previousCollision = WorldButton
@@ -536,6 +461,8 @@ public class ElevatorEditorData extends CustomBlockData
 				reloadCollisions(location);
 				editingCollision.create(location, first.getX(), first.getY(), first.getZ());
 			})
+			.scaleItem(itemScale)
+			.size(size)
 			.build(location.clone().add(3.5, 1.3, 0.5));
 	}
 
@@ -627,18 +554,6 @@ public class ElevatorEditorData extends CustomBlockData
 		{
 			activator.sendMessage(ChatColor.GREEN + "Loaded!");
 		}*/
-	}
-
-	@Override
-	public void toNBT(NBT compound)
-	{
-
-	}
-
-	@Override
-	public void fromNBT(NBT compound)
-	{
-
 	}
 	// endregion
 }

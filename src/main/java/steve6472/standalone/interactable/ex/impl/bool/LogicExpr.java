@@ -3,6 +3,7 @@ package steve6472.standalone.interactable.ex.impl.bool;
 import org.bukkit.inventory.ItemStack;
 import org.json.JSONObject;
 import steve6472.funnylib.item.CustomItem;
+import steve6472.funnylib.serialize.NBT;
 import steve6472.standalone.interactable.ex.ExpContext;
 import steve6472.standalone.interactable.ex.ExpItems;
 import steve6472.standalone.interactable.ex.ExpResult;
@@ -16,16 +17,11 @@ import steve6472.standalone.interactable.ex.impl.BiInputExp;
  */
 public class LogicExpr extends BiInputExp
 {
-	public Operator operator = Operator.AND;
+	public Operator operator;
 
-	public LogicExpr(Expression left, Expression right)
+	public LogicExpr(Operator operator)
 	{
-		super(Type.BOOL, Type.BOOL, Type.BOOL, left, right);
-	}
-
-	public LogicExpr(Operator operator, Expression left, Expression right)
-	{
-		super(Type.BOOL, Type.BOOL, Type.BOOL, left, right);
+		super(Type.BOOL, Type.BOOL, Type.BOOL);
 		this.operator = operator;
 	}
 
@@ -59,10 +55,17 @@ public class LogicExpr extends BiInputExp
 	}
 
 	@Override
-	public void save(JSONObject json)
+	public void toNBT(NBT compound)
 	{
-		super.save(json);
-		json.put("operator", operator);
+		super.toNBT(compound);
+		compound.setEnum("operator", operator);
+	}
+
+	@Override
+	public void fromNBT(NBT compound)
+	{
+		super.fromNBT(compound);
+		operator = compound.getEnum(Operator.class, "operator");
 	}
 
 	public enum Operator

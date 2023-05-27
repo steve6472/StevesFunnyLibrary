@@ -1,9 +1,12 @@
 package steve6472.standalone.interactable.worldbutton;
 
-import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import steve6472.funnylib.context.PlayerItemContext;
 
 import javax.annotation.Nullable;
@@ -22,10 +25,11 @@ public class WorldButtonBuilder
 	private Consumer<PlayerItemContext> clickAction;
 
 	private ItemStack icon;
-	private int size = 1;
+	private Transformation transformation = new Transformation(new Vector3f(), new Quaternionf(), new Vector3f(1, 1, 1), new Quaternionf());
+	private float size = 0.5f;
 
-	private ChatColor activeColor;
-	private ChatColor disabledColor;
+	private Color activeColor;
+	private Color disabledColor;
 	private boolean glowAlways;
 	private boolean labelAboveButton = true;
 	private boolean labelSubtitle;
@@ -66,19 +70,19 @@ public class WorldButtonBuilder
 		return this;
 	}
 
-	public WorldButtonBuilder size(int size)
+	public WorldButtonBuilder size(float size)
 	{
 		this.size = size;
 		return this;
 	}
 
-	public WorldButtonBuilder activeColor(@Nullable ChatColor activeColor)
+	public WorldButtonBuilder activeColor(@Nullable Color activeColor)
 	{
 		this.activeColor = activeColor;
 		return this;
 	}
 
-	public WorldButtonBuilder disabledColor(@Nullable ChatColor disabledColor)
+	public WorldButtonBuilder disabledColor(@Nullable Color disabledColor)
 	{
 		this.disabledColor = disabledColor;
 		return this;
@@ -114,6 +118,18 @@ public class WorldButtonBuilder
 		return this;
 	}
 
+	public WorldButtonBuilder setTransformation(Transformation transformation)
+	{
+		this.transformation = transformation;
+		return this;
+	}
+
+	public WorldButtonBuilder scaleItem(double scale)
+	{
+		transformation.getScale().set(scale);
+		return this;
+	}
+
 	public WorldButton build(Location location)
 	{
 		WorldButton button = new WorldButton(location, size, icon, labelAboveButton ? label : null, clickAction);
@@ -124,6 +140,7 @@ public class WorldButtonBuilder
 		button.labelAboveButton = labelAboveButton;
 		button.labelSubtitle = labelSubtitle;
 		button.labelActionBar = labelActionBar;
+		button.icon.setTransformation(transformation);
 
 		return button;
 	}

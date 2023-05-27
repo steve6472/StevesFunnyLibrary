@@ -1,6 +1,7 @@
 package steve6472.standalone.interactable.ex;
 
 import org.json.JSONObject;
+import steve6472.funnylib.json.INBT;
 import steve6472.funnylib.menu.Click;
 import steve6472.funnylib.menu.Menu;
 import steve6472.funnylib.menu.MenuBuilder;
@@ -11,7 +12,7 @@ import steve6472.funnylib.menu.Response;
  * Date: 10/6/2022
  * Project: StevesFunnyLibrary <br>
  */
-public abstract class Expression
+public abstract class Expression implements INBT
 {
 	protected Expression parent;
 
@@ -34,8 +35,6 @@ public abstract class Expression
 	public abstract IElementType[] getTypes();
 
 	public abstract String stringify(boolean flag);
-
-	public abstract void save(JSONObject json);
 
 	public enum Type
 	{

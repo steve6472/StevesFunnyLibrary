@@ -4,6 +4,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 import org.json.JSONObject;
 import steve6472.funnylib.menu.*;
+import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.MetaUtil;
 
 import java.util.ArrayList;
@@ -16,27 +17,15 @@ import java.util.List;
  */
 public class CodeBlockExp extends Expression
 {
-	private final List<Expression> expressions;
-	private final boolean isBody;
-	private final Type type;
+	private List<Expression> expressions;
+	private boolean isBody;
+	private Type type;
 	private int lastExecuted = 0;
 	private ExpResult lastResult = ExpResult.STOP;
 
-	public static Expression loadJson(JSONObject json)
+	public CodeBlockExp()
 	{
-		if (json.isEmpty())
-			return new CodeBlockExp(null, false, null);
-
-		if (!json.getBoolean("isBody"))
-		{
-			List<Expression> expressionList = Expressions.loadExpressions(json.getJSONArray("expressions"));
-			if (expressionList.isEmpty())
-				return null;
-			return expressionList.get(0);
-		} else
-		{
-			return body(null, Expressions.loadExpressions(json.getJSONArray("expressions")).toArray(new Expression[0]));
-		}
+		expressions = new ArrayList<>();
 	}
 
 	public static CodeBlockExp body(Expression parent, Expression... expressions)
@@ -229,14 +218,6 @@ public class CodeBlockExp extends Expression
 		return s;
 	}
 
-	@Override
-	public void save(JSONObject json)
-	{
-		json.put("isBody", isBody);
-		json.put("type", type);
-		json.put("expressions", Expressions.saveExpressions(expressions));
-	}
-
 	public boolean isBody()
 	{
 		return isBody;
@@ -245,6 +226,25 @@ public class CodeBlockExp extends Expression
 	public void setParent(Expression parent)
 	{
 		this.parent = parent;
+	}
+
+	@Override
+	public void toNBT(NBT compound)
+	{
+		compound.setBoolean("is_body", isBody);
+		compound.setEnum("type", type);
+		compound.setInt("last_executed", lastExecuted);
+		compound.setCompoundArray("expressions", Expressions.saveExpressions(compound, expressions));
+	}
+
+	@Override
+	public void fromNBT(NBT compound)
+	{
+		isBody = compound.getBoolean("is_body");
+		type = compound.getEnum(Type.class, "type");
+		lastExecuted = compound.getInt("last_executed", 0);
+		NBT[] expressionsCompounds = compound.getCompoundArray("expressions");
+		expressions = Expressions.loadExpressions(expressionsCompounds);
 	}
 
 	public enum ElementType implements IElementType

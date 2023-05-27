@@ -225,6 +225,8 @@ public class FunnyLib
 	public static CustomItem TELEPORT_BUTTON_ITEM;
 	public static CustomItem ADMIN_WRENCH;
 	public static CustomItem STRUCTURE;
+	public static CustomItem ENTITY_HITBOX_DEBUGGER;
+	public static CustomItem ITEM_DISPLAY_EDITOR;
 
 	private static void initBuiltin()
 	{
@@ -241,6 +243,8 @@ public class FunnyLib
 		Items.registerAdminItem(AREA_LOCATION_MARKER = new AreaMarkerItem());
 		Items.registerAdminItem(ADMIN_WRENCH = new AdminWrenchItem());
 		Items.registerAdminItem(STRUCTURE = new StructureItem());
+		Items.registerAdminItem(ENTITY_HITBOX_DEBUGGER = new EntityHitboxDebuger());
+		Items.registerAdminItem(ITEM_DISPLAY_EDITOR = new ItemDisplayEditor());
 
 		Items.registerItem(TELEPORT_BUTTON_ITEM = new BlockPlacerItem(TELEPORT_BUTTON_BLOCK, "teleport_button", Material.STONE_BUTTON, "Teleport Button", 0));
 	}

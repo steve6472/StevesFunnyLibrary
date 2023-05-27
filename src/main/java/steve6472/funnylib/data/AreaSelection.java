@@ -2,6 +2,8 @@ package steve6472.funnylib.data;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3i;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.category.ICategorizable;
@@ -21,7 +23,7 @@ public final class AreaSelection implements ICategorizable, Itemizable<AreaSelec
 	private String name;
 	private Material icon;
 
-	public AreaSelection(Vector3i start, Vector3i end, String name, Material icon)
+	public AreaSelection(@NotNull Vector3i start, @NotNull Vector3i end, @Nullable String name, @NotNull Material icon)
 	{
 		this.start = start;
 		this.end = end;
@@ -29,9 +31,14 @@ public final class AreaSelection implements ICategorizable, Itemizable<AreaSelec
 		this.icon = icon;
 	}
 
-	public AreaSelection(Vector3i start, Vector3i end, String name)
+	public AreaSelection(@NotNull Vector3i start, @NotNull Vector3i end, @Nullable String name)
 	{
 		this(start, end, name, Material.PAPER);
+	}
+
+	public AreaSelection()
+	{
+		this(new Vector3i(), new Vector3i(), null, Material.PAPER);
 	}
 
 	public Vector3i getStart()

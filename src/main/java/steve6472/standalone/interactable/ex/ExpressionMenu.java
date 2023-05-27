@@ -8,15 +8,16 @@ import org.json.JSONObject;
 import steve6472.funnylib.command.Command;
 import steve6472.funnylib.command.Description;
 import steve6472.funnylib.command.Usage;
+import steve6472.funnylib.json.JsonNBT;
 import steve6472.funnylib.json.JsonPrettify;
 import steve6472.funnylib.menu.*;
-import steve6472.funnylib.util.ItemStackBuilder;
-import steve6472.funnylib.util.MetaUtil;
-import steve6472.funnylib.util.MiscUtil;
-import steve6472.funnylib.util.Preconditions;
+import steve6472.funnylib.serialize.NBT;
+import steve6472.funnylib.serialize.PdcNBT;
+import steve6472.funnylib.util.*;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Created by steve6472
@@ -99,7 +100,7 @@ public class ExpressionMenu
 		})
 		.applyMask(MAIN_MASK);
 
-	public static BiConsumer<Click, Menu> addExpression(Function<JSONObject, Expression> expressionSupplier)
+	public static BiConsumer<Click, Menu> addExpression(Supplier<Expression> expressionSupplier)
 	{
 		return (c, m) ->
 		{
@@ -107,7 +108,7 @@ public class ExpressionMenu
 			Integer targetType = MetaUtil.getValue(c.player(), Integer.class, "target_exp_type");
 			Preconditions.checkNotNull(target, "Target Expression is null!");
 			Preconditions.checkNotNull(targetType, "Target Expression is null!");
-			target.action(target.getTypes()[targetType], c, m, expressionSupplier.apply(new JSONObject()));
+			target.action(target.getTypes()[targetType], c, m, expressionSupplier.get());
 			construct(c.player(), m);
 			m.applyMask(MAIN_MASK);
 		};
@@ -170,9 +171,12 @@ public class ExpressionMenu
 			player.sendMessage(ChatColor.RED + "no expressions exist");
 			return false;
 		}
-		JSONObject json = new JSONObject();
-		codeBlock.save(json);
-		System.out.println("\n" + JsonPrettify.prettify(json));
+		NBT nbt = PdcNBT.fromPDC(NMS.newCraftContainer());
+		codeBlock.toNBT(nbt);
+		System.out.println(JsonPrettify.prettify(JsonNBT.NBTtoJSON(nbt)));
+//		JSONObject json = new JSONObject();
+//		codeBlock.save(json);
+//		System.out.println("\n" + JsonPrettify.prettify(json));
 		return true;
 	}
 }

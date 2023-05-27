@@ -1,9 +1,6 @@
 package steve6472.standalone.interactable.worldbutton;
 
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Shulker;
 import org.bukkit.inventory.ItemStack;
@@ -20,8 +17,8 @@ public class WorldBlockPositioner
 {
 	private static final WorldButtonBuilder builder = WorldButton
 		.builder()
-		.activeColor(ChatColor.WHITE)
-		.disabledColor(ChatColor.BLACK)
+		.activeColor(Color.WHITE)
+		.disabledColor(Color.BLACK)
 		.remote(true)
 		.glowAlways(true)
 		.labelSubtitle()

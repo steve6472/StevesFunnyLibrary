@@ -6,12 +6,14 @@ import org.bukkit.util.BoundingBox;
 import org.joml.Vector3i;
 import org.json.JSONObject;
 import steve6472.funnylib.FunnyLib;
+import steve6472.funnylib.data.AreaSelection;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.menu.Click;
 import steve6472.funnylib.menu.Menu;
 import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.util.ItemStackBuilder;
+import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.MiscUtil;
 import steve6472.funnylib.serialize.NBT;
 import steve6472.standalone.interactable.ex.*;
@@ -27,46 +29,45 @@ public class AnyPlayerInArea extends Expression
 {
 	private static final BoundingBox BOX = new BoundingBox();
 
-	ItemStack areaStack;
+	AreaSelection area;
 
 	private final ElementType AREA = new ElementType("area", 0, () ->
 	{
-		if (Items.getCustomItem(areaStack) == FunnyLib.AREA_LOCATION_MARKER)
-		{
-			List<String> lore = ItemStackBuilder.editNonStatic(areaStack).meta().getLore();
-
-			ItemStackBuilder builder = ItemStackBuilder.editNonStatic(ExpItems.AREA_LOCATION_FULL.newItemStack());
-			if (lore != null)
-			{
-				lore.forEach(builder::addLore);
-			}
-			return builder.buildItemStack();
-		} else
-		{
+		if (area == null)
 			return ExpItems.AREA_LOCATION_EMPTY.newItemStack();
+
+		List<String> lore = ItemStackBuilder.editNonStatic(area.toItem()).meta().getLore();
+
+		ItemStackBuilder builder = ItemStackBuilder.editNonStatic(ExpItems.AREA_LOCATION_FULL.newItemStack());
+		if (lore != null)
+		{
+			lore.forEach(text -> builder.addLore(JSONMessage.create(text).setItalic(JSONMessage.ItalicType.FALSE)));
 		}
+		return builder.buildItemStack();
 	});
 
-	public AnyPlayerInArea(ItemStack area)
+	public AnyPlayerInArea()
 	{
-		this.areaStack = area;
+
+	}
+
+	public AnyPlayerInArea(AreaSelection area)
+	{
+		this.area = area;
 	}
 
 	@Override
 	public ExpResult execute(ExpContext context)
 	{
-		if (Items.getCustomItem(areaStack) == FunnyLib.AREA_LOCATION_MARKER)
+		if (area == null)
+			return new ExpResult(false);
+
+		BOX.resize(area.getStart().x, area.getStart().y, area.getStart().z, area.getEnd().x + 1, area.getEnd().y + 1, area.getEnd().z + 1);
+		for (Player player : context.getWorld().getPlayers())
 		{
-			ItemNBT itemData = ItemNBT.create(areaStack);
-			Vector3i start = itemData.get3i("start");
-			Vector3i end = itemData.get3i("end");
-			BOX.resize(start.x, start.y, start.z, end.x + 1, end.y + 1, end.z + 1);
-			for (Player player : context.getWorld().getPlayers())
+			if (player.getBoundingBox().overlaps(BOX))
 			{
-				if (player.getBoundingBox().overlaps(BOX))
-				{
-					return new ExpResult(true);
-				}
+				return new ExpResult(true);
 			}
 		}
 
@@ -86,7 +87,7 @@ public class AnyPlayerInArea extends Expression
 		{
 			if (Items.getCustomItem(click.itemOnCursor()) == FunnyLib.AREA_LOCATION_MARKER)
 			{
-				areaStack = click.itemOnCursor().clone();
+				area = AreaSelection.fromItem(click.itemOnCursor());
 				menu.getSlot(click.slot().getX(), click.slot().getY()).setItem(AREA.item());
 			}
 		}
@@ -124,8 +125,23 @@ public class AnyPlayerInArea extends Expression
 	}
 
 	@Override
-	public void save(JSONObject json)
+	public void toNBT(NBT compound)
 	{
-		json.put("area", MiscUtil.serializeItemStack(areaStack));
+		if (area != null)
+		{
+			NBT areaTag = compound.createCompound();
+			area.toNBT(areaTag);
+			compound.setCompound("area", areaTag);
+		}
+	}
+
+	@Override
+	public void fromNBT(NBT compound)
+	{
+		if (compound.hasCompound("area"))
+		{
+			area = new AreaSelection();
+			area.fromNBT(compound.getCompound("area"));
+		}
 	}
 }
