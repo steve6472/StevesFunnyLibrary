@@ -1,6 +1,5 @@
 package steve6472.funnylib.blocks.builtin;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -10,7 +9,6 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.joml.Vector3i;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.context.PlayerBlockContext;
@@ -20,10 +18,7 @@ import steve6472.funnylib.blocks.stateengine.State;
 import steve6472.funnylib.blocks.stateengine.properties.EnumProperty;
 import steve6472.funnylib.blocks.stateengine.properties.IProperty;
 import steve6472.funnylib.data.Marker;
-import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.Items;
-import steve6472.funnylib.json.codec.ann.Save;
-import steve6472.funnylib.json.codec.codecs.ItemStackCodec;
 import steve6472.funnylib.menu.Mask;
 import steve6472.funnylib.menu.MenuBuilder;
 import steve6472.funnylib.menu.Response;
@@ -197,7 +192,8 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 					{
 						data.location = null;
 					}
-					return Response.allow();
+					c.slot().setItem(data.location == null ? new ItemStack(Material.AIR) : data.location.toItem());
+					return Response.cancel();
 				});
 		})
 		.applyMask(mask);
