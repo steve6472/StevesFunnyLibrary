@@ -15,6 +15,8 @@ import org.bukkit.plugin.Plugin;
 import org.json.JSONObject;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlock;
+import steve6472.funnylib.blocks.CustomNoteBlocks;
+import steve6472.funnylib.blocks.builtin.CustomNoteBlock;
 import steve6472.funnylib.blocks.builtin.MultiBlock;
 import steve6472.funnylib.command.impl.DebugCommands;
 import steve6472.funnylib.json.IJsonConfig;
@@ -58,6 +60,7 @@ public class FunnyLib
 	private static MenuListener menuListener;
 	private static Blocks blocks;
 	private static JsonConfig configJson, configNbt;
+	private static LibSettings settings;
 
 	private static Set<IJsonConfig> configurationsJson;
 	private static Set<INbtConfig> configurationsNbt;
@@ -75,6 +78,7 @@ public class FunnyLib
 		configurationsNbt = new HashSet<>();
 		configJson = new JsonConfig("config", plugin);
 		configNbt = new JsonConfig("config_nbt", plugin);
+		FunnyLib.settings = settings;
 
 //		if (FunnyLib.PLUGIN != null)
 //			throw new RuntimeException("Plugin %s tried to initialize FunnyLib again. This is not allowed!".formatted(plugin.getName()));
@@ -94,6 +98,11 @@ public class FunnyLib
 		Bukkit.getPluginManager().registerEvents(new CustomCommandRunner(), plugin);
 		Bukkit.getPluginManager().registerEvents(new Items(), plugin);
 		Bukkit.getPluginManager().registerEvents(blocks = new Blocks(), plugin);
+
+		if (settings.enableCustomNoteBlocks)
+		{
+			Bukkit.getPluginManager().registerEvents(new CustomNoteBlocks(), plugin);
+		}
 
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () ->
 		{
@@ -140,6 +149,11 @@ public class FunnyLib
 	public static Blocks getBlocks()
 	{
 		return blocks;
+	}
+
+	public static LibSettings getSettings()
+	{
+		return settings;
 	}
 
 	public static void registerConfig(IJsonConfig config)
@@ -219,6 +233,7 @@ public class FunnyLib
 
 	public static CustomBlock TELEPORT_BUTTON_BLOCK;
 	public static CustomBlock MULTI_BLOCK;
+	public static CustomBlock NOTE_BLOCK;
 
 	public static CustomItem LOCATION_MARKER;
 	public static CustomItem AREA_LOCATION_MARKER;
@@ -227,6 +242,7 @@ public class FunnyLib
 	public static CustomItem STRUCTURE;
 	public static CustomItem ENTITY_HITBOX_DEBUGGER;
 	public static CustomItem ITEM_DISPLAY_EDITOR;
+	public static CustomItem NOTE_BLOCK_TUNER;
 
 	private static void initBuiltin()
 	{
@@ -239,6 +255,11 @@ public class FunnyLib
 		Blocks.registerBlock(TELEPORT_BUTTON_BLOCK = new TeleportButtonBlock());
 		Blocks.registerBlock(MULTI_BLOCK = new MultiBlock());
 
+		if (getSettings().enableCustomNoteBlocks)
+		{
+			Blocks.registerBlock(NOTE_BLOCK = new CustomNoteBlock());
+		}
+
 		Items.registerAdminItem(LOCATION_MARKER = new MarkerItem());
 		Items.registerAdminItem(AREA_LOCATION_MARKER = new AreaMarkerItem());
 		Items.registerAdminItem(ADMIN_WRENCH = new AdminWrenchItem());
@@ -247,5 +268,7 @@ public class FunnyLib
 		Items.registerAdminItem(ITEM_DISPLAY_EDITOR = new ItemDisplayEditor());
 
 		Items.registerItem(TELEPORT_BUTTON_ITEM = new BlockPlacerItem(TELEPORT_BUTTON_BLOCK, "teleport_button", Material.STONE_BUTTON, "Teleport Button", 0));
+
+		Items.registerItem(NOTE_BLOCK_TUNER = new NoteBlockTuner());
 	}
 }

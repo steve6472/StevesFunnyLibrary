@@ -32,6 +32,12 @@ public class NBT
 	{
 	}
 
+	@Override
+	public String toString()
+	{
+		return "NBT{" + "container=" + container + '}';
+	}
+
 	/**
 	 * Used for nested compounds
 	 */

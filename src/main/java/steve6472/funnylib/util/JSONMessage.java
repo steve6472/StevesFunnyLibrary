@@ -301,7 +301,10 @@ public class JSONMessage
 
 	public JSONMessage color(Color color)
 	{
-		return color("#" + Integer.toHexString(color.asRGB()));
+		String s = Integer.toHexString(color.asRGB());
+		while (s.length() < 6)
+			s = "0" + s;
+		return color("#" + s);
 	}
 
 	/**

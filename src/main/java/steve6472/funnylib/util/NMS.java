@@ -1,17 +1,27 @@
 package steve6472.funnylib.util;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
-import org.bukkit.Material;
+import org.bukkit.*;
+import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_19_R3.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_19_R3.persistence.CraftPersistentDataContainer;
 import org.bukkit.craftbukkit.v1_19_R3.persistence.CraftPersistentDataTypeRegistry;
 import org.bukkit.craftbukkit.v1_19_R3.util.CraftMagicNumbers;
+import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 
+import javax.annotation.Nullable;
+import javax.naming.Name;
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -89,6 +99,11 @@ public class NMS
 		}
 	}
 
+	public static BlockPos locToBlockPos(Location location)
+	{
+		return new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+	}
+
 	public static void addLore(ItemStack bukkitStack, JSONMessage message)
 	{
 		addLore(bukkitStack, message.toJSON().toString());
@@ -97,5 +112,42 @@ public class NMS
 	public static PersistentDataContainer newCraftContainer()
 	{
 		return new CraftPersistentDataContainer(new CraftPersistentDataTypeRegistry());
+	}
+
+	/*
+	 * Game Events
+	 */
+
+	private record GameEventEntry(GameEvent bukkitEvent, net.minecraft.world.level.gameevent.GameEvent nmsEvent, int notificationRadius) {}
+
+	private static Map<GameEvent, GameEventEntry> GAME_EVENTS;
+
+	private static void lazyEventMapInit()
+	{
+		if (GAME_EVENTS != null) return;
+		GAME_EVENTS = new HashMap<>();
+		for (net.minecraft.world.level.gameevent.GameEvent gameEvent : BuiltInRegistries.GAME_EVENT)
+		{
+			GameEvent spigotEvent = GameEvent.getByKey(new NamespacedKey("minecraft", gameEvent.getName()));
+			GAME_EVENTS.put(spigotEvent, new GameEventEntry(spigotEvent, gameEvent, gameEvent.getNotificationRadius()));
+		}
+	}
+
+	public static void fireGameEvent(@Nullable Entity entity, Location location, GameEvent gameEvent)
+	{
+		lazyEventMapInit();
+		Preconditions.checkNotNull(location.getWorld(), "World can not be null!");
+
+		net.minecraft.world.entity.Entity vanillaEntity = null;
+		if (entity != null)
+		{
+			vanillaEntity = ((CraftEntity) entity).getHandle();
+		}
+
+		GameEventEntry gameEventEntry = GAME_EVENTS.get(gameEvent);
+		if (gameEventEntry != null)
+			((CraftWorld) location.getWorld()).getHandle().gameEvent(vanillaEntity, gameEventEntry.nmsEvent, locToBlockPos(location));
+		else
+			Log.error("Tried to use old GameEvent, this will not work");
 	}
 }

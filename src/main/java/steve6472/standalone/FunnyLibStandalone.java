@@ -25,7 +25,7 @@ public class FunnyLibStandalone extends JavaPlugin
 		FunnyLib.init(this, new LibSettings());
 		ExNulla.init();
 		Interactable.init();
-		Machinal.init();
+//		Machinal.init();
 
 		FunnyLib.registerConfig(markerStorage = new Markers());
 		FunnyLib.registerConfig(structureStorage = new Structures());

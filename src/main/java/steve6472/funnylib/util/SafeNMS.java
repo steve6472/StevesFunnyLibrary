@@ -54,4 +54,12 @@ public class SafeNMS
 			}
 		}
 	}
+
+	public static void nmsFunctionSilent(Procedure r)
+	{
+		if (!FunnyLib.NMS_FAILED)
+		{
+			r.apply();
+		}
+	}
 }

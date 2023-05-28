@@ -43,6 +43,12 @@ public class BlockContext
 		this.customBlockData = data;
 	}
 
+	public BlockContext(Location location, CustomBlockData data)
+	{
+		this.location = location;
+		this.customBlockData = data;
+	}
+
 	public Location getLocation()
 	{
 		return location;
