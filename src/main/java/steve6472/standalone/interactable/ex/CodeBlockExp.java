@@ -135,9 +135,7 @@ public class CodeBlockExp extends Expression
 //		{
 			if (expression == null)
 			{
-				MetaUtil.setMeta(click.player(), "target_exp", this);
-				MetaUtil.setMeta(click.player(), "target_exp_type", type.ordinal());
-				ExpBuilder.openPopup(this, menu, false);
+				ExpBuilder.openPopup(click.player(), this, type.ordinal(), menu, false);
 			} else
 			{
 				addExpression(expression);
@@ -244,7 +242,7 @@ public class CodeBlockExp extends Expression
 		type = compound.getEnum(Type.class, "type");
 		lastExecuted = compound.getInt("last_executed", 0);
 		NBT[] expressionsCompounds = compound.getCompoundArray("expressions");
-		expressions = Expressions.loadExpressions(expressionsCompounds);
+		expressions = Expressions.loadExpressions(expressionsCompounds, this);
 	}
 
 	public enum ElementType implements IElementType
@@ -273,5 +271,11 @@ public class CodeBlockExp extends Expression
 		{
 			return item;
 		}
+	}
+
+	@Override
+	public String toString()
+	{
+		return "CodeBlockExp{" + "expressions=" + expressions + ", isBody=" + isBody + ", type=" + type + ", lastExecuted=" + lastExecuted + ", lastResult=" + lastResult + '}';
 	}
 }

@@ -90,7 +90,7 @@ public class Expressions
 		return nbt;
 	}
 
-	public static <T extends Expression> T loadExpression(NBT nbt, Class<T> expectedType)
+	public static <T extends Expression> T loadExpression(NBT nbt, Expression parent, Class<T> expectedType)
 	{
 		if (nbt == null || nbt.isEmpty())
 			return null;
@@ -104,6 +104,7 @@ public class Expressions
 			throw new RuntimeException("Expected " + expectedType.getSimpleName() + ", got " + key.getSimpleName() + " instead!");
 		ExpressionEntry expressionEntry = ENTRY_BY_CLASS.get(key);
 		Expression expression = expressionEntry.constructor.get();
+		expression.parent = parent;
 		expression.fromNBT(nbt);
 		return (T) expression;
 	}
@@ -138,13 +139,13 @@ public class Expressions
 		return array;
 	}
 
-	public static List<Expression> loadExpressions(NBT[] array)
+	public static List<Expression> loadExpressions(NBT[] array, Expression parent)
 	{
 		List<Expression> expressions = new ArrayList<>();
 
 		for (NBT nbt : array)
 		{
-			expressions.add(loadExpression(nbt, null));
+			expressions.add(loadExpression(nbt, parent, null));
 		}
 
 		return expressions;

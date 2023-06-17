@@ -60,8 +60,8 @@ public abstract class BiInputExp extends Expression
 	@Override
 	public void fromNBT(NBT compound)
 	{
-		left = Expressions.loadExpression(compound.getOrCreateCompound("left"), CodeBlockExp.class);
-		right = Expressions.loadExpression(compound.getOrCreateCompound("right"), CodeBlockExp.class);
+		left = Expressions.loadExpression(compound.getOrCreateCompound("left"), this, CodeBlockExp.class);
+		right = Expressions.loadExpression(compound.getOrCreateCompound("right"), this, CodeBlockExp.class);
 	}
 
 	protected boolean runBoth(ExpContext context)

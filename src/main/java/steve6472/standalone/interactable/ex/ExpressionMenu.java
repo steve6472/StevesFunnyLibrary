@@ -1,5 +1,6 @@
 package steve6472.standalone.interactable.ex;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -90,11 +91,29 @@ public class ExpressionMenu
 		}))
 		.addItem('R', SlotBuilder.stickyButtonSlot_(ExpItems.POPUP_REMOVE_EXP.newItemStack(), (c, m) ->
 		{
-			Menu popupMenu = m.getMetadata("popup", Menu.class);
-			popupMenu.move(0, 1);
-			popupMenu.overlay(m, 1, 1, 6, 4);
+			Expression target = MetaUtil.getValue(c.player(), Expression.class, "target_exp");
+			Integer targetType = MetaUtil.getValue(c.player(), Integer.class, "target_exp_type");
+			Bukkit.broadcastMessage("" + target);
+			Bukkit.broadcastMessage("" + targetType);
 
+			if (target != null && targetType != null)
+			{
+				if (target.parent != null)
+				{
+					if (target.parent instanceof CodeBlockExp block)
+					{
+						block.getExpressions().remove(target);
+					} else
+					{
+						c.player().sendMessage("Type was: " + target.parent.getClass().getSimpleName());
+					}
+				}
+			}
 
+			MetaUtil.removeMeta(c.player(), "target_exp");
+			MetaUtil.removeMeta(c.player(), "target_exp_type");
+			construct(c.player(), m);
+			m.applyMask(MAIN_MASK);
 		}))
 		;
 

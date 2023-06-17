@@ -1,12 +1,13 @@
 package steve6472.standalone.interactable.ex;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import steve6472.funnylib.menu.*;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
+import steve6472.funnylib.util.MetaUtil;
 
 /**
  * Created by steve6472
@@ -52,7 +53,7 @@ public class ExpBuilder
 			{
 //				Bukkit.broadcastMessage("Popup " + finalExp.getClass().getSimpleName().toUpperCase() + " " + Integer.toHexString(finalExp.hashCode()));
 
-				openPopup(finalExp, menu, true);
+				openPopup(click.player(), finalExp, elementType.ordinal(), menu, true);
 
 				return Response.cancel();
 			}
@@ -69,7 +70,7 @@ public class ExpBuilder
 		slot.setItem(builder.buildItemStack());
 	}
 
-	public static Menu openPopup(Expression exp, Menu menu, boolean background)
+	public static Menu openPopup(Player player, Expression exp, int type, Menu menu, boolean background)
 	{
 		menu.applyMask(ExpressionMenu.POPUP);
 		menu.applyMask(background ? ExpressionMenu.POPUP_BACKGROUND : ExpressionMenu.POPUP_NO_BACKGROUND);
@@ -79,6 +80,8 @@ public class ExpBuilder
 
 		Menu popupMenu = builder.build();
 		menu.setMetadata("popup", popupMenu);
+		MetaUtil.setMeta(player, "target_exp", exp);
+		MetaUtil.setMeta(player, "target_exp_type", type);
 		popupMenu.overlay(menu, 1, 1, 6, 4);
 
 		return popupMenu;

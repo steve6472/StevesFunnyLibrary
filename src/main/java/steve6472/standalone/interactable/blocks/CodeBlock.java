@@ -40,6 +40,7 @@ import java.util.List;
  */
 public class CodeBlock extends CustomBlock implements IBlockData, Activable, BlockClickEvents, BlockTick, BreakBlockEvent, AdminInterface<CodeBlockData>
 {
+	private static final boolean DEBUG = false;
 	public static final BooleanProperty EXECUTING = BooleanProperty.create("executing");
 
 	@Override
@@ -109,21 +110,32 @@ public class CodeBlock extends CustomBlock implements IBlockData, Activable, Blo
 		if (executor == null)
 		{
 			Blocks.changeBlockState(context.getLocation(), context.getState().with(EXECUTING, false));
-			Bukkit.broadcastMessage(ChatColor.RED + "Can not execute code from block at " + context.getLocation().getBlockX() + "/" + context.getLocation().getBlockY() + "/" + context.getLocation().getBlockZ());
-			Bukkit.broadcastMessage(ChatColor.RED + "Executor has not been initialized");
+			if (DEBUG)
+			{
+				Bukkit.broadcastMessage(ChatColor.RED + "Can not execute code from block at " + context.getLocation().getBlockX() + "/" + context.getLocation().getBlockY() + "/" + context.getLocation().getBlockZ());
+				Bukkit.broadcastMessage(ChatColor.RED + "Executor has not been initialized");
+			}
 			return;
 		}
 
 		if (executor.executeTick())
 		{
 			Blocks.changeBlockState(context.getLocation(), context.getState().with(EXECUTING, false));
-			Bukkit.broadcastMessage(ChatColor.GREEN + "Block at " + context.getLocation().getBlockX() + "/" + context.getLocation().getBlockY() + "/" + context.getLocation().getBlockZ() + " finished executing");
+			if (DEBUG)
+			{
+				Bukkit.broadcastMessage(ChatColor.GREEN + "Block at " + context.getLocation().getBlockX() + "/" + context.getLocation().getBlockY() + "/" + context.getLocation().getBlockZ() + " finished executing");
+			}
 		}
 	}
 
 	@Override
 	public void tick(BlockContext context)
 	{
+		if (context.getBlockData(CodeBlockData.class).repeating && !context.getState().get(EXECUTING))
+		{
+			start(context);
+		}
+
 		execute(context);
 	}
 
@@ -148,7 +160,8 @@ public class CodeBlock extends CustomBlock implements IBlockData, Activable, Blo
 			}
 
 			ExpressionMenu.showMenuToPlayer(c.player(), (CodeBlockExp) blockData.executor.expression);
-		}));
+		}))
+		.slot(1, 1, SlotBuilder.toggleSlot("Repeating", d -> d.getData("data", CodeBlockData.class).repeating, (d, flag) -> d.getData("data", CodeBlockData.class).repeating = flag));
 
 	@Override
 	public void showInterface(CodeBlockData data, PlayerBlockContext context)

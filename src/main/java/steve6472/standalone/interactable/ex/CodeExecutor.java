@@ -47,9 +47,7 @@ public class CodeExecutor implements INBT
 		context = new ExpContext();
 		context.fromNBT(compound.getCompound("context"));
 
-		expression = Expressions.loadExpression(compound.getCompound("expression"));
-
-		System.out.println(context + ", " + expression);
+		expression = Expressions.loadExpression(compound.getCompound("expression"), null, null);
 	}
 
 	public void start()
@@ -84,7 +82,7 @@ public class CodeExecutor implements INBT
 
 		if (result == ExpResult.STOP)
 		{
-			Bukkit.broadcastMessage(ChatColor.YELLOW + "Result: " + result);
+//			Bukkit.broadcastMessage(ChatColor.YELLOW + "Result: " + result);
 			if (expression instanceof CodeBlockExp cb)
 			{
 				running = false;

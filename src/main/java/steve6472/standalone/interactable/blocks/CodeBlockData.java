@@ -12,6 +12,7 @@ import steve6472.standalone.interactable.ex.CodeExecutor;
 public class CodeBlockData extends CustomBlockData
 {
 	CodeExecutor executor;
+	public boolean repeating;
 
 	@Override
 	public void toNBT(NBT compound)
@@ -22,6 +23,7 @@ public class CodeBlockData extends CustomBlockData
 			executor.toNBT(executorCompound);
 			compound.setCompound("executor", executorCompound);
 		}
+		compound.setBoolean("repeating", repeating);
 	}
 
 	@Override
@@ -32,5 +34,6 @@ public class CodeBlockData extends CustomBlockData
 			executor = new CodeExecutor();
 			executor.fromNBT(compound.getCompound("executor"));
 		}
+		repeating = compound.getBoolean("repeating", false);
 	}
 }

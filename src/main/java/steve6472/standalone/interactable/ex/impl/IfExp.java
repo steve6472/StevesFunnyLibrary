@@ -150,8 +150,8 @@ public class IfExp extends Expression
 	@Override
 	public void fromNBT(NBT compound)
 	{
-		body = Expressions.loadExpression(compound.getCompound("body"), CodeBlockExp.class);
-		condition = Expressions.loadExpression(compound.getCompound("condition"), CodeBlockExp.class);
+		body = Expressions.loadExpression(compound.getCompound("body"), this, CodeBlockExp.class);
+		condition = Expressions.loadExpression(compound.getCompound("condition"), this, CodeBlockExp.class);
 	}
 
 	public enum ElementType implements IElementType
