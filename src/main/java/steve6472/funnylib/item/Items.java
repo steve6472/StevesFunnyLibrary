@@ -232,7 +232,7 @@ public class Items implements Listener
 			e.getPlayer(),
 			SwapHandEvent.class,
 			e.getOffHandItem(),
-			(ev, i) -> callCancellable(e, new CancellableResult(), r -> ev.swapHands(e.getPlayer(), e.getOffHandItem(), e.getMainHandItem(), r))
+			(ev, i) -> callCancellable(e, r -> ev.swapHands(e.getPlayer(), e.getOffHandItem(), e.getMainHandItem(), r))
 		);
 	}
 
@@ -303,7 +303,7 @@ public class Items implements Listener
 			return;
 
 		CustomItem customItem = itemEventEntry.customItem;
-		callCancellable(e, new CancellableResult(), r -> callWithItemContext(e.getPlayer(), e.getHand(), item, ic -> customItem.useOnEntity(new PlayerEntityContext(ic, new EntityContext(e.getRightClicked())), r)));
+		callCancellable(e, r -> callWithItemContext(e.getPlayer(), e.getHand(), item, ic -> customItem.useOnEntity(new PlayerEntityContext(ic, new EntityContext(e.getRightClicked())), r)));
 	}
 
 	@EventHandler
@@ -336,23 +336,23 @@ public class Items implements Listener
 		{
 			if (e.getAction() == Action.LEFT_CLICK_AIR)
 			{
-				callCancellable(e, new CancellableResult(), r -> callWithItemContext(e.getPlayer(), e.getHand(), item, ic -> customItem.useOnAir(ic, UseType.LEFT, r)));
+				callCancellable(e, r -> callWithItemContext(e.getPlayer(), e.getHand(), item, ic -> customItem.useOnAir(ic, UseType.LEFT, r)));
 			}
 			else if (e.getAction() == Action.RIGHT_CLICK_AIR)
 			{
-				callCancellable(e, new CancellableResult(), r -> callWithItemContext(e.getPlayer(), e.getHand(), item, ic -> customItem.useOnAir(ic, UseType.RIGHT, r)));
+				callCancellable(e, r -> callWithItemContext(e.getPlayer(), e.getHand(), item, ic -> customItem.useOnAir(ic, UseType.RIGHT, r)));
 			}
 		} else
 		{
 			if (e.getAction() == Action.LEFT_CLICK_BLOCK)
 			{
-				callCancellable(e, new CancellableResult(), r -> callWithItemContext(e.getPlayer(), e.getHand(), item, ic -> customItem.useOnBlock(new PlayerBlockContext(ic, new BlockFaceContext(e
+				callCancellable(e, r -> callWithItemContext(e.getPlayer(), e.getHand(), item, ic -> customItem.useOnBlock(new PlayerBlockContext(ic, new BlockFaceContext(e
 					.getClickedBlock()
 					.getLocation(), e.getBlockFace())), UseType.LEFT, r)));
 			}
 			else if (e.getAction() == Action.RIGHT_CLICK_BLOCK)
 			{
-				callCancellable(e, new CancellableResult(), r -> callWithItemContext(e.getPlayer(), e.getHand(), item, ic -> customItem.useOnBlock(new PlayerBlockContext(ic, new BlockFaceContext(e
+				callCancellable(e, r -> callWithItemContext(e.getPlayer(), e.getHand(), item, ic -> customItem.useOnBlock(new PlayerBlockContext(ic, new BlockFaceContext(e
 					.getClickedBlock()
 					.getLocation(), e.getBlockFace())), UseType.RIGHT, r)));
 			}
@@ -369,6 +369,11 @@ public class Items implements Listener
 	{
 		run.accept(result);
 		cancallable.setCancelled(result.isCancelled());
+	}
+
+	public void callCancellable(Cancellable cancallable, Consumer<CancellableResult> run)
+	{
+		callCancellable(cancallable, new CancellableResult(), run);
 	}
 
 	@EventHandler

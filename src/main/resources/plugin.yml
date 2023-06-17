@@ -2,6 +2,8 @@ name: FunnyLib
 version: '${project.version}'
 main: steve6472.standalone.FunnyLibStandalone
 api-version: 1.18
+depend:
+  - ProtocolLib
 commands:
   cmds:
     description: Shows all custom commands

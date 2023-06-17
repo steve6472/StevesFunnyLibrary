@@ -1,5 +1,7 @@
 package steve6472.funnylib;
 
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -16,6 +18,7 @@ import steve6472.funnylib.blocks.CustomNoteBlocks;
 import steve6472.funnylib.blocks.builtin.CustomNoteBlock;
 import steve6472.funnylib.blocks.builtin.MultiBlock;
 import steve6472.funnylib.command.impl.DebugCommands;
+import steve6472.funnylib.item.nonbt.NbtRemover;
 import steve6472.funnylib.json.IJsonConfig;
 import steve6472.funnylib.json.INbtConfig;
 import steve6472.funnylib.json.JsonConfig;
@@ -49,7 +52,7 @@ public class FunnyLib
 
 	public static boolean NMS_FAILED = false;
 
-	private static Plugin PLUGIN;
+	private static Plugin plugin;
 	private static long uptimeTicks;
 	private static ArmorEventListener armorEventListener;
 	private static MenuListener menuListener;
@@ -68,6 +71,7 @@ public class FunnyLib
 	public static void init(Plugin plugin, LibSettings settings)
 	{
 		new MavenSux();
+		Bukkit.getPluginManager().registerEvents(new NbtRemover(plugin), plugin);
 
 		configurationsJson = new HashSet<>();
 		configurationsNbt = new HashSet<>();
@@ -78,7 +82,7 @@ public class FunnyLib
 //		if (FunnyLib.PLUGIN != null)
 //			throw new RuntimeException("Plugin %s tried to initialize FunnyLib again. This is not allowed!".formatted(plugin.getName()));
 
-		FunnyLib.PLUGIN = plugin;
+		FunnyLib.plugin = plugin;
 
 		Log.init(plugin);
 		GlowingUtil.init();
@@ -128,7 +132,7 @@ public class FunnyLib
 
 	public static Plugin getPlugin()
 	{
-		return PLUGIN;
+		return plugin;
 	}
 
 	public static long getUptimeTicks()

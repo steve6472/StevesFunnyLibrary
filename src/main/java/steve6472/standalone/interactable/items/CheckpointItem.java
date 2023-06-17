@@ -1,16 +1,30 @@
 package steve6472.standalone.interactable.items;
 
+import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.CancellableResult;
+import steve6472.funnylib.FunnyLib;
+import steve6472.funnylib.blocks.Blocks;
+import steve6472.funnylib.blocks.CustomBlockData;
+import steve6472.funnylib.context.PlayerBlockContext;
+import steve6472.funnylib.context.PlayerEntityContext;
 import steve6472.funnylib.context.PlayerItemContext;
 import steve6472.funnylib.context.UseType;
 import steve6472.funnylib.item.CustomItem;
+import steve6472.funnylib.item.events.TickInHandEvent;
 import steve6472.funnylib.menu.MenuBuilder;
 import steve6472.funnylib.menu.SlotBuilder;
+import steve6472.funnylib.serialize.ItemNBT;
+import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.ItemStackBuilder;
+import steve6472.funnylib.util.JSONMessage;
 import steve6472.standalone.interactable.blocks.data.CheckpointBlockData;
+
+import java.util.Collections;
 
 /**
  * Created by steve6472
@@ -32,24 +46,61 @@ public class CheckpointItem extends CustomItem
 	}
 
 	@Override
-	public void useOnAir(PlayerItemContext context, UseType useType, CancellableResult result)
+	public void useOnBlock(PlayerBlockContext context, UseType useType, CancellableResult result)
 	{
-		result.setCancelled(true);
-		if (context.isCreative() && context.isSneaking() && useType.isRight())
+		if (context.isCreative() && context.isPlayerSneaking() && useType.isRight())
 		{
-
+			CustomBlockData blockData = Blocks.getBlockData(context.getBlockLocation());
+			if (blockData instanceof CheckpointBlockData data)
+			{
+				ItemNBT itemData = context.getItemData();
+				itemData.setString("parkour_id", data.parkourId);
+				itemData.setInt("reached_checkpoint", data.order);
+				itemData.setBoolean("use_player_facing", data.usePlayerFacing);
+				Location newLoc = context.getBlockLocation().clone().add(0.5, 0.01, 0.5);
+				newLoc.setYaw(data.yaw);
+				newLoc.setPitch(data.pitch);
+				itemData.setLocation("loc", newLoc);
+				context.getPlayer().sendMessage(ChatColor.GREEN + "Checkpoint item set to " + data.parkourId + " at " + data.order + ".");
+				result.setCancelled(true);
+				return;
+			}
 		}
+		use(context.playerContext(), useType, result);
 	}
 
-	private static final MenuBuilder SETTINGS = MenuBuilder.create(3, "Checkpoint Item Settings")
-		.customBuilder(b ->
+	@Override
+	public void useOnEntity(PlayerEntityContext context, CancellableResult result)
+	{
+		use(context.playerContext(), UseType.RIGHT, result);
+	}
+
+	@Override
+	public void useOnAir(PlayerItemContext context, UseType useType, CancellableResult result)
+	{
+		use(context, useType, result);
+	}
+
+	private void use(PlayerItemContext context, UseType useType, CancellableResult result)
+	{
+		result.setCancelled(true);
+		if (useType.isLeft())
+			return;
+
+		if (context.isCreative() && context.isSneaking() && useType.isRight())
+			return;
+
+		ItemNBT itemData = context.getItemData();
+		if (itemData.hasLocation("loc"))
 		{
-			CheckpointBlockData data = b.getData("data", CheckpointBlockData.class);
-
-			b.slot(1, 5, SlotBuilder.buttonSlot_(ItemStackBuilder.create(Material.NAME_TAG).setName("Parkour ID: " + data.parkourId).buildItemStack(), (c, m) ->
+			Location loc = itemData.getLocation("loc");
+			if (itemData.getBoolean("use_player_facing", false))
 			{
-
-			}));
-		})
-		;
+				loc = loc.clone();
+				loc.setYaw(context.getPlayer().getEyeLocation().getYaw());
+				loc.setPitch(context.getPlayer().getEyeLocation().getPitch());
+			}
+			context.getPlayer().teleport(loc);
+		}
+	}
 }

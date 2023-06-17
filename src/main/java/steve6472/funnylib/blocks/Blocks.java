@@ -62,8 +62,6 @@ public class Blocks implements Listener
 
 	public static final Map<String, CustomBlock> BLOCKS = new HashMap<>();
 	public static final NamespacedKey CUSTOM_BLOCKS_KEY = new NamespacedKey(FunnyLib.getPlugin(), "custom_blocks");
-	@Nullable
-	public static Chunk currentLoadingChunk = null;
 
 	public static void registerBlock(CustomBlock customBlock)
 	{
@@ -358,7 +356,6 @@ public class Blocks implements Listener
 
 	public static void loadChunk(Chunk chunk)
 	{
-		currentLoadingChunk = chunk;
 		CustomChunk customChunk = new CustomChunk(chunk);
 		ChunkNBT chunkNBT = ChunkNBT.create(chunk);
 		if (chunkNBT.hasCompound("custom_blocks"))
@@ -367,7 +364,6 @@ public class Blocks implements Listener
 			customChunk.fromNBT(customBlocks);
 		}
 		addCustomChunk(chunk, customChunk);
-		currentLoadingChunk = null;
 	}
 
 	public static void saveChunk(Chunk chunk, boolean unloading)
