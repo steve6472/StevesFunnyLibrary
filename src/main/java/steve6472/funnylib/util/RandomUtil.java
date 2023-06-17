@@ -11,6 +11,7 @@ import java.util.Random;
 public class RandomUtil
 {
 	private static final Random random = new Random();
+	private static final Random seededRandom = new Random();
 
 	public static double randomRadian()
 	{
@@ -50,8 +51,8 @@ public class RandomUtil
 		if (max == min) return max;
 		if (max < min) return 0;
 
-		Random ra = new Random(seed);
-		return ra.nextInt((max - min) + 1) + min;
+		seededRandom.setSeed(seed);
+		return seededRandom.nextInt((max - min) + 1) + min;
 	}
 
 	public static double randomDouble(double min, double max)
@@ -67,8 +68,8 @@ public class RandomUtil
 		if (max == min) return max;
 		if (max < min) return 0;
 
-		Random ra = new Random(seed);
-		return min + (max - min) * ra.nextDouble();
+		seededRandom.setSeed(seed);
+		return min + (max - min) * seededRandom.nextDouble();
 	}
 
 	public static long randomLong(long min, long max, long seed)
@@ -76,8 +77,8 @@ public class RandomUtil
 		if (max == min) return max;
 		if (max < min) return 0;
 
-		Random ra = new Random(seed);
-		return min + (max - min) * ra.nextLong();
+		seededRandom.setSeed(seed);
+		return min + (max - min) * seededRandom.nextLong();
 	}
 
 	public static long randomLong(long min, long max)
@@ -93,8 +94,8 @@ public class RandomUtil
 		if (max == min) return max;
 		if (max < min) return 0;
 
-		Random ra = new Random(seed);
-		return min + (max - min) * ra.nextFloat();
+		seededRandom.setSeed(seed);
+		return min + (max - min) * seededRandom.nextFloat();
 	}
 
 	public static float randomFloat(float min, float max)

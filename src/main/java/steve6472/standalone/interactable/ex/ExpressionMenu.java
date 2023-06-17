@@ -61,7 +61,7 @@ public class ExpressionMenu
 	public static final Mask POPUP = Mask.createMask()
 		.addRow("...___...")
 		.addRow(".______X.")
-		.addRow("._______.")
+		.addRow(".______R.")
 		.addRow(".______U.")
 		.addRow(".______D.")
 		.addRow("____P____")
@@ -87,6 +87,14 @@ public class ExpressionMenu
 			popupMenu.overlay(m, 1, 1, 6, 4);
 
 			m.getSlot(c.slot().getX(), c.slot().getY() - 1).setItem(popupMenu.getOffsetY() <= 0 ? MiscUtil.AIR : ExpItems.POPUP_UP.newItemStack());
+		}))
+		.addItem('R', SlotBuilder.stickyButtonSlot_(ExpItems.POPUP_REMOVE_EXP.newItemStack(), (c, m) ->
+		{
+			Menu popupMenu = m.getMetadata("popup", Menu.class);
+			popupMenu.move(0, 1);
+			popupMenu.overlay(m, 1, 1, 6, 4);
+
+
 		}))
 		;
 

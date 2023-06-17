@@ -3,8 +3,6 @@ package steve6472.standalone.interactable.ex;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import steve6472.funnylib.json.INBT;
-import steve6472.funnylib.json.codec.ann.Save;
-import steve6472.funnylib.json.codec.ann.SaveBool;
 import steve6472.funnylib.serialize.NBT;
 
 /**

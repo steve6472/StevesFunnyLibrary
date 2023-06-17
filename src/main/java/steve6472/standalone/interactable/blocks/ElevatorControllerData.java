@@ -11,11 +11,6 @@ import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.blocks.CustomBlockData;
 import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.item.Items;
-import steve6472.funnylib.json.codec.ann.Save;
-import steve6472.funnylib.json.codec.ann.SaveBool;
-import steve6472.funnylib.json.codec.ann.SaveDouble;
-import steve6472.funnylib.json.codec.ann.SaveInt;
-import steve6472.funnylib.json.codec.codecs.ItemStackCodec;
 import steve6472.funnylib.data.Marker;
 import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.ItemStackBuilder;
@@ -32,16 +27,16 @@ public class ElevatorControllerData extends CustomBlockData
 {
 	public Marker pointA, pointB;
 
-	@SaveDouble
+//	@SaveDouble
 	public double speed = 1d, progress;
 
-	@SaveBool
+//	@SaveBool
 	public boolean showPoints, dirChange, enabled, seatActivator = true, solidifyProtection;
 
-	@SaveInt
+//	@SaveInt
 	public int movingDirection; // 0 - none, 1 - to point A, 2 - to point B
 
-	@Save(ItemStackCodec.class)
+//	@Save(ItemStackCodec.class)
 	public ItemStack elevatorData = MiscUtil.AIR;
 
 	SolidBlockEntity sbe;

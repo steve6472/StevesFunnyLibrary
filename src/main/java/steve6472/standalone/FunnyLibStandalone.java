@@ -23,7 +23,7 @@ public class FunnyLibStandalone extends JavaPlugin
 	public void onEnable()
 	{
 		FunnyLib.init(this, new LibSettings());
-		ExNulla.init();
+//		ExNulla.init();
 		Interactable.init();
 //		Machinal.init();
 

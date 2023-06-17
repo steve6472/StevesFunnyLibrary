@@ -21,6 +21,7 @@ public class ExpItems
 	public static CustomItem POPUP_UP = reg(new GenericItem("popup_up", Material.COMMAND_BLOCK, ChatColor.WHITE + "Up", 28));
 	public static CustomItem POPUP_DOWN = reg(new GenericItem("popup_down", Material.COMMAND_BLOCK, ChatColor.WHITE + "Down", 29));
 	public static CustomItem POPUP_NO_BACKGROUND_TOP = reg(new GenericItem("popup_no_background_top", Material.COMMAND_BLOCK, "Popup", 40));
+	public static CustomItem POPUP_REMOVE_EXP = reg(new GenericItem("popup_remove_exp", Material.COMMAND_BLOCK, ChatColor.DARK_RED + "Remove Expression", 27));
 
 	public static CustomItem IF_ICON = reg(GenericItem.builder(Material.COMMAND_BLOCK, "if_icon").customModel(13).name(ChatColor.DARK_AQUA + "If").build());
 	public static CustomItem IF_START = reg(new GenericItem("if_start", Material.COMMAND_BLOCK, "If", 6));

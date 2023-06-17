@@ -4,7 +4,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.*;
-import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
@@ -14,9 +13,6 @@ import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.blocks.CustomBlockData;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.item.Items;
-import steve6472.funnylib.json.codec.ann.Save;
-import steve6472.funnylib.json.codec.ann.SaveBool;
-import steve6472.funnylib.json.codec.codecs.ItemStackCodec;
 import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.MiscUtil;
@@ -29,10 +25,10 @@ import java.util.List;
 
 public class ElevatorEditorData extends CustomBlockData
 {
-	@Save(value = ItemStackCodec.class)
+//	@Save(value = ItemStackCodec.class)
 	public ItemStack structure = MiscUtil.AIR;
 
-	@SaveBool
+//	@SaveBool
 	public boolean showCollisions, collisionsMode = true;
 
 	public WorldButton toggleMode;

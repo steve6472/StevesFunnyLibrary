@@ -2,15 +2,12 @@ package steve6472.funnylib;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.defaults.BukkitCommand;
-import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.json.JSONObject;
 import steve6472.funnylib.blocks.Blocks;
@@ -23,7 +20,6 @@ import steve6472.funnylib.json.IJsonConfig;
 import steve6472.funnylib.json.INbtConfig;
 import steve6472.funnylib.json.JsonConfig;
 import steve6472.funnylib.json.JsonNBT;
-import steve6472.funnylib.json.codec.codecs.*;
 import steve6472.funnylib.serialize.PdcNBT;
 import steve6472.funnylib.util.GlowingUtil;
 import steve6472.funnylib.blocks.builtin.TeleportButtonBlock;
@@ -32,7 +28,6 @@ import steve6472.funnylib.command.impl.BuiltInCommands;
 import steve6472.funnylib.events.ServerTickEvent;
 import steve6472.funnylib.item.BlockPlacerItem;
 import steve6472.funnylib.item.builtin.*;
-import steve6472.funnylib.json.codec.Codec;
 import steve6472.funnylib.menu.MenuListener;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.Items;
@@ -246,12 +241,6 @@ public class FunnyLib
 
 	private static void initBuiltin()
 	{
-		Codec.registerCodec(new ItemStackCodec());
-		Codec.registerCodec(new EntityCodec());
-
-		Codec.regDefCodec(ItemStack.class, new ItemStackCodec());
-		Codec.regDefCodec(Entity.class, new EntityCodec());
-
 		Blocks.registerBlock(TELEPORT_BUTTON_BLOCK = new TeleportButtonBlock());
 		Blocks.registerBlock(MULTI_BLOCK = new MultiBlock());
 

@@ -6,9 +6,10 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.ArmorStand;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.util.Vector;
+import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlock;
@@ -19,8 +20,9 @@ import steve6472.funnylib.blocks.events.BlockClickEvents;
 import steve6472.funnylib.blocks.events.BlockTick;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.PlayerBlockContext;
+import steve6472.funnylib.data.Marker;
+import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.Items;
-import steve6472.funnylib.json.codec.codecs.MarkerCodec;
 import steve6472.funnylib.menu.Mask;
 import steve6472.funnylib.menu.MenuBuilder;
 import steve6472.funnylib.menu.Response;
@@ -28,6 +30,8 @@ import steve6472.funnylib.menu.SlotBuilder;
 import steve6472.funnylib.util.*;
 import steve6472.funnylib.util.generated.BlockGen;
 import steve6472.standalone.interactable.Interactable;
+
+import java.util.function.Consumer;
 
 /**
  * Created by steve6472
@@ -206,12 +210,12 @@ public class ElevatorControllerBlock extends CustomBlock implements IBlockData, 
 		.slot(1, 0, m ->
 		{
 			ElevatorControllerData data = m.getData("data", ElevatorControllerData.class);
-			return MarkerCodec.slotBuilder(data.pointA, v -> data.pointA = v);
+			return slotBuilder(data.pointA, v -> data.pointA = v);
 		})
 		.slot(1, 4, m ->
 		{
 			ElevatorControllerData data = m.getData("data", ElevatorControllerData.class);
-			return MarkerCodec.slotBuilder(data.pointB, v -> data.pointB = v);
+			return slotBuilder(data.pointB, v -> data.pointB = v);
 		})
 		.slot(6, 4, SlotBuilder.buttonSlot(Material.ARROW, "Reduce speed", (c, cm) -> cm.getPassedData().getData("data", ElevatorControllerData.class).speed -= 0.05))
 		.slot(8, 4, SlotBuilder.buttonSlot(Material.ARROW, "Add speed", (c, cm) -> cm.getPassedData().getData("data", ElevatorControllerData.class).speed += 0.05))
@@ -222,4 +226,40 @@ public class ElevatorControllerBlock extends CustomBlock implements IBlockData, 
 		.slot(6, 0, SlotBuilder.toggleSlot("Seat Activator", d -> d.getData("data", ElevatorControllerData.class).seatActivator, (d, b) -> d.getData("data", ElevatorControllerData.class).seatActivator = b))
 		.slot(3, 2, SlotBuilder.toggleSlot("Enabled", d -> d.getData("data", ElevatorControllerData.class).enabled, (d, b) -> d.getData("data", ElevatorControllerData.class).enabled = b))
 		.applyMask(mask);
+
+	private static SlotBuilder slotBuilder(Marker current, Consumer<Marker> set)
+	{
+		return SlotBuilder
+			.create(current.toItem())
+			.allow(InventoryAction.PICKUP_ALL, InventoryAction.PLACE_ALL, InventoryAction.PICKUP_HALF)
+			.allow(ClickType.LEFT, ClickType.RIGHT)
+			.onClick((c, cm) ->
+			{
+				if (c.type() == ClickType.RIGHT)
+				{
+					ItemStack currentItem = current.toItem();
+					if (c.itemOnCursor().getType().isAir() && !currentItem.getType().isAir())
+					{
+						return Response.setItemToCursor(currentItem);
+					}
+				}
+
+				if (c.itemOnCursor().getType().isAir())
+				{
+					set.accept(null);
+					c.slot().setItem(MiscUtil.AIR);
+					return Response.cancel();
+				}
+
+				CustomItem customItem = Items.getCustomItem(c.itemOnCursor());
+				if (customItem != FunnyLib.LOCATION_MARKER)
+					return Response.cancel();
+
+				set.accept(Marker.fromItem(c.itemOnCursor()));
+				ItemStack clone = c.itemOnCursor().clone();
+				clone.setAmount(1);
+				c.slot().setItem(clone);
+				return Response.cancel();
+			});
+	}
 }
