@@ -1,22 +1,19 @@
 package steve6472.standalone.interactable.ex.impl.bool;
 
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BoundingBox;
-import org.joml.Vector3i;
-import org.json.JSONObject;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.data.AreaSelection;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.menu.Click;
 import steve6472.funnylib.menu.Menu;
 import steve6472.funnylib.menu.Response;
-import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
-import steve6472.funnylib.util.MiscUtil;
 import steve6472.funnylib.serialize.NBT;
 import steve6472.standalone.interactable.ex.*;
+import steve6472.standalone.interactable.ex.elements.ElementType;
+import steve6472.standalone.interactable.ex.elements.IElementType;
 
 import java.util.List;
 
@@ -48,11 +45,12 @@ public class AnyPlayerInArea extends Expression
 
 	public AnyPlayerInArea()
 	{
-
+		super(Type.BOOL, 1, 1);
 	}
 
 	public AnyPlayerInArea(AreaSelection area)
 	{
+		super(Type.BOOL, 1, 1);
 		this.area = area;
 	}
 
@@ -92,24 +90,6 @@ public class AnyPlayerInArea extends Expression
 			}
 		}
 		return Response.cancel();
-	}
-
-	@Override
-	public int getHeight()
-	{
-		return 1;
-	}
-
-	@Override
-	public int getWidth()
-	{
-		return 1;
-	}
-
-	@Override
-	public Type getType()
-	{
-		return Type.BOOL;
 	}
 
 	@Override

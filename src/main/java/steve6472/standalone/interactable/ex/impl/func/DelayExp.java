@@ -2,13 +2,14 @@ package steve6472.standalone.interactable.ex.impl.func;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.json.JSONObject;
 import steve6472.funnylib.menu.Click;
 import steve6472.funnylib.menu.Menu;
 import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.standalone.interactable.ex.*;
+import steve6472.standalone.interactable.ex.elements.ElementType;
+import steve6472.standalone.interactable.ex.elements.IElementType;
 
 /**
  * Created by steve6472
@@ -26,11 +27,12 @@ public class DelayExp extends Expression
 
 	public DelayExp()
 	{
-
+		super(Type.CONTROL, 5, 1);
 	}
 
 	public DelayExp(long ticks)
 	{
+		super(Type.CONTROL, 5, 1);
 		this.ticks = ticks;
 	}
 
@@ -70,24 +72,6 @@ public class DelayExp extends Expression
 			Bukkit.broadcastMessage("Current Delay is " + ticks);
 
 		return Response.cancel();
-	}
-
-	@Override
-	public int getHeight()
-	{
-		return 1;
-	}
-
-	@Override
-	public int getWidth()
-	{
-		return 5;
-	}
-
-	@Override
-	public Type getType()
-	{
-		return Type.CONTROL;
 	}
 
 	@Override

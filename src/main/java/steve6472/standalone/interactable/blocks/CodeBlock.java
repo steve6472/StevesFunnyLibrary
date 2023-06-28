@@ -6,7 +6,10 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlock;
@@ -23,14 +26,23 @@ import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.BlockFaceContext;
 import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.context.PlayerItemContext;
+import steve6472.funnylib.data.AreaSelection;
+import steve6472.funnylib.item.CustomItem;
+import steve6472.funnylib.item.Items;
 import steve6472.funnylib.menu.ArbitraryData;
 import steve6472.funnylib.menu.MenuBuilder;
+import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.menu.SlotBuilder;
 import steve6472.funnylib.util.generated.BlockGen;
 import steve6472.funnylib.util.ItemStackBuilder;
-import steve6472.funnylib.util.MetaUtil;
 import steve6472.standalone.interactable.ex.*;
+import steve6472.standalone.interactable.ex.event.EventGui;
+import steve6472.standalone.interactable.ex.event.ExpressionEventData;
+import steve6472.standalone.interactable.ex.event.ExpressionEvent;
+import steve6472.standalone.interactable.ex.impl.events.PlayerAreaExpEvent;
+import steve6472.standalone.interactable.ex.impl.func.DebugHereExp;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -131,10 +143,33 @@ public class CodeBlock extends CustomBlock implements IBlockData, Activable, Blo
 	@Override
 	public void tick(BlockContext context)
 	{
-		if (context.getBlockData(CodeBlockData.class).repeating && !context.getState().get(EXECUTING))
+		CodeBlockData blockData = context.getBlockData(CodeBlockData.class);
+		if (blockData.repeating && !context.getState().get(EXECUTING))
 		{
 			start(context);
 		}
+
+		List<ExpressionEventData> eventData = new ArrayList<>();
+		// Poll events
+		for (ExpressionEvent event : blockData.events)
+		{
+			event.createEvents(new ExpContext(context.getLocation()), eventData);
+			for (ExpressionEventData eventDatum : eventData)
+			{
+				ExpContext eventContext = new ExpContext(context.getLocation());
+				eventContext.setEventData(eventDatum);
+				CodeExecutor eventExecutor = new CodeExecutor(event.cloneExpression(), eventContext);
+				eventExecutor.start();
+
+				blockData.executingEvents.add(eventExecutor);
+			}
+			eventData.clear();
+		}
+
+		/*
+		 * Iterate over all current events, if any of them finish after ticking, remove them
+		 */
+		blockData.executingEvents.removeIf(CodeExecutor::executeTick);
 
 		execute(context);
 	}
@@ -148,8 +183,8 @@ public class CodeBlock extends CustomBlock implements IBlockData, Activable, Blo
 		}
 	}
 
-	MenuBuilder MENU = MenuBuilder.create(3, "Code")
-		.slot(4, 1, SlotBuilder.buttonSlot(ItemStackBuilder.quick(Material.COMMAND_BLOCK, "Code"), (c, m) -> {
+	MenuBuilder MENU = MenuBuilder.create(3, "Code Block")
+		.slot(4, 1, SlotBuilder.buttonSlot(ItemStackBuilder.quick(Material.COMMAND_BLOCK, "Ticking Code"), (c, m) -> {
 			ArbitraryData data = m.getPassedData();
 			CodeBlockData blockData = data.getData("data", CodeBlockData.class);
 			Location location = data.getData("location", Location.class);
@@ -161,7 +196,25 @@ public class CodeBlock extends CustomBlock implements IBlockData, Activable, Blo
 
 			ExpressionMenu.showMenuToPlayer(c.player(), (CodeBlockExp) blockData.executor.expression);
 		}))
-		.slot(1, 1, SlotBuilder.toggleSlot("Repeating", d -> d.getData("data", CodeBlockData.class).repeating, (d, flag) -> d.getData("data", CodeBlockData.class).repeating = flag));
+		.slot(1, 1, SlotBuilder.toggleSlot("Repeating", d -> d.getData("data", CodeBlockData.class).repeating, (d, flag) -> d.getData("data", CodeBlockData.class).repeating = flag))
+		.slot(7, 1, SlotBuilder.buttonSlotResponse(Material.COMMAND_BLOCK, "Events", (c, m) -> {
+			return Response.redirect(EventGui.getEventsMenu(), new ArbitraryData().copyFrom(m.getPassedData()));
+		}));
+//		.slot(7, 2, SlotBuilder.create(ItemStackBuilder.quick(Material.COMMAND_BLOCK, "Test Event")).onClick((c, m) -> {
+//			ArbitraryData data = m.getPassedData();
+//			CodeBlockData blockData = data.getData("data", CodeBlockData.class);
+//			ItemStack item = c.itemOnCursor();
+//			if (!Items.isCustomItem(item)) return Response.cancel();
+//			CustomItem customItem = Items.getCustomItem(item);
+//			if (customItem != FunnyLib.AREA_LOCATION_MARKER) return Response.cancel();
+//			AreaSelection areaSelection = AreaSelection.fromItem(item);
+//
+//			PlayerAreaExpEvent e = new PlayerAreaExpEvent();
+//			e.setExpression(CodeBlockExp.body(null, new DebugHereExp(0)));
+//			e.area = areaSelection;
+//			blockData.events.add(e);
+//			return Response.cancel();
+//		}).allow(ClickType.values()).allow(InventoryAction.values())).allowPlayerInventory();
 
 	@Override
 	public void showInterface(CodeBlockData data, PlayerBlockContext context)

@@ -139,6 +139,26 @@ public class SlotBuilder
 		return builder -> SlotBuilder.create(icon).allow(ClickType.LEFT).allow(InventoryAction.PICKUP_ALL).onClick(action);
 	}
 
+	public static ISlotBuilder buttonSlotResponse(ItemStack icon, BiFunction<Click, Menu, Response> action)
+	{
+		ItemStack icon_ = ItemStackBuilder
+			.edit(icon)
+			.addLore(JSONMessage.create("Button").color(ChatColor.GRAY))
+			.buildItemStack();
+
+		return builder -> SlotBuilder.create(icon).allow(ClickType.LEFT).allow(InventoryAction.PICKUP_ALL).onClick(action);
+	}
+
+	public static SlotBuilder buttonSlotResponse_(ItemStack icon, BiFunction<Click, Menu, Response> action)
+	{
+		ItemStack icon_ = ItemStackBuilder
+			.edit(icon)
+			.addLore(JSONMessage.create("Button").color(ChatColor.GRAY))
+			.buildItemStack();
+
+		return SlotBuilder.create(icon).allow(ClickType.LEFT).allow(InventoryAction.PICKUP_ALL).onClick(action);
+	}
+
 	public static ISlotBuilder itemSlot(Function<ArbitraryData, ItemStack> get, BiConsumer<ArbitraryData, ItemStack> set)
 	{
 		return itemSlot(get, set, i -> true);

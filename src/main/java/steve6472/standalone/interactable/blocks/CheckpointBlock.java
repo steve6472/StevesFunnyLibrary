@@ -110,7 +110,7 @@ public class CheckpointBlock extends CustomBlock implements IBlockData, BlockTic
 
 				int reachedCheckpoint = nbt.getInt("reached_checkpoint", 0);
 
-				if (reachedCheckpoint < blockData.order)
+				if (reachedCheckpoint + 1 == blockData.order)
 				{
 					Location location = context.getLocation();
 					nbt.setInt("reached_checkpoint", blockData.order);

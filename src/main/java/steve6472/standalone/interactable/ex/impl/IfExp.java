@@ -2,12 +2,13 @@ package steve6472.standalone.interactable.ex.impl;
 
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
-import org.json.JSONObject;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.menu.*;
 import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.ItemStackBuilder;
+import steve6472.funnylib.util.JSONMessage;
 import steve6472.standalone.interactable.ex.*;
+import steve6472.standalone.interactable.ex.elements.IElementType;
 
 /**
  * Created by steve6472
@@ -17,24 +18,16 @@ import steve6472.standalone.interactable.ex.*;
 public class IfExp extends Expression
 {
 	private CodeBlockExp body, condition;
+	private final steve6472.standalone.interactable.ex.elements.ElementType START = new steve6472.standalone.interactable.ex.elements.ElementType("start", 0, () -> ItemStackBuilder
+		.editNonStatic(ExpItems.IF_START.newItemStack())
+		.addLore(JSONMessage.create(condition == null ? "null" : condition.stringify(false)))
+		.buildItemStack());
 
 	public IfExp()
 	{
+		super(Type.CONTROL);
 		body = CodeBlockExp.body(this);
 		condition = CodeBlockExp.executor(this, Type.BOOL);
-	}
-
-	public IfExp(Expression condition, Expression body)
-	{
-		this.condition = CodeBlockExp.executor(this, Type.BOOL, condition);
-		if (body instanceof CodeBlockExp cb)
-		{
-			this.body = cb;
-			this.body.setParent(this);
-		} else
-		{
-			this.body = CodeBlockExp.body(body);
-		}
 	}
 
 	@Override
@@ -98,7 +91,7 @@ public class IfExp extends Expression
 	@Override
 	public void build(ExpBuilder builder, int x, int y)
 	{
-		builder.setSlot(x, y, ElementType.START);
+		builder.setSlot(x, y, START);
 		builder.setSlot(x + condition.getWidth() + 1, y, ElementType.THEN);
 		builder.setSlot(x, y + body.getHeight() + 1, ElementType.END);
 		for (int i = 0; i < body.getHeight(); i++)
@@ -135,12 +128,6 @@ public class IfExp extends Expression
 	}
 
 	@Override
-	public Type getType()
-	{
-		return Type.CONTROL;
-	}
-
-	@Override
 	public void toNBT(NBT compound)
 	{
 		compound.setCompound("body", Expressions.saveExpression(compound.createCompound(), body));
@@ -156,7 +143,7 @@ public class IfExp extends Expression
 
 	public enum ElementType implements IElementType
 	{
-		START("start", ExpItems.IF_START.newItemStack()),
+		IGNORED(null, null),
 		THEN("then", ExpItems.IF_THEN.newItemStack()),
 		END("end", ExpItems.IF_END.newItemStack()),
 		EXTENSION("if extension", ExpItems.IF_EXTENSION.newItemStack())

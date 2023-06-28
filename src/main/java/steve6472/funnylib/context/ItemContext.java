@@ -10,7 +10,7 @@ import steve6472.funnylib.util.MiscUtil;
  * Date: 9/17/2022
  * Project: StevesFunnyLibrary <br>
  */
-public class ItemContext
+public class ItemContext implements Context
 {
 	protected final ItemStack itemStack;
 	// FIXME: remove hand from ItemContex and have it only in PlayerContext

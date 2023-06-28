@@ -1,4 +1,4 @@
-package steve6472.standalone.interactable.ex;
+package steve6472.standalone.interactable.ex.elements;
 
 import org.bukkit.inventory.ItemStack;
 

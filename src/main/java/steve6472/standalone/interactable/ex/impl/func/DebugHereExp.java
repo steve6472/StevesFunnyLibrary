@@ -8,6 +8,8 @@ import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.standalone.interactable.ex.*;
+import steve6472.standalone.interactable.ex.elements.ElementType;
+import steve6472.standalone.interactable.ex.elements.IElementType;
 
 /**
  * Created by steve6472
@@ -25,11 +27,12 @@ public class DebugHereExp extends Expression
 
 	public DebugHereExp()
 	{
-
+		super(Type.CONTROL, 5, 1);
 	}
 
 	public DebugHereExp(int id)
 	{
+		super(Type.CONTROL, 5, 1);
 		this.id = id;
 	}
 
@@ -68,24 +71,6 @@ public class DebugHereExp extends Expression
 			Bukkit.broadcastMessage("Current Here is " + id);
 
 		return Response.cancel();
-	}
-
-	@Override
-	public int getHeight()
-	{
-		return 1;
-	}
-
-	@Override
-	public int getWidth()
-	{
-		return 5;
-	}
-
-	@Override
-	public Type getType()
-	{
-		return Type.CONTROL;
 	}
 
 	@Override

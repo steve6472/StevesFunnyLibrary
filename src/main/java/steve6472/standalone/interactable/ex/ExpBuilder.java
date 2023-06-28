@@ -8,6 +8,7 @@ import steve6472.funnylib.menu.*;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.MetaUtil;
+import steve6472.standalone.interactable.ex.elements.IElementType;
 
 /**
  * Created by steve6472
@@ -45,14 +46,8 @@ public class ExpBuilder
 		final Expression finalExp = currentExpression;
 		slotBuilder.onClick((click, menu) ->
 		{
-//			Bukkit.broadcastMessage("" + menu.hasMetadata("popup"));
-//			menu.getMetadataMap().forEach((k, v) -> {
-//				Bukkit.broadcastMessage(k + " -> " + v);
-//			});
 			if (click.type() == ClickType.MIDDLE && !menu.hasMetadata("popup"))
 			{
-//				Bukkit.broadcastMessage("Popup " + finalExp.getClass().getSimpleName().toUpperCase() + " " + Integer.toHexString(finalExp.hashCode()));
-
 				openPopup(click.player(), finalExp, elementType.ordinal(), menu, true);
 
 				return Response.cancel();

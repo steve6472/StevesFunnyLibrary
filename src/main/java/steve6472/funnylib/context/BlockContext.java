@@ -1,6 +1,5 @@
 package steve6472.funnylib.context;
 
-import com.google.errorprone.annotations.concurrent.LazyInit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -14,7 +13,7 @@ import steve6472.funnylib.blocks.stateengine.State;
  * Date: 9/17/2022
  * Project: StevesFunnyLibrary <br>
  */
-public class BlockContext
+public class BlockContext implements Context
 {
 	protected final Location location;
 

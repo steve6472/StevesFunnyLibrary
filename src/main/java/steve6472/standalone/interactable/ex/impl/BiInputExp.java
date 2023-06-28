@@ -2,11 +2,11 @@ package steve6472.standalone.interactable.ex.impl;
 
 import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
-import org.json.JSONObject;
 import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
 import steve6472.standalone.interactable.ex.*;
+import steve6472.standalone.interactable.ex.elements.IElementType;
 
 /**
  * Created by steve6472
@@ -15,13 +15,12 @@ import steve6472.standalone.interactable.ex.*;
  */
 public abstract class BiInputExp extends Expression
 {
-	private final Type returnType;
 	private final OperatorIcon icon;
 	public CodeBlockExp left, right;
 
 	public BiInputExp(Type returnType, Type leftType, Type rightType)
 	{
-		this.returnType = returnType;
+		super(returnType, 0, 1);
 		this.left = CodeBlockExp.executor(this, leftType);
 		this.right = CodeBlockExp.executor(this, rightType);
 		this.icon = new OperatorIcon();
@@ -29,12 +28,6 @@ public abstract class BiInputExp extends Expression
 
 	protected abstract ItemStack getMiddleItem();
 	protected abstract String sign();
-
-	@Override
-	public int getHeight()
-	{
-		return 1;
-	}
 
 	@Override
 	public int getWidth()
@@ -104,12 +97,6 @@ public abstract class BiInputExp extends Expression
 		{
 			return ChatColor.DARK_GRAY + s;
 		}
-	}
-
-	@Override
-	public Type getType()
-	{
-		return returnType;
 	}
 
 	public class OperatorIcon implements IElementType

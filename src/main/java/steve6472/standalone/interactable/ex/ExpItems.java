@@ -70,6 +70,8 @@ public class ExpItems
 
 	public static CustomItem PLAYER_IN_AREA = reg(new GenericItem("player_in_area", Material.COMMAND_BLOCK, "Player in Area", 37));
 
+	public static CustomItem GIVE_ITEM = reg(new GenericItem("give_item", Material.COMMAND_BLOCK, "Give Item", 0));
+
 	private static CustomItem reg(CustomItem customItem)
 	{
 		return Items.registerAdminItem(customItem, true);

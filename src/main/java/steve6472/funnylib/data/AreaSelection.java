@@ -2,6 +2,7 @@ package steve6472.funnylib.data;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.BoundingBox;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3i;
@@ -41,6 +42,12 @@ public final class AreaSelection implements ICategorizable, Itemizable<AreaSelec
 		this(new Vector3i(), new Vector3i(), null, Material.PAPER);
 	}
 
+	public AreaSelection(NBT nbt)
+	{
+		this(new Vector3i(), new Vector3i(), null, Material.PAPER);
+		fromNBT(nbt);
+	}
+
 	public Vector3i getStart()
 	{
 		return start;
@@ -63,6 +70,11 @@ public final class AreaSelection implements ICategorizable, Itemizable<AreaSelec
 	public void setIcon(Material icon)
 	{
 		this.icon = icon;
+	}
+
+	public BoundingBox toBoundingBox()
+	{
+		return new BoundingBox(start.x, start.y, start.z, end.x + 1, end.y + 1, end.z + 1);
 	}
 
 	@Override

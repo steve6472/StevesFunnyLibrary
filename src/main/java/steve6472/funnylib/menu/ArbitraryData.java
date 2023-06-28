@@ -65,9 +65,10 @@ public class ArbitraryData
 		dataMap.remove(key);
 	}
 
-	public void copyFrom(ArbitraryData otherData)
+	public ArbitraryData copyFrom(ArbitraryData otherData)
 	{
 		dataMap.putAll(otherData.dataMap);
+		return this;
 	}
 
 	public void copyExisting(ArbitraryData otherData)

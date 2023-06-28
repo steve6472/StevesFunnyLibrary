@@ -1,11 +1,9 @@
 package steve6472.standalone.interactable.ex;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
 import steve6472.funnylib.command.Command;
 import steve6472.funnylib.command.Description;
 import steve6472.funnylib.command.Usage;
@@ -17,7 +15,6 @@ import steve6472.funnylib.serialize.PdcNBT;
 import steve6472.funnylib.util.*;
 
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -93,8 +90,6 @@ public class ExpressionMenu
 		{
 			Expression target = MetaUtil.getValue(c.player(), Expression.class, "target_exp");
 			Integer targetType = MetaUtil.getValue(c.player(), Integer.class, "target_exp_type");
-			Bukkit.broadcastMessage("" + target);
-			Bukkit.broadcastMessage("" + targetType);
 
 			if (target != null && targetType != null)
 			{
@@ -102,7 +97,7 @@ public class ExpressionMenu
 				{
 					if (target.parent instanceof CodeBlockExp block)
 					{
-						block.getExpressions().remove(target);
+						block.removeExpression(target);
 					} else
 					{
 						c.player().sendMessage("Type was: " + target.parent.getClass().getSimpleName());

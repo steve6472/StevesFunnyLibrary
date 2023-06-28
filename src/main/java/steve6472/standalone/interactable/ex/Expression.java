@@ -1,11 +1,11 @@
 package steve6472.standalone.interactable.ex;
 
-import org.json.JSONObject;
 import steve6472.funnylib.json.INBT;
 import steve6472.funnylib.menu.Click;
 import steve6472.funnylib.menu.Menu;
 import steve6472.funnylib.menu.MenuBuilder;
 import steve6472.funnylib.menu.Response;
+import steve6472.standalone.interactable.ex.elements.IElementType;
 
 /**
  * Created by steve6472
@@ -15,22 +15,50 @@ import steve6472.funnylib.menu.Response;
 public abstract class Expression implements INBT
 {
 	protected Expression parent;
+	protected int width;
+	protected int height;
+	protected Type type;
+
+	public Expression(Type type, int width, int height)
+	{
+		this.type = type;
+		this.width = width;
+		this.height = height;
+	}
+
+	public Expression(Type type)
+	{
+		this(type, 0, 0);
+	}
 
 	public abstract ExpResult execute(ExpContext context);
 
 	public abstract void build(ExpBuilder builder, int x, int y);
 
-	public abstract int getHeight();
-	public abstract int getWidth();
-
-	public Response action(IElementType type, Click click, Menu menu, Expression expression) { return Response.cancel(); }
+	public Response action(IElementType type, Click click, Menu menu, Expression expression)
+	{
+		return Response.cancel();
+	}
 
 	public void createPopup(MenuBuilder builder)
 	{
 
 	}
 
-	public abstract Type getType();
+	public Type getType()
+	{
+		return type;
+	}
+
+	public int getWidth()
+	{
+		return width;
+	}
+
+	public int getHeight()
+	{
+		return height;
+	}
 
 	public abstract IElementType[] getTypes();
 

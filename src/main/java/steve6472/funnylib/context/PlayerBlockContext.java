@@ -19,7 +19,7 @@ import steve6472.funnylib.serialize.NBT;
  * Date: 9/17/2022
  * Project: StevesFunnyLibrary <br>
  */
-public record PlayerBlockContext(PlayerItemContext playerContext, BlockFaceContext blockContext)
+public record PlayerBlockContext(PlayerItemContext playerContext, BlockFaceContext blockContext) implements Context
 {
 	/*
 	 * Player Context

@@ -16,7 +16,7 @@ import steve6472.funnylib.serialize.NBT;
  * Date: 9/17/2022
  * Project: StevesFunnyLibrary <br>
  */
-public record PlayerEntityContext(PlayerItemContext playerContext, EntityContext entityContext)
+public record PlayerEntityContext(PlayerItemContext playerContext, EntityContext entityContext) implements Context
 {
 	/*
 	 * Player Context

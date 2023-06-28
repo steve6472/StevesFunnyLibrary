@@ -14,7 +14,7 @@ import steve6472.funnylib.util.Preconditions;
  * Date: 9/17/2022
  * Project: StevesFunnyLibrary <br>
  */
-public class CustomItemContext extends ItemContext
+public class CustomItemContext extends ItemContext implements Context
 {
 	private static final String NOT_CUSTOM_ITEM = "ItemStack is not a Custom Item";
 

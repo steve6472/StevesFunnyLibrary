@@ -2,10 +2,10 @@ package steve6472.standalone.interactable.ex;
 
 import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
-import org.json.JSONObject;
 import steve6472.funnylib.menu.*;
 import steve6472.funnylib.serialize.NBT;
-import steve6472.funnylib.util.MetaUtil;
+import steve6472.standalone.interactable.ex.elements.ElementType;
+import steve6472.standalone.interactable.ex.elements.IElementType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,12 +19,16 @@ public class CodeBlockExp extends Expression
 {
 	private List<Expression> expressions;
 	private boolean isBody;
-	private Type type;
 	private int lastExecuted = 0;
 	private ExpResult lastResult = ExpResult.STOP;
+	private ItemStack placeholderIcon =  ExpItems.PLACEHOLDER.newItemStack();
+
+	public final ElementType PLACEHOLDER = new ElementType("placeholder", 0, () -> placeholderIcon.clone());
+	public static final ElementType NEW_EXP = new ElementType("new_exp", 1, () -> ExpItems.ADD_EXPRESSION.newItemStack());
 
 	public CodeBlockExp()
 	{
+		super(Type.CONTROL);
 		expressions = new ArrayList<>();
 	}
 
@@ -40,11 +44,11 @@ public class CodeBlockExp extends Expression
 
 	private CodeBlockExp(Expression parent, boolean isBody, Type type, Expression... expressions)
 	{
+		super(type);
 		this.parent = parent;
 		this.isBody = isBody;
-		this.type = type;
 		this.expressions = new ArrayList<>();
-		if (expressions != null && expressions.length > 0)
+		if (expressions != null)
 		{
 			for (Expression expression : expressions)
 			{
@@ -55,6 +59,12 @@ public class CodeBlockExp extends Expression
 				this.expressions.add(expression);
 			}
 		}
+	}
+
+	public CodeBlockExp setPlaceholderIcon(ItemStack icon)
+	{
+		this.placeholderIcon = icon;
+		return this;
 	}
 
 	public void addExpression(Expression expression)
@@ -108,7 +118,7 @@ public class CodeBlockExp extends Expression
 	{
 		if (isBody && expressions.isEmpty())
 		{
-			builder.setSlot(x, y, ElementType.NEW_EXP);
+			builder.setSlot(x, y, NEW_EXP);
 			return;
 		}
 
@@ -121,26 +131,23 @@ public class CodeBlockExp extends Expression
 		builder.setCurrentExpression(this);
 		if (isBody)
 		{
-			builder.setSlot(x, y + yOffset, ElementType.NEW_EXP);
+			builder.setSlot(x, y + yOffset, NEW_EXP);
 		} else if (expressions.isEmpty())
 		{
-			builder.setSlot(x, y, ElementType.PLACEHOLDER);
+			builder.setSlot(x, y, PLACEHOLDER);
 		}
 	}
 
 	@Override
 	public Response action(IElementType type, Click click, Menu menu, Expression expression)
 	{
-//		if (type == ElementType.NEW_EXP)
-//		{
-			if (expression == null)
-			{
-				ExpBuilder.openPopup(click.player(), this, type.ordinal(), menu, false);
-			} else
-			{
-				addExpression(expression);
-			}
-//		}
+		if (expression == null)
+		{
+			ExpBuilder.openPopup(click.player(), this, type.ordinal(), menu, false);
+		} else
+		{
+			addExpression(expression);
+		}
 
 		return Response.cancel();
 	}
@@ -154,12 +161,6 @@ public class CodeBlockExp extends Expression
 			Expressions.ExpressionEntry entry = expressions.get(i);
 			builder.slot(i % 6, i / 6, SlotBuilder.buttonSlot(entry.icon().newItemStack(), ExpressionMenu.addExpression(entry.constructor())));
 		}
-	}
-
-	@Override
-	public Type getType()
-	{
-		return type;
 	}
 
 	@Override
@@ -197,7 +198,7 @@ public class CodeBlockExp extends Expression
 	@Override
 	public IElementType[] getTypes()
 	{
-		return ElementType.values();
+		return new IElementType[] {PLACEHOLDER, NEW_EXP};
 	}
 
 	@Override
@@ -230,7 +231,7 @@ public class CodeBlockExp extends Expression
 	public void toNBT(NBT compound)
 	{
 		compound.setBoolean("is_body", isBody);
-		compound.setEnum("type", type);
+		compound.setEnum("type", getType());
 		compound.setInt("last_executed", lastExecuted);
 		compound.setCompoundArray("expressions", Expressions.saveExpressions(compound, expressions));
 	}
@@ -243,34 +244,6 @@ public class CodeBlockExp extends Expression
 		lastExecuted = compound.getInt("last_executed", 0);
 		NBT[] expressionsCompounds = compound.getCompoundArray("expressions");
 		expressions = Expressions.loadExpressions(expressionsCompounds, this);
-	}
-
-	public enum ElementType implements IElementType
-	{
-		PLACEHOLDER("placeholder", ExpItems.PLACEHOLDER.newItemStack()),
-		NEW_EXP("new_exp", ExpItems.ADD_EXPRESSION.newItemStack()),
-		;
-
-		private final String label;
-		private final ItemStack item;
-
-		ElementType(String label, ItemStack item)
-		{
-			this.label = label;
-			this.item = item;
-		}
-
-		@Override
-		public String label()
-		{
-			return label;
-		}
-
-		@Override
-		public ItemStack item()
-		{
-			return item;
-		}
 	}
 
 	@Override

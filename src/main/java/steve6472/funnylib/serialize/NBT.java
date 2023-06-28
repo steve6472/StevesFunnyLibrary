@@ -10,6 +10,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
+import org.joml.Vector3f;
 import org.joml.Vector3i;
 import org.json.JSONObject;
 import steve6472.funnylib.FunnyLib;
@@ -544,6 +545,11 @@ public class NBT
 		setString(key, jsonObject.toString());
 	}
 
+	public boolean hasItemStack(String key)
+	{
+		return hasString(key);
+	}
+
 	/*
 	 * Fancy compounds
 	 */
@@ -612,6 +618,40 @@ public class NBT
 	}
 
 	public boolean has3d(String key)
+	{
+		return hasCompound(key);
+	}
+
+	/*
+	 * 3f
+	 */
+
+	public void set3f(String key, @NotNull Vector3f vec)
+	{
+		set3f(key, vec.x, vec.y, vec.z);
+	}
+
+	public void set3f(String key, float x, float y, float z)
+	{
+		NBT compound = createCompound();
+		compound.setFloat("x", x);
+		compound.setFloat("y", y);
+		compound.setFloat("z", z);
+		setCompound(key, compound);
+	}
+
+	public Vector3f get3f(String key)
+	{
+		return get3f(key, new Vector3f());
+	}
+
+	public Vector3f get3f(String key, @NotNull Vector3f store)
+	{
+		NBT compound = getCompound(key);
+		return store.set(compound.getFloat("x"), compound.getFloat("y"), compound.getFloat("z"));
+	}
+
+	public boolean has3f(String key)
 	{
 		return hasCompound(key);
 	}

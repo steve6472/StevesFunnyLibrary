@@ -12,7 +12,7 @@ import org.bukkit.inventory.EquipmentSlot;
  * Date: 9/17/2022
  * Project: StevesFunnyLibrary <br>
  */
-public class PlayerContext
+public class PlayerContext implements Context
 {
 	protected final Player player;
 	protected final EquipmentSlot hand;

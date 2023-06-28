@@ -23,6 +23,11 @@ public class ExpResult
 		return Boolean.TRUE.equals(obj);
 	}
 
+	public Object getRaw()
+	{
+		return obj;
+	}
+
 	public int asInt()
 	{
 		return (int) obj;

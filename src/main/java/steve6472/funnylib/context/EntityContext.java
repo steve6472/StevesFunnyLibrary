@@ -10,7 +10,7 @@ import org.bukkit.entity.Entity;
  * Date: 11/6/2022
  * Project: StevesFunnyLibrary <br>
  */
-public class EntityContext
+public class EntityContext implements Context
 {
 	protected final Entity entity;
 

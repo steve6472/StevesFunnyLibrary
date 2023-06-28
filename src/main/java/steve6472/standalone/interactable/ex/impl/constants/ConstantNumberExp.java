@@ -2,13 +2,14 @@ package steve6472.standalone.interactable.ex.impl.constants;
 
 import org.bukkit.ChatColor;
 import org.bukkit.event.inventory.ClickType;
-import org.json.JSONObject;
 import steve6472.funnylib.menu.Click;
 import steve6472.funnylib.menu.Menu;
 import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.standalone.interactable.ex.*;
+import steve6472.standalone.interactable.ex.elements.ElementType;
+import steve6472.standalone.interactable.ex.elements.IElementType;
 
 /**
  * Created by steve6472
@@ -23,7 +24,7 @@ public class ConstantNumberExp extends Expression
 
 	public ConstantNumberExp()
 	{
-
+		super(Type.INT, 1, 1);
 	}
 
 	@Override
@@ -54,24 +55,6 @@ public class ConstantNumberExp extends Expression
 		menu.getSlot(click.slot().getX(), click.slot().getY()).setItem(LABEL.item());
 
 		return Response.cancel();
-	}
-
-	@Override
-	public int getHeight()
-	{
-		return 1;
-	}
-
-	@Override
-	public int getWidth()
-	{
-		return 1;
-	}
-
-	@Override
-	public Type getType()
-	{
-		return Type.INT;
 	}
 
 	@Override

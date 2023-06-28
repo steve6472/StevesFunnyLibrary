@@ -8,6 +8,8 @@ import steve6472.funnylib.blocks.IBlockEntity;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.serialize.NBT;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Created by steve6472
  * Date: 6/17/2023
@@ -21,7 +23,7 @@ public class LabelBlockData extends CustomBlockData implements IBlockEntity
 
 	// Other label data
 
-	private TextDisplay textDisplay;
+	private WeakReference<TextDisplay> textDisplay;
 
 	@Override
 	public void toNBT(NBT compound)
@@ -52,17 +54,17 @@ public class LabelBlockData extends CustomBlockData implements IBlockEntity
 	@Override
 	public void spawnEntities(BlockContext context)
 	{
-		textDisplay = context.getWorld().spawn(context.getLocation().clone().add(0.5, 0.5, 0.5), TextDisplay.class, entity ->
+		textDisplay = new WeakReference<>(context.getWorld().spawn(context.getLocation().clone().add(0.5, 0.5, 0.5), TextDisplay.class, entity ->
 		{
 			entity.setText(label);
 			entity.setBillboard(Display.Billboard.CENTER);
 			entity.setViewRange((1f / 64f) * distance);
-		});
+		}));
 	}
 
 	@Override
 	public Entity[] getEntities()
 	{
-		return new Entity[] {textDisplay};
+		return new Entity[] {textDisplay.get()};
 	}
 }

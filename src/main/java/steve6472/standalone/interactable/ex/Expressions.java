@@ -1,13 +1,8 @@
 package steve6472.standalone.interactable.ex;
 
-import org.jetbrains.annotations.Nullable;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.serialize.NBT;
-import steve6472.funnylib.util.MiscUtil;
 import steve6472.standalone.interactable.ex.Expression.Type;
-import steve6472.standalone.interactable.ex.impl.BiInputExp;
 import steve6472.standalone.interactable.ex.impl.bool.AnyPlayerInArea;
 import steve6472.standalone.interactable.ex.impl.bool.EqualityExp;
 import steve6472.standalone.interactable.ex.impl.IfExp;
@@ -15,10 +10,9 @@ import steve6472.standalone.interactable.ex.impl.bool.LogicExpr;
 import steve6472.standalone.interactable.ex.impl.constants.ConstantNumberExp;
 import steve6472.standalone.interactable.ex.impl.func.DebugHereExp;
 import steve6472.standalone.interactable.ex.impl.func.DelayExp;
+import steve6472.standalone.interactable.ex.impl.func.GiveItemExp;
 
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -50,6 +44,7 @@ public class Expressions
 		register(Type.CONTROL, ExpItems.DEBUG_HERE_ICON, "debug_here", DebugHereExp.class, DebugHereExp::new);
 		register(Type.CONTROL, ExpItems.DELAY_ICON, "delay", DelayExp.class, DelayExp::new);
 		register(Type.INT, ExpItems.CONSTANT_NUMBER, "const_int", ConstantNumberExp.class, ConstantNumberExp::new);
+		register(Type.CONTROL, ExpItems.GIVE_ITEM, "give_item", GiveItemExp.class, GiveItemExp::new);
 	}
 
 	public static List<ExpressionEntry> getExpressions(Type type)
@@ -74,17 +69,6 @@ public class Expressions
 		if (expression == null)
 			return nbt;
 
-//		if (expression instanceof CodeBlockExp block)
-//		{
-//			if (!block.isBody())
-//			{
-//				if (block.getExpressions().isEmpty())
-//					return nbt;
-//
-//				return saveExpression(nbt, block.getExpressions().get(0));
-//			}
-//		}
-
 		nbt.setString("expression_id", ENTRY_BY_CLASS.get(expression.getClass()).id());
 		expression.toNBT(nbt);
 		return nbt;
@@ -106,24 +90,8 @@ public class Expressions
 		Expression expression = expressionEntry.constructor.get();
 		expression.parent = parent;
 		expression.fromNBT(nbt);
+		//noinspection unchecked
 		return (T) expression;
-	}
-
-	@Deprecated
-	public static Expression loadExpression(NBT nbt)
-	{
-		if (nbt == null || nbt.isEmpty())
-			return null;
-
-		if (!nbt.hasString("expression_id"))
-			return null;
-
-		String expressionId = nbt.getString("expression_id");
-		Class<? extends Expression> key = CLASS_BY_ID.get(expressionId);
-		ExpressionEntry expressionEntry = ENTRY_BY_CLASS.get(key);
-		Expression expression = expressionEntry.constructor.get();
-		expression.fromNBT(nbt);
-		return expression;
 	}
 
 	public static NBT[] saveExpressions(NBT nbt, Collection<Expression> expressions)

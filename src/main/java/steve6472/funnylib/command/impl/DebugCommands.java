@@ -3,12 +3,10 @@ package steve6472.funnylib.command.impl;
 import net.minecraft.nbt.CompoundTag;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_19_R3.persistence.CraftPersistentDataContainer;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.BoundingBox;
 import org.jetbrains.annotations.NotNull;
@@ -19,16 +17,16 @@ import steve6472.funnylib.command.Description;
 import steve6472.funnylib.command.Usage;
 import steve6472.funnylib.coroutine.Coroutine;
 import steve6472.funnylib.coroutine.CoroutineExecutor;
-import steve6472.funnylib.json.JsonNBT;
+import steve6472.funnylib.data.GameStructure;
+import steve6472.funnylib.entity.BlockStructureEntity;
+import steve6472.funnylib.item.CustomItem;
+import steve6472.funnylib.item.Items;
 import steve6472.funnylib.json.JsonPrettify;
-import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.util.*;
 import steve6472.funnylib.util.generated.BlockGen;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by steve6472
@@ -117,9 +115,15 @@ public class DebugCommands
 	@Usage("/test1")
 	public static boolean test1(@NotNull Player player, @NotNull String[] args)
 	{
-		JSONMessage color = JSONMessage.create("").then(JSONMessage.create("a").then("b")).color(ChatColor.RED);
-		player.sendMessage(color.toJSON().toString());
-		color.send(player);
+		ItemStack item = player.getInventory().getItem(EquipmentSlot.HAND);
+		if (item == null) return false;
+		CustomItem customItem = Items.getCustomItem(item);
+		if (customItem == null) return false;
+		if (customItem != FunnyLib.STRUCTURE) return false;
+
+		GameStructure structure = GameStructure.fromItem(item);
+		if (structure == null) return false;
+		BlockStructureEntity entity = BlockStructureEntity.createFromStructure(player.getLocation(), structure);
 
 		return true;
 	}

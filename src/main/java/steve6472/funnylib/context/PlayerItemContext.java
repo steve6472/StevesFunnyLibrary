@@ -15,7 +15,7 @@ import steve6472.funnylib.serialize.NBT;
  * Date: 9/17/2022
  * Project: StevesFunnyLibrary <br>
  */
-public record PlayerItemContext(PlayerContext playerContext, CustomItemContext customItemContext)
+public record PlayerItemContext(PlayerContext playerContext, CustomItemContext customItemContext) implements Context
 {
 	/**
 	 * @deprecated use {@code Items.callWithItemContext}

@@ -10,7 +10,7 @@ import steve6472.funnylib.blocks.stateengine.State;
  * Date: 9/17/2022
  * Project: StevesFunnyLibrary <br>
  */
-public class BlockFaceContext extends BlockContext
+public class BlockFaceContext extends BlockContext implements Context
 {
 	protected final BlockFace face;
 

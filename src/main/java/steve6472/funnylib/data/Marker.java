@@ -29,6 +29,12 @@ public final class Marker implements ICategorizable, Itemizable<Marker>
 		this.location = new Vector3i(0, 0, 0);
 	}
 
+	public Marker(NBT nbt)
+	{
+		this.location = new Vector3i(0, 0, 0);
+		fromNBT(nbt);
+	}
+
 	public Marker(int x, int y, int z, String name, Material icon)
 	{
 		this.location = new Vector3i(x, y, z);
