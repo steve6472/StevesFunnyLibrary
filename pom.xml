@@ -189,12 +189,13 @@
 <!--            <artifactId>byte-buddy</artifactId>-->
 <!--            <version>1.12.18</version>-->
 <!--        </dependency>-->
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>1.19.4-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>org.spigotmc</groupId>-->
+<!--            <artifactId>spigot-api</artifactId>-->
+<!--            <version>1.20.1-R0.1-SNAPSHOT</version>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>steve6472</groupId>
             <artifactId>ScriptIt</artifactId>
@@ -203,14 +204,14 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.19.4-R0.1-SNAPSHOT</version>
+            <version>1.20.1-R0.1-SNAPSHOT</version>
             <classifier>remapped-mojang</classifier>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>net.wesjd</groupId>
             <artifactId>anvilgui</artifactId>
-            <version>1.6.3-SNAPSHOT</version>
+            <version>1.7.0-SNAPSHOT</version>
         </dependency>
         <!--<dependency>
             <groupId>com.github.Querz</groupId>

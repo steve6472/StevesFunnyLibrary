@@ -3,7 +3,6 @@ package steve6472.standalone.interactable.ex;
 import steve6472.funnylib.json.INBT;
 import steve6472.funnylib.menu.Click;
 import steve6472.funnylib.menu.Menu;
-import steve6472.funnylib.menu.MenuBuilder;
 import steve6472.funnylib.menu.Response;
 import steve6472.standalone.interactable.ex.elements.IElementType;
 
@@ -40,7 +39,7 @@ public abstract class Expression implements INBT
 		return Response.cancel();
 	}
 
-	public void createPopup(MenuBuilder builder)
+	public void createPopup(Menu menu)
 	{
 
 	}

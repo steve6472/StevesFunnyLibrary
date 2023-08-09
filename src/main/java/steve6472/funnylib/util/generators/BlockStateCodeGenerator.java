@@ -15,10 +15,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by steve6472
@@ -186,7 +184,7 @@ public class BlockStateCodeGenerator
 			boolean isRedstone = false;
 			m: for (Method method : value.data.getMethods())
 			{
-				for (Method blockDataMethod : BlockData.class.getMethods())
+				for (Method blockDataMethod : Arrays.stream(BlockData.class.getMethods()).sorted(Comparator.comparing(m -> m.getName() + m.getReturnType().getSimpleName() + Arrays.toString(m.getParameterTypes()))).toList())
 				{
 					if (method.getName().equals(blockDataMethod.getName()))
 						continue m;

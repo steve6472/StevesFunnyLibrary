@@ -7,11 +7,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.FaceAttachable;
 import org.bukkit.block.data.type.Switch;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
-import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.blocks.*;
 import steve6472.funnylib.blocks.builtin.AdminInterface;
 import steve6472.funnylib.blocks.events.BlockClickEvents;
@@ -22,15 +18,7 @@ import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.BlockFaceContext;
 import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.data.Marker;
-import steve6472.funnylib.item.Items;
-import steve6472.funnylib.menu.Mask;
-import steve6472.funnylib.menu.MenuBuilder;
-import steve6472.funnylib.menu.Response;
-import steve6472.funnylib.menu.SlotBuilder;
 import steve6472.funnylib.serialize.NBT;
-import steve6472.funnylib.util.ItemStackBuilder;
-import steve6472.funnylib.util.MiscUtil;
-import steve6472.standalone.interactable.Interactable;
 
 import java.util.List;
 
@@ -153,12 +141,12 @@ public class ActivatingButtonBlock extends CustomBlock implements IBlockData, Bl
 
 	@Override
 	public void showInterface(ActivatingData data, PlayerBlockContext context)
-	{
+	{/*
 		MENU.setData("data", data);
 		MENU.setData("location", context.getBlockLocation());
-		MENU.build().showToPlayers(context.getPlayer());
+		MENU.build().showToPlayers(context.getPlayer());*/
 	}
-
+/*
 	private static final Mask mask = Mask.createMask()
 		.addRow("aVVVbVVVa")
 		.addRow("bV.VaV.Vb")
@@ -230,5 +218,5 @@ public class ActivatingButtonBlock extends CustomBlock implements IBlockData, Bl
 					return Response.cancel();
 				});
 		})
-		.applyMask(mask);
+		.applyMask(mask);*/
 }

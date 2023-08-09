@@ -170,7 +170,14 @@ public class BlockGen
 
 	public static BlockData SuspiciousSand(int dusted)
 	{
-		SuspiciousSand data = (SuspiciousSand) Material.SUSPICIOUS_SAND.createBlockData();
+		Brushable data = (Brushable) Material.SUSPICIOUS_SAND.createBlockData();
+		data.setDusted(dusted);
+		return data;
+	}
+
+	public static BlockData SuspiciousGravel(int dusted)
+	{
+		Brushable data = (Brushable) Material.SUSPICIOUS_GRAVEL.createBlockData();
 		data.setDusted(dusted);
 		return data;
 	}
@@ -739,6 +746,13 @@ public class BlockGen
 		return data;
 	}
 
+	public static BlockData PitcherPlant(Bisected.Half half)
+	{
+		Bisected data = (Bisected) Material.PITCHER_PLANT.createBlockData();
+		data.setHalf(half);
+		return data;
+	}
+
 	public static BlockData WeepingVines(int age)
 	{
 		Ageable data = (Ageable) Material.WEEPING_VINES.createBlockData();
@@ -1049,7 +1063,7 @@ public class BlockGen
  		ChiseledBookshelf data = (ChiseledBookshelf) Material.CHISELED_BOOKSHELF.createBlockData();
  		for (int i = 0; i < 6; i++)
  		{
- 		    data.setSlotOccupied(i, ((occupied >> i) & 1) == 1);
+ 		    data.setSlotOccupied(i, ((occupied >> (5 - i)) & 1) == 1);
  		}
  		data.setFacing(facing);
  		return data;
@@ -2561,6 +2575,13 @@ face.faces.forEach(data::setHeight);
 		return data;
 	}
 
+	public static BlockData SnifferEgg(int hatch)
+	{
+		Hatchable data = (Hatchable) Material.SNIFFER_EGG.createBlockData();
+		data.setHatch(hatch);
+		return data;
+	}
+
 	public static BlockData TubeCoral(boolean waterlogged)
 	{
 		Waterlogged data = (Waterlogged) Material.TUBE_CORAL.createBlockData();
@@ -3157,6 +3178,16 @@ face.faces.forEach(data::setHeight);
 		return data;
 	}
 
+	public static BlockData CalibratedSculkSensor(BlockFace facing, SculkSensor.Phase phase, int power, boolean waterlogged)
+	{
+		CalibratedSculkSensor data = (CalibratedSculkSensor) Material.CALIBRATED_SCULK_SENSOR.createBlockData();
+		data.setFacing(facing);
+		data.setPhase(phase);
+		data.setPower(power);
+		data.setWaterlogged(waterlogged);
+		return data;
+	}
+
 	public static BlockData TripwireHook(boolean attached, BlockFace facing, boolean powered)
 	{
 		TripwireHook data = (TripwireHook) Material.TRIPWIRE_HOOK.createBlockData();
@@ -3189,11 +3220,11 @@ face.faces.forEach(data::setHeight);
 		return data;
 	}
 
-	public static BlockData NoteBlock(Instrument instrument, Note note, boolean powered)
+	public static BlockData NoteBlock(Note note, Instrument instrument, boolean powered)
 	{
 		NoteBlock data = (NoteBlock) Material.NOTE_BLOCK.createBlockData();
-		data.setInstrument(instrument);
 		data.setNote(note);
+		data.setInstrument(instrument);
 		data.setPowered(powered);
 		return data;
 	}
@@ -4709,11 +4740,11 @@ face.faces.forEach(data::setHeight);
 		return data;
 	}
 
-	public static BlockData PointedDripstone(BlockFace verticalDirection, PointedDripstone.Thickness thickness, boolean waterlogged)
+	public static BlockData PointedDripstone(PointedDripstone.Thickness thickness, BlockFace verticalDirection, boolean waterlogged)
 	{
 		PointedDripstone data = (PointedDripstone) Material.POINTED_DRIPSTONE.createBlockData();
-		data.setVerticalDirection(verticalDirection);
 		data.setThickness(thickness);
+		data.setVerticalDirection(verticalDirection);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
@@ -5242,6 +5273,14 @@ face.faces.forEach(data::setHeight);
 	{
 		Ageable data = (Ageable) Material.TORCHFLOWER_CROP.createBlockData();
 		data.setAge(age);
+		return data;
+	}
+
+	public static BlockData PitcherCrop(int age, Bisected.Half half)
+	{
+		PitcherCrop data = (PitcherCrop) Material.PITCHER_CROP.createBlockData();
+		data.setAge(age);
+		data.setHalf(half);
 		return data;
 	}
 

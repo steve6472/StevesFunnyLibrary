@@ -112,10 +112,10 @@ public class PlayerAreaExpEvent extends ExpressionEvent
 
 			if (area == null)
 			{
-				click.slot().setItem(ItemStackBuilder.quick(Material.STRUCTURE_VOID, "Click with item to set", ChatColor.GRAY));
+//				click.slot().setItem(ItemStackBuilder.quick(Material.STRUCTURE_VOID, "Click with item to set", ChatColor.GRAY));
 			} else
 			{
-				click.slot().setItem(area.toItem());
+//				click.slot().setItem(area.toItem());
 			}
 		}
 		return Response.cancel();

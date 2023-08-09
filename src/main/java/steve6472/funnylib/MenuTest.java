@@ -11,6 +11,7 @@ import steve6472.funnylib.command.Command;
 import steve6472.funnylib.command.Description;
 import steve6472.funnylib.command.Usage;
 import steve6472.funnylib.menu.*;
+import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
 
@@ -21,6 +22,7 @@ import steve6472.funnylib.util.JSONMessage;
  */
 public class MenuTest
 {
+	/*
 	private static final MenuBuilder FANCY_MENU = MenuBuilder
 		.create(6, "Fancy Menu")
 		.slot(0, SlotBuilder.create(ItemStackBuilder.quick(Material.STICK, "Fancy Stick", "#966f33")));
@@ -174,13 +176,14 @@ public class MenuTest
 			p.sendMessage(ChatColor.GREEN + "Goodbye");
 			return Response.allow();
 		});
-
+*/
 	@Command
 	@Description("Opens test Menu")
 	@Usage("/testMenu")
 	public static boolean testMenu(@NotNull Player player, @NotNull String[] args)
 	{
-		MAIN_BUILDER.setData("player", player).build().showToPlayer(player);
+//		MAIN_BUILDER.setData("player", player).build().showToPlayer(player);
+		new TestMenu(player).showToPlayer(player);
 
 		return true;
 	}

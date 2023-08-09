@@ -1,45 +1,29 @@
 package steve6472.standalone.interactable.blocks;
 
-import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.type.Switch;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.PressureSensor;
-import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.blocks.CustomBlock;
 import steve6472.funnylib.blocks.CustomBlockData;
 import steve6472.funnylib.blocks.IBlockData;
-import steve6472.funnylib.blocks.builtin.TeleportButtonBlock;
 import steve6472.funnylib.blocks.events.BlockClickEvents;
 import steve6472.funnylib.blocks.events.BlockTick;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.PlayerBlockContext;
-import steve6472.funnylib.data.Marker;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.Items;
-import steve6472.funnylib.menu.Mask;
-import steve6472.funnylib.menu.MenuBuilder;
-import steve6472.funnylib.menu.Response;
-import steve6472.funnylib.menu.SlotBuilder;
 import steve6472.funnylib.serialize.ItemNBT;
-import steve6472.funnylib.util.ItemStackBuilder;
-import steve6472.funnylib.util.MiscUtil;
 import steve6472.funnylib.util.generated.BlockGen;
 import steve6472.standalone.interactable.blocks.data.CheckpointBlockData;
 import steve6472.standalone.interactable.Interactable;
 
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * Created by steve6472
@@ -75,13 +59,13 @@ public class CheckpointBlock extends CustomBlock implements IBlockData, BlockTic
 
 		if (context.isCustomItem() && context.getCustomItem() == Interactable.CHECKPOINT_ITEM)
 			return;
-
+/*
 		SETTINGS
 			.setData("data", context.getBlockData(CheckpointBlockData.class))
 			.setData("player", context.getPlayer())
 			.setData("location", context.getBlockLocation())
 			.build()
-			.showToPlayer(context.getPlayer());
+			.showToPlayer(context.getPlayer());*/
 	}
 
 	@Override
@@ -139,7 +123,7 @@ public class CheckpointBlock extends CustomBlock implements IBlockData, BlockTic
 	{
 		return new CheckpointBlockData();
 	}
-
+/*
 	private static final Mask MASK = Mask.createMask()
 		.addRow("RRRGGGBBB")
 		.addRow("RRRGGGBBB")
@@ -255,5 +239,5 @@ public class CheckpointBlock extends CustomBlock implements IBlockData, BlockTic
 		}))
 		.slot(8, 2, SlotBuilder.toggleSlot("Use Player Facing", data -> data.getData("data", CheckpointBlockData.class).usePlayerFacing, (data, bool) -> data.getData("data", CheckpointBlockData.class).usePlayerFacing = bool))
 		;
-
+*/
 }

@@ -8,3 +8,6 @@ commands:
   cmds:
     description: Shows all custom commands
     permission-message: No! Bad participant!
+  forcenextphase:
+    description: Force next phase
+    permission-message: No! Bad participant!

@@ -36,10 +36,13 @@ public class LabelBlock extends VirtualBlock implements BlockClickEvents
 	public void rightClick(PlayerBlockContext context, PlayerInteractEvent e)
 	{
 		new AnvilGUI.Builder()
-			.onComplete((completion) ->
+			.onClick((slot, state) ->
 			{
+				if (slot != AnvilGUI.Slot.OUTPUT)
+					return Collections.emptyList();
+
 				LabelBlockData blockData = context.getBlockData(LabelBlockData.class);
-				blockData.label = completion.getText();
+				blockData.label = state.getText();
 				blockData.despawnEntities(context.blockContext());
 				blockData.spawnEntities(context.blockContext());
 				return Collections.singletonList(AnvilGUI.ResponseAction.close());

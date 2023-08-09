@@ -12,7 +12,7 @@ import steve6472.funnylib.util.JSONMessage;
  * Date: 4/22/2023
  * Project: StevesFunnyLibrary <br>
  */
-class Folder implements ICategorizable
+class Folder implements Categorizable
 {
 	private String name;
 	private Material icon;

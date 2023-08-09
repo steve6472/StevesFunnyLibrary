@@ -52,7 +52,7 @@ public class ConstantNumberExp extends Expression
 		else if (click.type() == ClickType.SHIFT_RIGHT)
 			number -= 10;
 
-		menu.getSlot(click.slot().getX(), click.slot().getY()).setItem(LABEL.item());
+//		menu.getSlot(click.slot().getX(), click.slot().getY()).setItem(LABEL.item());
 
 		return Response.cancel();
 	}

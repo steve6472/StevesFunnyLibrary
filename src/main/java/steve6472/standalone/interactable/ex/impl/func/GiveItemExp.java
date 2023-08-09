@@ -80,7 +80,7 @@ public class GiveItemExp extends Expression
 				itemToGive = null;
 			else
 				itemToGive = click.itemOnCursor().clone();
-			click.slot().setItem(ITEM.item());
+//			click.slot().setItem(ITEM.item());
 		}
 
 		return Response.cancel();

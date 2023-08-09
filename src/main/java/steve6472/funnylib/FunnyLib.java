@@ -1,16 +1,19 @@
 package steve6472.funnylib;
 
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.command.defaults.BukkitCommand;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginBase;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.json.JSONObject;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlock;
@@ -23,6 +26,8 @@ import steve6472.funnylib.json.IJsonConfig;
 import steve6472.funnylib.json.INbtConfig;
 import steve6472.funnylib.json.JsonConfig;
 import steve6472.funnylib.json.JsonNBT;
+import steve6472.funnylib.minigame.ForceNextPhaseCommand;
+import steve6472.funnylib.minigame.Game;
 import steve6472.funnylib.serialize.PdcNBT;
 import steve6472.funnylib.util.GlowingUtil;
 import steve6472.funnylib.blocks.builtin.TeleportButtonBlock;
@@ -35,6 +40,7 @@ import steve6472.funnylib.menu.MenuListener;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.item.events.ArmorEventListener;
+import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.Log;
 import steve6472.funnylib.util.NMS;
 
@@ -59,9 +65,12 @@ public class FunnyLib
 	private static Blocks blocks;
 	private static JsonConfig configJson, configNbt;
 	private static LibSettings settings;
+	private static NbtRemover nbtRemover;
 
 	private static Set<IJsonConfig> configurationsJson;
 	private static Set<INbtConfig> configurationsNbt;
+
+	public static Game currentGame;
 
 	private FunnyLib()
 	{
@@ -71,7 +80,7 @@ public class FunnyLib
 	public static void init(Plugin plugin, LibSettings settings)
 	{
 		new MavenSux();
-		Bukkit.getPluginManager().registerEvents(new NbtRemover(plugin), plugin);
+		Bukkit.getPluginManager().registerEvents(nbtRemover = new NbtRemover(plugin), plugin);
 
 		configurationsJson = new HashSet<>();
 		configurationsNbt = new HashSet<>();
@@ -98,6 +107,12 @@ public class FunnyLib
 		Bukkit.getPluginManager().registerEvents(new Items(), plugin);
 		Bukkit.getPluginManager().registerEvents(blocks = new Blocks(), plugin);
 
+		PluginCommand forcenextphase = ((JavaPlugin) plugin).getCommand("forcenextphase");
+		if (forcenextphase != null)
+		{
+			forcenextphase.setExecutor(new ForceNextPhaseCommand());
+		}
+
 		if (settings.enableCustomNoteBlocks)
 		{
 			Bukkit.getPluginManager().registerEvents(new CustomNoteBlocks(), plugin);
@@ -116,10 +131,34 @@ public class FunnyLib
 				ex.printStackTrace();
 			}
 			Items.tick();
+//			debugGame();
 
 		}, 0, 0);
 
 		initBuiltin();
+	}
+
+	private static void debugGame()
+	{
+		if (currentGame == null)
+			return;
+
+		JSONMessage message = JSONMessage.create().newline().newline().newline().newline().newline();
+		message.then("Players: ").newline();
+
+		currentGame.getStateTracker().getPlayerStates().forEach(((uuid, strings) ->
+		{
+			Player player = Bukkit.getPlayer(uuid);
+			JSONMessage playerInfo = JSONMessage.create(player == null ? uuid.toString() : player.getDisplayName());
+			JSONMessage tooltip = JSONMessage.create("States:").newline();
+			strings.forEach(s -> tooltip.then(JSONMessage.create("    ").then(s).color(ChatColor.GRAY)).newline());
+
+//			playerInfo.newline().then(tooltip);
+			playerInfo.tooltip(tooltip);
+			message.then(playerInfo).newline();
+		}));
+
+		message.send(Bukkit.getOnlinePlayers());
 	}
 
 	public static void onUnload()
@@ -128,6 +167,9 @@ public class FunnyLib
 		{
 			Blocks.saveWorld(world, true);
 		}
+		nbtRemover.unregister();
+		if (currentGame != null)
+			currentGame.dispose();
 	}
 
 	public static Plugin getPlugin()

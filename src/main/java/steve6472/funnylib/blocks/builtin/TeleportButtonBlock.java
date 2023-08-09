@@ -20,9 +20,7 @@ import steve6472.funnylib.blocks.stateengine.properties.IProperty;
 import steve6472.funnylib.data.Marker;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.menu.Mask;
-import steve6472.funnylib.menu.MenuBuilder;
 import steve6472.funnylib.menu.Response;
-import steve6472.funnylib.menu.SlotBuilder;
 import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.generated.BlockGen;
 import steve6472.funnylib.util.ItemStackBuilder;
@@ -146,12 +144,12 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 
 	@Override
 	public void showInterface(TeleportButtonData data, PlayerBlockContext context)
-	{
+	{/*
 		MENU.setData("data", data);
-		MENU.build().showToPlayers(context.getPlayer());
+		MENU.build().showToPlayers(context.getPlayer());*/
 	}
-
-	private static final Mask mask = Mask.createMask()
+/*
+	private static final Mask mask = Mask.createask()
 		.addRow("abaVVVaba")
 		.addRow("babV.Vbab")
 		.addRow("abaVVVaba")
@@ -196,5 +194,5 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 					return Response.cancel();
 				});
 		})
-		.applyMask(mask);
+		.applyMask(mask);*/
 }

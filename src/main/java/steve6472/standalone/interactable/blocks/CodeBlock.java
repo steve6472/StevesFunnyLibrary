@@ -2,14 +2,9 @@ package steve6472.standalone.interactable.blocks;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlock;
@@ -26,21 +21,11 @@ import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.BlockFaceContext;
 import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.context.PlayerItemContext;
-import steve6472.funnylib.data.AreaSelection;
-import steve6472.funnylib.item.CustomItem;
-import steve6472.funnylib.item.Items;
-import steve6472.funnylib.menu.ArbitraryData;
-import steve6472.funnylib.menu.MenuBuilder;
-import steve6472.funnylib.menu.Response;
-import steve6472.funnylib.menu.SlotBuilder;
 import steve6472.funnylib.util.generated.BlockGen;
-import steve6472.funnylib.util.ItemStackBuilder;
-import steve6472.standalone.interactable.ex.*;
-import steve6472.standalone.interactable.ex.event.EventGui;
+import steve6472.standalone.interactable.ex.CodeExecutor;
+import steve6472.standalone.interactable.ex.ExpContext;
 import steve6472.standalone.interactable.ex.event.ExpressionEventData;
 import steve6472.standalone.interactable.ex.event.ExpressionEvent;
-import steve6472.standalone.interactable.ex.impl.events.PlayerAreaExpEvent;
-import steve6472.standalone.interactable.ex.impl.func.DebugHereExp;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -182,7 +167,7 @@ public class CodeBlock extends CustomBlock implements IBlockData, Activable, Blo
 			result.cancel();
 		}
 	}
-
+/*
 	MenuBuilder MENU = MenuBuilder.create(3, "Code Block")
 		.slot(4, 1, SlotBuilder.buttonSlot(ItemStackBuilder.quick(Material.COMMAND_BLOCK, "Ticking Code"), (c, m) -> {
 			ArbitraryData data = m.getPassedData();
@@ -215,12 +200,12 @@ public class CodeBlock extends CustomBlock implements IBlockData, Activable, Blo
 //			blockData.events.add(e);
 //			return Response.cancel();
 //		}).allow(ClickType.values()).allow(InventoryAction.values())).allowPlayerInventory();
-
+*/
 	@Override
 	public void showInterface(CodeBlockData data, PlayerBlockContext context)
-	{
+	{/*
 		MENU.setData("data", data);
 		MENU.setData("location", context.getBlockLocation());
-		MENU.build().showToPlayers(context.getPlayer());
+		MENU.build().showToPlayers(context.getPlayer());*/
 	}
 }

@@ -5,6 +5,8 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.menu.*;
+import steve6472.funnylib.menu.Click;
+import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.util.*;
 import steve6472.standalone.interactable.blocks.CodeBlockData;
 import steve6472.standalone.interactable.ex.*;
@@ -20,7 +22,7 @@ import java.util.List;
  * SAVE YOUR SOUL<br>
  */
 public class EventGui
-{
+{/*
 	public static final Mask MAIN_MASK = Mask.createMask()
 		.addRow(".........", 5)
 		.addRow("XXXXXXXUD")
@@ -177,6 +179,6 @@ public class EventGui
 		}))
 		;
 		return POPUP;
-	}
+	}*/
 }
 

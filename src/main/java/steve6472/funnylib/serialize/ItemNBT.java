@@ -55,6 +55,21 @@ public class ItemNBT extends NBT
 		return nbt;
 	}
 
+	public boolean hasCustomId()
+	{
+		return hasString("custom_id");
+	}
+
+	public String getCustomId()
+	{
+		return getString("custom_id");
+	}
+
+	public void setCustomId(String id)
+	{
+		setString("custom_id", id);
+	}
+
 	public void save()
 	{
 		itemStack.setItemMeta(meta);

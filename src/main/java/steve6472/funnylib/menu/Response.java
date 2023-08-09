@@ -15,9 +15,7 @@ public class Response
 	private static final Response CLEAR_ITEM_FROM_CURSOR = new Response();
 
 	private ItemStack setItemToCursor;
-	private MenuBuilder redirect;
-	private Menu redirectRaw;
-	private ArbitraryData redirectData;
+	private Menu redirect;
 
 	public static Response cancel()
 	{
@@ -39,25 +37,10 @@ public class Response
 		return CLEAR_ITEM_FROM_CURSOR;
 	}
 
-	public static Response redirect(MenuBuilder menu)
-	{
-		Response response = new Response();
-		response.redirect = menu;
-		return response;
-	}
-
 	public static Response redirect(Menu menu)
 	{
 		Response response = new Response();
-		response.redirectRaw = menu;
-		return response;
-	}
-
-	public static Response redirect(MenuBuilder menu, ArbitraryData redirectData)
-	{
-		Response response = new Response();
 		response.redirect = menu;
-		response.redirectData = redirectData;
 		return response;
 	}
 
@@ -72,19 +55,9 @@ public class Response
 	 * Getters
 	 */
 
-	public MenuBuilder getRedirect()
+	public Menu getRedirect()
 	{
 		return redirect;
-	}
-
-	public Menu getRedirectRaw()
-	{
-		return redirectRaw;
-	}
-
-	public ArbitraryData getRedirectData()
-	{
-		return redirectData;
 	}
 
 	public ItemStack getSetItemToCursor()

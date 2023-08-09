@@ -4,17 +4,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemDisplay;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
-import org.checkerframework.checker.units.qual.A;
 import steve6472.funnylib.CancellableResult;
 import steve6472.funnylib.context.*;
 import steve6472.funnylib.item.CustomItem;
-import steve6472.funnylib.menu.ArbitraryData;
-import steve6472.funnylib.menu.MenuBuilder;
-import steve6472.funnylib.menu.Response;
-import steve6472.funnylib.menu.SlotBuilder;
 import steve6472.funnylib.util.ItemStackBuilder;
 
 import java.util.Collection;
@@ -52,11 +45,11 @@ public class ItemDisplayEditor extends CustomItem
 
 		if (nearbyEntities.size() == 1)
 		{
-			entityEditor.setData("entity", nearbyEntities.stream().findAny().get()).build().showToPlayer(context.getPlayer());
+//			entityEditor.setData("entity", nearbyEntities.stream().findAny().get()).build().showToPlayer(context.getPlayer());
 			return;
 		}
 
-		entityList.setData("entities", nearbyEntities).build().showToPlayer(context.getPlayer());
+//		entityList.setData("entities", nearbyEntities).build().showToPlayer(context.getPlayer());
 	}
 
 	@Override
@@ -77,6 +70,7 @@ public class ItemDisplayEditor extends CustomItem
 		interact(context.playerContext());
 	}
 
+	/*
 	MenuBuilder entityEditor = MenuBuilder.create(6, "Item Display Editor")
 		.customBuilder(b ->
 		{
@@ -119,5 +113,5 @@ public class ItemDisplayEditor extends CustomItem
 				}
 				i++;
 			}
-		});
+		});*/
 }

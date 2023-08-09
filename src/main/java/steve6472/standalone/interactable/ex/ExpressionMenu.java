@@ -10,6 +10,8 @@ import steve6472.funnylib.command.Usage;
 import steve6472.funnylib.json.JsonNBT;
 import steve6472.funnylib.json.JsonPrettify;
 import steve6472.funnylib.menu.*;
+import steve6472.funnylib.menu.Click;
+import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.serialize.PdcNBT;
 import steve6472.funnylib.util.*;
@@ -24,6 +26,7 @@ import java.util.function.Supplier;
  */
 public class ExpressionMenu
 {
+	/*
 	public static final Mask MAIN_MASK = Mask.createMask()
 		.addRow(".........", 5)
 		.addRow("XXXXXUDLR")
@@ -171,7 +174,7 @@ public class ExpressionMenu
 
 		menu.showToPlayer(player);
 		return code;
-	}
+	}*/
 
 	@Command
 	@Description("Deletes current expression builder")

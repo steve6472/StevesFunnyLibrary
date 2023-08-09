@@ -292,10 +292,12 @@ public class Items implements Listener
 		if (item == null || item.getType() == Material.AIR)
 			return;
 
-		if (ItemStackBuilder.edit(item).getCustomId() == null)
+		ItemNBT nbt = ItemNBT.create(item);
+
+		if (!nbt.hasCustomId())
 			return;
 
-		String id = ItemStackBuilder.edit(item).getCustomId();
+		String id = nbt.getCustomId();
 
 		ItemEventEntry itemEventEntry = ITEMS.get(id);
 

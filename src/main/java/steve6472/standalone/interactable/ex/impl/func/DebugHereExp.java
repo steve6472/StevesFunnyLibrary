@@ -58,13 +58,13 @@ public class DebugHereExp extends Expression
 		if (type == INC)
 		{
 			id++;
-			menu.getSlot(click.slot().getX() + 1, click.slot().getY()).setItem(ID.item());
+//			menu.getSlot(click.slot().getX() + 1, click.slot().getY()).setItem(ID.item());
 		}
 
 		if (type == DEC)
 		{
 			id--;
-			menu.getSlot(click.slot().getX() - 1, click.slot().getY()).setItem(ID.item());
+//			menu.getSlot(click.slot().getX() - 1, click.slot().getY()).setItem(ID.item());
 		}
 
 		if (type == ID)

@@ -1,19 +1,13 @@
 package steve6472.funnylib.category;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
 import org.joml.Vector3i;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.data.AreaSelection;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.data.Marker;
-import steve6472.funnylib.menu.MenuBuilder;
-import steve6472.funnylib.menu.Response;
-import steve6472.funnylib.menu.SlotBuilder;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.Messages;
@@ -36,8 +30,8 @@ public class Markers extends GenericStorage
 				.addLore(Messages.createLocationMessage(obj.x(), obj.y(), obj.z()))
 				.buildItemStack(),
 			Marker::toItem,
-			Marker::fromItem,
-			builder -> builder.slot(0, 1, SlotBuilder
+			Marker::fromItem/*,
+			builder -> {}builder.slot(0, 1, SlotBuilder
 				.create(ItemStackBuilder.quick(Material.COMMAND_BLOCK, "Teleport", ChatColor.WHITE))
 				.allow(ClickType.LEFT)
 				.allow(InventoryAction.PICKUP_ALL)
@@ -46,7 +40,7 @@ public class Markers extends GenericStorage
 					Marker clickedObject = getClickedObject(Marker.class, c);
 					c.player().teleport(new Location(c.player().getWorld(), clickedObject.x(), clickedObject.y(), clickedObject.z()));
 					return Response.exit();
-				})),
+				}))*/,
 			itemStack -> Items.getCustomItem(itemStack) == FunnyLib.LOCATION_MARKER);
 
 		registerType("area_selection", () -> new AreaSelection(new Vector3i(), new Vector3i(), null),

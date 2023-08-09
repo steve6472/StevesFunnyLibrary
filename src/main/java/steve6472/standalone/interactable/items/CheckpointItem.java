@@ -1,13 +1,10 @@
 package steve6472.standalone.interactable.items;
 
-import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.CancellableResult;
-import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlockData;
 import steve6472.funnylib.context.PlayerBlockContext;
@@ -15,16 +12,9 @@ import steve6472.funnylib.context.PlayerEntityContext;
 import steve6472.funnylib.context.PlayerItemContext;
 import steve6472.funnylib.context.UseType;
 import steve6472.funnylib.item.CustomItem;
-import steve6472.funnylib.item.events.TickInHandEvent;
-import steve6472.funnylib.menu.MenuBuilder;
-import steve6472.funnylib.menu.SlotBuilder;
 import steve6472.funnylib.serialize.ItemNBT;
-import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.ItemStackBuilder;
-import steve6472.funnylib.util.JSONMessage;
 import steve6472.standalone.interactable.blocks.data.CheckpointBlockData;
-
-import java.util.Collections;
 
 /**
  * Created by steve6472

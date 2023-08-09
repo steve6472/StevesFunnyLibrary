@@ -15,6 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import steve6472.funnylib.serialize.ItemNBT;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -25,6 +26,7 @@ import java.util.List;
 public class NbtRemover implements Listener
 {
 	private final Plugin plugin;
+	private List<PacketAdapter> adapters = new LinkedList<>();
 
 	public NbtRemover(Plugin plugin)
 	{
@@ -36,7 +38,7 @@ public class NbtRemover implements Listener
 	{
 		ProtocolManager manager = ProtocolLibrary.getProtocolManager();
 
-		manager.addPacketListener(new PacketAdapter(plugin, PacketType.Play.Server.SET_SLOT)
+		PacketAdapter setSlotListener = new PacketAdapter(plugin, PacketType.Play.Server.SET_SLOT)
 		{
 			@Override
 			public void onPacketSending(PacketEvent event)
@@ -49,9 +51,11 @@ public class NbtRemover implements Listener
 				item = removeNBT(item);
 				packet.getItemModifier().write(0, item);
 			}
-		});
+		};
+		manager.addPacketListener(setSlotListener);
+		adapters.add(setSlotListener);
 
-		manager.addPacketListener(new PacketAdapter(plugin, PacketType.Play.Server.WINDOW_ITEMS)
+		PacketAdapter windowItemsListener = new PacketAdapter(plugin, PacketType.Play.Server.WINDOW_ITEMS)
 		{
 			@Override
 			public void onPacketSending(PacketEvent event)
@@ -66,7 +70,18 @@ public class NbtRemover implements Listener
 
 				packet.getItemListModifier().write(0, items);
 			}
-		});
+		};
+		manager.addPacketListener(windowItemsListener);
+		adapters.add(windowItemsListener);
+	}
+
+	public void unregister()
+	{
+		ProtocolManager manager = ProtocolLibrary.getProtocolManager();
+		for (PacketAdapter adapter : adapters)
+		{
+			manager.removePacketListener(adapter);
+		}
 	}
 
 	private ItemStack removeNBT(ItemStack itemStack)

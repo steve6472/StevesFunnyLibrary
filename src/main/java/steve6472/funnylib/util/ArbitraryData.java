@@ -1,4 +1,4 @@
-package steve6472.funnylib.menu;
+package steve6472.funnylib.util;
 
 import java.util.Collection;
 import java.util.HashMap;

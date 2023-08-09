@@ -2,7 +2,7 @@ package steve6472.funnylib.command.impl;
 
 import net.minecraft.nbt.CompoundTag;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -26,6 +26,7 @@ import steve6472.funnylib.util.*;
 import steve6472.funnylib.util.generated.BlockGen;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -106,6 +107,24 @@ public class DebugCommands
 		{
 			throw new RuntimeException(exception);
 		}
+
+		return true;
+	}
+
+	@Command
+	@Usage("/teststruct")
+	public static boolean teststruct(@NotNull Player player, @NotNull String[] args)
+	{
+		ItemStack item = player.getInventory().getItem(EquipmentSlot.HAND);
+		if (item == null) return false;
+		CustomItem customItem = Items.getCustomItem(item);
+		if (customItem == null) return false;
+		if (customItem != FunnyLib.STRUCTURE) return false;
+
+		GameStructure structure = GameStructure.fromItem(item);
+		if (structure == null) return false;
+		System.out.println(structure);
+		System.out.println(Arrays.toString(structure.getBlocks()));
 
 		return true;
 	}

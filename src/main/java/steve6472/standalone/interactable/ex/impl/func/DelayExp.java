@@ -59,13 +59,13 @@ public class DelayExp extends Expression
 		if (type == INC)
 		{
 			ticks++;
-			menu.getSlot(click.slot().getX() + 1, click.slot().getY()).setItem(LABEL.item());
+//			menu.getSlot(click.slot().getX() + 1, click.slot().getY()).setItem(LABEL.item());
 		}
 
 		if (type == DEC)
 		{
 			ticks--;
-			menu.getSlot(click.slot().getX() - 1, click.slot().getY()).setItem(LABEL.item());
+//			menu.getSlot(click.slot().getX() - 1, click.slot().getY()).setItem(LABEL.item());
 		}
 
 		if (type == LABEL)

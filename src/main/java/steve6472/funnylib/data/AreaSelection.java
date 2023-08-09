@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3i;
 import steve6472.funnylib.FunnyLib;
-import steve6472.funnylib.category.ICategorizable;
+import steve6472.funnylib.category.Categorizable;
 import steve6472.funnylib.item.builtin.AreaMarkerItem;
 import steve6472.funnylib.json.Itemizable;
 import steve6472.funnylib.serialize.ItemNBT;
@@ -18,7 +18,7 @@ import steve6472.funnylib.serialize.NBT;
  * Date: 4/23/2023
  * Project: StevesFunnyLibrary <br>
  */
-public final class AreaSelection implements ICategorizable, Itemizable<AreaSelection>
+public final class AreaSelection implements Categorizable, Itemizable<AreaSelection>
 {
 	private final Vector3i start, end;
 	private String name;

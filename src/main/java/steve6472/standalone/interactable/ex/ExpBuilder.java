@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import steve6472.funnylib.menu.*;
+import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.MetaUtil;
@@ -39,7 +40,7 @@ public class ExpBuilder
 	}
 
 	public void setSlot(int x, int y, IElementType elementType)
-	{
+	{/*
 		SlotBuilder slotBuilder = SlotBuilder.create(elementType.item());
 		slotBuilder.allow(ClickType.LEFT, ClickType.RIGHT, ClickType.SHIFT_LEFT, ClickType.SHIFT_RIGHT, ClickType.MIDDLE);
 		slotBuilder.allow(InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF, InventoryAction.CLONE_STACK, InventoryAction.MOVE_TO_OTHER_INVENTORY, InventoryAction.SWAP_WITH_CURSOR);
@@ -62,11 +63,11 @@ public class ExpBuilder
 		builder.addLore(JSONMessage.create(""));
 		builder.addLore(JSONMessage.create(Integer.toHexString(currentExpression.hashCode())).color(ChatColor.DARK_GRAY));
 		builder.setInt(ELEMENT_TYPE, elementType.ordinal());
-		slot.setItem(builder.buildItemStack());
+		slot.setItem(builder.buildItemStack());*/
 	}
 
 	public static Menu openPopup(Player player, Expression exp, int type, Menu menu, boolean background)
-	{
+	{/*
 		menu.applyMask(ExpressionMenu.POPUP);
 		menu.applyMask(background ? ExpressionMenu.POPUP_BACKGROUND : ExpressionMenu.POPUP_NO_BACKGROUND);
 		MenuBuilder builder = MenuBuilder.create(3, "POPUP_MENU_" + exp.getClass().getSimpleName().toUpperCase());
@@ -77,8 +78,9 @@ public class ExpBuilder
 		menu.setMetadata("popup", popupMenu);
 		MetaUtil.setMeta(player, "target_exp", exp);
 		MetaUtil.setMeta(player, "target_exp_type", type);
-		popupMenu.overlay(menu, 1, 1, 6, 4);
+		popupMenu.overlay(menu, 1, 1, 6, 4);*/
 
-		return popupMenu;
+//		return popupMenu;
+		return null;
 	}
 }

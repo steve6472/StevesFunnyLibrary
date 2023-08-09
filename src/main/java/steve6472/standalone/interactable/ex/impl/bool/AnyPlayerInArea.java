@@ -86,7 +86,7 @@ public class AnyPlayerInArea extends Expression
 			if (Items.getCustomItem(click.itemOnCursor()) == FunnyLib.AREA_LOCATION_MARKER)
 			{
 				area = AreaSelection.fromItem(click.itemOnCursor());
-				menu.getSlot(click.slot().getX(), click.slot().getY()).setItem(AREA.item());
+//				menu.getSlot(click.slot().getX(), click.slot().getY()).setItem(AREA.item());
 			}
 		}
 		return Response.cancel();

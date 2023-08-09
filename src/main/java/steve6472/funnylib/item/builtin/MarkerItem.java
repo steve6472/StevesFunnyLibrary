@@ -91,9 +91,12 @@ public class MarkerItem extends CustomItem implements TickInHandEvent
 			return;
 
 		new AnvilGUI.Builder()
-			.onComplete((completion) ->
+			.onClick((slot, state) ->
 			{
-				context.getItemData().setString("name", completion.getText());
+				if (slot != AnvilGUI.Slot.OUTPUT)
+					return Collections.emptyList();
+
+				context.getItemData().setString("name", state.getText());
 				updateItem(context.getItemData(), null);
 
 				return Collections.singletonList(AnvilGUI.ResponseAction.close());

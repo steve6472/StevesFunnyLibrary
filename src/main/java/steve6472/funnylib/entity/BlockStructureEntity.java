@@ -37,6 +37,11 @@ public class BlockStructureEntity
 	{
 		BlockInfo[] blocks = structure.getBlocks();
 
+		for (int i = 0; i < blocks.length; i++)
+		{
+			blocks[i] = new BlockInfo(blocks[i].data().clone(), new Vector3i(blocks[i].position()));
+		}
+
 		BlockStructureEntity entity = new BlockStructureEntity();
 
 		final Vector3i size = structure.getSize().add(1, 1, 1);

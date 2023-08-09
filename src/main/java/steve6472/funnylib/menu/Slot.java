@@ -1,41 +1,33 @@
 package steve6472.funnylib.menu;
 
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.Material;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.Map;
-import java.util.Set;
-import java.util.function.BiFunction;
+import steve6472.funnylib.menu.slots.IconSlot;
 
 /**
  * Created by steve6472
  * Date: 9/11/2022
  * Project: StevesFunnyLibrary
  */
-public class Slot
+public abstract class Slot
 {
 	Menu holder;
-	ItemStack itemStack;
-	Set<ClickType> allowedClickTypes;
-	Set<InventoryAction> allowedInventoryActions;
-	BiFunction<Click, Menu, Response> onClick;
-	Map<ClickType, BiFunction<Click, Menu, Response>> conditionedClick;
+//	Set<ClickType> allowedClickTypes;
+//	Set<InventoryAction> allowedInventoryActions;
+//	Map<ClickType, BiFunction<Click, Menu, Response>> conditionedClick;
 
+	final boolean isSticky;
 	int x, y;
 
-	boolean isSticky;
-
-	public ItemStack item()
+	public Slot(boolean isSticky)
 	{
-		return itemStack;
+		this.isSticky = isSticky;
 	}
 
-	public Slot setItem(ItemStack itemStack)
+	public ItemStack getIcon()
 	{
-		this.itemStack = itemStack;
-		updateSlot();
-		return this;
+		return new ItemStack(Material.AIR);
 	}
 
 	public Menu menu()
@@ -43,48 +35,61 @@ public class Slot
 		return holder;
 	}
 
-	protected boolean canBeInteractedWith(ClickType clickType, InventoryAction inventoryAction)
+	public boolean isSticky()
 	{
-		return allowedClickTypes.contains(clickType) && allowedInventoryActions.contains(inventoryAction);
+		return isSticky;
 	}
+
+	public abstract boolean canBeInteractedWith(Click click);
 
 	/*
 	 * Event thingies
 	 */
 
-	Response callOnClick(Click click)
-	{
-		BiFunction<Click, Menu, Response> clickPlayerBiConsumer = conditionedClick.get(click.type);
-		if (clickPlayerBiConsumer != null)
-		{
-			return clickPlayerBiConsumer.apply(click, holder);
-		}
-
-		if (onClick != null)
-		{
-			return onClick.apply(click, holder);
-		}
-
-		return Response.cancel();
-	}
+	public abstract Response onClick(Click click);
 
 	public Slot updateSlot()
 	{
+		return updateSlot(getIcon());
+	}
+
+	public Slot updateSlot(ItemStack itemStack)
+	{
+		if (holder == null)
+			return this;
+
 		int index;
+		int visibleX = x - holder.windowX + holder.offsetX;
+		int visibleY = y - holder.windowY + holder.offsetY;
+
+		Menu loop = holder.parent;
+		while (loop != null)
+		{
+			visibleX -= loop.windowX + loop.offsetX;
+			visibleY -= loop.windowY + loop.offsetY;
+			loop = loop.parent;
+		}
+
+//		if (this instanceof IconSlot is)
+//		{
+//			System.out.println(visibleX + " " + visibleY + " " + is.getIcon());
+//		}
 
 		if (isSticky)
 		{
-			index = x + y * 9;
+			index = x + y * holder.windowWidth;
 		} else
 		{
 //			if (x - holder.offsetX < 0 || x - holder.offsetX > 8 || y - holder.offsetY < 0 || y - holder.offsetY > holder.rows) return this;
-			index = (x - holder.offsetX) + (y - holder.offsetY) * 9;
+			index = (visibleX) + (visibleY) * holder.windowWidth;
 		}
 
 		if (index >= 54)
 			return this;
 
-		holder.inventory.setItem(index, item());
+		Inventory inventory = holder.getInventory();
+		if (inventory != null)
+			inventory.setItem(index, itemStack);
 
 		return this;
 	}
@@ -102,6 +107,6 @@ public class Slot
 	@Override
 	public String toString()
 	{
-		return "Slot{" + "itemStack=" + itemStack + ", x=" + x + ", y=" + y + ", isSticky=" + isSticky + '}';
+		return "Slot{" + "itemStack=" + getIcon() + ", x=" + x + ", y=" + y + ", isSticky=" + isSticky + '}';
 	}
 }

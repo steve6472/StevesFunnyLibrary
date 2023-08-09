@@ -4,6 +4,8 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.menu.*;
+import steve6472.funnylib.menu.Click;
+import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
@@ -56,7 +58,7 @@ public class IfExp extends Expression
 				{
 					Slot slot = menu.getSlot(click.slot().getX(), click.slot().getY() - i);
 					if (slot == null) break;
-					if (Items.getCustomItem(slot.item()) == ExpItems.IF_START)
+					if (Items.getCustomItem(slot.getIcon()) == ExpItems.IF_START)
 					{
 						menu.setOffset(click.slot().getX(), slot.getY());
 						break;
@@ -69,7 +71,7 @@ public class IfExp extends Expression
 				{
 					Slot slot = menu.getSlot(click.slot().getX(), click.slot().getY() + i);
 					if (slot == null) break;
-					if (Items.getCustomItem(slot.item()) == ExpItems.IF_END)
+					if (Items.getCustomItem(slot.getIcon()) == ExpItems.IF_END)
 					{
 						menu.setOffset(click.slot().getX(), slot.getY() - 4);
 						break;
@@ -82,10 +84,10 @@ public class IfExp extends Expression
 	}
 
 	@Override
-	public void createPopup(MenuBuilder builder)
-	{
+	public void createPopup(Menu menu)
+	{/*
 		builder.slot(0, 0, SlotBuilder.buttonSlot(ItemStackBuilder.edit(ExpItems.POPUP_CLOSE.newItemStack()).setName("Clear Condition").buildItemStack(), (c, m) -> condition.getExpressions().clear()));
-		builder.slot(0, 1, SlotBuilder.buttonSlot(ItemStackBuilder.edit(ExpItems.POPUP_CLOSE.newItemStack()).setName("Clear Body").buildItemStack(), (c, m) -> body.getExpressions().clear()));
+		builder.slot(0, 1, SlotBuilder.buttonSlot(ItemStackBuilder.edit(ExpItems.POPUP_CLOSE.newItemStack()).setName("Clear Body").buildItemStack(), (c, m) -> body.getExpressions().clear()));*/
 	}
 
 	@Override

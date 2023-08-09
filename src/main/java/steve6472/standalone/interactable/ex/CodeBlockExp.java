@@ -3,6 +3,8 @@ package steve6472.standalone.interactable.ex;
 import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.menu.*;
+import steve6472.funnylib.menu.Click;
+import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.serialize.NBT;
 import steve6472.standalone.interactable.ex.elements.ElementType;
 import steve6472.standalone.interactable.ex.elements.IElementType;
@@ -153,13 +155,13 @@ public class CodeBlockExp extends Expression
 	}
 
 	@Override
-	public void createPopup(MenuBuilder builder)
+	public void createPopup(Menu menu)
 	{
 		List<Expressions.ExpressionEntry> expressions = Expressions.getExpressions(getType());
 		for (int i = 0; i < expressions.size(); i++)
-		{
+		{/*
 			Expressions.ExpressionEntry entry = expressions.get(i);
-			builder.slot(i % 6, i / 6, SlotBuilder.buttonSlot(entry.icon().newItemStack(), ExpressionMenu.addExpression(entry.constructor())));
+			builder.slot(i % 6, i / 6, SlotBuilder.buttonSlot(entry.icon().newItemStack(), ExpressionMenu.addExpression(entry.constructor())));*/
 		}
 	}
 

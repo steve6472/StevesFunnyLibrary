@@ -1,17 +1,11 @@
 package steve6472.standalone.interactable.blocks;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.FunnyLib;
-import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlock;
 import steve6472.funnylib.blocks.CustomBlockData;
 import steve6472.funnylib.blocks.IBlockData;
@@ -20,18 +14,8 @@ import steve6472.funnylib.blocks.events.BlockClickEvents;
 import steve6472.funnylib.blocks.events.BlockTick;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.PlayerBlockContext;
-import steve6472.funnylib.data.Marker;
-import steve6472.funnylib.item.CustomItem;
-import steve6472.funnylib.item.Items;
-import steve6472.funnylib.menu.Mask;
-import steve6472.funnylib.menu.MenuBuilder;
-import steve6472.funnylib.menu.Response;
-import steve6472.funnylib.menu.SlotBuilder;
 import steve6472.funnylib.util.*;
 import steve6472.funnylib.util.generated.BlockGen;
-import steve6472.standalone.interactable.Interactable;
-
-import java.util.function.Consumer;
 
 /**
  * Created by steve6472
@@ -185,12 +169,12 @@ public class ElevatorControllerBlock extends CustomBlock implements IBlockData, 
 
 	@Override
 	public void showInterface(ElevatorControllerData data, PlayerBlockContext context)
-	{
+	{/*
 		MENU.setData("data", data);
 		MENU.setData("location", context.getBlockLocation());
-		MENU.build().showToPlayers(context.getPlayer());
+		MENU.build().showToPlayers(context.getPlayer());*/
 	}
-
+/*
 	private static final Mask mask = Mask.createMask()
 		.addRow("P.Paaa...")
 		.addRow("PPPaaaaRa")
@@ -261,5 +245,5 @@ public class ElevatorControllerBlock extends CustomBlock implements IBlockData, 
 				c.slot().setItem(clone);
 				return Response.cancel();
 			});
-	}
+	}*/
 }

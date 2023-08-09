@@ -5,9 +5,14 @@ import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.LibSettings;
 import steve6472.funnylib.category.Markers;
 import steve6472.funnylib.category.Structures;
+import steve6472.funnylib.command.AnnotationCommand;
 import steve6472.standalone.exnulla.ExNulla;
+import steve6472.standalone.hideandseek.HNSStartCommand;
+import steve6472.standalone.hideandseek.HideAndSeekGame;
 import steve6472.standalone.interactable.Interactable;
 import steve6472.standalone.machinal.Machinal;
+import steve6472.standalone.tnttag.TNTTagGame;
+import steve6472.standalone.tnttag.TagStartCommand;
 
 /**
  * Created by steve6472
@@ -27,10 +32,14 @@ public class FunnyLibStandalone extends JavaPlugin
 		Interactable.init();
 //		Machinal.init();
 
+
 		FunnyLib.registerConfig(markerStorage = new Markers());
 		FunnyLib.registerConfig(structureStorage = new Structures());
 
 		FunnyLib.load();
+
+		AnnotationCommand.registerCommands(HNSStartCommand.class);
+		AnnotationCommand.registerCommands(TagStartCommand.class);
 	}
 
 	@Override

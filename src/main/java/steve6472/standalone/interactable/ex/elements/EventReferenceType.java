@@ -75,9 +75,12 @@ public class EventReferenceType<T> implements IElementType, INBT
 //		openPopup(click.player(), menu);
 
 		new AnvilGUI.Builder()
-			.onComplete((completion) ->
+			.onClick((slot, state) ->
 			{
-				inputId = completion.getText();
+				if (slot != AnvilGUI.Slot.OUTPUT)
+					return Collections.emptyList();
+
+				inputId = state.getText();
 				return Collections.singletonList(AnvilGUI.ResponseAction.close());
 			})
 			.text(" ")

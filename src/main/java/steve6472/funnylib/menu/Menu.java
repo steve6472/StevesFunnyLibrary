@@ -1,73 +1,147 @@
 package steve6472.funnylib.menu;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3i;
+import org.joml.Vector4i;
 import steve6472.funnylib.util.MetaUtil;
 import steve6472.funnylib.util.MiscUtil;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.function.BiFunction;
+import java.util.*;
 
 /**
  * Created by steve6472
- * Date: 9/11/2022
- * Project: StevesFunnyLibrary
+ * Date: 6/28/2023
+ * Project: StevesFunnyLibrary <br>
  */
-public class Menu
+public abstract class Menu
 {
-	final Inventory inventory;
+	private Inventory inventory;
+	private final Optional<LinkedList<Menu>> history;
 
-	boolean recordHistory;
-	boolean allowPlayerInventory;
+	/**
+	 * Used to control even calling when redirecting
+	 * Should not be set directly
+	 */
 	boolean redirected;
-	BiFunction<Menu, Player, Response> onClose;
+	private boolean isBuilt = false;
+
+	private String title;
+	final int rows;
 	int offsetX, offsetY;
-	int rows;
 	int minOffsetX, maxOffsetX, minOffsetY, maxOffsetY;
 	boolean offsetLimited;
-	ArbitraryData passedData;
+	boolean allowPlayerInventory;
+	int windowWidth, windowHeight;
 
 	final Map<SlotLoc, Slot> slots = new HashMap<>();
 	final Map<SlotLoc, Slot> stickySlots = new HashMap<>();
 
-	Menu(Inventory inventory)
+	final List<Menu> windows = new ArrayList<>();
+	int windowX, windowY;
+	boolean stickyWindow;
+	Menu parent;
+
+	public Menu(int rows, String title, boolean enableHistory)
 	{
-		this.inventory = inventory;
+		this.rows = rows;
+		this.title = title;
+
+		history = Optional.ofNullable(enableHistory ? new LinkedList<>() : null);
+		setWindowBounds(9, rows);
 	}
 
-	public void showToPlayers(Player... players)
+	/*
+	 * Setup
+	 */
+
+	protected abstract void setup();
+
+	public void limitOffset(int minOffsetX, int maxOffsetX, int minOffsetY, int maxOffsetY)
 	{
-		for (Player player : players)
-		{
-			showToPlayer(player);
-		}
+		this.minOffsetX = minOffsetX;
+		this.maxOffsetX = maxOffsetX;
+		this.minOffsetY = minOffsetY;
+		this.maxOffsetY = maxOffsetY;
+		this.offsetLimited = true;
+		setOffset(offsetX, offsetY);
 	}
 
-	public void showToPlayer(Player player)
+	public Vector4i getOffsetLimits()
 	{
-		player.openInventory(inventory);
-		MetaUtil.setMeta(player, MenuListener.MENU_META_KEY, this);
+		return new Vector4i(minOffsetX, minOffsetY, maxOffsetX, maxOffsetY);
 	}
 
+	public void allowPlayerInventory()
+	{
+		allowPlayerInventory = true;
+	}
+
+	public void setWindowBounds(int width, int height)
+	{
+		this.windowWidth = width;
+		this.windowHeight = height;
+	}
+
+	public void setWindowPosition(int x, int y)
+	{
+		this.windowX = x;
+		this.windowY = y;
+	}
+
+	int getAbsoluteWindowX()
+	{
+		return windowX + (parent == null ? 0 : parent.getAbsoluteWindowX());
+	}
+
+	int getAbsoluteWindowY()
+	{
+		return windowY + (parent == null ? 0 : parent.getAbsoluteWindowY());
+	}
+
+	public void setStickyWindow(boolean sticky)
+	{
+		this.stickyWindow = sticky;
+	}
+
+	public void applyMask(Mask mask)
+	{
+		mask.applyMask(this);
+	}
+
+	public void addWindow(Menu menu)
+	{
+		menu.parent = this;
+		menu.build();
+		windows.add(menu);
+	}
+
+	public void removeWindow()
+	{
+		if (parent == null)
+			return;
+
+		parent.windows.remove(this);
+		parent.reload();
+	}
+
+	public Menu getParent()
+	{
+		return parent;
+	}
+
+	// region offset
 	public void move(int x, int y)
 	{
-		if (offsetLimited)
-		{
-			this.offsetX = Math.max(minOffsetX, Math.min(maxOffsetX, offsetX + x));
-			this.offsetY = Math.max(minOffsetY, Math.min(maxOffsetY, offsetY + y));
-		} else
-		{
-			this.offsetX += x;
-			this.offsetY += y;
-		}
-		reload();
+		setOffset(offsetX + x, offsetY + y);
 	}
 
 	public void setOffset(int x, int y)
 	{
+		int oldX = offsetX;
+		int oldY = offsetY;
+
 		if (offsetLimited)
 		{
 			this.offsetX = Math.max(minOffsetX, Math.min(maxOffsetX, x));
@@ -77,7 +151,11 @@ public class Menu
 			this.offsetX = x;
 			this.offsetY = y;
 		}
-		reload();
+
+		if (oldX != offsetX || oldY != offsetY)
+		{
+			reload();
+		}
 	}
 
 	public int getOffsetX()
@@ -89,14 +167,53 @@ public class Menu
 	{
 		return offsetY;
 	}
+	// endregion offset
+
+	// region slots
+	private boolean inMenuBounds(Menu menu, int x, int y)
+	{
+		return x >= menu.windowX && x < menu.windowX + menu.windowWidth && y >= menu.windowY && y < menu.windowY + menu.windowHeight;
+	}
 
 	public Slot getSlot(int x, int y)
 	{
 		SlotLoc loc = new SlotLoc(x, y);
 
+		for (int i = windows.size() - 1; i >= 0; i--)
+		{
+			Menu menu = windows.get(i);
+
+			// Ignore non-sticky windows
+			if (!menu.stickyWindow)
+				continue;
+
+			if (!inMenuBounds(menu, x, y))
+				continue;
+
+			Slot slot = menu.getSlot(x - menu.windowX, y - menu.windowY);
+			if (slot != null)
+				return slot;
+		}
+
 		Slot stickySlot = stickySlots.get(loc);
 		if (stickySlot != null)
 			return stickySlot;
+
+		for (int i = windows.size() - 1; i >= 0; i--)
+		{
+			Menu menu = windows.get(i);
+
+			// Ignore sticky windows as they have been already iterated over
+			if (menu.stickyWindow)
+				continue;
+
+			if (!inMenuBounds(menu, x + offsetX, y + offsetY))
+				continue;
+
+			Slot slot = menu.getSlot(x - menu.windowX + offsetX, y - menu.windowY + offsetY);
+			if (slot != null)
+				return slot;
+		}
 
 		loc = new SlotLoc(x + offsetX, y + offsetY);
 		return slots.get(loc);
@@ -116,11 +233,6 @@ public class Menu
 		}
 	}
 
-	public void setSlot(int x, int y, SlotBuilder builder)
-	{
-		setSlot(x, y, builder.build());
-	}
-
 	public void removeSlot(int x, int y)
 	{
 		slots.remove(new SlotLoc(x, y));
@@ -130,40 +242,103 @@ public class Menu
 	{
 		stickySlots.remove(new SlotLoc(x, y));
 	}
+	// endregion slots
 
-	public void applyMask(Mask mask)
+	// region control
+	public void reload()
 	{
-		mask.applyMask(this);
-	}
+		Inventory inv = getInventory();
+		if (inv == null)
+			return;
 
-	public void overlay(Menu below, int minX, int minY, int maxX, int maxY)
-	{
-		// Expressions GUI size
-		for (int i = 0; i < 54; i++)
+		for (int i = 0; i < windowWidth * windowHeight; i++)
 		{
-			int x = (i % 9);
-			int y = (i / 9);
+			int x = (i % windowWidth);
+			int y = (i / windowWidth);
 
-			if (x + minX < minX || x + minX > maxX || y + minY < minY || y + minY > maxY)
+			int index;
+			int visibleX = x + windowX;
+			int visibleY = y + windowY;
+
+			Menu loop = parent;
+			while (loop != null)
+			{
+				visibleX += loop.windowX;
+				visibleY += loop.windowY;
+				loop = loop.parent;
+			}
+
+			// TODO: replace the 9 with actual inventory width
+			index = visibleX + visibleY * 9;
+
+			if (index < 0 || index >= inv.getSize())
 				continue;
-//			System.out.print("" + x + ", " + y + " | ");
 
 			Slot slot = getSlot(x, y);
-
-			int sx = x + minX + below.offsetX;
-			int sy = y + minY + below.offsetY;
-
-			below.removeStickySlot(x + minX, y + minY);
-			if (slot == null)
+			if (slot != null)
 			{
-				below.removeSlot(sx, sy);
+				inv.setItem(index, slot.getIcon());
 			} else
 			{
-				below.setSlot(sx, sy, slot);
+				inv.setItem(index, MiscUtil.AIR);
 			}
 		}
-		below.reload();
-//		System.out.println();
+	}
+
+	@Deprecated(forRemoval = true)
+	public void clear()
+	{
+		slots.clear();
+		stickySlots.clear();
+		if (inventory != null)
+			inventory.clear();
+		windows.clear();
+		offsetX = 0;
+		offsetY = 0;
+	}
+
+	public Menu build()
+	{
+		if (isBuilt)
+			return this;
+		isBuilt = true;
+		setup();
+		reload();
+		return this;
+	}
+
+	public boolean hasHistory()
+	{
+		return history.filter(historyList -> !historyList.isEmpty()).isPresent();
+	}
+
+	public Optional<LinkedList<Menu>> getHistory()
+	{
+		return history;
+	}
+
+	public Response goBackIntoThePast()
+	{
+		// I actually do not know what this does, IntelliJ suggested this
+		return history.map(menus -> Response.redirect(menus.getLast())).orElseGet(Response::cancel);
+	}
+
+	public int getWindowWidth()
+	{
+		return windowWidth;
+	}
+
+	public int getWindowHeight()
+	{
+		return windowHeight;
+	}
+
+	public Inventory getInventory()
+	{
+		if (parent != null)
+			return parent.getInventory();
+
+		return inventory;
 	}
 
 	/**
@@ -173,7 +348,6 @@ public class Menu
 	public void insertLineBelow(int y, int count)
 	{
 		HashMap<SlotLoc, Slot> toAdd = new HashMap<>();
-
 		for (Iterator<SlotLoc> iterator = slots.keySet().iterator(); iterator.hasNext(); )
 		{
 			SlotLoc slotLoc = iterator.next();
@@ -183,88 +357,35 @@ public class Menu
 				iterator.remove();
 			}
 		}
-
 		slots.putAll(toAdd);
 	}
+	// endregion control
 
-	public void reload()
+	// region events
+	public Response onClose(Player player)
 	{
-		for (int i = 0; i < inventory.getSize(); i++)
-		{
-			int x = (i % 9);
-			int y = (i / 9);
+		return Response.allow();
+	}
+	// endregion events
 
-			Slot slot = getSlot(x, y);
-			if (slot != null)
-			{
-				inventory.setItem(i, slot.item());
-			} else
-			{
-				inventory.setItem(i, MiscUtil.AIR);
-			}
+	/*
+	 * Opening
+	 */
+
+	public void showToPlayers(Player... players)
+	{
+		for (Player player : players)
+		{
+			showToPlayer(player);
 		}
 	}
 
-	public void clear()
+	public void showToPlayer(Player player)
 	{
-		slots.clear();
-		stickySlots.clear();
-		inventory.clear();
-		offsetX = 0;
-		offsetY = 0;
-		metadataMap.clear();
-	}
-
-	public ArbitraryData getPassedData()
-	{
-		return passedData;
-	}
-
-	/*
-	 * Event thingies
-	 */
-
-	Response callOnClose(Player player)
-	{
-		if (onClose == null) return Response.allow();
-
-		return onClose.apply(this, player);
-	}
-
-	/*
-	 * Metadata
-	 */
-
-	private final Map<String, Object> metadataMap = new HashMap<>();
-
-	public void setMetadata(@NotNull String key, @NotNull Object value)
-	{
-		metadataMap.put(key, value);
-	}
-
-	public <T> T getMetadata(@NotNull String key, @NotNull Class<T> expectedType)
-	{
-		Object o = metadataMap.get(key);
-		if (expectedType.isAssignableFrom(o.getClass()))
-		{
-			//noinspection unchecked
-			return (T) o;
-		}
-		return null;
-	}
-
-	public boolean hasMetadata(@NotNull String key)
-	{
-		return metadataMap.containsKey(key);
-	}
-
-	public void removeMetadata(@NotNull String key)
-	{
-		metadataMap.remove(key);
-	}
-
-	public Map<String, Object> getMetadataMap()
-	{
-		return metadataMap;
+		if (inventory == null)
+			inventory = Bukkit.createInventory(null, rows * 9, title);
+		build();
+		player.openInventory(inventory);
+		MetaUtil.setMeta(player, MenuListener.MENU_META_KEY, this);
 	}
 }

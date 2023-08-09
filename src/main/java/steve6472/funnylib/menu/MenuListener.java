@@ -1,14 +1,14 @@
 package steve6472.funnylib.menu;
 
-import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.util.MetaUtil;
-import steve6472.funnylib.util.MiscUtil;
 
 /**
  * Created by steve6472
@@ -25,9 +25,14 @@ public class MenuListener implements Listener
 		if (!(e.getPlayer() instanceof Player player)) return;
 		Menu menu = MetaUtil.getValue(player, Menu.class, MENU_META_KEY);
 		if (menu == null) return;
-		if (menu.redirected) return;
+		if (menu.redirected)
+		{
+			// Clear in case player goes back to the menu via history and then closes it
+			menu.redirected = false;
+			return;
+		}
 
-		Response response = menu.callOnClose(player);
+		Response response = menu.onClose(player);
 
 		if (response == Response.allow())
 		{
@@ -37,7 +42,7 @@ public class MenuListener implements Listener
 
 		if (response == Response.cancel())
 		{
-			e.getPlayer().openInventory(menu.inventory);
+			e.getPlayer().openInventory(menu.getInventory());
 			return;
 		}
 	}
@@ -65,7 +70,7 @@ public class MenuListener implements Listener
 
 		if (!menu.allowPlayerInventory)
 		{
-			if (e.getClickedInventory() != menu.inventory)
+			if (e.getClickedInventory() != menu.getInventory())
 			{
 				e.setCancelled(true);
 				return;
@@ -73,7 +78,7 @@ public class MenuListener implements Listener
 		}
 
 		// Can click in player inventory & clicked inventory is player inventory
-		if (menu.allowPlayerInventory && e.getClickedInventory() != menu.inventory)
+		if (menu.allowPlayerInventory && e.getClickedInventory() != menu.getInventory())
 		{
 			// Shift clicking hard
 			// Probably some handler for it
@@ -88,12 +93,6 @@ public class MenuListener implements Listener
 
 		Slot slot = menu.getSlot(e.getSlot() % 9, e.getSlot() / 9);
 
-		if (slot == null || !slot.canBeInteractedWith(e.getClick(), e.getAction()))
-		{
-			e.setCancelled(true);
-			return;
-		}
-
 		Click click = new Click();
 		click.player = player;
 		click.slot = slot;
@@ -101,7 +100,13 @@ public class MenuListener implements Listener
 		click.type = e.getClick();
 		click.action = e.getAction();
 
-		Response response = slot.callOnClick(click);
+		if (slot == null || !slot.canBeInteractedWith(click))
+		{
+			e.setCancelled(true);
+			return;
+		}
+
+		Response response = slot.onClick(click);
 
 		if (response == Response.allow())
 		{
@@ -117,14 +122,14 @@ public class MenuListener implements Listener
 
 		if (response == Response.clearItemFromCursor())
 		{
-			e.setCursor(MiscUtil.AIR);
+			e.setCursor(new ItemStack(Material.AIR));
 			return;
 		}
 
 		if (response == Response.exit())
 		{
 			e.setCancelled(true);
-			MetaUtil.removeMeta(player, MENU_META_KEY);
+//			MetaUtil.removeMeta(player, MENU_META_KEY);
 			player.closeInventory();
 			return;
 		}
@@ -134,23 +139,8 @@ public class MenuListener implements Listener
 			e.setCancelled(true);
 			menu.redirected = true;
 
-			MenuBuilder redirect = response.getRedirect();
-
-			if (response.getRedirectData() != null)
-			{
-				redirect.copyFrom(response.getRedirectData());
-			}
-
-			redirect.build().showToPlayer(player);
-			return;
-		}
-
-		if (response.getRedirectRaw() != null)
-		{
-			e.setCancelled(true);
-			menu.redirected = true;
-
-			Menu redirect = response.getRedirectRaw();
+			Menu redirect = response.getRedirect();
+			redirect.getHistory().ifPresent(list -> list.add(menu));
 
 			redirect.showToPlayer(player);
 			return;

@@ -4,10 +4,6 @@ import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryAction;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.blocks.CustomBlock;
 import steve6472.funnylib.blocks.CustomBlockData;
@@ -16,16 +12,8 @@ import steve6472.funnylib.blocks.builtin.AdminInterface;
 import steve6472.funnylib.blocks.events.BlockTick;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.PlayerBlockContext;
-import steve6472.funnylib.item.Items;
-import steve6472.funnylib.item.builtin.StructureItem;
-import steve6472.funnylib.menu.Mask;
-import steve6472.funnylib.menu.MenuBuilder;
-import steve6472.funnylib.menu.Response;
-import steve6472.funnylib.menu.SlotBuilder;
 import steve6472.funnylib.util.generated.BlockGen;
-import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
-import steve6472.funnylib.util.ParticleUtil;
 
 /**
  * Created by steve6472
@@ -56,10 +44,10 @@ public class ElevatorEditorBlock extends CustomBlock implements IBlockData, Admi
 
 	@Override
 	public void showInterface(ElevatorEditorData data, PlayerBlockContext context)
-	{
+	{/*
 		MENU.setData("data", data);
 		MENU.setData("location", context.getBlockLocation());
-		MENU.build().showToPlayers(context.getPlayer());
+		MENU.build().showToPlayers(context.getPlayer());*/
 	}
 
 	@Override
@@ -106,7 +94,7 @@ public class ElevatorEditorBlock extends CustomBlock implements IBlockData, Admi
 			}
 		}
 	}
-
+/*
 	private static final Mask mask = Mask.createMask()
 		.addRow("VVVaaaaaa")
 		.addRow("..Vaaaaaa")
@@ -158,5 +146,5 @@ public class ElevatorEditorBlock extends CustomBlock implements IBlockData, Admi
 				return Response.cancel();
 			}))
 		.slot(1, 1, SlotBuilder.itemSlot(d -> d.getData("data", ElevatorEditorData.class).structure, (d, i) -> d.getData("data", ElevatorEditorData.class).structure = i, i -> Items.getCustomItem(i) == FunnyLib.STRUCTURE))
-		.applyMask(mask);
+		.applyMask(mask);*/
 }

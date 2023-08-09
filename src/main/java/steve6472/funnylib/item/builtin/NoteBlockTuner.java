@@ -5,9 +5,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.NoteBlock;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryAction;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
 import steve6472.funnylib.CancellableResult;
@@ -16,16 +13,11 @@ import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlockData;
 import steve6472.funnylib.blocks.CustomNoteBlocks;
 import steve6472.funnylib.blocks.builtin.CustomNoteBlockData;
-import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.context.PlayerItemContext;
 import steve6472.funnylib.context.UseType;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.events.TickInHandEvent;
-import steve6472.funnylib.menu.ArbitraryData;
-import steve6472.funnylib.menu.MenuBuilder;
-import steve6472.funnylib.menu.Response;
-import steve6472.funnylib.menu.SlotBuilder;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
 
@@ -64,11 +56,11 @@ public class NoteBlockTuner extends CustomItem implements TickInHandEvent
 				return;
 			}
 
-			entityEditor
+			/*entityEditor
 				.setData("loc", context.getBlockLocation())
 				.setData("player", context.getPlayer())
 				.build()
-				.showToPlayer(context.getPlayer());
+				.showToPlayer(context.getPlayer());*/
 		}
 		result.setCancelled(true);
 	}
@@ -108,7 +100,7 @@ public class NoteBlockTuner extends CustomItem implements TickInHandEvent
 		player.sendTitle(JSONMessage.create("Note: ").then(note).color(Color.fromRGB(color)).toLegacy(), JSONMessage.create("Instrument: " + instrument).toLegacy(), 0, 5, 0);
 	}
 
-	private static SlotBuilder note(int noteId)
+	/*private static SlotBuilder note(int noteId)
 	{
 		Note note = new Note(noteId);
 		int color = CustomNoteBlocks.colorByNote(note);
@@ -243,5 +235,5 @@ public class NoteBlockTuner extends CustomItem implements TickInHandEvent
 					return;
 				m.slot(4, 1, SlotBuilder.create(ItemStackBuilder.create(type).setName(noteBlock.getInstrument().name()).buildItemStack()));
 			}
-		});
+		});*/
 }

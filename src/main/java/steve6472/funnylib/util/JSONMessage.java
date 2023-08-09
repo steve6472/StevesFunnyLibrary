@@ -16,10 +16,7 @@ import org.bukkit.Color;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * This is a complete JSON message builder class. To create a new JSONMessage do
@@ -217,6 +214,14 @@ public class JSONMessage
 		{
 			BaseComponent[] parse = ComponentSerializer.parse(toJSON().toString());
 			player.spigot().sendMessage(parse);
+		}
+	}
+
+	public void send(Collection<? extends Player> onlinePlayers)
+	{
+		for (Player onlinePlayer : onlinePlayers)
+		{
+			send(onlinePlayer);
 		}
 	}
 

@@ -7,7 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 import org.joml.Vector3i;
-import steve6472.funnylib.category.ICategorizable;
+import steve6472.funnylib.category.Categorizable;
 import steve6472.funnylib.item.builtin.MarkerItem;
 import steve6472.funnylib.json.Itemizable;
 import steve6472.funnylib.serialize.ItemNBT;
@@ -18,7 +18,7 @@ import steve6472.funnylib.serialize.NBT;
  * Date: 4/23/2023
  * Project: StevesFunnyLibrary <br>
  */
-public final class Marker implements ICategorizable, Itemizable<Marker>
+public final class Marker implements Categorizable, Itemizable<Marker>
 {
 	private final Vector3i location;
 	private String name;
@@ -122,7 +122,7 @@ public final class Marker implements ICategorizable, Itemizable<Marker>
 		String icon = itemNBT.getString("icon", null);
 		Vector3i location1 = itemNBT.get3i("location");
 
-		return new Marker(location1.x, location1.y, location1.z, name, Material.valueOf(icon));
+		return new Marker(location1.x, location1.y, location1.z, name, icon == null ? Material.PAPER : Material.valueOf(icon));
 	}
 
 	@Override
@@ -139,6 +139,6 @@ public final class Marker implements ICategorizable, Itemizable<Marker>
 	{
 		compound.get3i("location", location);
 		this.setName(compound.getString("name", null));
-		this.setIcon(compound.getEnum(Material.class, "icon", Material.BOOK));
+		this.setIcon(compound.getEnum(Material.class, "icon", Material.PAPER));
 	}
 }

@@ -12,12 +12,9 @@ import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.blocks.builtin.CustomNoteBlockData;
 import steve6472.funnylib.context.BlockContext;
 import steve6472.funnylib.events.ServerTickEvent;
-import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.util.generated.BlockGen;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -109,7 +106,7 @@ public class CustomNoteBlocks implements Listener
 		UPDATED_THIS_TICK.add(loc);
 
 		// Cancel the event
-		e.getBlock().setBlockData(BlockGen.NoteBlock(Instrument.PIANO, new Note(0), false), false);
+		e.getBlock().setBlockData(BlockGen.NoteBlock(new Note(0), Instrument.PIANO, false), false);
 
 		CustomBlockData customBlockData = Blocks.getBlockData(loc);
 		/*

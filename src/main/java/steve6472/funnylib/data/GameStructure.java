@@ -2,16 +2,18 @@ package steve6472.funnylib.data;
 
 import joptsimple.internal.Strings;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
 import org.joml.Vector3i;
-import steve6472.funnylib.category.ICategorizable;
+import steve6472.funnylib.category.Categorizable;
 import steve6472.funnylib.item.builtin.StructureItem;
 import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.serialize.NBT;
+import steve6472.funnylib.util.Pair;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -21,7 +23,7 @@ import java.util.Set;
  * Date: 4/22/2023
  * Project: StevesFunnyLibrary <br>
  */
-public final class GameStructure implements ICategorizable
+public final class GameStructure implements Categorizable
 {
 	private String name;
 	private Material icon;
@@ -133,6 +135,35 @@ public final class GameStructure implements ICategorizable
 		return StructureItem.newStructureItem(this, name(), icon());
 	}
 
+	public void place(World world, int x, int y, int z, int offsetX, int offsetY, int offsetZ)
+	{
+		Set<Pair<Chunk, Boolean>> chunks = new HashSet<>();
+
+		for (int i = (x + offsetX) >> 4; i < (x + offsetX + size.x) >> 4; i++)
+		{
+			for (int j = (z + offsetZ) >> 4; j < (z + offsetZ + size.z) >> 4; j++)
+			{
+				Chunk chunkAt = world.getChunkAt(i, j);
+				chunkAt.load();
+				boolean lastForceState = chunkAt.isForceLoaded();
+				chunkAt.setForceLoaded(true);
+				chunks.add(new Pair<>(chunkAt, lastForceState));
+			}
+		}
+
+		for (BlockInfo block : blocks)
+		{
+			world.getBlockAt(x + block.position().x + offsetX, y + block.position().y + offsetY, z + block.position().z + offsetZ).setBlockData(block.data().clone());
+		}
+
+		chunks.forEach(c -> c.a().setForceLoaded(c.b()));
+	}
+
+	public void placeCentered(World world, int x, int y, int z)
+	{
+		place(world, x, y, z, -size.x / 2, -size.y / 2, -size.z / 2);
+	}
+
 	public static GameStructure fromWorld(World world, int startX, int startY, int startZ, int endX, int endY, int endZ)
 	{
 		int width = (endX - startX);
@@ -212,7 +243,7 @@ public final class GameStructure implements ICategorizable
 		{
 			for (int j = 0; j <= height; j++)
 			{
-				for (int k = 0; k <= height; k++)
+				for (int k = 0; k <= depth; k++)
 				{
 					int index = (height + 1) * (width + 1) * k + (width + 1) * j + i;
 					BlockData blockData = Bukkit.createBlockData(palette[data[index]]);
@@ -240,7 +271,7 @@ public final class GameStructure implements ICategorizable
 		{
 			for (int j = 0; j <= height; j++)
 			{
-				for (int k = 0; k <= height; k++)
+				for (int k = 0; k <= depth; k++)
 				{
 					int index = (height + 1) * (width + 1) * k + (width + 1) * j + i;
 					BlockData blockData = Bukkit.createBlockData(palette[data[index]]);
