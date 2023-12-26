@@ -17,7 +17,7 @@ public class BuiltInConfigType<T> implements ConfigType<T>
 	 */
 	public static final ConfigType<Integer> INT = new BuiltInConfigType<>("INT", int.class, Integer.class);
 
-	public static final ConfigType<Integer> DOUBLE = new BuiltInConfigType<>("DOUBLE", double.class, Double.class);
+	public static final ConfigType<Double> DOUBLE = new BuiltInConfigType<>("DOUBLE", double.class, Double.class);
 	public static final ConfigType<String> STRING = new BuiltInConfigType<>("STRING", String.class);
 	public static final ConfigType<Boolean> BOOLEAN = new BuiltInConfigType<>("BOOLEAN", boolean.class, Boolean.class);
 

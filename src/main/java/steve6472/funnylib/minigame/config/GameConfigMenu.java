@@ -42,7 +42,8 @@ public class GameConfigMenu extends Menu
 		int i = 0;
 		for (Map.Entry<Value<?>, Object> entry : gameConfig.getValues().entrySet())
 		{
-			Value<?> value = entry.getKey();
+			//noinspection unchecked
+			Value<Object> value = (Value<Object>) entry.getKey();
 			Object object = entry.getValue();
 
 			ItemStack icon = configTypeRegistry.createIcon(value, object);

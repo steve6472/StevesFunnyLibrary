@@ -13,7 +13,6 @@ import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.data.GameStructure;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.item.builtin.StructureItem;
-import steve6472.funnylib.json.INBT;
 import steve6472.funnylib.json.JsonNBT;
 import steve6472.funnylib.menu.Click;
 import steve6472.funnylib.menu.Response;
@@ -34,13 +33,13 @@ import java.util.regex.Pattern;
  */
 public class ConfigTypeRegistry
 {
-	private final Map<ConfigType<?>, Config> configMap;
+	private final Map<ConfigType<?>, Config<?>> configMap;
 
-	private record Config(
-		BiFunction<Value<?>, JSONObject, Object> load,
-		TriConsumer<Value<?>, Object, JSONObject> save,
-		BiFunction<Value<?>, Object, ItemStack> icon,
-		TriFunction<Click, Value<?>, GameConfiguration, Response> click
+	private record Config<T>(
+		BiFunction<Value<T>, JSONObject, T> load,
+		TriConsumer<Value<T>, T, JSONObject> save,
+		BiFunction<Value<T>, T, ItemStack> icon,
+		TriFunction<Click, Value<T>, GameConfiguration, Response> click
 	)
 	{}
 
@@ -55,9 +54,10 @@ public class ConfigTypeRegistry
 	 */
 
 	@Contract("null -> fail")
-	private Config getConfig(Value<?> value)
+	private <T> Config<T> getConfig(Value<T> value)
 	{
-		Config config = configMap.get(value.getValueType());
+		//noinspection unchecked
+		Config<T> config = (Config<T>) configMap.get(value.getValueType());
 		if (config == null)
 		{
 			throw new RuntimeException("Config not found for " + value.getValueType());
@@ -107,7 +107,7 @@ public class ConfigTypeRegistry
 		return s -> pattern.matcher(s).matches();
 	}
 
-	public Response anvilInput(Click click, Value<?> value, GameConfiguration gameConfig, Predicate<String> inputValidator, Function<String, Object> toObject, boolean rightClickClear)
+	public <T> Response anvilInput(Click click, Value<T> value, GameConfiguration gameConfig, Predicate<String> inputValidator, Function<String, T> toObject, boolean rightClickClear)
 	{
 		if (rightClickClear && click.type().isRightClick())
 		{
@@ -135,7 +135,7 @@ public class ConfigTypeRegistry
 
 				a[0] = true;
 
-				Object object = toObject.apply(text);
+				T object = toObject.apply(text);
 				gameConfig.setValue(value, object);
 				click.slot().updateSlot(createIcon(value, object));
 
@@ -161,14 +161,14 @@ public class ConfigTypeRegistry
 	 * Registration
 	 */
 
-	public void registerType(ConfigType<?> configType,
-	                         BiFunction<Value<?>, JSONObject, Object> load,
-	                         TriConsumer<Value<?>, Object, JSONObject> save,
-	                         BiFunction<Value<?>, Object, ItemStack> icon,
-	                         TriFunction<Click, Value<?>, GameConfiguration, Response> click
+	public <T> void registerType(ConfigType<T> configType,
+	                         BiFunction<Value<T>, JSONObject, T> load,
+	                         TriConsumer<Value<T>, T, JSONObject> save,
+	                         BiFunction<Value<T>, T, ItemStack> icon,
+	                         TriFunction<Click, Value<T>, GameConfiguration, Response> click
 	)
 	{
-		Config config = new Config(load, save, icon, click);
+		Config<T> config = new Config<T>(load, save, icon, click);
 
 		configMap.put(configType, config);
 	}
@@ -223,9 +223,8 @@ public class ConfigTypeRegistry
 					json.put(value.getId(), (Object) null);
 					return;
 				}
-				INBT inbt = ((INBT) object);
 				PdcNBT nbt = PdcNBT.fromPDC(NMS.newCraftContainer());
-				inbt.toNBT(nbt);
+				object.toNBT(nbt);
 				JSONObject jsonObject = JsonNBT.containerToJSON(nbt.getContainer());
 				json.put(value.getId(), jsonObject);
 			},
@@ -236,11 +235,10 @@ public class ConfigTypeRegistry
 					return ItemStackBuilder.create(Material.WRITABLE_BOOK).setName(JSONMessage.create(value.getName())).buildItemStack();
 				}
 
-				GameStructure obj = (GameStructure) object;
 				return ItemStackBuilder
-					.create(obj.icon())
-					.setName(obj.name() == null ? "Structure" : obj.name(), ChatColor.DARK_AQUA)
-					.addLore(Messages.createLocationMessage("Size: ", obj.getSize().x, obj.getSize().y, obj.getSize().z))
+					.create(object.icon())
+					.setName(object.name() == null ? "Structure" : object.name(), ChatColor.DARK_AQUA)
+					.addLore(Messages.createLocationMessage("Size: ", object.getSize().x, object.getSize().y, object.getSize().z))
 					.buildItemStack();
 			},
 			(click, value, gameConfig) ->
@@ -250,7 +248,7 @@ public class ConfigTypeRegistry
 					if (gameConfig.getValue(value) == null)
 						return Response.cancel();
 
-					return Response.setItemToCursor((((GameStructure) gameConfig.getValue(value)).toItem()));
+					return Response.setItemToCursor((gameConfig.getValue(value).toItem()));
 				}
 
 				final Predicate<ItemStack> check = (itemStack) ->
@@ -285,27 +283,27 @@ public class ConfigTypeRegistry
 	 *
 	 */
 
-	public Object load(Value<?> value, JSONObject json)
+	public <T> T load(Value<T> value, JSONObject json)
 	{
-		Config config = getConfig(value);
+		Config<T> config = getConfig(value);
 		return config.load().apply(value, json);
 	}
 
-	public void save(Value<?> value, Object obj, JSONObject json)
+	public <T> void save(Value<T> value, T obj, JSONObject json)
 	{
-		Config config = getConfig(value);
+		Config<T> config = getConfig(value);
 		config.save().accept(value, obj, json);
 	}
 
-	public ItemStack createIcon(Value<?> value, Object object)
+	public <T> ItemStack createIcon(Value<T> value, T object)
 	{
-		Config config = getConfig(value);
+		Config<T> config = getConfig(value);
 		return config.icon().apply(value, object);
 	}
 
-	public Response onClick(Value<?> value, Click click, GameConfiguration gameConfig)
+	public <T> Response onClick(Value<T> value, Click click, GameConfiguration gameConfig)
 	{
-		Config config = getConfig(value);
+		Config<T> config = getConfig(value);
 		return config.click.apply(click, value, gameConfig);
 	}
 

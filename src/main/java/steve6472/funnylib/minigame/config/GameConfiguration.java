@@ -111,9 +111,11 @@ public class GameConfiguration
 
 		for (Value<?> value : values.keySet())
 		{
+			//noinspection unchecked
+			Value<Object> val = (Value<Object>) value;
 			Object obj = getValue(value);
 
-			configTypeRegistry.save(value, obj, jsonConfig);
+			configTypeRegistry.save(val, obj, jsonConfig);
 
 			values.replace(value, null);
 		}
