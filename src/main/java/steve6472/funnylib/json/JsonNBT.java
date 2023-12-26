@@ -14,9 +14,7 @@ import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -27,15 +25,15 @@ import java.util.stream.IntStream;
 public class JsonNBT
 {
 	private static final Pattern BYTE_REGEX = Pattern.compile("\\[B;(\\d+B(?:\\s*,\\s*\\d+B)*)\\]");
-	private static final Pattern INT_REGEX = Pattern.compile("\\[I;(\\d+(?:\\s*,\\s*\\d+)*)\\]");
+	private static final Pattern INT_REGEX = Pattern.compile("\\[I;(\\d+(?:\\s*,\\s*\\d+)*)\\]"); // [I;0, 0, 1, 2, 3, 0, 1, 1]
 	private static final Pattern LONG_REGEX = Pattern.compile("\\[L;(\\d+L(?:\\s*,\\s*\\d+L)*)\\]");
 
 	public static JSONObject NBTtoJSON(NBT nbt)
 	{
-		return containertoJSON(nbt.getContainer());
+		return containerToJSON(nbt.getContainer());
 	}
 
-	public static JSONObject containertoJSON(PersistentDataContainer container)
+	public static JSONObject containerToJSON(PersistentDataContainer container)
 	{
 		Map<String, Object> stringObjectMap = NMS.serializePDC(container);
 		stringObjectMap = iterateRemoveNamespace(stringObjectMap);
@@ -180,58 +178,143 @@ public class JsonNBT
 		return nbt.getContainer();
 	}
 
+//	public static byte[] extractBytes(String input)
+//	{
+//		Matcher matcher = BYTE_REGEX.matcher(input);
+//
+//		if (!matcher.matches())
+//			return null;
+//
+//		String numbersString = matcher.group(1);
+//		String[] numberArr = numbersString.split(",");
+//		byte[] numbers = new byte[numberArr.length];
+//
+//		for (int i = 0; i < numberArr.length; i++)
+//		{
+//			numbers[i] = Byte.parseByte(numberArr[i].replace("B", "").trim());
+//		}
+//
+//		return numbers;
+//	}
+
 	public static byte[] extractBytes(String input)
 	{
-		Matcher matcher = BYTE_REGEX.matcher(input);
-
-		if (!matcher.matches())
+		if (input == null || !input.startsWith("[B;") || !input.endsWith("]"))
 			return null;
 
-		String numbersString = matcher.group(1);
-		String[] numberArr = numbersString.split(",");
-		byte[] numbers = new byte[numberArr.length];
+		String content = input.substring(3, input.length() - 1);
+		String[] numberStrings = content.split(",");
+		byte[] numbers = new byte[numberStrings.length];
 
-		for (int i = 0; i < numberArr.length; i++)
+		for (int i = 0; i < numberStrings.length; i++)
 		{
-			numbers[i] = Byte.parseByte(numberArr[i].replace("B", "").trim());
+			try
+			{
+				String trim = numberStrings[i].trim();
+				if (trim.endsWith("B"))
+				{
+					trim = trim.substring(0, trim.length() - 1);
+					numbers[i] = Byte.parseByte(trim);
+				} else
+				{
+					return null;
+				}
+			} catch (NumberFormatException e)
+			{
+				return null;
+			}
 		}
 
 		return numbers;
 	}
+
+//	public static int[] extractIntegers(String input)
+//	{
+//		Matcher matcher = INT_REGEX.matcher(input);
+//
+//		if (!matcher.matches())
+//			return null;
+//
+//		String numbersString = matcher.group(1);
+//		String[] numberArr = numbersString.split(",");
+//		int[] numbers = new int[numberArr.length];
+//
+//		for (int i = 0; i < numberArr.length; i++)
+//		{
+//			numbers[i] = Integer.parseInt(numberArr[i].trim());
+//		}
+//
+//		return numbers;
+//	}
 
 	public static int[] extractIntegers(String input)
 	{
-		Matcher matcher = INT_REGEX.matcher(input);
-
-		if (!matcher.matches())
+		if (input == null || !input.startsWith("[I;") || !input.endsWith("]"))
 			return null;
 
-		String numbersString = matcher.group(1);
-		String[] numberArr = numbersString.split(",");
-		int[] numbers = new int[numberArr.length];
+		String content = input.substring(3, input.length() - 1);
+		String[] numberStrings = content.split(",");
+		int[] numbers = new int[numberStrings.length];
 
-		for (int i = 0; i < numberArr.length; i++)
+		for (int i = 0; i < numberStrings.length; i++)
 		{
-			numbers[i] = Integer.parseInt(numberArr[i].trim());
+			try
+			{
+				numbers[i] = Integer.parseInt(numberStrings[i].trim());
+			} catch (NumberFormatException e)
+			{
+				return null;
+			}
 		}
 
 		return numbers;
 	}
 
+//	public static long[] extractLongs(String input)
+//	{
+//		Matcher matcher = LONG_REGEX.matcher(input);
+//
+//		if (!matcher.matches())
+//			return null;
+//
+//		String numbersString = matcher.group(1);
+//		String[] numberArr = numbersString.split(",");
+//		long[] numbers = new long[numberArr.length];
+//
+//		for (int i = 0; i < numberArr.length; i++)
+//		{
+//			numbers[i] = Long.parseLong(numberArr[i].replace("L", "").trim());
+//		}
+//
+//		return numbers;
+//	}
+
 	public static long[] extractLongs(String input)
 	{
-		Matcher matcher = LONG_REGEX.matcher(input);
-
-		if (!matcher.matches())
+		if (input == null || !input.startsWith("[L;") || !input.endsWith("]"))
 			return null;
 
-		String numbersString = matcher.group(1);
-		String[] numberArr = numbersString.split(",");
-		long[] numbers = new long[numberArr.length];
+		String content = input.substring(3, input.length() - 1);
+		String[] numberStrings = content.split(",");
+		long[] numbers = new long[numberStrings.length];
 
-		for (int i = 0; i < numberArr.length; i++)
+		for (int i = 0; i < numberStrings.length; i++)
 		{
-			numbers[i] = Long.parseLong(numberArr[i].replace("L", "").trim());
+			try
+			{
+				String trim = numberStrings[i].trim();
+				if (trim.endsWith("L"))
+				{
+					trim = trim.substring(0, trim.length() - 1);
+					numbers[i] = Long.parseLong(trim);
+				} else
+				{
+					return null;
+				}
+			} catch (NumberFormatException e)
+			{
+				return null;
+			}
 		}
 
 		return numbers;

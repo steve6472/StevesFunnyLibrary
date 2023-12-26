@@ -7,13 +7,19 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
-class MiniBukkitRunnable implements Runnable
+public final class MiniBukkitRunnable implements Runnable
 {
+	private final EventHolder eventHolder;
 	private BukkitTask task;
-	private Consumer<BukkitTask> consumer;
+	private final Consumer<BukkitTask> consumer;
+	private String name;
 
-	public MiniBukkitRunnable(Consumer<BukkitTask> consumer)
+	public long delay = -1;
+	public long period = -1;
+
+	MiniBukkitRunnable(EventHolder eventHolder, Consumer<BukkitTask> consumer)
 	{
+		this.eventHolder = eventHolder;
 		this.consumer = consumer;
 	}
 
@@ -25,6 +31,11 @@ class MiniBukkitRunnable implements Runnable
 
 	public synchronized void cancel() throws IllegalStateException
 	{
+		if (eventHolder != null)
+		{
+			eventHolder.remove(this);
+		}
+
 		Bukkit.getScheduler().cancelTask(this.getTaskId());
 	}
 
@@ -46,6 +57,7 @@ class MiniBukkitRunnable implements Runnable
 	public synchronized BukkitTask runTaskLater(@NotNull Plugin plugin, long delay) throws IllegalArgumentException, IllegalStateException
 	{
 		this.checkNotYetScheduled();
+		this.delay = delay;
 		return this.setupTask(Bukkit.getScheduler().runTaskLater(plugin, this, delay));
 	}
 
@@ -53,6 +65,7 @@ class MiniBukkitRunnable implements Runnable
 	public synchronized BukkitTask runTaskLaterAsynchronously(@NotNull Plugin plugin, long delay) throws IllegalArgumentException, IllegalStateException
 	{
 		this.checkNotYetScheduled();
+		this.delay = delay;
 		return this.setupTask(Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, this, delay));
 	}
 
@@ -60,6 +73,8 @@ class MiniBukkitRunnable implements Runnable
 	public synchronized BukkitTask runTaskTimer(@NotNull Plugin plugin, long delay, long period) throws IllegalArgumentException, IllegalStateException
 	{
 		this.checkNotYetScheduled();
+		this.delay = delay;
+		this.period = period;
 		return this.setupTask(Bukkit.getScheduler().runTaskTimer(plugin, this, delay, period));
 	}
 
@@ -67,6 +82,8 @@ class MiniBukkitRunnable implements Runnable
 	public synchronized BukkitTask runTaskTimerAsynchronously(@NotNull Plugin plugin, long delay, long period) throws IllegalArgumentException, IllegalStateException
 	{
 		this.checkNotYetScheduled();
+		this.delay = delay;
+		this.period = period;
 		return this.setupTask(Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this, delay, period));
 	}
 
@@ -92,9 +109,36 @@ class MiniBukkitRunnable implements Runnable
 		}
 	}
 
+	@NotNull
+	public Plugin getOwner()
+	{
+		return task.getOwner();
+	}
+
+	public boolean isSync()
+	{
+		return task.isSync();
+	}
+
+	public MiniBukkitRunnable named(String name)
+	{
+		this.name = name;
+		return this;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
 	@Override
 	public void run()
 	{
+		// Remove from eventHolder list if this task is not repeating
+		if (eventHolder != null && period == -1)
+		{
+			eventHolder.remove(this);
+		}
 		consumer.accept(task);
 	}
 

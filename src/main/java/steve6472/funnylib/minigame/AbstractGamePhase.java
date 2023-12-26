@@ -1,25 +1,16 @@
 package steve6472.funnylib.minigame;
 
-import org.bukkit.Bukkit;
-import org.bukkit.event.*;
-import org.bukkit.scheduler.BukkitTask;
-
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * Created by IllusionTheDev
  * Date: 8/5/2023
  * Project: StevesFunnyLibrary <br>
  */
-public abstract class AbstractGamePhase implements GamePhase
+public abstract class AbstractGamePhase extends EventHolder
 {
 	protected final Game game;
-	private final List<Listener> events = new LinkedList<>();
-	private final List<BukkitTask> tasks = new LinkedList<>();
 	private final Set<AbstractGamePhase> components = new HashSet<>();
 	// TODO: entities (store by uuid so spigot server is not angery)
 
@@ -27,34 +18,8 @@ public abstract class AbstractGamePhase implements GamePhase
 
 	public AbstractGamePhase(Game game)
 	{
+		super(game.plugin);
 		this.game = game;
-	}
-
-	// Event logic methods
-
-	public <EventType extends Event> void registerEvents(Class<EventType> eventClass, Consumer<EventType> handler)
-	{
-		EventListenerWrapper<EventType> wrapper = new EventListenerWrapper<>();
-		wrapper.event = handler;
-
-		Bukkit.getPluginManager().registerEvent(eventClass, wrapper, EventPriority.NORMAL, (listener, event) -> handler.accept((EventType) event), game.plugin);
-
-		events.add(wrapper);
-	}
-
-	public void scheduleSyncTask(Consumer<BukkitTask> task, long delay)
-	{
-		tasks.add(new MiniBukkitRunnable(task).runTaskLater(game.plugin, delay));
-	}
-
-	public void scheduleAsyncTask(Consumer<BukkitTask> task, long delay)
-	{
-		tasks.add(new MiniBukkitRunnable(task).runTaskLaterAsynchronously(game.plugin, delay));
-	}
-
-	public void scheduleRepeatingTask(Consumer<BukkitTask> task, long delay, long period)
-	{
-		tasks.add(new MiniBukkitRunnable(task).runTaskTimer(game.plugin, delay, period));
 	}
 
 	public AbstractGamePhase addComponent(AbstractGamePhase component)
@@ -83,36 +48,21 @@ public abstract class AbstractGamePhase implements GamePhase
 
 	// Event state methods
 
-	public void dispose()
-	{
-		// This is where you cancel all the tasks and unregister your listeners
-		for (Listener listener : events)
-		{
-			HandlerList.unregisterAll(listener);
-		}
-		events.clear();
-
-		for (BukkitTask task : tasks)
-		{
-			task.cancel();
-		}
-		tasks.clear();
-
-		components.forEach(AbstractGamePhase::dispose);
-	}
-
 	public abstract void start();
 	public abstract void end();
 
-	@Override
-	public void startPhase()
+	public void tick()
+	{
+
+	}
+
+	public final void startPhase()
 	{
 		start();
 		components.forEach(AbstractGamePhase::startPhase);
 	}
 
-	@Override
-	public void endPhase()
+	public final void endPhase()
 	{
 		// Call the end task
 		end();
@@ -123,8 +73,7 @@ public abstract class AbstractGamePhase implements GamePhase
 			onEnd.run();
 	}
 
-	@Override
-	public void cancel()
+	public final void cancel()
 	{
 		// Call the cancel task
 		dispose();

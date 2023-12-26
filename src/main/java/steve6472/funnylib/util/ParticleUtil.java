@@ -48,6 +48,7 @@ public class ParticleUtil
 				return;
 			distance = d;
 		}
+		pos.accept(endX, endY, endZ);
 	}
 
 	public static void line(World world, Location start, Vector direction, double length, double particleSpeed, double spacing)

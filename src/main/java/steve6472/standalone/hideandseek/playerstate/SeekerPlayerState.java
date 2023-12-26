@@ -1,19 +1,21 @@
 package steve6472.standalone.hideandseek.playerstate;
 
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.minigame.AbstractPlayerState;
+import steve6472.funnylib.minigame.Game;
 import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
+import steve6472.standalone.hideandseek.HideAndSeekGame;
 
 import java.util.Comparator;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by steve6472
@@ -22,6 +24,13 @@ import java.util.Comparator;
  */
 public class SeekerPlayerState extends AbstractPlayerState
 {
+	private final Game game;
+
+	public SeekerPlayerState(Game game)
+	{
+		this.game = game;
+	}
+
 	@Override
 	public String getName()
 	{
@@ -42,7 +51,7 @@ public class SeekerPlayerState extends AbstractPlayerState
 		{
 			ItemNBT nbt = ItemNBT.create(event.getItemDrop().getItemStack());
 
-			if ("hider_tracker".equals(nbt.getString("custom_id")))
+			if ("hider_tracker".equals(nbt.getString("custom_id", "")))
 			{
 				event.setCancelled(true);
 			}
@@ -50,13 +59,28 @@ public class SeekerPlayerState extends AbstractPlayerState
 
 		/*
 		 * Set compass target to nearest player
+		 * With the state 'hider' and NOT the state 'untrackable'
 		 */
-		scheduleRepeatingTask(task -> tracker.game
-			.getPlayers()
-			.stream()
-			.filter(p -> p != player)
-			.min(Comparator.comparingDouble(e -> e.getLocation().distance(player.getLocation())))
-			.ifPresent(p -> player.setCompassTarget(p.getLocation())), 0, 5);
+		scheduleRepeatingTask(task ->
+			{
+				Set<Location> playerLocations = tracker.game
+					.getPlayers()
+					.stream()
+					.filter(p -> p != player && game.getStateTracker().hasState(p, "hider") && !game
+						.getStateTracker()
+						.hasState(p, "untrackable"))
+					.map(Entity::getLocation)
+					// Has to be the same world
+					.filter(l -> l.getWorld() == player.getWorld())
+					.collect(Collectors.toSet());
+
+				playerLocations.addAll(((HideAndSeekGame) game).getNPCLocations());
+
+				playerLocations.stream()
+					.min(Comparator.comparingDouble(loc -> loc.distance(player.getLocation())))
+					.ifPresent(player::setCompassTarget);
+			}
+			, 0, 5);
 	}
 
 	private ItemStack getCompassItem()
@@ -74,6 +98,5 @@ public class SeekerPlayerState extends AbstractPlayerState
 	public void revert(Player player)
 	{
 		player.setGameMode(GameMode.ADVENTURE);
-		dispose();
 	}
 }

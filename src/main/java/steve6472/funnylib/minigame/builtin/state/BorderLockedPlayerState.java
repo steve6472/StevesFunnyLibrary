@@ -27,7 +27,11 @@ public class BorderLockedPlayerState extends AbstractPlayerState
 			if (event.getPlayer() != player)
 				return;
 
-			keepPlayerInsideBorder(player.getWorld().getWorldBorder(), player);
+			WorldBorder border = player.getWorldBorder();
+			if (border == null)
+				border = player.getWorld().getWorldBorder();
+
+			keepPlayerInsideBorder(border, player);
 		});
 	}
 
@@ -43,28 +47,28 @@ public class BorderLockedPlayerState extends AbstractPlayerState
 		if (player.getLocation().getX() > center.getX() + border.getSize() / 2)
 		{
 			Location location = player.getLocation();
-			location.setX(center.getX() + border.getSize() / 2 - 1);
+			location.setX(center.getX() + border.getSize() / 2 - player.getWidth());
 			player.teleport(location);
 		}
 
 		if (player.getLocation().getX() < center.getX() - border.getSize() / 2)
 		{
 			Location location = player.getLocation();
-			location.setX(center.getX() - border.getSize() / 2 + 1);
+			location.setX(center.getX() - border.getSize() / 2 + player.getWidth());
 			player.teleport(location);
 		}
 
 		if (player.getLocation().getZ() > center.getZ() + border.getSize() / 2)
 		{
 			Location location = player.getLocation();
-			location.setZ(center.getZ() + border.getSize() / 2 - 1);
+			location.setZ(center.getZ() + border.getSize() / 2 - player.getWidth());
 			player.teleport(location);
 		}
 
 		if (player.getLocation().getZ() < center.getZ() - border.getSize() / 2)
 		{
 			Location location = player.getLocation();
-			location.setZ(center.getZ() - border.getSize() / 2 + 1);
+			location.setZ(center.getZ() - border.getSize() / 2 + player.getWidth());
 			player.teleport(location);
 		}
 	}
@@ -72,6 +76,5 @@ public class BorderLockedPlayerState extends AbstractPlayerState
 	@Override
 	public void revert(Player player)
 	{
-		dispose();
 	}
 }

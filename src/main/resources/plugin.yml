@@ -3,7 +3,10 @@ version: '${project.version}'
 main: steve6472.standalone.FunnyLibStandalone
 api-version: 1.18
 depend:
+  - Citizens
   - ProtocolLib
+  - CrazyAdvancementsAPI
+  - Brigit
 commands:
   cmds:
     description: Shows all custom commands

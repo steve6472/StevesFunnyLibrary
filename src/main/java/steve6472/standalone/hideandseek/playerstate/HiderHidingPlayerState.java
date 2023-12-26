@@ -4,6 +4,7 @@ import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scoreboard.Team;
 import steve6472.funnylib.minigame.AbstractPlayerState;
 
 /**
@@ -13,6 +14,13 @@ import steve6472.funnylib.minigame.AbstractPlayerState;
  */
 public class HiderHidingPlayerState extends AbstractPlayerState
 {
+	private final Team hiderTeam;
+
+	public HiderHidingPlayerState(Team hiderTeam)
+	{
+		this.hiderTeam = hiderTeam;
+	}
+
 	@Override
 	public String getName()
 	{
@@ -23,13 +31,13 @@ public class HiderHidingPlayerState extends AbstractPlayerState
 	public void apply(Player player)
 	{
 		player.setGameMode(GameMode.SURVIVAL);
+		hiderTeam.addEntry(player.getName());
 	}
 
 	@Override
 	public void revert(Player player)
 	{
 		player.setGameMode(GameMode.ADVENTURE);
-
-		dispose();
+		hiderTeam.removeEntry(player.getName());
 	}
 }

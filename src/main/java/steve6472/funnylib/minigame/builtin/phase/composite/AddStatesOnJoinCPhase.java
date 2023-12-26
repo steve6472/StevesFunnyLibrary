@@ -24,14 +24,14 @@ public class AddStatesOnJoinCPhase extends AbstractGamePhase
 	@Override
 	public void start()
 	{
-		registerEvents(PlayerJoinEvent.class, event ->
+		registerEvent(PlayerJoinEvent.class, event ->
 		{
 			if (states == null)
 				return;
 
 			for (String s : states)
 			{
-				game.getPlayers().forEach(p -> game.getStateTracker().addState(p, s));
+				game.getStateTracker().addState(event.getPlayer(), s);
 			}
 		});
 	}

@@ -41,32 +41,7 @@ public class DeleteStructure extends AbstractGamePhase
 	public void start()
 	{
 		World world = Bukkit.getWorld(worldUUID);
-		Preconditions.checkNotNull(world);
-
-		Set<Pair<Chunk, Boolean>> chunks = new HashSet<>();
-
-		int offsetX = -structure.getSize().x / 2;
-		int offsetY = -structure.getSize().y / 2;
-		int offsetZ = -structure.getSize().z / 2;
-
-		for (int i = (x + offsetX) >> 4; i < (x + offsetX + structure.getSize().x) >> 4; i++)
-		{
-			for (int j = (z + offsetZ) >> 4; j < (z + offsetZ + structure.getSize().z) >> 4; j++)
-			{
-				Chunk chunkAt = world.getChunkAt(i, j);
-				chunkAt.load();
-				boolean lastForceState = chunkAt.isForceLoaded();
-				chunkAt.setForceLoaded(true);
-				chunks.add(new Pair<>(chunkAt, lastForceState));
-			}
-		}
-
-		for (BlockInfo block : structure.getBlocks())
-		{
-			world.getBlockAt(x + block.position().x + offsetX, y + block.position().y + offsetY, z + block.position().z + offsetZ).setType(Material.AIR);
-		}
-
-		chunks.forEach(c -> c.a().setForceLoaded(c.b()));
+		structure.unplaceCentered(world, x, y, z);
 		endPhase();
 	}
 

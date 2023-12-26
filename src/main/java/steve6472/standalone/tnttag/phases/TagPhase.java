@@ -8,7 +8,6 @@ import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.FireworkExplodeEvent;
 import org.bukkit.inventory.meta.FireworkMeta;
 import steve6472.funnylib.minigame.AbstractGamePhase;
 import steve6472.funnylib.minigame.Game;
@@ -39,7 +38,7 @@ public class TagPhase extends AbstractGamePhase
 		 * spawning firework on tag
 		 * Printing tag message
 		 */
-		registerEvents(EntityDamageByEntityEvent.class, event ->
+		registerEvent(EntityDamageByEntityEvent.class, event ->
 		{
 			if (!(event.getDamager() instanceof Player tagger) || !(event.getEntity() instanceof Player runner))
 				return;
@@ -69,7 +68,7 @@ public class TagPhase extends AbstractGamePhase
 		/*
 		 * So the fireworks don't deal damage
 		 */
-		registerEvents(EntityDamageByEntityEvent.class, event ->
+		registerEvent(EntityDamageByEntityEvent.class, event ->
 		{
 			if (event.getCause() == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION && event.getDamager() instanceof Firework)
 			{
@@ -77,23 +76,23 @@ public class TagPhase extends AbstractGamePhase
 			}
 		});
 
-		scheduleRepeatingTask(task ->
-		{
-			Player tag = getCurrentTag();
-
-			if (tag == null)
-			{
-				tagRandomPlayer();
-				checkWin();
-				return;
-			}
-
-			explodePlayer(tag);
-
-			tagRandomPlayer();
-			checkWin();
-
-		}, 5 * 20, 15 * 20);
+//		scheduleRepeatingTask(task ->
+//		{
+//			Player tag = getCurrentTag();
+//
+//			if (tag == null)
+//			{
+//				tagRandomPlayer();
+//				checkWin();
+//				return;
+//			}
+//
+//			explodePlayer(tag);
+//
+//			tagRandomPlayer();
+//			checkWin();
+//
+//		}, 5 * 20, 15 * 20);
 	}
 
 	private void checkWin()

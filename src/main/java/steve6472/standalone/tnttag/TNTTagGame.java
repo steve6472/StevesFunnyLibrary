@@ -1,6 +1,5 @@
 package steve6472.standalone.tnttag;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameRule;
 import org.bukkit.World;
@@ -30,7 +29,7 @@ public class TNTTagGame extends Game
 {
 	public TNTTagGame(Plugin plugin, World world)
 	{
-		super(plugin);
+		super(plugin, null, null);
 
 		Preconditions.checkNotNull(world, "World is null!");
 
@@ -46,7 +45,6 @@ public class TNTTagGame extends Game
 		Marker spawn = (Marker) FunnyLibStandalone.markerStorage.getItem("spawn");
 		Preconditions.checkNotNull(lobbyLocation, "Hider spawn location not found, make sure the \"hider_spawn\" marker exists");
 
-		Preconditions.checkNotNull(Bukkit.getScoreboardManager());
 		Scoreboard scoreboard = getScoreboard();
 
 		Team tagTeam = scoreboard.registerNewTeam("tag");
@@ -65,15 +63,15 @@ public class TNTTagGame extends Game
 		winnerTeam.setAllowFriendlyFire(false);
 		winnerTeam.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
 
-		registerState(new ImmovablePlayerState());
-		registerState(new InvinciblePlayerState());
-		registerState(new SpectatorPlayerState());
-		registerState(new BorderLockedPlayerState());
-		registerState(new AdventurePlayerState());
+		registerState("immovable", ImmovablePlayerState::new);
+		registerState("invincible", InvinciblePlayerState::new);
+		registerState("spectator", SpectatorPlayerState::new);
+		registerState("border_locked", BorderLockedPlayerState::new);
+		registerState("adventure", AdventurePlayerState::new);
 
-		registerState(new GenericTeamState("runner", runnerTeam));
-		registerState(new GenericTeamState("tag", tagTeam));
-		registerState(new GenericTeamState("winner", winnerTeam));
+		registerState("runner", () -> new GenericTeamState("runner", runnerTeam));
+		registerState("tag", () -> new GenericTeamState("tag", tagTeam));
+		registerState("winner", () -> new GenericTeamState("winner", winnerTeam));
 
 		addPhase(new PlaceStructure(this, world, lobbyStructure, lobbyLocation.x(), lobbyLocation.y(), lobbyLocation.z()));
 
@@ -85,7 +83,9 @@ public class TNTTagGame extends Game
 		addPhase(
 			new CountdownPhase(this, 5)
 				.addComponent(new AddStatesOnEndCPhase(this, "runner"))
-				.addComponent(new TeleportPlayersOnEndCPhase(this, spawn.toLocation(world).add(0.5, 0.05, 0.5))));
+				.addComponent(new RemoveStatesOnStartCPhase(this, "adventure"))
+//				.addComponent(new TeleportPlayersOnEndCPhase(this, spawn.toLocation(world).add(0.5, 0.05, 0.5)))
+		);
 
 		addPhase(new TagPhase(this));
 

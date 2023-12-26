@@ -2,23 +2,22 @@ package steve6472.funnylib.minigame;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 public class PlayerStateRegistry
 {
-	private final Map<String, AbstractPlayerState> states = new ConcurrentHashMap<>();
+	PlayerStateTracker tracker;
+	private final Map<String, Supplier<AbstractPlayerState>> states = new ConcurrentHashMap<>();
 
-	public void registerState(AbstractPlayerState state)
+	public void registerState(String stateName, Supplier<AbstractPlayerState> state)
 	{
-		states.put(state.getName(), state);
+		states.put(stateName, state);
 	}
 
 	public AbstractPlayerState getState(String name)
 	{
-		return states.get(name);
-	}
-
-	public void dispose()
-	{
-		states.values().forEach(AbstractPlayerState::dispose);
+		AbstractPlayerState abstractPlayerState = states.get(name).get();
+		abstractPlayerState.tracker = tracker;
+		return abstractPlayerState;
 	}
 }

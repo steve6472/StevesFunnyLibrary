@@ -32,7 +32,5 @@ public class InvinciblePlayerState extends AbstractPlayerState
 		player.removePotionEffect(PotionEffectType.DAMAGE_RESISTANCE);
 		player.removePotionEffect(PotionEffectType.REGENERATION);
 		player.removePotionEffect(PotionEffectType.SATURATION);
-
-		dispose();
 	}
 }

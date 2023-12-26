@@ -11,9 +11,11 @@ import org.bukkit.inventory.ItemStack;
 import org.joml.Vector3i;
 import steve6472.funnylib.category.Categorizable;
 import steve6472.funnylib.item.builtin.StructureItem;
+import steve6472.funnylib.json.Itemizable;
 import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.Pair;
+import steve6472.funnylib.util.Preconditions;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,7 +25,7 @@ import java.util.Set;
  * Date: 4/22/2023
  * Project: StevesFunnyLibrary <br>
  */
-public final class GameStructure implements Categorizable
+public final class GameStructure implements Categorizable, Itemizable<GameStructure>
 {
 	private String name;
 	private Material icon;
@@ -137,6 +139,8 @@ public final class GameStructure implements Categorizable
 
 	public void place(World world, int x, int y, int z, int offsetX, int offsetY, int offsetZ)
 	{
+		Preconditions.checkNotNull(world);
+
 		Set<Pair<Chunk, Boolean>> chunks = new HashSet<>();
 
 		for (int i = (x + offsetX) >> 4; i < (x + offsetX + size.x) >> 4; i++)
@@ -162,6 +166,37 @@ public final class GameStructure implements Categorizable
 	public void placeCentered(World world, int x, int y, int z)
 	{
 		place(world, x, y, z, -size.x / 2, -size.y / 2, -size.z / 2);
+	}
+
+	public void unplace(World world, int x, int y, int z, int offsetX, int offsetY, int offsetZ)
+	{
+		Preconditions.checkNotNull(world);
+
+		Set<Pair<Chunk, Boolean>> chunks = new HashSet<>();
+
+		for (int i = (x + offsetX) >> 4; i < (x + offsetX + getSize().x) >> 4; i++)
+		{
+			for (int j = (z + offsetZ) >> 4; j < (z + offsetZ + getSize().z) >> 4; j++)
+			{
+				Chunk chunkAt = world.getChunkAt(i, j);
+				chunkAt.load();
+				boolean lastForceState = chunkAt.isForceLoaded();
+				chunkAt.setForceLoaded(true);
+				chunks.add(new Pair<>(chunkAt, lastForceState));
+			}
+		}
+
+		for (BlockInfo block : getBlocks())
+		{
+			world.getBlockAt(x + block.position().x + offsetX, y + block.position().y + offsetY, z + block.position().z + offsetZ).setType(Material.AIR);
+		}
+
+		chunks.forEach(c -> c.a().setForceLoaded(c.b()));
+	}
+
+	public void unplaceCentered(World world, int x, int y, int z)
+	{
+		unplace(world, x, y, z, -size.x / 2, -size.y / 2, -size.z / 2);
 	}
 
 	public static GameStructure fromWorld(World world, int startX, int startY, int startZ, int endX, int endY, int endZ)

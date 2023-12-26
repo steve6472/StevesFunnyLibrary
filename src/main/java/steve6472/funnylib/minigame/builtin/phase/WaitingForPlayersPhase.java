@@ -18,7 +18,7 @@ import steve6472.funnylib.minigame.Game;
  */
 public class WaitingForPlayersPhase extends AbstractGamePhase
 {
-	private final NamespacedKey phaseWaitingCounter = new NamespacedKey(game.getPlugin(), "phase_waiting_counter");
+	private static final String KEY = "phase_waiting_counter";
 
 	private final int minPlayers;
 	private final boolean includeCurrentPlayers;
@@ -36,7 +36,7 @@ public class WaitingForPlayersPhase extends AbstractGamePhase
 	@Override
 	public void start()
 	{
-		countBar = Bukkit.createBossBar(phaseWaitingCounter, "Players: " + game.getPlayers().size() + "/" + minPlayers, BarColor.WHITE, BarStyle.SOLID);
+		countBar = game.createBossBar(KEY, "Players: " + game.getPlayers().size() + "/" + minPlayers, BarColor.WHITE, BarStyle.SOLID);
 
 		if (includeCurrentPlayers)
 		{
@@ -50,7 +50,7 @@ public class WaitingForPlayersPhase extends AbstractGamePhase
 
 		updateCountBar();
 
-		registerEvents(PlayerJoinEvent.class, event ->
+		registerEvent(PlayerJoinEvent.class, event ->
 		{
 			// It's ok to run this check on every player join event, ideally we'd have a GameAddPlayerEvent
 			game.addPlayer(event.getPlayer());
@@ -62,17 +62,19 @@ public class WaitingForPlayersPhase extends AbstractGamePhase
 			{
 				endPhase();
 			}
+
+			event.getPlayer().getInventory().clear();
 		});
 
-		registerEvents(PlayerQuitEvent.class, event ->
+		registerEvent(PlayerQuitEvent.class, event ->
 		{
 			game.removePlayer(event.getPlayer());
 			updateCountBar();
 		});
 
-		registerEvents(PlayerItemConsumeEvent.class, event -> event.setCancelled(true));
-		registerEvents(PlayerInteractEvent.class, event -> event.setCancelled(true));
-		registerEvents(PlayerInteractAtEntityEvent.class, event -> event.setCancelled(true));
+		registerEvent(PlayerItemConsumeEvent.class, event -> event.setCancelled(true));
+		registerEvent(PlayerInteractEvent.class, event -> event.setCancelled(true));
+		registerEvent(PlayerInteractAtEntityEvent.class, event -> event.setCancelled(true));
 
 		if (game.getPlayers().size() >= minPlayers)
 		{
@@ -91,7 +93,6 @@ public class WaitingForPlayersPhase extends AbstractGamePhase
 	@Override
 	public void end()
 	{
-		countBar.removeAll();
-		Bukkit.removeBossBar(phaseWaitingCounter);
+		game.deleteBossBar(KEY);
 	}
 }

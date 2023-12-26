@@ -7,7 +7,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import steve6472.funnylib.context.PlayerItemContext;
 import steve6472.funnylib.events.PlayerEquipArmorEvent;
 import steve6472.funnylib.events.PlayerUnequipArmorEvent;
 import steve6472.funnylib.item.Items;
@@ -23,6 +22,7 @@ import java.util.Map;
  ***********************/
 public class ArmorEventListener implements Listener
 {
+	//TODO: change to UUID or use Alex's library
 	private final Map<Player, Map<EquipmentSlot, ItemStack>> playerEquipMap = new HashMap<>();
 	private final Map<Player, Map<EquipmentSlot, ItemStack>> playerCustomEquipMap = new HashMap<>();
 

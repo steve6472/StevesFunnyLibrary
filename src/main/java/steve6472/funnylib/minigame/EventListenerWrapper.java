@@ -2,6 +2,7 @@ package steve6472.funnylib.minigame;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.EventExecutor;
 
 import java.util.function.Consumer;
 
@@ -13,4 +14,6 @@ import java.util.function.Consumer;
 public class EventListenerWrapper<E extends Event> implements Listener
 {
 	public Consumer<E> event;
+	public Class<E> clazz;
+	public EventExecutor executor;
 }

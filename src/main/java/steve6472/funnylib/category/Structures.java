@@ -30,18 +30,19 @@ public class Structures extends GenericStorage
 			.addLore(Messages.createLocationMessage("Size: ", obj.getSize().x, obj.getSize().y, obj.getSize().z))
 			.buildItemStack(),
 			GameStructure::toItem,
-			itemStack ->
-			{
-				ItemNBT data = ItemNBT.create(itemStack);
-				String icon = data.getString("icon", null);
-				NBT compound = data.getCompound(StructureItem.KEY);
-				compound.set3i("start", data.get3i("start"));
-				compound.set3i("end", data.get3i("end"));
-				GameStructure structure = GameStructure.structureFromNBT(compound);
-				structure.setName(data.getString("name", null));
-				structure.setIcon(icon == null ? Material.BOOK : Material.valueOf(icon));
-				return structure;
-			},
+			GameStructure::fromItem,
+//			itemStack ->
+//			{
+//				ItemNBT data = ItemNBT.create(itemStack);
+//				String icon = data.getString("icon", null);
+//				NBT compound = data.getCompound(StructureItem.KEY);
+//				compound.set3i("start", data.get3i("start"));
+//				compound.set3i("end", data.get3i("end"));
+//				GameStructure structure = GameStructure.structureFromNBT(compound);
+//				structure.setName(data.getString("name", null));
+//				structure.setIcon(icon == null ? Material.BOOK : Material.valueOf(icon));
+//				return structure;
+//			},
 			itemStack ->
 			{
 				if (Items.getCustomItem(itemStack) != FunnyLib.STRUCTURE) return false;

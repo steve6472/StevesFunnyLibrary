@@ -26,7 +26,7 @@ import java.util.List;
 public class NbtRemover implements Listener
 {
 	private final Plugin plugin;
-	private List<PacketAdapter> adapters = new LinkedList<>();
+	private final List<PacketAdapter> adapters = new LinkedList<>();
 
 	public NbtRemover(Plugin plugin)
 	{

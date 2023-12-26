@@ -1,17 +1,19 @@
 package steve6472.standalone;
 
 import org.bukkit.plugin.java.JavaPlugin;
+import steve6472.brigit.Brigit;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.LibSettings;
 import steve6472.funnylib.category.Markers;
 import steve6472.funnylib.category.Structures;
 import steve6472.funnylib.command.AnnotationCommand;
-import steve6472.standalone.exnulla.ExNulla;
+import steve6472.funnylib.minigame.MinigameCommand;
+import steve6472.funnylib.minigame.Minigames;
+import steve6472.standalone.bingo.BingoCommand;
+import steve6472.standalone.dimensionviewer.DimensionViewer;
+import steve6472.standalone.dimensionviewer.VarCommand;
 import steve6472.standalone.hideandseek.HNSStartCommand;
-import steve6472.standalone.hideandseek.HideAndSeekGame;
 import steve6472.standalone.interactable.Interactable;
-import steve6472.standalone.machinal.Machinal;
-import steve6472.standalone.tnttag.TNTTagGame;
 import steve6472.standalone.tnttag.TagStartCommand;
 
 /**
@@ -24,6 +26,9 @@ public class FunnyLibStandalone extends JavaPlugin
 	public static Markers markerStorage;
 	public static Structures structureStorage;
 
+	private DimensionViewer dimensionViewer;
+	public static Minigames minigames;
+
 	@Override
 	public void onEnable()
 	{
@@ -31,6 +36,7 @@ public class FunnyLibStandalone extends JavaPlugin
 //		ExNulla.init();
 		Interactable.init();
 //		Machinal.init();
+//		dimensionViewer = new DimensionViewer();
 
 
 		FunnyLib.registerConfig(markerStorage = new Markers());
@@ -40,6 +46,13 @@ public class FunnyLibStandalone extends JavaPlugin
 
 		AnnotationCommand.registerCommands(HNSStartCommand.class);
 		AnnotationCommand.registerCommands(TagStartCommand.class);
+
+		Brigit.removeCommands(this);
+		Brigit.addBrigitCommand(this, new BingoCommand(this));
+		Brigit.addBrigitCommand(this, new MinigameCommand());
+//		Brigit.addBrigitCommand(this, new VarCommand(this));
+
+		minigames = new Minigames();
 	}
 
 	@Override
@@ -47,5 +60,10 @@ public class FunnyLibStandalone extends JavaPlugin
 	{
 		FunnyLib.onUnload();
 		FunnyLib.save();
+
+		if (dimensionViewer != null)
+		{
+			dimensionViewer.onUnload();
+		}
 	}
 }

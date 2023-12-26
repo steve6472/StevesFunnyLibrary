@@ -22,6 +22,5 @@ public class SpectatorPlayerState extends AbstractPlayerState
 	public void revert(Player player)
 	{
 		player.setGameMode(GameMode.ADVENTURE);
-		dispose();
 	}
 }

@@ -26,6 +26,7 @@ public abstract class Menu
 	 */
 	boolean redirected;
 	private boolean isBuilt = false;
+	AnvilRedirectState anvilRedirectState = AnvilRedirectState.NONE;
 
 	private String title;
 	final int rows;
@@ -305,6 +306,14 @@ public abstract class Menu
 		setup();
 		reload();
 		return this;
+	}
+
+	/**
+	 * Should be called before opening AnvilGUI
+	 */
+	public void anvilRedirect()
+	{
+		anvilRedirectState = AnvilRedirectState.ANVIL_OPENED;
 	}
 
 	public boolean hasHistory()

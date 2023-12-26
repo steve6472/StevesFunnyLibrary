@@ -5,16 +5,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginBase;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.json.JSONObject;
+import steve6472.brigit.Brigit;
 import steve6472.funnylib.blocks.Blocks;
 import steve6472.funnylib.blocks.CustomBlock;
 import steve6472.funnylib.blocks.CustomNoteBlocks;
@@ -26,7 +24,6 @@ import steve6472.funnylib.json.IJsonConfig;
 import steve6472.funnylib.json.INbtConfig;
 import steve6472.funnylib.json.JsonConfig;
 import steve6472.funnylib.json.JsonNBT;
-import steve6472.funnylib.minigame.ForceNextPhaseCommand;
 import steve6472.funnylib.minigame.Game;
 import steve6472.funnylib.serialize.PdcNBT;
 import steve6472.funnylib.util.GlowingUtil;
@@ -107,12 +104,6 @@ public class FunnyLib
 		Bukkit.getPluginManager().registerEvents(new Items(), plugin);
 		Bukkit.getPluginManager().registerEvents(blocks = new Blocks(), plugin);
 
-		PluginCommand forcenextphase = ((JavaPlugin) plugin).getCommand("forcenextphase");
-		if (forcenextphase != null)
-		{
-			forcenextphase.setExecutor(new ForceNextPhaseCommand());
-		}
-
 		if (settings.enableCustomNoteBlocks)
 		{
 			Bukkit.getPluginManager().registerEvents(new CustomNoteBlocks(), plugin);
@@ -138,7 +129,7 @@ public class FunnyLib
 		initBuiltin();
 	}
 
-	private static void debugGame()
+	public static void debugGame()
 	{
 		if (currentGame == null)
 			return;
@@ -151,7 +142,7 @@ public class FunnyLib
 			Player player = Bukkit.getPlayer(uuid);
 			JSONMessage playerInfo = JSONMessage.create(player == null ? uuid.toString() : player.getDisplayName());
 			JSONMessage tooltip = JSONMessage.create("States:").newline();
-			strings.forEach(s -> tooltip.then(JSONMessage.create("    ").then(s).color(ChatColor.GRAY)).newline());
+			strings.forEach(s -> tooltip.then(JSONMessage.create("    ").then(s.getName()).color(ChatColor.GRAY)).newline());
 
 //			playerInfo.newline().then(tooltip);
 			playerInfo.tooltip(tooltip);
@@ -170,6 +161,7 @@ public class FunnyLib
 		nbtRemover.unregister();
 		if (currentGame != null)
 			currentGame.dispose();
+		Brigit.removeCommands(plugin);
 	}
 
 	public static Plugin getPlugin()
@@ -214,7 +206,7 @@ public class FunnyLib
 		{
 			PdcNBT nbt = PdcNBT.fromPDC(NMS.newCraftContainer());
 			c.save(nbt);
-			JSONObject jsonObject = JsonNBT.containertoJSON(nbt.getContainer());
+			JSONObject jsonObject = JsonNBT.containerToJSON(nbt.getContainer());
 			for (String s : jsonObject.keySet())
 			{
 				json.put(s, jsonObject.get(s));

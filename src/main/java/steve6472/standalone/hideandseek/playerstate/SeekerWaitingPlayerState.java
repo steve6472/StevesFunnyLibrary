@@ -46,7 +46,5 @@ public class SeekerWaitingPlayerState extends AbstractPlayerState
 		player.setAllowFlight(false);
 		player.removePotionEffect(PotionEffectType.INVISIBILITY);
 		player.removePotionEffect(PotionEffectType.BLINDNESS);
-
-		dispose();
 	}
 }

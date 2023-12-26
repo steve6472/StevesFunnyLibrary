@@ -491,6 +491,11 @@ public class JSONMessage
 	 */
 	public JSONMessage then(JSONMessage message)
 	{
+		if (message == null)
+		{
+			then(JSONMessage.create("null").color("#CA7631"));
+			return this;
+		}
 		this.parts.addAll(message.parts);
 		return this;
 	}

@@ -1,5 +1,6 @@
 package steve6472.funnylib.menu;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -7,8 +8,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
+import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.util.MetaUtil;
+import steve6472.standalone.FunnyLibStandalone;
 
 /**
  * Created by steve6472
@@ -29,6 +33,19 @@ public class MenuListener implements Listener
 		{
 			// Clear in case player goes back to the menu via history and then closes it
 			menu.redirected = false;
+			return;
+		}
+
+		if (menu.anvilRedirectState == AnvilRedirectState.ANVIL_OPENED)
+		{
+			menu.anvilRedirectState = AnvilRedirectState.AWAITING_ANVIL_CLOSE;
+			return;
+		} else if (menu.anvilRedirectState == AnvilRedirectState.AWAITING_ANVIL_CLOSE && e.getInventory().getType() == InventoryType.ANVIL)
+		{
+			menu.anvilRedirectState = AnvilRedirectState.NONE;
+			Bukkit.getScheduler().runTaskLater(FunnyLib.getPlugin(), () -> {
+				menu.showToPlayer(player);
+			}, 0);
 			return;
 		}
 

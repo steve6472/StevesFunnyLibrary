@@ -90,4 +90,12 @@ public class Preconditions
 		if (!flag)
 			throw new RuntimeException(message);
 	}
+
+	public static void checkId(String id)
+	{
+		if (!MiscUtil.ID_MATCH.matcher(id).matches())
+		{
+			throw new RuntimeException("Id '" + id + "' contains illegal characters, allowed: [a-z0-9_]");
+		}
+	}
 }

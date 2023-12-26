@@ -1,5 +1,6 @@
 package steve6472.funnylib.json;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.Plugin;
 import org.json.JSONObject;
@@ -37,7 +38,39 @@ public class JsonConfig
 
 		if (!jsonConfigFile.exists())
 		{
-			plugin.saveResource(jsonConfigFile.getName(), false);
+//			plugin.saveResource(jsonConfigFile.getName(), false);
+
+			try
+			{
+				writeJSON(jsonConfigFile, new JSONObject());
+			} catch (IOException e)
+			{
+				throw new RuntimeException(e);
+			}
+		}
+	}
+
+	public JsonConfig(String configName, String subfolder, Plugin plugin)
+	{
+		this.plugin = plugin;
+
+		File parent = new File(plugin.getDataFolder(), subfolder);
+
+		if (parent.exists())
+			parent.mkdirs();
+
+		jsonConfigFile = new File(parent, configName + ".json");
+
+		if (!jsonConfigFile.exists())
+		{
+			try
+			{
+				writeJSON(jsonConfigFile, new JSONObject());
+			} catch (IOException e)
+			{
+				throw new RuntimeException(e);
+			}
+			//			plugin.saveResource(jsonConfigFile.getName(), false);
 		}
 	}
 
@@ -106,7 +139,7 @@ public class JsonConfig
 			//			Bukkit.broadcastMessage(ChatColor.GREEN + "Loading JSON");
 			if (!jsonConfigFile.exists())
 			{
-				//				Bukkit.broadcastMessage(ChatColor.YELLOW + "Config does not exist, creating resource");
+				Bukkit.broadcastMessage(ChatColor.YELLOW + "Config does not exist, creating resource");
 				plugin.saveResource(jsonConfigFile.getName(), false);
 			}
 			jsonConfig = readJSON(jsonConfigFile);

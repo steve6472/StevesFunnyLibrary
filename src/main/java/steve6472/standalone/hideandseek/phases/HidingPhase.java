@@ -1,21 +1,23 @@
 package steve6472.standalone.hideandseek.phases;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
+import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import steve6472.funnylib.data.Marker;
 import steve6472.funnylib.minigame.AbstractGamePhase;
 import steve6472.funnylib.minigame.Game;
 import steve6472.funnylib.util.JSONMessage;
+import steve6472.standalone.hideandseek.HideAndSeekGame;
 
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  * Created by steve6472
@@ -27,10 +29,11 @@ public class HidingPhase extends AbstractGamePhase
 	private final NamespacedKey hidingTimer = new NamespacedKey(game.getPlugin(), "hiding_timer");
 
 	private static final JSONMessage GAME_INFO = JSONMessage
-		.create("No milk").newline()
-		.then("You are invincible").newline()
-		.then("You leave, you can't go back").newline()
-		.then("more stuff later");
+		.create("\nYou can't drink milk.").color(ChatColor.YELLOW).newline()
+		.then("You can take damage, but you can not die.").color(ChatColor.YELLOW).newline()
+		.then("If you leave, an NPC will be spawned in your place. (You can rejoin)").color(ChatColor.YELLOW).newline()
+		.then("Your goal is to not be punched by").color(ChatColor.GREEN).then(" akmatras", ChatColor.AQUA).then(".", ChatColor.GREEN).newline()
+		.then("");
 
 	Marker spawn;
 	World world;
@@ -69,6 +72,7 @@ public class HidingPhase extends AbstractGamePhase
 				game.getStateTracker().addState(p, "immovable");
 
 				p.sendTitle("Close your eyes for 15 minutes", "", 0, hidingTime, 0);
+				p.teleport(spawn.toLocation(world));
 			} else
 			{
 				game.getStateTracker().addState(p, "hider_hiding");
@@ -76,16 +80,43 @@ public class HidingPhase extends AbstractGamePhase
 				p.sendTitle("Hide", "You have 15 minutes", 0, 60, 0);
 
 				GAME_INFO.send(p);
+
+				// Spread player
+				HideAndSeekGame hns = (HideAndSeekGame) game;
+				Location center = hns.getSpawnWorld().getWorldBorder().getCenter();
+				HideAndSeekGame.spreadPlayers(hns.getSpawnWorld(), center.getBlockX(), center.getBlockZ(), (int) hns.getSpawnWorld().getWorldBorder().getSize(), Set.of(p));
 			}
 
-			p.teleport(spawn.toLocation(world));
 			game.getStateTracker().addState(p, "invincible");
 			game.getStateTracker().addState(p, "border_locked");
 			game.getStateTracker().removeState(p, "lobby");
 			timer.addPlayer(p);
 		});
 
-		registerEvents(PlayerItemConsumeEvent.class, event ->
+		/*
+		 * Players (re)joining mid-game
+		 */
+		((HideAndSeekGame) game).joinEventNPC(this, "hider_hiding");
+		((HideAndSeekGame) game).leaveEventNPC(this, "hider_hiding");
+
+		registerEvent(PlayerJoinEvent.class, event ->
+		{
+			Player player = event.getPlayer();
+			timer.addPlayer(player);
+		});
+
+		/*
+		 * Remove from timer just in case it can somewhy get duplicated for the player
+		 */
+		registerEvent(PlayerQuitEvent.class, event ->
+		{
+			timer.removePlayer(event.getPlayer());
+		});
+
+		/*
+		 * Forbid drinking milk
+		 */
+		registerEvent(PlayerItemConsumeEvent.class, event ->
 		{
 			if (event.getItem().getType() == Material.MILK_BUCKET)
 			{
@@ -113,7 +144,11 @@ public class HidingPhase extends AbstractGamePhase
 		}
 
 		int minutes = (hidingTime / 20 / 60) % 60;
-		int seconds = (hidingTime / 20) % 60;
+		String seconds = Integer.toString((hidingTime / 20) % 60);
+		if (seconds.length() == 1)
+		{
+			seconds = "0" + seconds;
+		}
 
 		timer.setTitle("Time left: " + minutes + ":" + seconds);
 		timer.setProgress(Math.max(hidingTime / (double) maxHidingTime, 0));
