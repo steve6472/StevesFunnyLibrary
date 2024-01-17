@@ -11,8 +11,10 @@ import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.data.GameStructure;
+import steve6472.funnylib.data.Marker;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.item.builtin.StructureItem;
+import steve6472.funnylib.json.INBT;
 import steve6472.funnylib.json.JsonNBT;
 import steve6472.funnylib.menu.Click;
 import steve6472.funnylib.menu.Response;
@@ -155,7 +157,49 @@ public class ConfigTypeRegistry
 		return Response.cancel();
 	}
 
+	public <T> Response itemSwap(Click click, Value<T> value, GameConfiguration gameConfig, Predicate<ItemStack> itemCheck, Function<T, ItemStack> toItem, Function<ItemStack, T> toObject, boolean rightClickClear)
+	{
+		if (rightClickClear && click.type().isRightClick())
+		{
+			gameConfig.setValue(value, null);
+			click.slot().updateSlot(createIcon(value, null));
+			return Response.cancel();
+		}
 
+		if (click.itemOnCursor() == null || click.itemOnCursor().getType().isAir())
+		{
+			if (gameConfig.getValue(value) == null)
+				return Response.cancel();
+
+			return Response.setItemToCursor(toItem.apply(gameConfig.getValue(value)));
+		}
+
+		if (itemCheck.test(click.itemOnCursor()))
+		{
+			T obj = toObject.apply(click.itemOnCursor());
+			if (obj == null)
+				return Response.cancel();
+
+			gameConfig.setValue(value, obj);
+			click.slot().updateSlot(toItem.apply(obj));
+			return Response.cancel();
+		}
+
+		return Response.cancel();
+	}
+
+	public static <T extends INBT> void INBTSave(Value<T> value, T object, JSONObject json)
+	{
+		if (object == null)
+		{
+			json.put(value.getId(), (Object) null);
+			return;
+		}
+		PdcNBT nbt = PdcNBT.fromPDC(NMS.newCraftContainer());
+		object.toNBT(nbt);
+		JSONObject jsonObject = JsonNBT.containerToJSON(nbt.getContainer());
+		json.put(value.getId(), jsonObject);
+	}
 
 	/*
 	 * Registration
@@ -209,73 +253,38 @@ public class ConfigTypeRegistry
 
 		registerType(
 			BuiltInConfigType.STRUCTURE,
-			(value, json) ->
-			{
-				if (json.has(value.getId()))
-					return GameStructure.structureFromNBT(PdcNBT.fromPDC(JsonNBT.JSONtoNBT(json.getJSONObject(value.getId()))));
-				else
-					return null;
-			},
-			(value, object, json) ->
-			{
-				if (object == null)
-				{
-					json.put(value.getId(), (Object) null);
-					return;
-				}
-				PdcNBT nbt = PdcNBT.fromPDC(NMS.newCraftContainer());
-				object.toNBT(nbt);
-				JSONObject jsonObject = JsonNBT.containerToJSON(nbt.getContainer());
-				json.put(value.getId(), jsonObject);
-			},
+			(value, json) -> json.has(value.getId()) ? GameStructure.structureFromNBT(PdcNBT.fromPDC(JsonNBT.JSONtoNBT(json.getJSONObject(value.getId())))) : null,
+			ConfigTypeRegistry::INBTSave,
 			(value, object) ->
 			{
 				if (object == null)
 				{
 					return ItemStackBuilder.create(Material.WRITABLE_BOOK).setName(JSONMessage.create(value.getName())).buildItemStack();
 				}
-
-				return ItemStackBuilder
-					.create(object.icon())
-					.setName(object.name() == null ? "Structure" : object.name(), ChatColor.DARK_AQUA)
-					.addLore(Messages.createLocationMessage("Size: ", object.getSize().x, object.getSize().y, object.getSize().z))
-					.buildItemStack();
+				return object.toItem();
 			},
-			(click, value, gameConfig) ->
+			(click, value, gameConfig) -> itemSwap(click, value, gameConfig, (itemStack) ->
 			{
-				if (click.itemOnCursor() == null || click.itemOnCursor().getType().isAir())
-				{
-					if (gameConfig.getValue(value) == null)
-						return Response.cancel();
+				if (Items.getCustomItem(itemStack) != FunnyLib.STRUCTURE) return false;
+				ItemNBT nbt = ItemNBT.create(itemStack);
+				if (!nbt.hasCompound(StructureItem.KEY)) return false;
+				return nbt.has3i("start") && nbt.has3i("end");
+			}, GameStructure::toItem, GameStructure::fromItem, true)
+		);
 
-					return Response.setItemToCursor((gameConfig.getValue(value).toItem()));
+		registerType(
+			BuiltInConfigType.MARKER,
+			(value, json) -> json.has(value.getId()) ? new Marker(PdcNBT.fromPDC(JsonNBT.JSONtoNBT(json.getJSONObject(value.getId())))) : null,
+			ConfigTypeRegistry::INBTSave,
+			(value, object) ->
+			{
+				if (object == null)
+				{
+					return ItemStackBuilder.create(Material.FILLED_MAP).setName(JSONMessage.create(value.getName())).buildItemStack();
 				}
-
-				final Predicate<ItemStack> check = (itemStack) ->
-				{
-					if (Items.getCustomItem(itemStack) != FunnyLib.STRUCTURE) return false;
-					ItemNBT nbt = ItemNBT.create(itemStack);
-					if (!nbt.hasCompound(StructureItem.KEY)) return false;
-					return nbt.has3i("start") && nbt.has3i("end");
-				};
-
-				if (check.test(click.itemOnCursor()))
-				{
-					GameStructure obj = GameStructure.fromItem(click.itemOnCursor());
-					if (obj == null)
-						return Response.cancel();
-
-					gameConfig.setValue(value, obj);
-					click.slot().updateSlot(ItemStackBuilder
-						.create(obj.icon())
-						.setName(obj.name() == null ? "Structure" : obj.name(), ChatColor.DARK_AQUA)
-						.addLore(Messages.createLocationMessage("Size: ", obj.getSize().x, obj.getSize().y, obj.getSize().z))
-						.buildItemStack());
-					return Response.cancel();
-				}
-
-				return Response.cancel();
-			}
+				return object.toItem();
+			},
+			(click, value, gameConfig) -> itemSwap(click, value, gameConfig, (itemStack) -> Items.getCustomItem(itemStack) == FunnyLib.LOCATION_MARKER, Marker::toItem, Marker::fromItem, true)
 		);
 	}
 

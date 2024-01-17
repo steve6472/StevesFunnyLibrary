@@ -286,7 +286,7 @@ public class BlockStateCodeGenerator
 
 			if (isWall)
 			{
-				generator.append("face.faces.forEach(data::setHeight);\n");
+				generator.append("\t\tface.faces.forEach(data::setHeight);\n");
 			}
 
 			generator.append("\t\treturn data;\n");

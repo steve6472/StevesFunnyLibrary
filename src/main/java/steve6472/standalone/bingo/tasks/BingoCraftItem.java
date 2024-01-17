@@ -1,7 +1,6 @@
 package steve6472.standalone.bingo.tasks;
 
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_20_R1.entity.CraftHumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.inventory.ItemStack;

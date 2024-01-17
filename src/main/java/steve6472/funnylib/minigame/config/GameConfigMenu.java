@@ -55,6 +55,7 @@ public class GameConfigMenu extends Menu
 				{
 					ItemStackBuilder debugIcon = ItemStackBuilder.editNonStatic(itemStack);
 					addDebugInfoToIcon(debugIcon, value, object);
+					debugIcon.setName(value.getName());
 					ItemStack editedIcon = debugIcon.buildItemStack();
 					return super.updateSlot(editedIcon);
 				}
@@ -83,7 +84,9 @@ public class GameConfigMenu extends Menu
 	private void addDebugInfoToIcon(ItemStackBuilder icon, Value<?> value, Object object)
 	{
 		icon.addLore(JSONMessage.create());
-		icon.addLore(JSONMessage.create(value.getValueType().getName() + ": " + value.getId()).color(ChatColor.DARK_GRAY));
+		icon.addLore(JSONMessage.create(value.getValueType().getName() + ": " + value.getId()).color(ChatColor.DARK_GRAY).setItalic(JSONMessage.ItalicType.FALSE));
+		if (!icon.getNameLegacy().equals(value.getName()))
+			icon.addLore(JSONMessage.create("Original name: " + icon.getNameLegacy()).color(ChatColor.DARK_GRAY).setItalic(JSONMessage.ItalicType.FALSE));
 	}
 
 	@Override

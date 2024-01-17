@@ -106,7 +106,7 @@ public class CustomNoteBlocks implements Listener
 		UPDATED_THIS_TICK.add(loc);
 
 		// Cancel the event
-		e.getBlock().setBlockData(BlockGen.NoteBlock(new Note(0), Instrument.PIANO, false), false);
+		e.getBlock().setBlockData(BlockGen.NoteBlock(Instrument.PIANO, new Note(0), false), false);
 
 		CustomBlockData customBlockData = Blocks.getBlockData(loc);
 		/*

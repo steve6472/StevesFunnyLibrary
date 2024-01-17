@@ -3,6 +3,7 @@ package steve6472.funnylib.item.builtin;
 import org.apache.commons.lang3.tuple.Triple;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -20,13 +21,17 @@ import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.context.PlayerItemContext;
 import steve6472.funnylib.context.UseType;
 import steve6472.funnylib.data.BlockInfo;
+import steve6472.funnylib.entity.FrameDisplayEntity;
+import steve6472.funnylib.entity.MultiDisplayEntity;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.events.SwapHandEvent;
 import steve6472.funnylib.item.events.TickInHandEvent;
 import steve6472.funnylib.data.GameStructure;
 import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.serialize.NBT;
+import steve6472.funnylib.serialize.PdcNBT;
 import steve6472.funnylib.util.*;
+import steve6472.standalone.interactable.ReflectionHacker;
 
 import java.util.*;
 
@@ -39,6 +44,8 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 {
 	private static final Particle.DustOptions OPTIONS = new Particle.DustOptions(Color.AQUA, 0.75f);
 	public static final String KEY = "block_states";
+
+	private static final double RAY_DISTANCE = 64;
 
 	public enum Mode
 	{
@@ -78,6 +85,18 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 	{
 		ItemNBT itemData = context.getItemData();
 		Mode mode = itemData.getEnum(Mode.class, "mode");
+
+		if (mode == Mode.LOADING)
+		{
+			GameStructure structure = GameStructure.structureFromNBT(itemData.getCompound(KEY));
+
+			RayTraceResult rayTraceResult = context.getPlayer().rayTraceBlocks(RAY_DISTANCE);
+			if (rayTraceResult != null && rayTraceResult.getHitBlock() != null && rayTraceResult.getHitBlockFace() != null)
+			{
+				paste(rayTraceResult.getHitBlock(), rayTraceResult.getHitBlockFace(), structure, context.getPlayer());
+			}
+			return;
+		}
 
 		if (mode != Mode.SAVING) return;
 
@@ -123,23 +142,28 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 				result.setCancelled(true);
 			} else if (currentMode == Mode.LOADING)
 			{
-				Location location = clickedBlock.getLocation().add(context.getFace().getDirection());
-
 				GameStructure structure = GameStructure.structureFromNBT(itemData.getCompound(KEY));
-				BlockInfo[] blockStates = structure.getBlocks();
-
-				for (BlockInfo blockInfo : blockStates)
-				{
-					location
-						.clone()
-						.add(blockInfo.position().x(), blockInfo.position().y(), blockInfo.position().z())
-						.getBlock()
-						.setBlockData(blockInfo.data());
-				}
-
-				context.getPlayer().setCooldown(Material.BOOK, 5);
+				paste(clickedBlock, context.getFace(), structure, context.getPlayer());
 			}
 		}
+	}
+
+	private void paste(Block clickedBlock, BlockFace face, GameStructure structure, Player player)
+	{
+		Location location = clickedBlock.getLocation().add(face.getDirection());
+
+		BlockInfo[] blockStates = structure.getBlocks();
+
+		for (BlockInfo blockInfo : blockStates)
+		{
+			location
+				.clone()
+				.add(blockInfo.position().x(), blockInfo.position().y(), blockInfo.position().z())
+				.getBlock()
+				.setBlockData(blockInfo.data());
+		}
+
+		player.setCooldown(Material.BOOK, 5);
 	}
 
 	private static void updateLore(ItemNBT itemData)
@@ -225,8 +249,6 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 
 		if (currentMode == Mode.SELECTING)
 		{
-			if (FunnyLib.getUptimeTicks() % 3 != 0) return;
-
 			if (!itemData.has3i("start") || !itemData.has3i("end"))
 				return;
 
@@ -240,7 +262,30 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 			int y1 = end.y + 1;
 			int z1 = end.z + 1;
 
-			ParticleUtil.boxAbsolute(context.getPlayer(), Particle.REDSTONE, x0, y0, z0, x1, y1, z1, 0, 0.5, OPTIONS);
+			Location location = new Location(context.getWorld(), x0, y0, z0);
+			Vector3f size = new Vector3f(x1 - x0, y1 - y0, z1 - z0);
+
+			FrameDisplayEntity structureFrame = FunnyLib
+				.getPlayerboundEntityManager()
+				.getOrCreateMultiEntity(context.getPlayer(), nbt -> nbt.getBoolean("structure_frame_select", false), () ->
+				{
+					FrameDisplayEntity frameDisplayEntity = new FrameDisplayEntity(context.getPlayer(), location, FrameDisplayEntity.FrameType.MEDIUMAQUA_MARINE, 1f / 16f);
+					frameDisplayEntity.setAliveCondition(() ->
+					{
+						ItemStack item = context.getPlayer().getInventory().getItem(EquipmentSlot.HAND);
+						if (item == null || item.getType().isAir())
+							return false;
+						ItemNBT itemNBT = ItemNBT.create(item);
+						Mode mode = itemNBT.getEnum(Mode.class, "mode");
+						return mode == Mode.SELECTING;
+					});
+					PdcNBT.fromPDC(frameDisplayEntity.getRootEntity().get().getPersistentDataContainer()).setBoolean("structure_frame_select", true);
+					return frameDisplayEntity;
+				});
+
+			structureFrame.setScale((size.x) / 2f, (size.y) / 2f, (size.z) / 2f);
+			structureFrame.setRadius((float) (Math.sin(Math.toRadians(FunnyLib.getUptimeTicks() % 3600)) * 0.25 + 1.5) * (1f / 16f));
+			structureFrame.move(x0 + (size.x) / 2f, y0 + (size.y) / 2f, z0 + (size.z) / 2f);
 		} else if (currentMode == Mode.LOADING)
 		{
 			renderPreview(context);
@@ -250,7 +295,7 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 	private void renderPreview(PlayerItemContext context)
 	{
 
-		RayTraceResult rayTraceResult = context.getPlayer().rayTraceBlocks(10);
+		RayTraceResult rayTraceResult = context.getPlayer().rayTraceBlocks(RAY_DISTANCE);
 		if (rayTraceResult == null || rayTraceResult.getHitBlock() == null || rayTraceResult.getHitBlockFace() == null)
 		{
 			Collection<BlockDisplay> displayList = GHOST_PREVIEW.get(context.getPlayer());
@@ -269,21 +314,32 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 
 		GameStructure structure = GameStructure.structureFromNBT(itemData.getCompound(KEY));
 
-		if (FunnyLib.getUptimeTicks() % 3 == 0)
-		{
-			Vector3i size = structure.getSize();
-			if ((size.x + 1) * (size.y + 1) * (size.z + 1) <= 0)
-				return;
+		// Frame
+		Vector3i size = structure.getSize();
+		if ((size.x + 1) * (size.y + 1) * (size.z + 1) <= 0)
+			return;
 
-			int x0 = location.getBlockX();
-			int y0 = location.getBlockY();
-			int z0 = location.getBlockZ();
-			int x1 = size.x + location.getBlockX() + 1;
-			int y1 = size.y + location.getBlockY() + 1;
-			int z1 = size.z + location.getBlockZ() + 1;
+		FrameDisplayEntity structureFrame = FunnyLib
+			.getPlayerboundEntityManager()
+			.getOrCreateMultiEntity(context.getPlayer(), nbt -> nbt.getBoolean("structure_frame", false), () ->
+			{
+				FrameDisplayEntity frameDisplayEntity = new FrameDisplayEntity(context.getPlayer(), location, FrameDisplayEntity.FrameType.UGLY_PURPLE, 1f / 16f);
+				frameDisplayEntity.setAliveCondition(() ->
+				{
+					ItemStack item = context.getPlayer().getInventory().getItem(EquipmentSlot.HAND);
+					if (item == null || item.getType().isAir())
+						return false;
+					ItemNBT itemNBT = ItemNBT.create(item);
+					Mode mode = itemNBT.getEnum(Mode.class, "mode");
+					return mode == Mode.LOADING;
+				});
+				PdcNBT.fromPDC(frameDisplayEntity.getRootEntity().get().getPersistentDataContainer()).setBoolean("structure_frame", true);
+				return frameDisplayEntity;
+			});
 
-			ParticleUtil.boxAbsolute(context.getPlayer(), Particle.REDSTONE, x0, y0, z0, x1, y1, z1, 0, 0.5, OPTIONS);
-		}
+		structureFrame.setScale((size.x + 1) / 2f, (size.y + 1) / 2f, (size.z + 1) / 2f);
+		structureFrame.setRadius((float) (Math.sin(Math.toRadians(FunnyLib.getUptimeTicks() % 3600)) * 0.25 + 1.5) * (1f / 16f));
+		structureFrame.move(location.getX() + (size.x + 1) / 2f, location.getY() + (size.y + 1) / 2f, location.getZ() + (size.z + 1) / 2f);
 
 		renderFancyPreview(context, structure, location);
 	}
@@ -326,7 +382,7 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 			locationPair.getRight().x = 1;
 			displayList.forEach(bd ->
 			{
-				bd.setInterpolationDuration(5);
+				bd.setInterpolationDuration(1);
 				bd.setInterpolationDelay(0);
 				bd.setTransformation(new Transformation(new Vector3f(), new Quaternionf(), new Vector3f(1, 1, 1), new Quaternionf()));
 			});
@@ -342,9 +398,9 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 
 			displayList.forEach(bd ->
 			{
-				bd.setTransformation(new Transformation(new Vector3f(offsetX, offsetY, offsetZ), new Quaternionf(), new Vector3f(1, 1, 1), new Quaternionf()));
-				bd.setInterpolationDuration(5);
+				bd.setInterpolationDuration(1);
 				bd.setInterpolationDelay(0);
+				bd.setTransformation(new Transformation(new Vector3f(offsetX, offsetY, offsetZ), new Quaternionf(), new Vector3f(1, 1, 1), new Quaternionf()));
 			});
 		}
 	}

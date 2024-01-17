@@ -32,7 +32,7 @@ public class CustomNoteBlock extends CustomBlock implements IBlockData, BlockTic
 	@Override
 	public BlockData getVanillaState(BlockContext context)
 	{
-		return BlockGen.NoteBlock(new Note(0), Instrument.PIANO, false);
+		return BlockGen.NoteBlock(Instrument.PIANO, new Note(0), false);
 	}
 
 	@Override

@@ -41,6 +41,7 @@ public class Minigames
 			.registerValue(BuildBattleGame.PLOT)
 			.registerValue(BuildBattleGame.TEST_STRING)
 			.registerValue(BuildBattleGame.BUILD_TIME)
+			.registerValue(BuildBattleGame.CENTER)
 		;
 
 //		registerMinigame("tnt_tag")

@@ -3,7 +3,7 @@ package steve6472.funnylib.command.impl;
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import net.minecraft.nbt.Tag;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_20_R1.persistence.CraftPersistentDataContainer;
+import org.bukkit.craftbukkit.v1_20_R3.persistence.CraftPersistentDataContainer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -21,7 +21,6 @@ import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.RepeatingTask;
 import steve6472.standalone.FunnyLibStandalone;
 
-import java.util.Arrays;
 import java.util.Map;
 
 /**

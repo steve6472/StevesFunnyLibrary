@@ -19,6 +19,7 @@ import steve6472.funnylib.blocks.CustomNoteBlocks;
 import steve6472.funnylib.blocks.builtin.CustomNoteBlock;
 import steve6472.funnylib.blocks.builtin.MultiBlock;
 import steve6472.funnylib.command.impl.DebugCommands;
+import steve6472.funnylib.entity.PlayerboundEntityManager;
 import steve6472.funnylib.item.nonbt.NbtRemover;
 import steve6472.funnylib.json.IJsonConfig;
 import steve6472.funnylib.json.INbtConfig;
@@ -64,6 +65,8 @@ public class FunnyLib
 	private static LibSettings settings;
 	private static NbtRemover nbtRemover;
 
+	private static PlayerboundEntityManager playerboundEntityManager;
+
 	private static Set<IJsonConfig> configurationsJson;
 	private static Set<INbtConfig> configurationsNbt;
 
@@ -103,6 +106,7 @@ public class FunnyLib
 		Bukkit.getPluginManager().registerEvents(new CustomCommandRunner(), plugin);
 		Bukkit.getPluginManager().registerEvents(new Items(), plugin);
 		Bukkit.getPluginManager().registerEvents(blocks = new Blocks(), plugin);
+		Bukkit.getPluginManager().registerEvents(playerboundEntityManager = new PlayerboundEntityManager(), plugin);
 
 		if (settings.enableCustomNoteBlocks)
 		{
@@ -197,6 +201,11 @@ public class FunnyLib
 	public static void registerConfig(INbtConfig config)
 	{
 		configurationsNbt.add(config);
+	}
+
+	public static PlayerboundEntityManager getPlayerboundEntityManager()
+	{
+		return playerboundEntityManager;
 	}
 
 	public static void save()

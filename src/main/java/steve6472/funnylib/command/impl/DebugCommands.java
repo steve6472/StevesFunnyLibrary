@@ -2,7 +2,7 @@ package steve6472.funnylib.command.impl;
 
 import net.minecraft.nbt.CompoundTag;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;

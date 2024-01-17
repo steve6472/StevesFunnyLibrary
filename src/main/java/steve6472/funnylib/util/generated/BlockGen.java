@@ -8,6 +8,7 @@ import org.bukkit.block.data.type.Bell;
 import org.bukkit.block.data.type.Bed;
 import java.util.HashMap;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.type.Crafter;
 import org.bukkit.block.data.FaceAttachable;
 import org.bukkit.block.data.type.Chest;
 import org.bukkit.block.data.type.Jigsaw;
@@ -23,6 +24,7 @@ import org.bukkit.block.data.type.Door;
 import org.bukkit.block.data.type.BigDripleaf;
 import org.bukkit.Note;
 import org.bukkit.block.data.type.Slab;
+import org.bukkit.block.data.type.TrialSpawner;
 import org.bukkit.block.data.type.SculkSensor;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.Rail;
@@ -92,6 +94,87 @@ public class BlockGen
 	{
 		Orientable data = (Orientable) Material.DEEPSLATE.createBlockData();
 		data.setAxis(axis);
+		return data;
+	}
+
+	public static BlockData TuffSlab(Slab.Type type, boolean waterlogged)
+	{
+		Slab data = (Slab) Material.TUFF_SLAB.createBlockData();
+		data.setType(type);
+		data.setWaterlogged(waterlogged);
+		return data;
+	}
+
+	public static BlockData TuffStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	{
+		Stairs data = (Stairs) Material.TUFF_STAIRS.createBlockData();
+		data.setShape(shape);
+		data.setHalf(half);
+		data.setFacing(facing);
+		data.setWaterlogged(waterlogged);
+		return data;
+	}
+
+	public static BlockData TuffWall(WallFaces face, boolean up, boolean waterlogged)
+	{
+		Wall data = (Wall) Material.TUFF_WALL.createBlockData();
+		data.setUp(up);
+		data.setWaterlogged(waterlogged);
+		face.faces.forEach(data::setHeight);
+		return data;
+	}
+
+	public static BlockData PolishedTuffSlab(Slab.Type type, boolean waterlogged)
+	{
+		Slab data = (Slab) Material.POLISHED_TUFF_SLAB.createBlockData();
+		data.setType(type);
+		data.setWaterlogged(waterlogged);
+		return data;
+	}
+
+	public static BlockData PolishedTuffStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	{
+		Stairs data = (Stairs) Material.POLISHED_TUFF_STAIRS.createBlockData();
+		data.setShape(shape);
+		data.setHalf(half);
+		data.setFacing(facing);
+		data.setWaterlogged(waterlogged);
+		return data;
+	}
+
+	public static BlockData PolishedTuffWall(WallFaces face, boolean up, boolean waterlogged)
+	{
+		Wall data = (Wall) Material.POLISHED_TUFF_WALL.createBlockData();
+		data.setUp(up);
+		data.setWaterlogged(waterlogged);
+		face.faces.forEach(data::setHeight);
+		return data;
+	}
+
+	public static BlockData TuffBrickSlab(Slab.Type type, boolean waterlogged)
+	{
+		Slab data = (Slab) Material.TUFF_BRICK_SLAB.createBlockData();
+		data.setType(type);
+		data.setWaterlogged(waterlogged);
+		return data;
+	}
+
+	public static BlockData TuffBrickStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	{
+		Stairs data = (Stairs) Material.TUFF_BRICK_STAIRS.createBlockData();
+		data.setShape(shape);
+		data.setHalf(half);
+		data.setFacing(facing);
+		data.setWaterlogged(waterlogged);
+		return data;
+	}
+
+	public static BlockData TuffBrickWall(WallFaces face, boolean up, boolean waterlogged)
+	{
+		Wall data = (Wall) Material.TUFF_BRICK_WALL.createBlockData();
+		data.setUp(up);
+		data.setWaterlogged(waterlogged);
+		face.faces.forEach(data::setHeight);
 		return data;
 	}
 
@@ -1577,11 +1660,11 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData SculkShrieker(boolean canSummon, boolean shrieking, boolean waterlogged)
+	public static BlockData SculkShrieker(boolean shrieking, boolean canSummon, boolean waterlogged)
 	{
 		SculkShrieker data = (SculkShrieker) Material.SCULK_SHRIEKER.createBlockData();
-		data.setCanSummon(canSummon);
 		data.setShrieking(shrieking);
+		data.setCanSummon(canSummon);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
@@ -1745,7 +1828,7 @@ public class BlockGen
 		Wall data = (Wall) Material.COBBLESTONE_WALL.createBlockData();
 		data.setUp(up);
 		data.setWaterlogged(waterlogged);
-face.faces.forEach(data::setHeight);
+		face.faces.forEach(data::setHeight);
 		return data;
 	}
 
@@ -1754,7 +1837,7 @@ face.faces.forEach(data::setHeight);
 		Wall data = (Wall) Material.MOSSY_COBBLESTONE_WALL.createBlockData();
 		data.setUp(up);
 		data.setWaterlogged(waterlogged);
-face.faces.forEach(data::setHeight);
+		face.faces.forEach(data::setHeight);
 		return data;
 	}
 
@@ -1763,7 +1846,7 @@ face.faces.forEach(data::setHeight);
 		Wall data = (Wall) Material.BRICK_WALL.createBlockData();
 		data.setUp(up);
 		data.setWaterlogged(waterlogged);
-face.faces.forEach(data::setHeight);
+		face.faces.forEach(data::setHeight);
 		return data;
 	}
 
@@ -1772,7 +1855,7 @@ face.faces.forEach(data::setHeight);
 		Wall data = (Wall) Material.PRISMARINE_WALL.createBlockData();
 		data.setUp(up);
 		data.setWaterlogged(waterlogged);
-face.faces.forEach(data::setHeight);
+		face.faces.forEach(data::setHeight);
 		return data;
 	}
 
@@ -1781,7 +1864,7 @@ face.faces.forEach(data::setHeight);
 		Wall data = (Wall) Material.RED_SANDSTONE_WALL.createBlockData();
 		data.setUp(up);
 		data.setWaterlogged(waterlogged);
-face.faces.forEach(data::setHeight);
+		face.faces.forEach(data::setHeight);
 		return data;
 	}
 
@@ -1790,7 +1873,7 @@ face.faces.forEach(data::setHeight);
 		Wall data = (Wall) Material.MOSSY_STONE_BRICK_WALL.createBlockData();
 		data.setUp(up);
 		data.setWaterlogged(waterlogged);
-face.faces.forEach(data::setHeight);
+		face.faces.forEach(data::setHeight);
 		return data;
 	}
 
@@ -1799,7 +1882,7 @@ face.faces.forEach(data::setHeight);
 		Wall data = (Wall) Material.GRANITE_WALL.createBlockData();
 		data.setUp(up);
 		data.setWaterlogged(waterlogged);
-face.faces.forEach(data::setHeight);
+		face.faces.forEach(data::setHeight);
 		return data;
 	}
 
@@ -1808,7 +1891,7 @@ face.faces.forEach(data::setHeight);
 		Wall data = (Wall) Material.STONE_BRICK_WALL.createBlockData();
 		data.setUp(up);
 		data.setWaterlogged(waterlogged);
-face.faces.forEach(data::setHeight);
+		face.faces.forEach(data::setHeight);
 		return data;
 	}
 
@@ -1817,7 +1900,7 @@ face.faces.forEach(data::setHeight);
 		Wall data = (Wall) Material.MUD_BRICK_WALL.createBlockData();
 		data.setUp(up);
 		data.setWaterlogged(waterlogged);
-face.faces.forEach(data::setHeight);
+		face.faces.forEach(data::setHeight);
 		return data;
 	}
 
@@ -1826,7 +1909,7 @@ face.faces.forEach(data::setHeight);
 		Wall data = (Wall) Material.NETHER_BRICK_WALL.createBlockData();
 		data.setUp(up);
 		data.setWaterlogged(waterlogged);
-face.faces.forEach(data::setHeight);
+		face.faces.forEach(data::setHeight);
 		return data;
 	}
 
@@ -1835,7 +1918,7 @@ face.faces.forEach(data::setHeight);
 		Wall data = (Wall) Material.ANDESITE_WALL.createBlockData();
 		data.setUp(up);
 		data.setWaterlogged(waterlogged);
-face.faces.forEach(data::setHeight);
+		face.faces.forEach(data::setHeight);
 		return data;
 	}
 
@@ -1844,7 +1927,7 @@ face.faces.forEach(data::setHeight);
 		Wall data = (Wall) Material.RED_NETHER_BRICK_WALL.createBlockData();
 		data.setUp(up);
 		data.setWaterlogged(waterlogged);
-face.faces.forEach(data::setHeight);
+		face.faces.forEach(data::setHeight);
 		return data;
 	}
 
@@ -1853,7 +1936,7 @@ face.faces.forEach(data::setHeight);
 		Wall data = (Wall) Material.SANDSTONE_WALL.createBlockData();
 		data.setUp(up);
 		data.setWaterlogged(waterlogged);
-face.faces.forEach(data::setHeight);
+		face.faces.forEach(data::setHeight);
 		return data;
 	}
 
@@ -1862,7 +1945,7 @@ face.faces.forEach(data::setHeight);
 		Wall data = (Wall) Material.END_STONE_BRICK_WALL.createBlockData();
 		data.setUp(up);
 		data.setWaterlogged(waterlogged);
-face.faces.forEach(data::setHeight);
+		face.faces.forEach(data::setHeight);
 		return data;
 	}
 
@@ -1871,7 +1954,7 @@ face.faces.forEach(data::setHeight);
 		Wall data = (Wall) Material.DIORITE_WALL.createBlockData();
 		data.setUp(up);
 		data.setWaterlogged(waterlogged);
-face.faces.forEach(data::setHeight);
+		face.faces.forEach(data::setHeight);
 		return data;
 	}
 
@@ -1880,7 +1963,7 @@ face.faces.forEach(data::setHeight);
 		Wall data = (Wall) Material.BLACKSTONE_WALL.createBlockData();
 		data.setUp(up);
 		data.setWaterlogged(waterlogged);
-face.faces.forEach(data::setHeight);
+		face.faces.forEach(data::setHeight);
 		return data;
 	}
 
@@ -1889,7 +1972,7 @@ face.faces.forEach(data::setHeight);
 		Wall data = (Wall) Material.POLISHED_BLACKSTONE_WALL.createBlockData();
 		data.setUp(up);
 		data.setWaterlogged(waterlogged);
-face.faces.forEach(data::setHeight);
+		face.faces.forEach(data::setHeight);
 		return data;
 	}
 
@@ -1898,7 +1981,7 @@ face.faces.forEach(data::setHeight);
 		Wall data = (Wall) Material.POLISHED_BLACKSTONE_BRICK_WALL.createBlockData();
 		data.setUp(up);
 		data.setWaterlogged(waterlogged);
-face.faces.forEach(data::setHeight);
+		face.faces.forEach(data::setHeight);
 		return data;
 	}
 
@@ -1907,7 +1990,7 @@ face.faces.forEach(data::setHeight);
 		Wall data = (Wall) Material.COBBLED_DEEPSLATE_WALL.createBlockData();
 		data.setUp(up);
 		data.setWaterlogged(waterlogged);
-face.faces.forEach(data::setHeight);
+		face.faces.forEach(data::setHeight);
 		return data;
 	}
 
@@ -1916,7 +1999,7 @@ face.faces.forEach(data::setHeight);
 		Wall data = (Wall) Material.POLISHED_DEEPSLATE_WALL.createBlockData();
 		data.setUp(up);
 		data.setWaterlogged(waterlogged);
-face.faces.forEach(data::setHeight);
+		face.faces.forEach(data::setHeight);
 		return data;
 	}
 
@@ -1925,7 +2008,7 @@ face.faces.forEach(data::setHeight);
 		Wall data = (Wall) Material.DEEPSLATE_BRICK_WALL.createBlockData();
 		data.setUp(up);
 		data.setWaterlogged(waterlogged);
-face.faces.forEach(data::setHeight);
+		face.faces.forEach(data::setHeight);
 		return data;
 	}
 
@@ -1934,7 +2017,7 @@ face.faces.forEach(data::setHeight);
 		Wall data = (Wall) Material.DEEPSLATE_TILE_WALL.createBlockData();
 		data.setUp(up);
 		data.setWaterlogged(waterlogged);
-face.faces.forEach(data::setHeight);
+		face.faces.forEach(data::setHeight);
 		return data;
 	}
 
@@ -1972,6 +2055,13 @@ face.faces.forEach(data::setHeight);
 		data.setShape(shape);
 		data.setHalf(half);
 		data.setFacing(facing);
+		data.setWaterlogged(waterlogged);
+		return data;
+	}
+
+	public static BlockData Barrier(boolean waterlogged)
+	{
+		Waterlogged data = (Waterlogged) Material.BARRIER.createBlockData();
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
@@ -3220,11 +3310,11 @@ face.faces.forEach(data::setHeight);
 		return data;
 	}
 
-	public static BlockData NoteBlock(Note note, Instrument instrument, boolean powered)
+	public static BlockData NoteBlock(Instrument instrument, Note note, boolean powered)
 	{
 		NoteBlock data = (NoteBlock) Material.NOTE_BLOCK.createBlockData();
-		data.setNote(note);
 		data.setInstrument(instrument);
+		data.setNote(note);
 		data.setPowered(powered);
 		return data;
 	}
@@ -3583,6 +3673,94 @@ face.faces.forEach(data::setHeight);
 		return data;
 	}
 
+	public static BlockData CopperDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	{
+		Door data = (Door) Material.COPPER_DOOR.createBlockData();
+		data.setHinge(hinge);
+		data.setHalf(half);
+		data.setFacing(facing);
+		data.setOpen(open);
+		data.setPowered(powered);
+		return data;
+	}
+
+	public static BlockData ExposedCopperDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	{
+		Door data = (Door) Material.EXPOSED_COPPER_DOOR.createBlockData();
+		data.setHinge(hinge);
+		data.setHalf(half);
+		data.setFacing(facing);
+		data.setOpen(open);
+		data.setPowered(powered);
+		return data;
+	}
+
+	public static BlockData WeatheredCopperDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	{
+		Door data = (Door) Material.WEATHERED_COPPER_DOOR.createBlockData();
+		data.setHinge(hinge);
+		data.setHalf(half);
+		data.setFacing(facing);
+		data.setOpen(open);
+		data.setPowered(powered);
+		return data;
+	}
+
+	public static BlockData OxidizedCopperDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	{
+		Door data = (Door) Material.OXIDIZED_COPPER_DOOR.createBlockData();
+		data.setHinge(hinge);
+		data.setHalf(half);
+		data.setFacing(facing);
+		data.setOpen(open);
+		data.setPowered(powered);
+		return data;
+	}
+
+	public static BlockData WaxedCopperDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	{
+		Door data = (Door) Material.WAXED_COPPER_DOOR.createBlockData();
+		data.setHinge(hinge);
+		data.setHalf(half);
+		data.setFacing(facing);
+		data.setOpen(open);
+		data.setPowered(powered);
+		return data;
+	}
+
+	public static BlockData WaxedExposedCopperDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	{
+		Door data = (Door) Material.WAXED_EXPOSED_COPPER_DOOR.createBlockData();
+		data.setHinge(hinge);
+		data.setHalf(half);
+		data.setFacing(facing);
+		data.setOpen(open);
+		data.setPowered(powered);
+		return data;
+	}
+
+	public static BlockData WaxedWeatheredCopperDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	{
+		Door data = (Door) Material.WAXED_WEATHERED_COPPER_DOOR.createBlockData();
+		data.setHinge(hinge);
+		data.setHalf(half);
+		data.setFacing(facing);
+		data.setOpen(open);
+		data.setPowered(powered);
+		return data;
+	}
+
+	public static BlockData WaxedOxidizedCopperDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	{
+		Door data = (Door) Material.WAXED_OXIDIZED_COPPER_DOOR.createBlockData();
+		data.setHinge(hinge);
+		data.setHalf(half);
+		data.setFacing(facing);
+		data.setOpen(open);
+		data.setPowered(powered);
+		return data;
+	}
+
 	public static BlockData IronTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
 	{
 		TrapDoor data = (TrapDoor) Material.IRON_TRAPDOOR.createBlockData();
@@ -3707,6 +3885,94 @@ face.faces.forEach(data::setHeight);
 	public static BlockData WarpedTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
 	{
 		TrapDoor data = (TrapDoor) Material.WARPED_TRAPDOOR.createBlockData();
+		data.setHalf(half);
+		data.setFacing(facing);
+		data.setOpen(open);
+		data.setPowered(powered);
+		data.setWaterlogged(waterlogged);
+		return data;
+	}
+
+	public static BlockData CopperTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	{
+		TrapDoor data = (TrapDoor) Material.COPPER_TRAPDOOR.createBlockData();
+		data.setHalf(half);
+		data.setFacing(facing);
+		data.setOpen(open);
+		data.setPowered(powered);
+		data.setWaterlogged(waterlogged);
+		return data;
+	}
+
+	public static BlockData ExposedCopperTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	{
+		TrapDoor data = (TrapDoor) Material.EXPOSED_COPPER_TRAPDOOR.createBlockData();
+		data.setHalf(half);
+		data.setFacing(facing);
+		data.setOpen(open);
+		data.setPowered(powered);
+		data.setWaterlogged(waterlogged);
+		return data;
+	}
+
+	public static BlockData WeatheredCopperTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	{
+		TrapDoor data = (TrapDoor) Material.WEATHERED_COPPER_TRAPDOOR.createBlockData();
+		data.setHalf(half);
+		data.setFacing(facing);
+		data.setOpen(open);
+		data.setPowered(powered);
+		data.setWaterlogged(waterlogged);
+		return data;
+	}
+
+	public static BlockData OxidizedCopperTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	{
+		TrapDoor data = (TrapDoor) Material.OXIDIZED_COPPER_TRAPDOOR.createBlockData();
+		data.setHalf(half);
+		data.setFacing(facing);
+		data.setOpen(open);
+		data.setPowered(powered);
+		data.setWaterlogged(waterlogged);
+		return data;
+	}
+
+	public static BlockData WaxedCopperTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	{
+		TrapDoor data = (TrapDoor) Material.WAXED_COPPER_TRAPDOOR.createBlockData();
+		data.setHalf(half);
+		data.setFacing(facing);
+		data.setOpen(open);
+		data.setPowered(powered);
+		data.setWaterlogged(waterlogged);
+		return data;
+	}
+
+	public static BlockData WaxedExposedCopperTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	{
+		TrapDoor data = (TrapDoor) Material.WAXED_EXPOSED_COPPER_TRAPDOOR.createBlockData();
+		data.setHalf(half);
+		data.setFacing(facing);
+		data.setOpen(open);
+		data.setPowered(powered);
+		data.setWaterlogged(waterlogged);
+		return data;
+	}
+
+	public static BlockData WaxedWeatheredCopperTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	{
+		TrapDoor data = (TrapDoor) Material.WAXED_WEATHERED_COPPER_TRAPDOOR.createBlockData();
+		data.setHalf(half);
+		data.setFacing(facing);
+		data.setOpen(open);
+		data.setPowered(powered);
+		data.setWaterlogged(waterlogged);
+		return data;
+	}
+
+	public static BlockData WaxedOxidizedCopperTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	{
+		TrapDoor data = (TrapDoor) Material.WAXED_OXIDIZED_COPPER_TRAPDOOR.createBlockData();
 		data.setHalf(half);
 		data.setFacing(facing);
 		data.setOpen(open);
@@ -4200,6 +4466,15 @@ face.faces.forEach(data::setHeight);
 		Bed data = (Bed) Material.BLACK_BED.createBlockData();
 		data.setPart(part);
 		data.setFacing(facing);
+		return data;
+	}
+
+	public static BlockData Crafter(boolean crafting, boolean triggered, Crafter.Orientation orientation)
+	{
+		Crafter data = (Crafter) Material.CRAFTER.createBlockData();
+		data.setCrafting(crafting);
+		data.setTriggered(triggered);
+		data.setOrientation(orientation);
 		return data;
 	}
 
@@ -4740,11 +5015,11 @@ face.faces.forEach(data::setHeight);
 		return data;
 	}
 
-	public static BlockData PointedDripstone(PointedDripstone.Thickness thickness, BlockFace verticalDirection, boolean waterlogged)
+	public static BlockData PointedDripstone(BlockFace verticalDirection, PointedDripstone.Thickness thickness, boolean waterlogged)
 	{
 		PointedDripstone data = (PointedDripstone) Material.POINTED_DRIPSTONE.createBlockData();
-		data.setThickness(thickness);
 		data.setVerticalDirection(verticalDirection);
+		data.setThickness(thickness);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
@@ -4767,6 +5042,133 @@ face.faces.forEach(data::setHeight);
 	{
 		Orientable data = (Orientable) Material.PEARLESCENT_FROGLIGHT.createBlockData();
 		data.setAxis(axis);
+		return data;
+	}
+
+	public static BlockData CopperGrate(boolean waterlogged)
+	{
+		Waterlogged data = (Waterlogged) Material.COPPER_GRATE.createBlockData();
+		data.setWaterlogged(waterlogged);
+		return data;
+	}
+
+	public static BlockData ExposedCopperGrate(boolean waterlogged)
+	{
+		Waterlogged data = (Waterlogged) Material.EXPOSED_COPPER_GRATE.createBlockData();
+		data.setWaterlogged(waterlogged);
+		return data;
+	}
+
+	public static BlockData WeatheredCopperGrate(boolean waterlogged)
+	{
+		Waterlogged data = (Waterlogged) Material.WEATHERED_COPPER_GRATE.createBlockData();
+		data.setWaterlogged(waterlogged);
+		return data;
+	}
+
+	public static BlockData OxidizedCopperGrate(boolean waterlogged)
+	{
+		Waterlogged data = (Waterlogged) Material.OXIDIZED_COPPER_GRATE.createBlockData();
+		data.setWaterlogged(waterlogged);
+		return data;
+	}
+
+	public static BlockData WaxedCopperGrate(boolean waterlogged)
+	{
+		Waterlogged data = (Waterlogged) Material.WAXED_COPPER_GRATE.createBlockData();
+		data.setWaterlogged(waterlogged);
+		return data;
+	}
+
+	public static BlockData WaxedExposedCopperGrate(boolean waterlogged)
+	{
+		Waterlogged data = (Waterlogged) Material.WAXED_EXPOSED_COPPER_GRATE.createBlockData();
+		data.setWaterlogged(waterlogged);
+		return data;
+	}
+
+	public static BlockData WaxedWeatheredCopperGrate(boolean waterlogged)
+	{
+		Waterlogged data = (Waterlogged) Material.WAXED_WEATHERED_COPPER_GRATE.createBlockData();
+		data.setWaterlogged(waterlogged);
+		return data;
+	}
+
+	public static BlockData WaxedOxidizedCopperGrate(boolean waterlogged)
+	{
+		Waterlogged data = (Waterlogged) Material.WAXED_OXIDIZED_COPPER_GRATE.createBlockData();
+		data.setWaterlogged(waterlogged);
+		return data;
+	}
+
+	public static BlockData CopperBulb(boolean lit, boolean powered)
+	{
+		CopperBulb data = (CopperBulb) Material.COPPER_BULB.createBlockData();
+		data.setLit(lit);
+		data.setPowered(powered);
+		return data;
+	}
+
+	public static BlockData ExposedCopperBulb(boolean lit, boolean powered)
+	{
+		CopperBulb data = (CopperBulb) Material.EXPOSED_COPPER_BULB.createBlockData();
+		data.setLit(lit);
+		data.setPowered(powered);
+		return data;
+	}
+
+	public static BlockData WeatheredCopperBulb(boolean lit, boolean powered)
+	{
+		CopperBulb data = (CopperBulb) Material.WEATHERED_COPPER_BULB.createBlockData();
+		data.setLit(lit);
+		data.setPowered(powered);
+		return data;
+	}
+
+	public static BlockData OxidizedCopperBulb(boolean lit, boolean powered)
+	{
+		CopperBulb data = (CopperBulb) Material.OXIDIZED_COPPER_BULB.createBlockData();
+		data.setLit(lit);
+		data.setPowered(powered);
+		return data;
+	}
+
+	public static BlockData WaxedCopperBulb(boolean lit, boolean powered)
+	{
+		CopperBulb data = (CopperBulb) Material.WAXED_COPPER_BULB.createBlockData();
+		data.setLit(lit);
+		data.setPowered(powered);
+		return data;
+	}
+
+	public static BlockData WaxedExposedCopperBulb(boolean lit, boolean powered)
+	{
+		CopperBulb data = (CopperBulb) Material.WAXED_EXPOSED_COPPER_BULB.createBlockData();
+		data.setLit(lit);
+		data.setPowered(powered);
+		return data;
+	}
+
+	public static BlockData WaxedWeatheredCopperBulb(boolean lit, boolean powered)
+	{
+		CopperBulb data = (CopperBulb) Material.WAXED_WEATHERED_COPPER_BULB.createBlockData();
+		data.setLit(lit);
+		data.setPowered(powered);
+		return data;
+	}
+
+	public static BlockData WaxedOxidizedCopperBulb(boolean lit, boolean powered)
+	{
+		CopperBulb data = (CopperBulb) Material.WAXED_OXIDIZED_COPPER_BULB.createBlockData();
+		data.setLit(lit);
+		data.setPowered(powered);
+		return data;
+	}
+
+	public static BlockData TrialSpawner(TrialSpawner.State trialSpawnerState)
+	{
+		TrialSpawner data = (TrialSpawner) Material.TRIAL_SPAWNER.createBlockData();
+		data.setTrialSpawnerState(trialSpawnerState);
 		return data;
 	}
 

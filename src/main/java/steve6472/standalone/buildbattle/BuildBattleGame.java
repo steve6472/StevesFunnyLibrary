@@ -4,6 +4,7 @@ import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 import steve6472.funnylib.data.GameStructure;
+import steve6472.funnylib.data.Marker;
 import steve6472.funnylib.minigame.Game;
 import steve6472.funnylib.minigame.builtin.state.*;
 import steve6472.funnylib.minigame.config.BuiltInConfigType;
@@ -31,6 +32,7 @@ public class BuildBattleGame extends Game
 	public static final Value<GameStructure> PLOT = Value.create(BuiltInConfigType.STRUCTURE, "Plot", "plot");
 	public static final Value<String> TEST_STRING = Value.create(BuiltInConfigType.STRING, "Test String", "test");
 	public static final Value<Integer> BUILD_TIME = Value.create(BuiltInConfigType.INT, "Build Time", "build_time");
+	public static final Value<Marker> CENTER = Value.create(BuiltInConfigType.MARKER, "Center", "center");
 
 	public BuildBattleGame(Plugin plugin, World world, GameConfiguration gameConfig)
 	{

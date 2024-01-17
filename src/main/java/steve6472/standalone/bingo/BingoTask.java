@@ -6,7 +6,6 @@ import eu.endercentral.crazy_advancements.advancement.AdvancementDisplay;
 import eu.endercentral.crazy_advancements.advancement.AdvancementFlag;
 import eu.endercentral.crazy_advancements.advancement.AdvancementVisibility;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_20_R1.persistence.CraftPersistentDataContainer;
 import org.bukkit.entity.Player;
 import steve6472.funnylib.minigame.EventHolder;
 import steve6472.funnylib.serialize.NBT;

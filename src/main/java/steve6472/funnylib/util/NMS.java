@@ -4,21 +4,25 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_20_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_20_R1.persistence.CraftPersistentDataContainer;
-import org.bukkit.craftbukkit.v1_20_R1.persistence.CraftPersistentDataTypeRegistry;
-import org.bukkit.craftbukkit.v1_20_R1.util.CraftMagicNumbers;
+import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R3.persistence.CraftPersistentDataContainer;
+import org.bukkit.craftbukkit.v1_20_R3.persistence.CraftPersistentDataTypeRegistry;
+import org.bukkit.craftbukkit.v1_20_R3.util.CraftMagicNumbers;
+import org.bukkit.craftbukkit.v1_20_R3.util.CraftNBTTagConfigSerializer;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +33,21 @@ import java.util.Map;
  */
 public class NMS
 {
+	private static final Method internalLegacyDeserialization;
 	private static final Map<Item, Integer> BURN_TIME = AbstractFurnaceBlockEntity.getFuel();
+
+	static
+	{
+		try
+		{
+
+			internalLegacyDeserialization = CraftNBTTagConfigSerializer.class.getDeclaredMethod("internalLegacyDeserialization", Object.class);
+			internalLegacyDeserialization.setAccessible(true);
+		} catch (NoSuchMethodException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
 
 	public static int getBurnTime(Material material)
 	{
@@ -47,7 +65,14 @@ public class NMS
 	{
 		if (pdc instanceof CraftPersistentDataContainer cpdc)
 		{
-			return cpdc.serialize();
+			try
+			{
+				Object invoke = internalLegacyDeserialization.invoke(null, cpdc.toTagCompound());
+				return ((Map<String, Object>) invoke);
+			} catch (IllegalAccessException | InvocationTargetException e)
+			{
+				throw new RuntimeException(e);
+			}
 		}
 		throw new RuntimeException("PDC not instance of CraftPersistentDataContainer");
 	}
@@ -124,10 +149,10 @@ public class NMS
 	{
 		if (GAME_EVENTS != null) return;
 		GAME_EVENTS = new HashMap<>();
-		for (net.minecraft.world.level.gameevent.GameEvent gameEvent : BuiltInRegistries.GAME_EVENT)
+		for (Map.Entry<ResourceKey<net.minecraft.world.level.gameevent.GameEvent>, net.minecraft.world.level.gameevent.GameEvent> entry : BuiltInRegistries.GAME_EVENT.entrySet())
 		{
-			GameEvent spigotEvent = GameEvent.getByKey(new NamespacedKey("minecraft", gameEvent.getName()));
-			GAME_EVENTS.put(spigotEvent, new GameEventEntry(spigotEvent, gameEvent, gameEvent.getNotificationRadius()));
+			GameEvent spigotEvent = GameEvent.getByKey(new NamespacedKey("minecraft", entry.getKey().registry().getPath()));
+			GAME_EVENTS.put(spigotEvent, new GameEventEntry(spigotEvent, entry.getValue(), entry.getValue().getNotificationRadius()));
 		}
 	}
 
