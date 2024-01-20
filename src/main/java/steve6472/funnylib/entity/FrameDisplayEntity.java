@@ -37,49 +37,16 @@ public class FrameDisplayEntity extends MultiDisplayEntity
 	private FrameType frameType;
 	private float radius;
 	private float scaleX, scaleY, scaleZ;
-	private Supplier<Boolean> aliveCondition;
-	private final UUID owner;
 
 	public FrameDisplayEntity(@NotNull Player owner, Location location, FrameType frameType, float radius)
 	{
 		super(Objects.requireNonNull(location.getWorld()).spawn(location, ItemDisplay.class));
 		Preconditions.checkNotNull(owner);
-		this.owner = owner.getUniqueId();
 		this.frameType = frameType;
 		this.radius = radius;
 //		if (frameType.isOuterLayer)
 //			this.radius -= radius * 0.11765f;
 		create();
-	}
-
-	public void setAliveCondition(Supplier<Boolean> aliveCondition)
-	{
-		this.aliveCondition = aliveCondition;
-	}
-
-	public static Supplier<Boolean> holdingCustomItemWithNBTCondition(Player player, CustomItem item, Function<ItemNBT, Boolean> test)
-	{
-		return () ->
-		{
-			ItemStack itemStack = player.getInventory().getItem(EquipmentSlot.HAND);
-			if (Items.getCustomItem(itemStack) != item)
-				return false;
-			if (itemStack == null || itemStack.getType().isAir())
-				return false;
-			ItemNBT itemNBT = ItemNBT.create(itemStack);
-			return test.apply(itemNBT);
-		};
-	}
-
-	@Override
-	public void tick()
-	{
-		if (aliveCondition != null && !aliveCondition.get())
-		{
-			Player player = Bukkit.getPlayer(owner);
-			if (player != null)
-				FunnyLib.getPlayerboundEntityManager().removeMultiEntity(player, this);
-		}
 	}
 
 	public FrameType getFrameType()

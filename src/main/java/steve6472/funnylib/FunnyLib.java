@@ -41,6 +41,7 @@ import steve6472.funnylib.item.events.ArmorEventListener;
 import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.Log;
 import steve6472.funnylib.util.NMS;
+import steve6472.funnylib.workdistro.WorkloadRunnable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -64,6 +65,7 @@ public class FunnyLib
 	private static JsonConfig configJson, configNbt;
 	private static LibSettings settings;
 	private static NbtRemover nbtRemover;
+	private static WorkloadRunnable workloadRunnable;
 
 	private static PlayerboundEntityManager playerboundEntityManager;
 
@@ -86,6 +88,7 @@ public class FunnyLib
 		configurationsNbt = new HashSet<>();
 		configJson = new JsonConfig("config", plugin);
 		configNbt = new JsonConfig("config_nbt", plugin);
+		workloadRunnable = new WorkloadRunnable();
 		FunnyLib.settings = settings;
 
 //		if (FunnyLib.PLUGIN != null)
@@ -127,6 +130,7 @@ public class FunnyLib
 			}
 			Items.tick();
 //			debugGame();
+			workloadRunnable.run();
 
 		}, 0, 0);
 
@@ -206,6 +210,11 @@ public class FunnyLib
 	public static PlayerboundEntityManager getPlayerboundEntityManager()
 	{
 		return playerboundEntityManager;
+	}
+
+	public static WorkloadRunnable getWorkloadRunnable()
+	{
+		return workloadRunnable;
 	}
 
 	public static void save()

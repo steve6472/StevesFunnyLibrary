@@ -1,18 +1,12 @@
 package steve6472.funnylib.item.builtin;
 
-import org.apache.commons.lang3.tuple.Triple;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.BlockDisplay;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
-import org.bukkit.util.Transformation;
-import org.joml.Quaternionf;
-import org.joml.Vector2i;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 import steve6472.funnylib.CancellableResult;
@@ -21,7 +15,9 @@ import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.context.PlayerItemContext;
 import steve6472.funnylib.context.UseType;
 import steve6472.funnylib.data.BlockInfo;
+import steve6472.funnylib.entity.BlockStructureEntity;
 import steve6472.funnylib.entity.FrameDisplayEntity;
+import steve6472.funnylib.entity.MultiDisplayEntity;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.events.SwapHandEvent;
 import steve6472.funnylib.item.events.TickInHandEvent;
@@ -29,8 +25,6 @@ import steve6472.funnylib.data.GameStructure;
 import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.*;
-
-import java.util.*;
 
 /**
  * Created by steve6472
@@ -149,12 +143,13 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 		Location location = clickedBlock.getLocation().add(face.getDirection());
 
 		BlockInfo[] blockStates = structure.getBlocks();
+		Vector3i size = structure.getSize();
 
 		for (BlockInfo blockInfo : blockStates)
 		{
 			location
 				.clone()
-				.add(blockInfo.position().x(), blockInfo.position().y(), blockInfo.position().z())
+				.add(blockInfo.position().x() - ((size.x + 1) / 2f) + ((size.x + 1) / 2f) % 1, blockInfo.position().y(), blockInfo.position().z() - ((size.z + 1) / 2f) + ((size.z + 1) / 2f) % 1)
 				.getBlock()
 				.setBlockData(blockInfo.data());
 		}
@@ -220,9 +215,6 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 		builder.buildItemStack();
 	}
 
-	private static final HashMap<Player, Collection<BlockDisplay>> GHOST_PREVIEW = new HashMap<>();
-	private static final HashMap<Player, Triple<Vector3i, Vector3i, Vector2i>> LAST_LOC = new HashMap<>();
-
 	@Override
 	public void tickInHand(PlayerItemContext context)
 	{
@@ -231,77 +223,62 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 		NBT itemData = context.getItemData();
 		Mode currentMode = itemData.getEnum(Mode.class, "mode");
 
-		if (currentMode != Mode.LOADING)
-		{
-			Collection<BlockDisplay> displayList = GHOST_PREVIEW.get(context.getPlayer());
-			if (displayList != null)
-			{
-				displayList.forEach(Entity::remove);
-				displayList.clear();
-				GHOST_PREVIEW.remove(context.getPlayer());
-			}
-			LAST_LOC.remove(context.getPlayer());
-		}
-
 		if (currentMode == Mode.SELECTING)
 		{
-			if (!itemData.has3i("start") || !itemData.has3i("end"))
-				return;
-
-			Vector3i start = itemData.get3i("start");
-			Vector3i end = itemData.get3i("end");
-
-			int x0 = start.x;
-			int y0 = start.y;
-			int z0 = start.z;
-			int x1 = end.x + 1;
-			int y1 = end.y + 1;
-			int z1 = end.z + 1;
-
-			Location location = new Location(context.getWorld(), x0, y0, z0);
-			Vector3f size = new Vector3f(x1 - x0, y1 - y0, z1 - z0);
-
-			FrameDisplayEntity structureFrame = FunnyLib
-				.getPlayerboundEntityManager()
-				.getOrCreateMultiEntity(context.getPlayer(), nbt -> nbt.getBoolean("structure_frame_select", false), () ->
-				{
-					FrameDisplayEntity frameDisplayEntity = new FrameDisplayEntity(
-						context.getPlayer(),
-						new Location(location.getWorld(), x0 + (size.x) / 2f, y0 + (size.y) / 2f, z0 + (size.z) / 2f),
-						FrameDisplayEntity.FrameType.MEDIUMAQUA_MARINE,
-						1f / 16f);
-					frameDisplayEntity.setAliveCondition(FrameDisplayEntity.holdingCustomItemWithNBTCondition(context.getPlayer(), FunnyLib.STRUCTURE, itemNBT -> itemNBT.getEnum(Mode.class, "mode") == Mode.SELECTING));
-					frameDisplayEntity.getEntityPDC().setBoolean("structure_frame_select", true);
-					return frameDisplayEntity;
-				});
-
-			structureFrame.setScale((size.x) / 2f, (size.y) / 2f, (size.z) / 2f);
-			structureFrame.setRadius((float) (Math.sin(Math.toRadians(FunnyLib.getUptimeTicks() % 3600)) * 0.25 + 1.5) * (1f / 16f));
-			structureFrame.move(x0 + (size.x) / 2f, y0 + (size.y) / 2f, z0 + (size.z) / 2f);
+			renderSelecting(context, itemData);
 		} else if (currentMode == Mode.LOADING)
 		{
-			renderPreview(context);
+			renderPreview(context, itemData);
 		}
 	}
 
-	private void renderPreview(PlayerItemContext context)
+	private void renderSelecting(PlayerItemContext context, NBT itemData)
 	{
+		if (!itemData.has3i("start") || !itemData.has3i("end"))
+			return;
 
+		Vector3i start = itemData.get3i("start");
+		Vector3i end = itemData.get3i("end");
+
+		int x0 = start.x;
+		int y0 = start.y;
+		int z0 = start.z;
+		int x1 = end.x + 1;
+		int y1 = end.y + 1;
+		int z1 = end.z + 1;
+
+		Location location = new Location(context.getWorld(), x0, y0, z0);
+		Vector3f size = new Vector3f(x1 - x0, y1 - y0, z1 - z0);
+
+		FrameDisplayEntity structureFrame = FunnyLib
+			.getPlayerboundEntityManager()
+			.getOrCreateMultiEntity(context.getPlayer(), nbt -> nbt.getBoolean("structure_frame_select", false), () ->
+			{
+				FrameDisplayEntity frameDisplayEntity = new FrameDisplayEntity(
+					context.getPlayer(),
+					new Location(location.getWorld(), x0 + (size.x) / 2f, y0 + (size.y) / 2f, z0 + (size.z) / 2f),
+					FrameDisplayEntity.FrameType.MEDIUMAQUA_MARINE,
+					1f / 16f);
+				frameDisplayEntity.setAliveCondition(context.getPlayer(), MultiDisplayEntity.holdingCustomItemWithNBTCondition(context.getPlayer(), FunnyLib.STRUCTURE, itemNBT -> itemNBT.getEnum(Mode.class, "mode") == Mode.SELECTING));
+				frameDisplayEntity.getEntityPDC().setBoolean("structure_frame_select", true);
+				return frameDisplayEntity;
+			});
+
+		structureFrame.setScale((size.x) / 2f, (size.y) / 2f, (size.z) / 2f);
+		structureFrame.setRadius((float) (Math.sin(Math.toRadians(FunnyLib.getUptimeTicks() % 3600)) * 0.25 + 1.5) * (1f / 16f));
+		structureFrame.move(x0 + (size.x) / 2f, y0 + (size.y) / 2f, z0 + (size.z) / 2f);
+	}
+
+	private void renderPreview(PlayerItemContext context, NBT itemData)
+	{
 		RayTraceResult rayTraceResult = context.getPlayer().rayTraceBlocks(RAY_DISTANCE);
 		if (rayTraceResult == null || rayTraceResult.getHitBlock() == null || rayTraceResult.getHitBlockFace() == null)
 		{
-			Collection<BlockDisplay> displayList = GHOST_PREVIEW.get(context.getPlayer());
-			if (displayList != null)
-			{
-				displayList.forEach(Entity::remove);
-				displayList.clear();
-				GHOST_PREVIEW.remove(context.getPlayer());
-			}
-			LAST_LOC.remove(context.getPlayer());
+			FunnyLib.getPlayerboundEntityManager().removeMultiEntity(context.getPlayer(), nbt -> nbt.getBoolean("structure_frame", false));
+			FunnyLib.getPlayerboundEntityManager().removeMultiEntity(context.getPlayer(), nbt -> nbt.getBoolean("structure_preview", false));
 			return;
 		}
 
-		NBT itemData = context.getItemData();
 		Location location = rayTraceResult.getHitBlock().getLocation().add(rayTraceResult.getHitBlockFace().getDirection());
 
 		GameStructure structure = GameStructure.structureFromNBT(itemData.getCompound(KEY));
@@ -317,80 +294,32 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 			{
 				FrameDisplayEntity frameDisplayEntity = new FrameDisplayEntity(
 					context.getPlayer(),
-					new Location(location.getWorld(), location.getX() + (size.x + 1) / 2f, location.getY() + (size.y + 1) / 2f, location.getZ() + (size.z + 1) / 2f),
+					new Location(location.getWorld(), location.getX() + ((size.x + 1) / 2f) % 1f, location.getY() + (size.y + 1) / 2f, location.getZ() + ((size.z + 1) / 2f) % 1f),
 					FrameDisplayEntity.FrameType.UGLY_PURPLE,
 					1f / 16f);
-				frameDisplayEntity.setAliveCondition(FrameDisplayEntity.holdingCustomItemWithNBTCondition(context.getPlayer(), FunnyLib.STRUCTURE, itemNBT -> itemNBT.getEnum(Mode.class, "mode") == Mode.LOADING));
+				frameDisplayEntity.setAliveCondition(context.getPlayer(), MultiDisplayEntity.holdingCustomItemWithNBTCondition(context.getPlayer(), FunnyLib.STRUCTURE, itemNBT -> itemNBT.getEnum(Mode.class, "mode") == Mode.LOADING));
 				frameDisplayEntity.getEntityPDC().setBoolean("structure_frame", true);
 				return frameDisplayEntity;
 			});
 
 		structureFrame.setScale((size.x + 1) / 2f, (size.y + 1) / 2f, (size.z + 1) / 2f);
 		structureFrame.setRadius((float) (Math.sin(Math.toRadians(FunnyLib.getUptimeTicks() % 3600)) * 0.25 + 1.5) * (1f / 16f));
-		structureFrame.move(location.getX() + (size.x + 1) / 2f, location.getY() + (size.y + 1) / 2f, location.getZ() + (size.z + 1) / 2f);
+		structureFrame.move(location.getX() + ((size.x + 1) / 2f) % 1f, location.getY() + (size.y + 1) / 2f, location.getZ() + ((size.z + 1) / 2f) % 1f);
 
-		renderFancyPreview(context, structure, location);
-	}
-
-	private void renderFancyPreview(PlayerItemContext context, GameStructure structure, Location location)
-	{
-		// Pair of starting-location and last-location
-		Triple<Vector3i, Vector3i, Vector2i> locationPair = LAST_LOC.computeIfAbsent(context.getPlayer(),
-			p -> Triple.of(
-				new Vector3i(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
-				new Vector3i(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
-				new Vector2i()));
-
-		BlockInfo[] blockInfos = structure.getBlocks();
-
-		final boolean[] wasAbsent = {false};
-
-		Collection<BlockDisplay> displayList = GHOST_PREVIEW.computeIfAbsent(context.getPlayer(), k ->
-		{
-			LinkedList<BlockDisplay> blockDisplays = new LinkedList<>();
-			for (BlockInfo blockInfo : blockInfos)
+		BlockStructureEntity blockStructure = FunnyLib
+			.getPlayerboundEntityManager()
+			.getOrCreateMultiEntity(context.getPlayer(), nbt -> nbt.getBoolean("structure_preview", false), () ->
 			{
-				// Ignore air blocks
-				if (blockInfo.data().getMaterial().isAir())
-					continue;
+				BlockStructureEntity blockStructureEntity = BlockStructureEntity.createFromStructure(
+					new Location(location.getWorld(), location.getX() + ((size.x + 1) / 2f) % 1f, location.getY() + (size.y + 1) / 2f, location.getZ() + ((size.z + 1) / 2f) % 1f),
+					structure);
 
-				BlockDisplay blockDisplay = context.getWorld().spawn(location.clone().add(blockInfo.position().x, blockInfo.position().y, blockInfo.position().z), BlockDisplay.class, bd ->
-				{
-					bd.setBlock(blockInfo.data());
-					bd.setTransformation(new Transformation(new Vector3f(0.5f, 0.5f, 0.5f), new Quaternionf(), new Vector3f(0, 0, 0), new Quaternionf()));
-				});
-				blockDisplays.add(blockDisplay);
-			}
-			wasAbsent[0] = true;
-			return blockDisplays;
-		});
-
-		if (!wasAbsent[0] && locationPair.getRight().x == 0)
-		{
-			locationPair.getRight().x = 1;
-			displayList.forEach(bd ->
-			{
-				bd.setInterpolationDuration(1);
-				bd.setInterpolationDelay(0);
-				bd.setTransformation(new Transformation(new Vector3f(), new Quaternionf(), new Vector3f(1, 1, 1), new Quaternionf()));
+				blockStructureEntity.setAliveCondition(context.getPlayer(), MultiDisplayEntity.holdingCustomItemWithNBTCondition(context.getPlayer(), FunnyLib.STRUCTURE, itemNBT -> itemNBT.getEnum(Mode.class, "mode") == Mode.LOADING));
+				blockStructureEntity.getEntityPDC().setBoolean("structure_preview", true);
+				return blockStructureEntity;
 			});
-		}
 
-		if (!locationPair.getMiddle().equals(location.getBlockX(), location.getBlockY(), location.getBlockZ()))
-		{
-			locationPair.getMiddle().set(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-
-			int offsetX = location.getBlockX() - locationPair.getLeft().x;
-			int offsetY = location.getBlockY() - locationPair.getLeft().y;
-			int offsetZ = location.getBlockZ() - locationPair.getLeft().z;
-
-			displayList.forEach(bd ->
-			{
-				bd.setInterpolationDuration(1);
-				bd.setInterpolationDelay(0);
-				bd.setTransformation(new Transformation(new Vector3f(offsetX, offsetY, offsetZ), new Quaternionf(), new Vector3f(1, 1, 1), new Quaternionf()));
-			});
-		}
+		blockStructure.move(location.getX() + ((size.x + 1) / 2f) % 1f, location.getY() + (size.y + 1) / 2f, location.getZ() + ((size.z + 1) / 2f) % 1f);
 	}
 
 	@Override

@@ -72,7 +72,7 @@ public class PlayerboundEntityManager implements Listener
 		}
 	}
 
-	public void removeMultiEntity(Player player, FrameDisplayEntity frameDisplayEntity)
+	public void removeMultiEntity(Player player, MultiDisplayEntity frameDisplayEntity)
 	{
 		Set<MultiDisplayEntity> set = entityMap.get(player.getUniqueId());
 		if (set != null)
@@ -114,7 +114,7 @@ public class PlayerboundEntityManager implements Listener
 	{
 		entityMap.values().forEach(set ->
 		{
-			// Copy so I can modify the list mhmm
+			// Copy so I can modify the list when iterating over it mhmm
 			Set.copyOf(set).forEach(MultiDisplayEntity::tick);
 		});
 	}

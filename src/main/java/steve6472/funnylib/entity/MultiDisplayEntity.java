@@ -1,18 +1,28 @@
 package steve6472.funnylib.entity;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Transformation;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import steve6472.funnylib.FunnyLib;
+import steve6472.funnylib.item.CustomItem;
+import steve6472.funnylib.item.Items;
+import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.serialize.PdcNBT;
 import steve6472.standalone.interactable.ReflectionHacker;
 
 import java.lang.ref.WeakReference;
+import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Created by steve6472
@@ -21,7 +31,41 @@ import java.util.function.Consumer;
  */
 public abstract class MultiDisplayEntity
 {
+	public static final int MAX_DISPLAYS = 1024;
+
 	WeakReference<Entity> rootEntity;
+	private Supplier<Boolean> aliveCondition;
+	private UUID owner;
+
+	public void setAliveCondition(Player owner, Supplier<Boolean> aliveCondition)
+	{
+		this.owner = owner.getUniqueId();
+		this.aliveCondition = aliveCondition;
+	}
+
+	public static Supplier<Boolean> holdingCustomItemWithNBTCondition(Player player, CustomItem item, Function<ItemNBT, Boolean> test)
+	{
+		return () ->
+		{
+			ItemStack itemStack = player.getInventory().getItem(EquipmentSlot.HAND);
+			if (Items.getCustomItem(itemStack) != item)
+				return false;
+			if (itemStack == null || itemStack.getType().isAir())
+				return false;
+			ItemNBT itemNBT = ItemNBT.create(itemStack);
+			return test.apply(itemNBT);
+		};
+	}
+
+	protected void checkAlive()
+	{
+		if (aliveCondition != null && !aliveCondition.get())
+		{
+			Player player = Bukkit.getPlayer(owner);
+			if (player != null)
+				FunnyLib.getPlayerboundEntityManager().removeMultiEntity(player, this);
+		}
+	}
 
 	public MultiDisplayEntity(Entity root)
 	{
@@ -50,7 +94,7 @@ public abstract class MultiDisplayEntity
 
 	public void tick()
 	{
-
+		checkAlive();
 	}
 
 	public void move(double x, double y, double z)
@@ -64,6 +108,8 @@ public abstract class MultiDisplayEntity
 	{
 		Entity root = rootEntity.get();
 		if (root == null) return;
+		if (root.getPassengers().size() > MAX_DISPLAYS)
+			return;
 		T spawn = root.getWorld().spawn(root.getLocation(), clazz, function);
 		NBT nbt = PdcNBT.fromPDC(root.getPersistentDataContainer());
 		nbt.set3f("original_translation", spawn.getTransformation().getTranslation());
