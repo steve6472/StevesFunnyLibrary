@@ -22,16 +22,13 @@ import steve6472.funnylib.context.PlayerItemContext;
 import steve6472.funnylib.context.UseType;
 import steve6472.funnylib.data.BlockInfo;
 import steve6472.funnylib.entity.FrameDisplayEntity;
-import steve6472.funnylib.entity.MultiDisplayEntity;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.events.SwapHandEvent;
 import steve6472.funnylib.item.events.TickInHandEvent;
 import steve6472.funnylib.data.GameStructure;
 import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.serialize.NBT;
-import steve6472.funnylib.serialize.PdcNBT;
 import steve6472.funnylib.util.*;
-import steve6472.standalone.interactable.ReflectionHacker;
 
 import java.util.*;
 
@@ -42,7 +39,6 @@ import java.util.*;
  */
 public class StructureItem extends CustomItem implements TickInHandEvent, SwapHandEvent
 {
-	private static final Particle.DustOptions OPTIONS = new Particle.DustOptions(Color.AQUA, 0.75f);
 	public static final String KEY = "block_states";
 
 	private static final double RAY_DISTANCE = 64;
@@ -217,7 +213,7 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 				Vector3i size = itemData.getCompound(KEY).get3i("size");
 				builder.addLore(JSONMessage
 					.create("Size: ").color(ChatColor.DARK_GRAY)
-					.then("" + size.x + "/" + size.y + "/" + size.z, ChatColor.WHITE)
+					.then(size.x + "/" + size.y + "/" + size.z, ChatColor.WHITE)
 					.setItalic(JSONMessage.ItalicType.FALSE));
 			}
 		}
@@ -269,17 +265,13 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 				.getPlayerboundEntityManager()
 				.getOrCreateMultiEntity(context.getPlayer(), nbt -> nbt.getBoolean("structure_frame_select", false), () ->
 				{
-					FrameDisplayEntity frameDisplayEntity = new FrameDisplayEntity(context.getPlayer(), location, FrameDisplayEntity.FrameType.MEDIUMAQUA_MARINE, 1f / 16f);
-					frameDisplayEntity.setAliveCondition(() ->
-					{
-						ItemStack item = context.getPlayer().getInventory().getItem(EquipmentSlot.HAND);
-						if (item == null || item.getType().isAir())
-							return false;
-						ItemNBT itemNBT = ItemNBT.create(item);
-						Mode mode = itemNBT.getEnum(Mode.class, "mode");
-						return mode == Mode.SELECTING;
-					});
-					PdcNBT.fromPDC(frameDisplayEntity.getRootEntity().get().getPersistentDataContainer()).setBoolean("structure_frame_select", true);
+					FrameDisplayEntity frameDisplayEntity = new FrameDisplayEntity(
+						context.getPlayer(),
+						new Location(location.getWorld(), x0 + (size.x) / 2f, y0 + (size.y) / 2f, z0 + (size.z) / 2f),
+						FrameDisplayEntity.FrameType.MEDIUMAQUA_MARINE,
+						1f / 16f);
+					frameDisplayEntity.setAliveCondition(FrameDisplayEntity.holdingCustomItemWithNBTCondition(context.getPlayer(), FunnyLib.STRUCTURE, itemNBT -> itemNBT.getEnum(Mode.class, "mode") == Mode.SELECTING));
+					frameDisplayEntity.getEntityPDC().setBoolean("structure_frame_select", true);
 					return frameDisplayEntity;
 				});
 
@@ -323,17 +315,13 @@ public class StructureItem extends CustomItem implements TickInHandEvent, SwapHa
 			.getPlayerboundEntityManager()
 			.getOrCreateMultiEntity(context.getPlayer(), nbt -> nbt.getBoolean("structure_frame", false), () ->
 			{
-				FrameDisplayEntity frameDisplayEntity = new FrameDisplayEntity(context.getPlayer(), location, FrameDisplayEntity.FrameType.UGLY_PURPLE, 1f / 16f);
-				frameDisplayEntity.setAliveCondition(() ->
-				{
-					ItemStack item = context.getPlayer().getInventory().getItem(EquipmentSlot.HAND);
-					if (item == null || item.getType().isAir())
-						return false;
-					ItemNBT itemNBT = ItemNBT.create(item);
-					Mode mode = itemNBT.getEnum(Mode.class, "mode");
-					return mode == Mode.LOADING;
-				});
-				PdcNBT.fromPDC(frameDisplayEntity.getRootEntity().get().getPersistentDataContainer()).setBoolean("structure_frame", true);
+				FrameDisplayEntity frameDisplayEntity = new FrameDisplayEntity(
+					context.getPlayer(),
+					new Location(location.getWorld(), location.getX() + (size.x + 1) / 2f, location.getY() + (size.y + 1) / 2f, location.getZ() + (size.z + 1) / 2f),
+					FrameDisplayEntity.FrameType.UGLY_PURPLE,
+					1f / 16f);
+				frameDisplayEntity.setAliveCondition(FrameDisplayEntity.holdingCustomItemWithNBTCondition(context.getPlayer(), FunnyLib.STRUCTURE, itemNBT -> itemNBT.getEnum(Mode.class, "mode") == Mode.LOADING));
+				frameDisplayEntity.getEntityPDC().setBoolean("structure_frame", true);
 				return frameDisplayEntity;
 			});
 

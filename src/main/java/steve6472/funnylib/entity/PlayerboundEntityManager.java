@@ -31,7 +31,7 @@ public class PlayerboundEntityManager implements Listener
 	{
 		Optional<MultiDisplayEntity> first = getEntitiesForPlayer(player)
 			.stream()
-			.filter(t -> predicate.test(PdcNBT.fromPDC(t.getRootEntity().get().getPersistentDataContainer())))
+			.filter(t -> predicate.test(t.getEntityPDC()))
 			.findFirst();
 
 		if (first.isPresent())
@@ -51,7 +51,7 @@ public class PlayerboundEntityManager implements Listener
 	{
 		Optional<MultiDisplayEntity> first = getEntitiesForPlayer(player)
 			.stream()
-			.filter(t -> predicate.test(PdcNBT.fromPDC(t.getRootEntity().get().getPersistentDataContainer())))
+			.filter(t -> predicate.test(t.getEntityPDC()))
 			.findFirst();
 
 		//noinspection unchecked
@@ -62,7 +62,7 @@ public class PlayerboundEntityManager implements Listener
 	{
 		Optional<MultiDisplayEntity> first = getEntitiesForPlayer(player)
 			.stream()
-			.filter(t -> predicate.test(PdcNBT.fromPDC(t.getRootEntity().get().getPersistentDataContainer())))
+			.filter(t -> predicate.test(t.getEntityPDC()))
 			.findFirst();
 
 		if (first.isPresent())

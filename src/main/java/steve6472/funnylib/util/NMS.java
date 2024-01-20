@@ -23,7 +23,9 @@ import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,21 +35,7 @@ import java.util.Map;
  */
 public class NMS
 {
-	private static final Method internalLegacyDeserialization;
 	private static final Map<Item, Integer> BURN_TIME = AbstractFurnaceBlockEntity.getFuel();
-
-	static
-	{
-		try
-		{
-
-			internalLegacyDeserialization = CraftNBTTagConfigSerializer.class.getDeclaredMethod("internalLegacyDeserialization", Object.class);
-			internalLegacyDeserialization.setAccessible(true);
-		} catch (NoSuchMethodException e)
-		{
-			throw new RuntimeException(e);
-		}
-	}
 
 	public static int getBurnTime(Material material)
 	{
@@ -65,16 +53,41 @@ public class NMS
 	{
 		if (pdc instanceof CraftPersistentDataContainer cpdc)
 		{
-			try
-			{
-				Object invoke = internalLegacyDeserialization.invoke(null, cpdc.toTagCompound());
-				return ((Map<String, Object>) invoke);
-			} catch (IllegalAccessException | InvocationTargetException e)
-			{
-				throw new RuntimeException(e);
-			}
+			return ((Map<String, Object>) serialize(cpdc.toTagCompound()));
 		}
 		throw new RuntimeException("PDC not instance of CraftPersistentDataContainer");
+	}
+
+	private static Object serialize(Tag base)
+	{
+		if (base instanceof CompoundTag compoundTag)
+		{
+			Map<String, Object> innerMap = new HashMap<>();
+			for (String key : compoundTag.getAllKeys())
+			{
+				innerMap.put(key, serialize(compoundTag.get(key)));
+			}
+
+			return innerMap;
+		} else if (base instanceof ListTag list)
+		{
+			List<Object> baseList = new ArrayList<>();
+			for (Tag tag : list)
+			{
+				baseList.add(serialize(tag));
+			}
+
+			return baseList;
+		} else if (base instanceof StringTag)
+		{
+			String string = base.toString();
+			return string.substring(1, string.length() - 1);
+		} else if (base instanceof IntTag)
+		{
+			return base + "i";
+		}
+
+		return base.toString();
 	}
 
 	public static void addLore(ItemStack bukkitStack, String json)

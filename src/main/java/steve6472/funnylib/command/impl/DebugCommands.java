@@ -3,6 +3,8 @@ package steve6472.funnylib.command.impl;
 import net.minecraft.nbt.CompoundTag;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
+import org.bukkit.entity.Display;
+import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -45,6 +47,25 @@ public class DebugCommands
 		System.out.println(JsonPrettify.prettify(json));
 		ItemStack deserialize = MiscUtil.deserializeItemStack(json);
 		player.getInventory().addItem(deserialize);
+		return true;
+	}
+
+	@Command
+	@Description("Test Display Entity")
+	@Usage("/testDisplayEntity")
+	public static boolean testDisplayEntity(@NotNull Player player, @NotNull String[] args)
+	{
+		Location location = player.getLocation();
+		ItemDisplay spawn = location.getWorld().spawn(location, ItemDisplay.class, entity ->
+		{
+			entity.setBrightness(new Display.Brightness(0, 0));
+			entity.setItemStack(SkullCreator.itemFromUuid(player.getUniqueId()));
+			entity.setTransformation(TransformationBuilder.create().setTranslation(-0.5f, -0.5f, -0.5f).build());
+		});
+
+		Bukkit.getScheduler().runTaskLater(FunnyLib.getPlugin(), () -> {
+			spawn.remove();
+		}, 100);
 		return true;
 	}
 
@@ -142,7 +163,7 @@ public class DebugCommands
 
 		GameStructure structure = GameStructure.fromItem(item);
 		if (structure == null) return false;
-		BlockStructureEntity entity = BlockStructureEntity.createFromStructure(player.getLocation(), structure);
+//		BlockStructureEntity entity = BlockStructureEntity.createFromStructure(player.getLocation(), structure);
 
 		return true;
 	}

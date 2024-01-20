@@ -6,6 +6,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.util.Transformation;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.serialize.PdcNBT;
 import steve6472.standalone.interactable.ReflectionHacker;
@@ -37,6 +38,16 @@ public abstract class MultiDisplayEntity
 		return rootEntity;
 	}
 
+	public PdcNBT getEntityPDC()
+	{
+		Entity entity = getRootEntity().get();
+		if (entity == null)
+		{
+			throw new RuntimeException("Entity unloaded");
+		}
+		return PdcNBT.fromPDC(entity.getPersistentDataContainer());
+	}
+
 	public void tick()
 	{
 
@@ -53,7 +64,7 @@ public abstract class MultiDisplayEntity
 	{
 		Entity root = rootEntity.get();
 		if (root == null) return;
-		T spawn = root.getWorld().spawn(root.getLocation(), clazz, function::accept);
+		T spawn = root.getWorld().spawn(root.getLocation(), clazz, function);
 		NBT nbt = PdcNBT.fromPDC(root.getPersistentDataContainer());
 		nbt.set3f("original_translation", spawn.getTransformation().getTranslation());
 		root.addPassenger(spawn);

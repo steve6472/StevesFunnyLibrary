@@ -244,6 +244,18 @@ public class ConfigTypeRegistry
 		);
 
 		registerType(
+			BuiltInConfigType.BOOLEAN,
+			(value, json) -> json.optBoolean(value.getId(), false),
+			(value, object, json) -> json.put(value.getId(), object),
+			(value, object) -> toStringIcon(value.getName(), object ? Material.GREEN_DYE : Material.RED_DYE, object, false),
+			(click, value, gameConfig) ->
+			{
+				click.slot().updateSlot(createIcon(value, !gameConfig.getValue(value)));
+				return Response.cancel();
+			}
+		);
+
+		registerType(
 			BuiltInConfigType.DOUBLE,
 			(value, json) -> json.optDouble(value.getId(), 0),
 			(value, object, json) -> json.put(value.getId(), object),

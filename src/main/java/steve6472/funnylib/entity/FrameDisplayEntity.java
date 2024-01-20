@@ -2,12 +2,19 @@ package steve6472.funnylib.entity;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.NotNull;
 import steve6472.funnylib.FunnyLib;
+import steve6472.funnylib.item.CustomItem;
+import steve6472.funnylib.item.Items;
+import steve6472.funnylib.item.builtin.StructureItem;
+import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.util.Preconditions;
 import steve6472.funnylib.util.SkullCreator;
 
@@ -16,6 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -25,7 +33,7 @@ import java.util.function.Supplier;
  */
 public class FrameDisplayEntity extends MultiDisplayEntity
 {
-	private Map<UUID, Consumer<Transformation>> partBehaviour = new HashMap<>(12);
+	private final Map<UUID, Consumer<Transformation>> partBehaviour = new HashMap<>(12);
 	private FrameType frameType;
 	private float radius;
 	private float scaleX, scaleY, scaleZ;
@@ -49,13 +57,26 @@ public class FrameDisplayEntity extends MultiDisplayEntity
 		this.aliveCondition = aliveCondition;
 	}
 
+	public static Supplier<Boolean> holdingCustomItemWithNBTCondition(Player player, CustomItem item, Function<ItemNBT, Boolean> test)
+	{
+		return () ->
+		{
+			ItemStack itemStack = player.getInventory().getItem(EquipmentSlot.HAND);
+			if (Items.getCustomItem(itemStack) != item)
+				return false;
+			if (itemStack == null || itemStack.getType().isAir())
+				return false;
+			ItemNBT itemNBT = ItemNBT.create(itemStack);
+			return test.apply(itemNBT);
+		};
+	}
+
 	@Override
 	public void tick()
 	{
 		if (aliveCondition != null && !aliveCondition.get())
 		{
 			Player player = Bukkit.getPlayer(owner);
-			System.out.println(player);
 			if (player != null)
 				FunnyLib.getPlayerboundEntityManager().removeMultiEntity(player, this);
 		}
@@ -201,6 +222,7 @@ public class FrameDisplayEntity extends MultiDisplayEntity
 		{
 			entity.setItemStack(frameType.createHead());
 			partBehavior.accept(entity.getTransformation());
+			entity.setBrightness(new Display.Brightness(15, 15));
 			this.partBehaviour.put(entity.getUniqueId(), partBehavior);
 		});
 	}
