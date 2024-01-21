@@ -1,12 +1,10 @@
 package steve6472.funnylib.item.builtin;
 
 import net.wesjd.anvilgui.AnvilGUI;
-import org.bukkit.ChatColor;
-import org.bukkit.Color;
-import org.bukkit.Material;
-import org.bukkit.Particle;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
+import org.joml.Vector3f;
 import org.joml.Vector3i;
 import steve6472.funnylib.CancellableResult;
 import steve6472.funnylib.FunnyLib;
@@ -125,6 +123,25 @@ public class MarkerItem extends CustomItem implements TickInHandEvent
 		int z = location.z;
 
 		ParticleUtil.boxAbsolute(context.getPlayer(), Particle.REDSTONE, x, y, z, x + 1, y + 1, z + 1, 0, 0.2, OPTIONS);
+
+		Location playerLoc = context.getPlayer().getEyeLocation();
+
+		if (playerLoc.toVector().toVector3i().distance(location) <= 32)
+			return;
+
+		Vector3f normalize = playerLoc
+			.toVector()
+			.toVector3f()
+			.sub(new Vector3f(location).add(0.5f, 0.5f, 0.5f))
+			.normalize()
+			.mul(-1f);
+		Vector3f a = normalize.mul(2f, new Vector3f());
+		Vector3f b = normalize.mul(4f, new Vector3f());
+
+		float px = (float) playerLoc.getX();
+		float py = (float) playerLoc.getY();
+		float pz = (float) playerLoc.getZ();
+		ParticleUtil.line(context.getPlayer(), Particle.REDSTONE, a.x + px, a.y + py, a.z + pz, b.x + px, b.y + py, b.z + pz, 0, 0.2, OPTIONS);
 	}
 
 	@Override

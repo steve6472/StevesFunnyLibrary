@@ -1,5 +1,6 @@
 package steve6472.funnylib.minigame.config;
 
+import org.joml.Vector3i;
 import steve6472.funnylib.data.GameStructure;
 import steve6472.funnylib.data.Marker;
 
@@ -28,6 +29,7 @@ public class BuiltInConfigType<T> implements ConfigType<T>
 	 */
 	public static final ConfigType<GameStructure> STRUCTURE = new BuiltInConfigType<>("STRUCTURE", GameStructure.class);
 	public static final ConfigType<Marker> MARKER = new BuiltInConfigType<>("MARKER", Marker.class);
+	public static final ConfigType<Vector3i> VEC_3I = new BuiltInConfigType<>("VEC_3I", Vector3i.class);
 
 	private final Set<Class<?>> allowedTypes;
 	private final String name;

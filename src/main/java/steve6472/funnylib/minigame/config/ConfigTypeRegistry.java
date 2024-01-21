@@ -8,6 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3i;
 import org.json.JSONObject;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.data.GameStructure;
@@ -18,6 +19,7 @@ import steve6472.funnylib.json.INBT;
 import steve6472.funnylib.json.JsonNBT;
 import steve6472.funnylib.menu.Click;
 import steve6472.funnylib.menu.Response;
+import steve6472.funnylib.minigame.config.menu.Vec3iConfigMenu;
 import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.serialize.PdcNBT;
 import steve6472.funnylib.util.*;
@@ -297,6 +299,20 @@ public class ConfigTypeRegistry
 				return object.toItem();
 			},
 			(click, value, gameConfig) -> itemSwap(click, value, gameConfig, (itemStack) -> Items.getCustomItem(itemStack) == FunnyLib.LOCATION_MARKER, Marker::toItem, Marker::fromItem, true)
+		);
+
+		registerType(
+			BuiltInConfigType.VEC_3I,
+			(value, json) ->  {
+				JSONObject object = json.getJSONObject(value.getId());
+				return json.has(value.getId()) ? new Vector3i(object.getInt("x"), object.getInt("y"), object.getInt("z")) : null;
+			},
+			(value, object, json) -> json.put(value.getId(), new JSONObject().put("x", object.x).put("y", object.y).put("z", object.z)),
+			(value, object) ->
+			{
+				return new ItemStack(Material.RAW_GOLD);
+			},
+			(click, value, gameConfig) -> Response.redirect(new Vec3iConfigMenu(value.getName()))
 		);
 	}
 

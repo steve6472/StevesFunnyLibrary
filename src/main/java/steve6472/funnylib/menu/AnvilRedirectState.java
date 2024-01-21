@@ -7,5 +7,5 @@ package steve6472.funnylib.menu;
  */
 public enum AnvilRedirectState
 {
-	NONE, ANVIL_OPENED, AWAITING_ANVIL_CLOSE
+	NONE, ANVIL_OPEN_1, ANVIL_OPEN_2, AWAITING_ANVIL_CLOSE, ANVIL_CLOSE
 }

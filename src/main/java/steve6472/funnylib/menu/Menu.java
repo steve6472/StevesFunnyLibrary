@@ -3,7 +3,6 @@ package steve6472.funnylib.menu;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.joml.Vector3i;
 import org.joml.Vector4i;
 import steve6472.funnylib.util.MetaUtil;
 import steve6472.funnylib.util.MiscUtil;
@@ -313,7 +312,7 @@ public abstract class Menu
 	 */
 	public void anvilRedirect()
 	{
-		anvilRedirectState = AnvilRedirectState.ANVIL_OPENED;
+		anvilRedirectState = AnvilRedirectState.ANVIL_OPEN_1;
 	}
 
 	public boolean hasHistory()
