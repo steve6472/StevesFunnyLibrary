@@ -3,6 +3,7 @@ package steve6472.standalone.buildbattle;
 import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
+import org.joml.Vector3i;
 import steve6472.funnylib.data.GameStructure;
 import steve6472.funnylib.data.Marker;
 import steve6472.funnylib.minigame.Game;
@@ -33,6 +34,7 @@ public class BuildBattleGame extends Game
 	public static final Value<String> TEST_STRING = Value.create(BuiltInConfigType.STRING, "Test String", "test");
 	public static final Value<Integer> BUILD_TIME = Value.create(BuiltInConfigType.INT, "Build Time", "build_time");
 	public static final Value<Marker> CENTER = Value.create(BuiltInConfigType.MARKER, "Center", "center");
+	public static final Value<Vector3i> PLOT_BUILD_SIZE = Value.create(BuiltInConfigType.VEC_3I, "Plot Build Size", "plot_build_size");
 
 	public BuildBattleGame(Plugin plugin, World world, GameConfiguration gameConfig)
 	{

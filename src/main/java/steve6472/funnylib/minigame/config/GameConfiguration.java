@@ -9,6 +9,7 @@ import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.Preconditions;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,7 +32,7 @@ public class GameConfiguration
 	{
 		this.configTypeRegistry = configTypeRegistry;
 		this.minigameId = minigameId;
-		values = new HashMap<>();
+		values = new LinkedHashMap<>();
 		config = new JsonConfig(minigameId, "minigames", FunnyLib.getPlugin());
 	}
 
@@ -70,7 +71,7 @@ public class GameConfiguration
 	public void setValue(Value<?> value, Object object)
 	{
 		if (!values.containsKey(value))
-			throw new IllegalStateException("Tried to set to non-registrated value!");
+			throw new IllegalStateException("Tried to set to non-registrated value! (" + value + ")");
 
 		if (object != null && !value.getValueType().isValueAllowed(object))
 		{

@@ -13,6 +13,8 @@ public class Response
 	private static final Response ALLOW = new Response();
 	private static final Response EXIT = new Response();
 	private static final Response CLEAR_ITEM_FROM_CURSOR = new Response();
+	private static final Response BACK = new Response();
+	private static final Response BACK_RELOAD = new Response();
 
 	private ItemStack setItemToCursor;
 	private Menu redirect;
@@ -35,6 +37,16 @@ public class Response
 	public static Response clearItemFromCursor()
 	{
 		return CLEAR_ITEM_FROM_CURSOR;
+	}
+
+	public static Response back()
+	{
+		return BACK;
+	}
+
+	public static Response backReload()
+	{
+		return BACK_RELOAD;
 	}
 
 	public static Response redirect(Menu menu)

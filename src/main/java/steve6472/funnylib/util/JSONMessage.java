@@ -135,6 +135,12 @@ public class JSONMessage
 		return this;
 	}
 
+	public JSONMessage setItalic(boolean italic)
+	{
+		mainItalic = italic ? ItalicType.TRUE : ItalicType.FALSE;
+		return this;
+	}
+
 	/**
 	 * Converts this {@link JSONMessage} instance to actual JSON
 	 *

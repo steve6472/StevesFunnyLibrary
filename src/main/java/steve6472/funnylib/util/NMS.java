@@ -111,6 +111,10 @@ public class NMS
 
 			// get Lore tag
 			CompoundTag tag = nmsStack.getOrCreateTag();
+			if (tag == null)
+			{
+				nmsStack.setTag(tag = new CompoundTag());
+			}
 			CompoundTag display = tag.contains("display", Tag.TAG_COMPOUND) ? tag.getCompound("display") : new CompoundTag();
 			ListTag lore = display.getList("Lore", Tag.TAG_STRING);
 

@@ -3,12 +3,15 @@ package steve6472.funnylib.menu;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.util.MetaUtil;
+
+import javax.annotation.Nullable;
 
 /**
  * Created by steve6472
@@ -58,6 +61,11 @@ public class MenuListener implements Listener
 		}
 
 		Response response = menu.onClose(player);
+
+		if (back(response, menu, player, null, false))
+		{
+			return;
+		}
 
 		if (response == Response.allow())
 		{
@@ -159,6 +167,9 @@ public class MenuListener implements Listener
 			return;
 		}
 
+		if (back(response, menu, player, e, true))
+			return;
+
 		if (response.getRedirect() != null)
 		{
 			e.setCancelled(true);
@@ -176,5 +187,39 @@ public class MenuListener implements Listener
 			e.setCancelled(true);
 			return;
 		}
+	}
+
+	/**
+	 * @param response
+	 * @param menu
+	 * @param player
+	 * @param event
+	 * @return true if back was hit
+	 */
+	private boolean back(Response response, Menu menu, Player player, @Nullable Cancellable event, boolean shouldCloseInventory)
+	{
+		if (response != Response.back() && response != Response.backReload())
+		{
+			return false;
+		}
+
+		if (event != null)
+			event.setCancelled(true);
+
+		if (menu.hasHistory())
+		{
+			menu.redirected = true;
+			Menu last = menu.getHistory().get().pollLast();
+
+			if (response == Response.backReload())
+				last.reload();
+
+			last.showToPlayer(player);
+		} else
+		{
+			if (shouldCloseInventory)
+				player.closeInventory();
+		}
+		return true;
 	}
 }

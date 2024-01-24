@@ -304,15 +304,22 @@ public class ConfigTypeRegistry
 		registerType(
 			BuiltInConfigType.VEC_3I,
 			(value, json) ->  {
+				if (!json.has(value.getId()))
+					return new Vector3i();
 				JSONObject object = json.getJSONObject(value.getId());
 				return json.has(value.getId()) ? new Vector3i(object.getInt("x"), object.getInt("y"), object.getInt("z")) : null;
 			},
 			(value, object, json) -> json.put(value.getId(), new JSONObject().put("x", object.x).put("y", object.y).put("z", object.z)),
 			(value, object) ->
 			{
-				return new ItemStack(Material.RAW_GOLD);
+				return ItemStackBuilder.create(Material.RAW_GOLD)
+					.addLore(JSONMessage.create())
+					.addLore(JSONMessage.create("X: ").color(ChatColor.RED).then("" + object.x).color(ChatColor.WHITE).setItalic(false))
+					.addLore(JSONMessage.create("Y: ").color(ChatColor.GREEN).then("" + object.y).color(ChatColor.WHITE).setItalic(false))
+					.addLore(JSONMessage.create("Z: ").color(ChatColor.BLUE).then("" + object.z).color(ChatColor.WHITE).setItalic(false))
+					.buildItemStack();
 			},
-			(click, value, gameConfig) -> Response.redirect(new Vec3iConfigMenu(value.getName()))
+			(click, value, gameConfig) -> Response.redirect(new Vec3iConfigMenu(this, gameConfig, value))
 		);
 	}
 

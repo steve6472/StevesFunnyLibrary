@@ -6,7 +6,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import steve6472.funnylib.menu.Menu;
 import steve6472.funnylib.menu.Response;
-import steve6472.funnylib.menu.Slot;
 import steve6472.funnylib.menu.slots.buttons.ButtonSlot;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
@@ -51,13 +50,14 @@ public class GameConfigMenu extends Menu
 			setSlot(i + 1, 1, new ButtonSlot(icon, false)
 			{
 				@Override
-				public Slot updateSlot(ItemStack itemStack)
+				public ItemStack getIcon()
 				{
-					ItemStackBuilder debugIcon = ItemStackBuilder.editNonStatic(itemStack);
+					Object object = gameConfig.getValue(value);
+
+					ItemStackBuilder debugIcon = ItemStackBuilder.editNonStatic(configTypeRegistry.createIcon(value, object));
 					addDebugInfoToIcon(debugIcon, value, object);
 					debugIcon.setName(value.getName());
-					ItemStack editedIcon = debugIcon.buildItemStack();
-					return super.updateSlot(editedIcon);
+					return debugIcon.buildItemStack();
 				}
 			}.setClick(click -> configTypeRegistry.onClick(value, click, gameConfig)));
 

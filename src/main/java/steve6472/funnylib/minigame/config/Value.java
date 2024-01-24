@@ -40,4 +40,10 @@ public class Value<T>
 	{
 		return name;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "Value{" + "type=" + type + ", id='" + id + '\'' + ", name='" + name + '\'' + '}';
+	}
 }
