@@ -9,6 +9,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
 import org.joml.Vector3i;
+import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.category.Categorizable;
 import steve6472.funnylib.item.builtin.StructureItem;
 import steve6472.funnylib.json.Itemizable;
@@ -16,6 +17,7 @@ import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.Pair;
 import steve6472.funnylib.util.Preconditions;
+import steve6472.funnylib.workdistro.impl.ModifyBlockWorkload;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -137,7 +139,7 @@ public final class GameStructure implements Categorizable, Itemizable<GameStruct
 		return StructureItem.newStructureItem(this, name(), icon());
 	}
 
-	public void place(World world, int x, int y, int z, int offsetX, int offsetY, int offsetZ)
+	public void place(World world, int x, int y, int z, int offsetX, int offsetY, int offsetZ, boolean instant)
 	{
 		Preconditions.checkNotNull(world);
 
@@ -155,9 +157,23 @@ public final class GameStructure implements Categorizable, Itemizable<GameStruct
 			}
 		}
 
-		for (BlockInfo block : blocks)
+
+		if (instant)
 		{
-			world.getBlockAt(x + block.position().x + offsetX, y + block.position().y + offsetY, z + block.position().z + offsetZ).setBlockData(block.data().clone());
+			for (BlockInfo block : blocks)
+			{
+				world.getBlockAt(x + block.position().x + offsetX, y + block.position().y + offsetY, z + block.position().z + offsetZ).setBlockData(block.data().clone());
+			}
+		} else
+		{
+			for (BlockInfo block : blocks)
+			{
+				FunnyLib
+					.getWorkloadRunnable()
+					.addWorkload(new ModifyBlockWorkload(world, (wrld) -> wrld
+						.getBlockAt(x + block.position().x + offsetX, y + block.position().y + offsetY, z + block.position().z + offsetZ)
+						.setBlockData(block.data().clone())));
+			}
 		}
 
 		chunks.forEach(c -> c.a().setForceLoaded(c.b()));
@@ -165,7 +181,7 @@ public final class GameStructure implements Categorizable, Itemizable<GameStruct
 
 	public void placeCentered(World world, int x, int y, int z)
 	{
-		place(world, x, y, z, -size.x / 2, -size.y / 2, -size.z / 2);
+		place(world, x, y, z, -size.x / 2, -size.y / 2, -size.z / 2, false);
 	}
 
 	public void unplace(World world, int x, int y, int z, int offsetX, int offsetY, int offsetZ)

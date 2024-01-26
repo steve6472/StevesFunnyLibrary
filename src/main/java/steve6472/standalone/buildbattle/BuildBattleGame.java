@@ -2,8 +2,11 @@ package steve6472.standalone.buildbattle;
 
 import org.bukkit.GameRule;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.joml.Vector3i;
+import steve6472.brigit.Brigit;
+import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.data.GameStructure;
 import steve6472.funnylib.data.Marker;
 import steve6472.funnylib.minigame.Game;
@@ -13,8 +16,9 @@ import steve6472.funnylib.minigame.config.GameConfiguration;
 import steve6472.funnylib.minigame.config.Value;
 import steve6472.funnylib.util.Preconditions;
 import steve6472.standalone.buildbattle.phases.BuildPhase;
+import steve6472.standalone.buildbattle.phases.ViewingPhase;
 
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by steve6472
@@ -26,15 +30,20 @@ public class BuildBattleGame extends Game
 	public static Set<String> POSSIBLE_THEMES = Set.of("Car", "House", "baldmatras");
 
 	/*
-	 * Ability to change day/night and weather
-	 * Custom heads
+	 * [x] Ability to change day/night and weather
+	 * [x] Custom heads
+	 * [ ] Plot biome
 	 */
 
 	public static final Value<GameStructure> PLOT = Value.create(BuiltInConfigType.STRUCTURE, "Plot", "plot");
-	public static final Value<String> TEST_STRING = Value.create(BuiltInConfigType.STRING, "Test String", "test");
 	public static final Value<Integer> BUILD_TIME = Value.create(BuiltInConfigType.INT, "Build Time", "build_time");
 	public static final Value<Marker> CENTER = Value.create(BuiltInConfigType.MARKER, "Center", "center");
 	public static final Value<Vector3i> PLOT_BUILD_SIZE = Value.create(BuiltInConfigType.VEC_3I, "Plot Build Size", "plot_build_size");
+	public static final Value<Vector3i> PLOT_BUILD_OFFSET = Value.create(BuiltInConfigType.VEC_3I, "Plot Build Offset", "plot_build_offset");
+
+	public World world;
+	public final List<String> themes;
+	public final Map<UUID, Plot> plots;
 
 	public BuildBattleGame(Plugin plugin, World world, GameConfiguration gameConfig)
 	{
@@ -47,7 +56,12 @@ public class BuildBattleGame extends Game
 		registerState("spectator", SpectatorPlayerState::new);
 		registerState("border_locked", BorderLockedPlayerState::new);
 
+		this.world = world;
+		this.themes = new ArrayList<>(BuildBattleGame.POSSIBLE_THEMES);
+		this.plots = new HashMap<>();
+
 		addPhase(new BuildPhase(this));
+		addPhase(new ViewingPhase(this));
 
 		/*
 		 * Setup world
@@ -63,5 +77,16 @@ public class BuildBattleGame extends Game
 		world.setFullTime(6000);
 
 		start();
+	}
+
+	public Plot getPlayersPlot(Player player)
+	{
+		return plots.get(player.getUniqueId());
+	}
+
+	@Override
+	public void dispose()
+	{
+		super.dispose();
 	}
 }

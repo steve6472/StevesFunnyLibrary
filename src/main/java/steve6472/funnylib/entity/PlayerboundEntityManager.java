@@ -41,7 +41,7 @@ public class PlayerboundEntityManager implements Listener
 		} else
 		{
 			T entity = create.get();
-			if (entity != null)
+			if (entity != null/* && entity.shouldLive()*/)
 				spawnEntity(player, entity);
 			return entity;
 		}
@@ -102,7 +102,7 @@ public class PlayerboundEntityManager implements Listener
 	}
 
 	@EventHandler
-	public void playerLeave(PlayerChangedWorldEvent event)
+	public void playerChangeWorld(PlayerChangedWorldEvent event)
 	{
 		Player player = event.getPlayer();
 		getEntitiesForPlayer(player).forEach(MultiDisplayEntity::remove);
@@ -110,7 +110,7 @@ public class PlayerboundEntityManager implements Listener
 	}
 
 	@EventHandler
-	public void playerLeave(ServerTickEvent event)
+	public void onTick(ServerTickEvent event)
 	{
 		entityMap.values().forEach(set ->
 		{

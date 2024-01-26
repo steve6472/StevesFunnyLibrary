@@ -9,6 +9,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Transformation;
 import org.joml.Quaternionf;
+import org.joml.Vector3d;
 import org.joml.Vector3f;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.item.CustomItem;
@@ -36,11 +37,22 @@ public abstract class MultiDisplayEntity
 	WeakReference<Entity> rootEntity;
 	private Supplier<Boolean> aliveCondition;
 	private UUID owner;
+	private final Vector3d position = new Vector3d();
+	public int teleportDuration = 0;
 
 	public void setAliveCondition(Player owner, Supplier<Boolean> aliveCondition)
 	{
 		this.owner = owner.getUniqueId();
 		this.aliveCondition = aliveCondition;
+	}
+
+	public static Supplier<Boolean> holdingCustomItemCondition(Player player, CustomItem item)
+	{
+		return () ->
+		{
+			ItemStack itemStack = player.getInventory().getItem(EquipmentSlot.HAND);
+			return Items.getCustomItem(itemStack) == item;
+		};
 	}
 
 	public static Supplier<Boolean> holdingCustomItemWithNBTCondition(Player player, CustomItem item, Function<ItemNBT, Boolean> test)
@@ -57,9 +69,14 @@ public abstract class MultiDisplayEntity
 		};
 	}
 
+	protected boolean shouldLive()
+	{
+		return aliveCondition != null && !aliveCondition.get();
+	}
+
 	protected void checkAlive()
 	{
-		if (aliveCondition != null && !aliveCondition.get())
+		if (shouldLive())
 		{
 			Player player = Bukkit.getPlayer(owner);
 			if (player != null)
@@ -70,6 +87,7 @@ public abstract class MultiDisplayEntity
 	public MultiDisplayEntity(Entity root)
 	{
 		rootEntity = new WeakReference<>(root);
+		position.set(root.getLocation().getX(), root.getLocation().getY(), root.getLocation().getZ());
 	}
 
 	/**
@@ -101,7 +119,18 @@ public abstract class MultiDisplayEntity
 	{
 		Entity root = rootEntity.get();
 		if (root == null) return;
+		if (root instanceof Display d)
+			d.setTeleportDuration(teleportDuration);
 		ReflectionHacker.callEntityMoveTo(root, x, y, z, 0, 0);
+		position.set(x, y, z);
+	}
+
+	/**
+	 * @return copy of position
+	 */
+	public Vector3d getPosition()
+	{
+		return new Vector3d(position);
 	}
 
 	public <T extends Display> void addDisplay(Class<T> clazz, Consumer<T> function)

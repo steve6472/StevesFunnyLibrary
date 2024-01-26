@@ -1,7 +1,6 @@
 package steve6472.funnylib.minigame.config;
 
 import org.apache.logging.log4j.util.TriConsumer;
-import org.json.JSONObject;
 
 import java.util.Map;
 
@@ -17,7 +16,7 @@ public class RedirectGameConfiguration<T> extends GameConfiguration
 
 	public RedirectGameConfiguration(GameConfiguration parent, ConfigTypeRegistry configTypeRegistry, TriConsumer<Value<T>, T, GameConfiguration> redirect)
 	{
-		super(configTypeRegistry, parent.minigameId);
+		super(configTypeRegistry, parent.minigameId, parent.init);
 		this.parent = parent;
 		this.redirect = redirect;
 	}

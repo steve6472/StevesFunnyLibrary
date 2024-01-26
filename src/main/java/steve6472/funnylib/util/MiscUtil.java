@@ -12,6 +12,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
+import org.joml.Vector3i;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -50,6 +51,12 @@ public class MiscUtil
 	{
 		return ChatColor.RED + "X: " + location.getBlockX() + ChatColor.GREEN + " Y: " + location.getBlockY() + ChatColor.BLUE + " Z: " + location
 			.getBlockZ() + ChatColor.RESET;
+	}
+
+	public static String prettyPrintLocation(Vector3i location)
+	{
+		return ChatColor.RED + "X: " + location.x() + ChatColor.GREEN + " Y: " + location.y() + ChatColor.BLUE + " Z: " + location
+			.z() + ChatColor.RESET;
 	}
 
 	public static void printStackTrace()

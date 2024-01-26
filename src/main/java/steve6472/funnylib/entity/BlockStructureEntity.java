@@ -15,9 +15,7 @@ import org.joml.*;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.data.BlockInfo;
 import steve6472.funnylib.data.GameStructure;
-import steve6472.funnylib.serialize.NBT;
-import steve6472.funnylib.serialize.PdcNBT;
-import steve6472.funnylib.workdistro.OnEntityWorkload;
+import steve6472.funnylib.workdistro.impl.OnEntityWorkload;
 
 import java.util.*;
 

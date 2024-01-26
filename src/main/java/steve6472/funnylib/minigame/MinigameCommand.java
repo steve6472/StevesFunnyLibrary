@@ -25,9 +25,11 @@ import java.util.Optional;
  */
 public class MinigameCommand extends BrigitCommand
 {
+	private static final DynamicCommandExceptionType ERROR_START_GAME_IN_PROGRESS = new DynamicCommandExceptionType((var0) -> new LiteralMessage("Can not start a new minigame, one is already in progress."));
 	private static final DynamicCommandExceptionType ERROR_NO_GAME = new DynamicCommandExceptionType((var0) -> new LiteralMessage("No game in progress"));
 	private static final DynamicCommandExceptionType ERROR_NO_NEXT_PHASE = new DynamicCommandExceptionType((var0) -> new LiteralMessage("No more phases to start exist for this game"));
 	private static final DynamicCommandExceptionType ERROR_NO_PHASE = new DynamicCommandExceptionType((var0) -> new LiteralMessage("No phase found for this game"));
+	private static final DynamicCommandExceptionType ERROR_GAME_NOT_FOUND = new DynamicCommandExceptionType((var0) -> new LiteralMessage("Minigame with id " + var0 + " not found!"));
 
 	@Override
 	public void register(CommandDispatcher<CommandSourceStack> commandDispatcher)
@@ -56,14 +58,9 @@ public class MinigameCommand extends BrigitCommand
 									.filter(gc -> gc.minigameId.equals(minigameId))
 									.findFirst();
 
-								// TODO: make this an exception so I don't have to repeat this shit
 								if (minigame.isEmpty())
 								{
-									JSONMessage.create("Minigame with id ").color(ChatColor.RED)
-										.then("'").then(minigameId).color(ChatColor.WHITE).then("' ").color(ChatColor.RED)
-										.then("not found!").color(ChatColor.RED)
-										.send(getPlayer(c));
-									return 0;
+									throw ERROR_GAME_NOT_FOUND.create(minigameId);
 								} else
 								{
 									GameConfiguration gameConfiguration = minigame.get();
@@ -89,6 +86,11 @@ public class MinigameCommand extends BrigitCommand
 							.suggests((c, b) -> suggest(listMinigames(), b))
 							.executes(c ->
 							{
+								if (FunnyLib.currentGame != null)
+								{
+									throw ERROR_START_GAME_IN_PROGRESS.create(null);
+								}
+
 								String minigameId = getString(c, "minigame");
 
 								Optional<GameConfiguration> minigame = FunnyLibStandalone.minigames.games
@@ -96,18 +98,17 @@ public class MinigameCommand extends BrigitCommand
 									.filter(gc -> gc.minigameId.equals(minigameId))
 									.findFirst();
 
-								// TODO: make this an exception so I don't have to repeat this shit
 								if (minigame.isEmpty())
 								{
-									JSONMessage.create("Minigame with id ").color(ChatColor.RED)
-										.then("'").then(minigameId).color(ChatColor.WHITE).then("' ").color(ChatColor.RED)
-										.then("not found!").color(ChatColor.RED)
-										.send(getPlayer(c));
-									return 0;
+									throw ERROR_GAME_NOT_FOUND.create(minigameId);
 								} else
 								{
 									GameConfiguration gameConfiguration = minigame.get();
+									gameConfiguration.load();
 									gameConfiguration.validate();
+									Game newGame = gameConfiguration.init.apply(FunnyLib.getPlugin(), getWorld(c), gameConfiguration);
+									FunnyLib.currentGame = newGame;
+									newGame.start();
 								}
 
 								return 1;
@@ -117,15 +118,16 @@ public class MinigameCommand extends BrigitCommand
 				literal("end")
 					.executes(c ->
 					{
+						Game game = getCurrentGame();
 						try
 						{
-							Game game = getCurrentGame();
 							game.dispose();
 							FunnyLib.currentGame = null;
 
 							getPlayer(c).sendMessage(ChatColor.GREEN + "Game ended!");
 						} catch (Exception ex)
 						{
+							getPlayer(c).sendMessage(ChatColor.RED + "With errors! (Check logs)");
 							ex.printStackTrace();
 						}
 						return 1;

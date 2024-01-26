@@ -77,6 +77,11 @@ public final class Marker implements Categorizable, Itemizable<Marker>
 		return location.z;
 	}
 
+	public Vector3i toVec3i()
+	{
+		return new Vector3i(location);
+	}
+
 	public String name()
 	{
 		return name;

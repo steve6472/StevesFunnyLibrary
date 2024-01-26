@@ -1,7 +1,8 @@
-package steve6472.funnylib.workdistro;
+package steve6472.funnylib.workdistro.impl;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
+import steve6472.funnylib.workdistro.Workload;
 
 import java.util.UUID;
 import java.util.function.Consumer;

@@ -33,7 +33,7 @@ import java.util.function.Supplier;
  */
 public class FrameDisplayEntity extends MultiDisplayEntity
 {
-	private final Map<UUID, Consumer<Transformation>> partBehaviour = new HashMap<>(12);
+	protected final Map<UUID, Consumer<Transformation>> partBehaviour = new HashMap<>(12);
 	private FrameType frameType;
 	private float radius;
 	private float scaleX, scaleY, scaleZ;
@@ -80,7 +80,27 @@ public class FrameDisplayEntity extends MultiDisplayEntity
 		update();
 	}
 
-	private void create()
+	public float getScaleX()
+	{
+		return scaleX;
+	}
+
+	public float getScaleY()
+	{
+		return scaleY;
+	}
+
+	public float getScaleZ()
+	{
+		return scaleZ;
+	}
+
+	public float getRadius()
+	{
+		return radius;
+	}
+
+	protected void create()
 	{
 		// Side North West
 		createCenteredPart(t ->
@@ -213,7 +233,7 @@ public class FrameDisplayEntity extends MultiDisplayEntity
 			this.isOuterLayer = isOuterLayer;
 		}
 
-		private ItemStack createHead()
+		ItemStack createHead()
 		{
 			return SkullCreator.itemFromBase64(base64);
 		}

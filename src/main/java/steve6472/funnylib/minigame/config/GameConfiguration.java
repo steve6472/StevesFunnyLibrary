@@ -1,14 +1,17 @@
 package steve6472.funnylib.minigame.config;
 
 import org.bukkit.ChatColor;
+import org.bukkit.World;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.json.JsonConfig;
+import steve6472.funnylib.minigame.Game;
 import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.Preconditions;
+import steve6472.funnylib.util.TriFunction;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -24,14 +27,16 @@ public class GameConfiguration
 	private final Map<Value<?>, Object> values;
 	public final String minigameId;
 	private final JsonConfig config;
+	public final TriFunction<Plugin, World, GameConfiguration, Game> init;
 
 	public JSONMessage name = JSONMessage.create("unnamed").color(ChatColor.GRAY);
 	public JSONMessage shortDescription = JSONMessage.create("no description").color(ChatColor.GRAY);
 
-	public GameConfiguration(ConfigTypeRegistry configTypeRegistry, String minigameId)
+	public GameConfiguration(ConfigTypeRegistry configTypeRegistry, String minigameId, TriFunction<Plugin, World, GameConfiguration, Game> init)
 	{
 		this.configTypeRegistry = configTypeRegistry;
 		this.minigameId = minigameId;
+		this.init = init;
 		values = new LinkedHashMap<>();
 		config = new JsonConfig(minigameId, "minigames", FunnyLib.getPlugin());
 	}
