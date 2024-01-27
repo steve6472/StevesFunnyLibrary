@@ -13,10 +13,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemConsumeEvent;
-import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -32,7 +29,9 @@ import steve6472.funnylib.util.MetaUtil;
 import steve6472.funnylib.serialize.NBT;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -46,6 +45,8 @@ import java.util.function.Function;
 public class Items implements Listener
 {
 	private static final NamespacedKey CUSTOM_KEY = new NamespacedKey(FunnyLib.getPlugin(), ItemStackBuilder.CUSTOM_ID);
+
+	private static final HashMap<UUID, Long> interactDropHackMap = new HashMap<>();
 
 	public record ItemEventEntry(boolean requireAdmin, CustomItem customItem, boolean hidden)
 	{
@@ -121,6 +122,17 @@ public class Items implements Listener
 
 	public static void tick()
 	{
+		for (Iterator<Map.Entry<UUID, Long>> iterator = interactDropHackMap.entrySet().iterator(); iterator.hasNext(); )
+		{
+			Map.Entry<UUID, Long> entry = iterator.next();
+			Long v = entry.getValue();
+
+			if (v >= FunnyLib.getUptimeTicks() - 1)
+			{
+				iterator.remove();
+			}
+		}
+
 		for (Player player : Bukkit.getOnlinePlayers())
 		{
 			ItemStack handItem = player.getInventory().getItem(EquipmentSlot.HAND);
@@ -237,6 +249,30 @@ public class Items implements Listener
 	}
 
 	@EventHandler
+	public void dropItem(PlayerDropItemEvent event)
+	{
+		interactDropHackMap.put(event.getPlayer().getUniqueId(), FunnyLib.getUptimeTicks());
+
+		ItemStack item = event.getItemDrop().getItemStack();
+
+		if (item.getType() == Material.AIR) return;
+		if (event.getPlayer().getCooldown(item.getType()) != 0) return;
+
+		ItemNBT data = ItemNBT.create(item);
+
+		if (!data.hasString(ItemStackBuilder.CUSTOM_ID)) return;
+
+		String id = data.getString(ItemStackBuilder.CUSTOM_ID);
+
+		ItemEventEntry itemEventEntry = ITEMS.get(id);
+		if (itemEventEntry == null) return;
+		if (itemEventEntry.requireAdmin && !event.getPlayer().isOp()) return;
+
+		CustomItem customItem = itemEventEntry.customItem;
+		callCancellable(event, r -> callWithItemContext(event.getPlayer(), EquipmentSlot.HAND, item, ic -> customItem.onDrop(ic, r)));
+	}
+
+	@EventHandler
 	public void inventoryEvent(InventoryClickEvent e)
 	{
 		ItemStack currentItem = e.getCurrentItem();
@@ -311,6 +347,11 @@ public class Items implements Listener
 	@EventHandler
 	public void itemEvents(PlayerInteractEvent e)
 	{
+		if (interactDropHackMap.remove(e.getPlayer().getUniqueId()) != null)
+		{
+			return;
+		}
+
 		ItemStack item = e.getItem();
 
 		if (item == null || item.getType() == Material.AIR)

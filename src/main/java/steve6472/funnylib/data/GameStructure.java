@@ -17,7 +17,7 @@ import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.serialize.NBT;
 import steve6472.funnylib.util.Pair;
 import steve6472.funnylib.util.Preconditions;
-import steve6472.funnylib.workdistro.impl.ModifyBlockWorkload;
+import steve6472.funnylib.workdistro.impl.ModifyWorldWorkload;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -170,7 +170,7 @@ public final class GameStructure implements Categorizable, Itemizable<GameStruct
 			{
 				FunnyLib
 					.getWorkloadRunnable()
-					.addWorkload(new ModifyBlockWorkload(world, (wrld) -> wrld
+					.addWorkload(new ModifyWorldWorkload(world, (wrld) -> wrld
 						.getBlockAt(x + block.position().x + offsetX, y + block.position().y + offsetY, z + block.position().z + offsetZ)
 						.setBlockData(block.data().clone())));
 			}

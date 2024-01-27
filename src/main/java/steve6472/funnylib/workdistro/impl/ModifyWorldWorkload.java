@@ -9,11 +9,11 @@ import java.util.function.Consumer;
  * Date: 1/26/2024
  * Project: StevesFunnyLibrary <br>
  */
-public class ModifyBlockWorkload extends WorldWorkload
+public class ModifyWorldWorkload extends WorldWorkload
 {
 	private final Consumer<World> action;
 
-	public ModifyBlockWorkload(World world, Consumer<World> action)
+	public ModifyWorldWorkload(World world, Consumer<World> action)
 	{
 		super(world);
 		this.action = action;

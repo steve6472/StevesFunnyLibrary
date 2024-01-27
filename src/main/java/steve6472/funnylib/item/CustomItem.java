@@ -10,7 +10,6 @@ import steve6472.funnylib.context.PlayerItemContext;
 import steve6472.funnylib.context.UseType;
 import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.util.ItemStackBuilder;
-import steve6472.funnylib.serialize.NBT;
 
 /**********************
  * Created by steve6472
@@ -20,8 +19,6 @@ import steve6472.funnylib.serialize.NBT;
  ***********************/
 public abstract class CustomItem
 {
-	private static final NamespacedKey ITEM_DATA_KEY = new NamespacedKey(FunnyLib.getPlugin(), "item_data");
-
 	public abstract String id();
 
 	protected abstract ItemStack item();
@@ -51,6 +48,8 @@ public abstract class CustomItem
 	public void useOnAir(PlayerItemContext context, UseType useType, CancellableResult result) {}
 	public void useOnBlock(PlayerBlockContext context, UseType useType, CancellableResult result) {}
 	public void useOnEntity(PlayerEntityContext context, CancellableResult result) {}
+
+	public void onDrop(PlayerItemContext context, CancellableResult result) {}
 
 	@Override
 	public String toString()

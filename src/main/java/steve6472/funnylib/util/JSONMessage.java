@@ -85,9 +85,9 @@ public class JSONMessage
 	 *
 	 * @param text The text to start with
 	 */
-	private JSONMessage(String text, boolean translate)
+	private JSONMessage(String text, Type type)
 	{
-		parts.add(new MessagePart(text, translate));
+		parts.add(new MessagePart(text, type));
 	}
 
 	/**
@@ -101,9 +101,19 @@ public class JSONMessage
 		return new JSONMessage(text);
 	}
 
+	public static JSONMessage create(String text, ChatColor color)
+	{
+		return new JSONMessage(text).color(color);
+	}
+
 	public static JSONMessage translate(String translationString)
 	{
-		return new JSONMessage(translationString, true);
+		return new JSONMessage(translationString, Type.TRANSLATE);
+	}
+
+	public static JSONMessage keybind(String keybind)
+	{
+		return new JSONMessage(keybind, Type.KEYBIND);
 	}
 
 	/**
@@ -122,7 +132,7 @@ public class JSONMessage
 	 */
 	public MessagePart last()
 	{
-		if (parts.size() <= 0)
+		if (parts.isEmpty())
 		{
 			throw new ArrayIndexOutOfBoundsException("No MessageParts exist!");
 		}
@@ -312,9 +322,9 @@ public class JSONMessage
 
 	public JSONMessage color(Color color)
 	{
-		String s = Integer.toHexString(color.asRGB());
+		StringBuilder s = new StringBuilder(Integer.toHexString(color.asRGB()));
 		while (s.length() < 6)
-			s = "0" + s;
+			s.insert(0, "0");
 		return color("#" + s);
 	}
 
@@ -469,7 +479,32 @@ public class JSONMessage
 
 	public JSONMessage thenTranslate(String text)
 	{
-		return then(new MessagePart(text, true));
+		return then(new MessagePart(text, Type.TRANSLATE));
+	}
+
+	public JSONMessage thenTranslate(String text, ChatColor color)
+	{
+		return then(new MessagePart(text, Type.TRANSLATE)).color(color);
+	}
+
+	public JSONMessage thenTranslate(String text, String color)
+	{
+		return then(new MessagePart(text, Type.TRANSLATE)).color(color);
+	}
+
+	public JSONMessage thenKeybind(String keybind)
+	{
+		return then(new MessagePart(keybind, Type.KEYBIND));
+	}
+
+	public JSONMessage thenKeybind(String keybind, ChatColor color)
+	{
+		return then(new MessagePart(keybind, Type.KEYBIND)).color(color);
+	}
+
+	public JSONMessage thenKeybind(String keybind, String color)
+	{
+		return then(new MessagePart(keybind, Type.KEYBIND)).color(color);
 	}
 
 	public JSONMessage then(String text, ChatColor color)
@@ -787,25 +822,25 @@ public class JSONMessage
 	 */
 	public static class MessagePart
 	{
-
 		private final List<ChatColor> styles = new ArrayList<>();
+		private final Type type;
 		private MessageEvent onClick;
 		private MessageEvent onHover;
 		private String color;
 		private ChatColor legacyColor;
 		private String font;
 		private String text;
-		private boolean isTranslation;
 
 		public MessagePart(String text)
 		{
 			this.text = text == null ? "null" : text;
+			type = Type.TEXT;
 		}
 
-		public MessagePart(String text, boolean isTranslation)
+		public MessagePart(String text, Type type)
 		{
 			this.text = text == null ? "null" : text;
-			this.isTranslation = isTranslation;
+			this.type = type;
 		}
 
 		/**
@@ -818,7 +853,7 @@ public class JSONMessage
 			Objects.requireNonNull(text);
 
 			JsonObject obj = new JsonObject();
-			obj.addProperty(isTranslation ? "translate" : "text", text);
+			obj.addProperty(type.property, text);
 
 			if (color != null && !color.isEmpty())
 			{
@@ -1036,6 +1071,17 @@ public class JSONMessage
 		{
 			this.text = text;
 		}
+	}
 
+	public enum Type
+	{
+		TEXT("text"), TRANSLATE("translate"), KEYBIND("keybind");
+
+		public final String property;
+
+		Type(String property)
+		{
+			this.property = property;
+		}
 	}
 }

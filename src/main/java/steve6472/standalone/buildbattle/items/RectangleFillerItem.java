@@ -49,8 +49,18 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 		return ItemStackBuilder.create(Material.SHULKER_SHELL)
 			.setName(JSONMessage.create("Rectangle Filler").color(ChatColor.DARK_AQUA))
 			.addLore(JSONMessage.create(""))
-			.addLore(JSONMessage.create("Sneak to select on face").color(ChatColor.WHITE).setItalic(false))
+			.addLore(JSONMessage.create("[", ChatColor.WHITE).thenKeybind("key.sneak", ChatColor.BLUE).then("] to select on face", ChatColor.WHITE).setItalic(false))
+			.addLore(JSONMessage.create("[", ChatColor.WHITE).thenKeybind("key.swapOffhand", ChatColor.BLUE).then("] to switch modes", ChatColor.WHITE).setItalic(false))
+			.addLore(JSONMessage.create("[", ChatColor.WHITE).thenKeybind("key.drop", ChatColor.BLUE).then("] to open menu", ChatColor.WHITE).setItalic(false))
 			.buildItemStack();
+	}
+
+	@Override
+	public void onDrop(PlayerItemContext context, CancellableResult result)
+	{
+		result.cancel();
+
+		new RectangleFillerMenu(context.getItemStack()).showToPlayer(context.getPlayer());
 	}
 
 	@Override
@@ -79,13 +89,24 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 		ItemNBT data = context.getItemData();
 
 		if (!data.getBoolean("isFloating", false))
-			return;
+		{
+			Vector loc = rayTrace(context.getPlayer(), context.isSneaking(), false);
+			if (useType.isLeft() && !data.has3i("pos1"))
+			{
+				data.set3i("pos1", loc.toVector3i());
+			} else if (useType.isRight() && !data.has3i("pos2"))
+			{
+				data.set3i("pos2", loc.toVector3i());
+			}
 
-		Vector loc = rayTrace(context.getPlayer(), context.isSneaking(), true);
+			return;
+		}
+
+		Vector loc = rayTrace(context.getPlayer(), false, true);
 		if (loc == null)
 			return;
 
-		data.set3i(useType.isLeft() ? "pos1" : "pos2", (int) loc.getX(), (int) loc.getY(), (int) loc.getZ());
+		data.set3i(useType.isLeft() ? "pos1" : "pos2", loc.toVector3i());
 	}
 
 	@Override
@@ -146,10 +167,12 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 		boolean isFloating = data.getBoolean("isFloating", false);
 		JSONMessage.create((isFloating ? "Flating" : "Block") + "    " + MiscUtil.prettyPrintLocation(minPos) + "    " + MiscUtil.prettyPrintLocation(maxPos)).actionbar(context.getPlayer());
 
+		if (isFloating)
+			renderFloatingPosition(context);
+	}
 
-		if (!isFloating)
-			return;
-
+	protected void renderFloatingPosition(PlayerItemContext context)
+	{
 		Vector vector = rayTrace(context.getPlayer(), context.isSneaking(), true);
 
 		FrameDisplayWithCornersEntity highlight = FunnyLib
@@ -169,9 +192,9 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 				fde.setAliveCondition(context.getPlayer(), () ->
 				{
 					ItemStack itemStack = context.getPlayer().getInventory().getItem(EquipmentSlot.HAND);
-					if (itemStack == null)
+					if (itemStack == null || itemStack.getType().isAir())
 						return false;
-					return ItemNBT.create(itemStack).getBoolean("isFloating", false) && aliveCondition(fde, context.getPlayer());
+					return ItemNBT.create(itemStack).getBoolean("isFloating", false) && aliveCondition(fde, context.getPlayer()) && additionalFloatingAliveCondition(context.getPlayer());
 				});
 				fde.getEntityPDC().setBoolean("rectangle_select_float_highlight", true);
 				return fde;
@@ -275,6 +298,11 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 			.getPosition()
 			.distance(player.getLocation().toVector().toVector3d());
 		return distance < 256 && additionalAliveCondition(player);
+	}
+
+	protected boolean additionalFloatingAliveCondition(Player player)
+	{
+		return true;
 	}
 
 	protected boolean additionalAliveCondition(Player player)

@@ -72,7 +72,11 @@ public class Mask
 					continue;
 				}
 
-				Slot slot = characterMap.get(c).get();
+				Supplier<Slot> slotSupplier = characterMap.get(c);
+				if (slotSupplier == null)
+					continue;
+
+				Slot slot = slotSupplier.get();
 				if (slot != null)
 				{
 					menu.setSlot(j + offsetX, i + offsetY, slot);
