@@ -71,7 +71,9 @@ public class SphereFillerMenu extends Menu
 		// Visible only if Advanced Mask is true
 		setSlot(1, 3, new ToggleButtonSlot(ItemStackBuilder.quick(Material.LIME_DYE, "Percentage Fill"), ItemStackBuilder.quick(Material.RED_DYE, "Percentage Fill"), true));
 
-		setSlot(6, 3, new ButtonSlot(ItemStackBuilder.quick(Material.REDSTONE, "Decrease Size to: " + clampRadius(data.getInt("radius", 2) - 1)), true).setClick(click ->
+		final int currentRadius = data.getInt("radius", 2);
+		ItemStack decreaseRad = ItemStackBuilder.quick(Material.REDSTONE, "Decrease Size to: " + clampRadius(currentRadius - 1));
+		setSlot(6, 3, new ButtonSlot(currentRadius == MIN_RADIUS ? ItemStackBuilder.quick(Material.FIREWORK_STAR, "Minimum Radius Reached (" + MIN_RADIUS + ")") : decreaseRad, true).setClick(click ->
 		{
 			ItemStack item = click.player().getInventory().getItem(EquipmentSlot.HAND);
 			if (item == null || !(Items.getCustomItem(item) instanceof SphereFillerItem))
@@ -94,9 +96,10 @@ public class SphereFillerMenu extends Menu
 			return Response.cancel();
 		}));
 
-		setSlot(7, 3, new IconSlot(ItemStackBuilder.quick(Material.HEART_OF_THE_SEA, "Current Size: " + data.getInt("radius", 2)), true));
+		setSlot(7, 3, new IconSlot(ItemStackBuilder.quick(Material.HEART_OF_THE_SEA, "Current Size: " + currentRadius), true));
 
-		setSlot(8, 3, new ButtonSlot(ItemStackBuilder.quick(Material.EMERALD, "Increase Size to: " + clampRadius(data.getInt("radius", 2) + 1)), true).setClick(click ->
+		ItemStack increaseRad = ItemStackBuilder.quick(Material.EMERALD, "Increase Size to: " + clampRadius(currentRadius + 1));
+		setSlot(8, 3, new ButtonSlot(currentRadius == MAX_RADIUS ? ItemStackBuilder.quick(Material.FIREWORK_STAR, "Maximum Radius Reached (" + MAX_RADIUS + ")") : increaseRad, true).setClick(click ->
 		{
 			ItemStack item = click.player().getInventory().getItem(EquipmentSlot.HAND);
 			if (item == null || !(Items.getCustomItem(item) instanceof SphereFillerItem))
