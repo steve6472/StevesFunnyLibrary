@@ -12,7 +12,7 @@ import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.TriFunction;
 import steve6472.standalone.buildbattle.BuildBattleGame;
 import steve6472.standalone.buildbattle.items.LimitedRectangleFillerItem;
-import steve6472.standalone.buildbattle.items.RectangleFillerItem;
+import steve6472.funnylib.item.builtin.RectangleFillerItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +61,7 @@ public class Minigames
 			.setName(JSONMessage.create("Build Battle"))
 			.setDescription(JSONMessage.create("You build... that's about it"))
 			.registerValue(BuildBattleGame.PLOT)
+			.registerValue(BuildBattleGame.PLOT_PLACE_OFFSET)
 			.registerValue(BuildBattleGame.BUILD_TIME)
 			.registerValue(BuildBattleGame.CENTER)
 			.registerValue(BuildBattleGame.PLOT_BUILD_SIZE)

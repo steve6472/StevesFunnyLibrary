@@ -294,6 +294,7 @@ public class FunnyLib
 	public static CustomItem ENTITY_HITBOX_DEBUGGER;
 	public static CustomItem ITEM_DISPLAY_EDITOR;
 	public static CustomItem NOTE_BLOCK_TUNER;
+	public static CustomItem SPHERE_FILLER;
 
 	private static void initBuiltin()
 	{
@@ -315,5 +316,7 @@ public class FunnyLib
 		Items.registerItem(TELEPORT_BUTTON_ITEM = new BlockPlacerItem(TELEPORT_BUTTON_BLOCK, "teleport_button", Material.STONE_BUTTON, "Teleport Button", 0));
 
 		Items.registerItem(NOTE_BLOCK_TUNER = new NoteBlockTuner());
+
+		Items.registerAdminItem(SPHERE_FILLER = new SphereFillerItem());
 	}
 }

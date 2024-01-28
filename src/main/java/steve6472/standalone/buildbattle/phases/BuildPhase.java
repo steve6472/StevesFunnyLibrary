@@ -11,12 +11,10 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 import org.joml.Vector2i;
 import org.joml.Vector3d;
-import org.joml.Vector3f;
 import org.joml.Vector3i;
 import steve6472.funnylib.minigame.AbstractGamePhase;
 import steve6472.funnylib.minigame.Game;
 import steve6472.funnylib.util.RandomUtil;
-import steve6472.standalone.bingo.BingoGame;
 import steve6472.standalone.buildbattle.BuildBattleGame;
 import steve6472.standalone.buildbattle.Plot;
 
@@ -63,10 +61,15 @@ public class BuildPhase extends AbstractGamePhase
 		int currentPlotCount = plots.size();
 		Vector2i newPlotPos = SpiralGenerator.getPos(currentPlotCount);
 		Vector3i plotSize = game.getConfig().getValue(BuildBattleGame.PLOT).getSize();
-		Plot plot = new Plot(game, uuid, new Vector3i(newPlotPos.x * plotSize.x, 0, newPlotPos.y * plotSize.z).add(game
-			.getConfig()
-			.getValue(BuildBattleGame.CENTER)
-			.toVec3i()));
+		Vector3i plotOffset = game.getConfig().getValue(BuildBattleGame.PLOT_PLACE_OFFSET);
+		Plot plot = new Plot(
+			game,
+			uuid,
+			new Vector3i(
+				newPlotPos.x * (plotSize.x + 1 + plotOffset.x),
+				game.getConfig().getValue(BuildBattleGame.CENTER).y(),
+				newPlotPos.y * (plotSize.z + 1 + plotOffset.z)
+			).add(game.getConfig().getValue(BuildBattleGame.CENTER).toVec3i()));
 		plot.place(getWorld());
 		return plot;
 	}

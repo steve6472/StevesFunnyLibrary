@@ -5,8 +5,6 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.joml.Vector3i;
-import steve6472.brigit.Brigit;
-import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.data.GameStructure;
 import steve6472.funnylib.data.Marker;
 import steve6472.funnylib.minigame.Game;
@@ -40,6 +38,7 @@ public class BuildBattleGame extends Game
 	public static final Value<Marker> CENTER = Value.create(BuiltInConfigType.MARKER, "Center", "center");
 	public static final Value<Vector3i> PLOT_BUILD_SIZE = Value.create(BuiltInConfigType.VEC_3I, "Plot Build Size", "plot_build_size");
 	public static final Value<Vector3i> PLOT_BUILD_OFFSET = Value.create(BuiltInConfigType.VEC_3I, "Plot Build Offset", "plot_build_offset");
+	public static final Value<Vector3i> PLOT_PLACE_OFFSET = Value.create(BuiltInConfigType.VEC_3I, "Plot Place Offset", "plot_place_offset");
 
 	public World world;
 	public final List<String> themes;

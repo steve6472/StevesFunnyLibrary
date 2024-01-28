@@ -1,39 +1,25 @@
 package steve6472.funnylib.entity;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.NotNull;
-import steve6472.funnylib.FunnyLib;
-import steve6472.funnylib.item.CustomItem;
-import steve6472.funnylib.item.Items;
-import steve6472.funnylib.item.builtin.StructureItem;
-import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.util.Preconditions;
 import steve6472.funnylib.util.SkullCreator;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * Created by steve6472
  * Date: 12/27/2023
  * Project: StevesFunnyLibrary <br>
  */
-public class FrameDisplayEntity extends MultiDisplayEntity
+public class FrameDisplayEntity extends AdjustableDisplayEntity
 {
-	protected final Map<UUID, Consumer<Transformation>> partBehaviour = new HashMap<>(12);
 	private FrameType frameType;
 	private float radius;
 	private float scaleX, scaleY, scaleZ;
@@ -46,6 +32,7 @@ public class FrameDisplayEntity extends MultiDisplayEntity
 		this.radius = radius;
 //		if (frameType.isOuterLayer)
 //			this.radius -= radius * 0.11765f;
+		interpolationDuration = 3;
 		create();
 	}
 
@@ -103,28 +90,28 @@ public class FrameDisplayEntity extends MultiDisplayEntity
 	protected void create()
 	{
 		// Side North West
-		createCenteredPart(t ->
+		createFramePart(t ->
 		{
 			t.getTranslation().set(-scaleX, scaleY + radius / 4f, -scaleZ);
 			t.getScale().set(radius, scaleY * 4f + radius, radius);
 		});
 
 		// Side North East
-		createCenteredPart(t ->
+		createFramePart(t ->
 		{
 			t.getTranslation().set(scaleX, scaleY + radius / 4f, -scaleZ);
 			t.getScale().set(radius, scaleY * 4f + radius, radius);
 		});
 
 		// Side South East
-		createCenteredPart(t ->
+		createFramePart(t ->
 		{
 			t.getTranslation().set(scaleX, scaleY + radius / 4f, scaleZ);
 			t.getScale().set(radius, scaleY * 4f + radius, radius);
 		});
 
 		// Side South West
-		createCenteredPart(t ->
+		createFramePart(t ->
 		{
 			t.getTranslation().set(-scaleX, scaleY + radius / 4f, scaleZ);
 			t.getScale().set(radius, scaleY * 4f + radius, radius);
@@ -133,28 +120,28 @@ public class FrameDisplayEntity extends MultiDisplayEntity
 
 
 		// Top North
-		createCenteredPart(t ->
+		createFramePart(t ->
 		{
 			t.getTranslation().set(0, scaleY + radius / 4f, -scaleZ);
 			t.getScale().set(scaleX * 4f, radius, radius);
 		});
 
 		// Top East
-		createCenteredPart(t ->
+		createFramePart(t ->
 		{
 			t.getTranslation().set(scaleX, scaleY + radius / 4f, 0);
 			t.getScale().set(radius, radius, scaleZ * 4f);
 		});
 
 		// Top South
-		createCenteredPart(t ->
+		createFramePart(t ->
 		{
 			t.getTranslation().set(0, scaleY + radius / 4f, scaleZ);
 			t.getScale().set(scaleX * 4f, radius, radius);
 		});
 
 		// Top West
-		createCenteredPart(t ->
+		createFramePart(t ->
 		{
 			t.getTranslation().set(-scaleX, scaleY + radius / 4f, 0);
 			t.getScale().set(radius, radius, scaleZ * 4f);
@@ -163,55 +150,42 @@ public class FrameDisplayEntity extends MultiDisplayEntity
 
 
 		// Bottom North
-		createCenteredPart(t ->
+		createFramePart(t ->
 		{
 			t.getTranslation().set(0, -scaleY + radius / 4f, -scaleZ);
 			t.getScale().set(scaleX * 4f, radius, radius);
 		});
 
 		// Bottom East
-		createCenteredPart(t ->
+		createFramePart(t ->
 		{
 			t.getTranslation().set(scaleX, -scaleY + radius / 4f, 0);
 			t.getScale().set(radius, radius, scaleZ * 4f);
 		});
 
 		// Bottom South
-		createCenteredPart(t ->
+		createFramePart(t ->
 		{
 			t.getTranslation().set(0, -scaleY + radius / 4f, scaleZ);
 			t.getScale().set(scaleX * 4f, radius, radius);
 		});
 
 		// Bottom West
-		createCenteredPart(t ->
+		createFramePart(t ->
 		{
 			t.getTranslation().set(-scaleX, -scaleY + radius / 4f, 0);
 			t.getScale().set(radius, radius, scaleZ * 4f);
 		});
 	}
 
-	private void update()
+	public void createFramePart(Consumer<Transformation> partBehavior)
 	{
-		iteratePassengers(ent ->
-		{
-			Transformation transformation = ent.getTransformation();
-			partBehaviour.get(ent.getUniqueId()).accept(transformation);
-			ent.setInterpolationDelay(0);
-			ent.setInterpolationDuration(3);
-			ent.setTransformation(transformation);
-		});
+		createCenteredPart(frameType.createHead(), partBehavior);
 	}
 
-	private void createCenteredPart(Consumer<Transformation> partBehavior)
+	public void createFramePart(FrameType cornerType, Consumer<Transformation> partBehavior)
 	{
-		addDisplay(ItemDisplay.class, entity ->
-		{
-			entity.setItemStack(frameType.createHead());
-			partBehavior.accept(entity.getTransformation());
-			entity.setBrightness(new Display.Brightness(15, 15));
-			this.partBehaviour.put(entity.getUniqueId(), partBehavior);
-		});
+		createCenteredPart(cornerType.createHead(), partBehavior);
 	}
 
 	public enum FrameType
@@ -233,7 +207,7 @@ public class FrameDisplayEntity extends MultiDisplayEntity
 			this.isOuterLayer = isOuterLayer;
 		}
 
-		ItemStack createHead()
+		public ItemStack createHead()
 		{
 			return SkullCreator.itemFromBase64(base64);
 		}

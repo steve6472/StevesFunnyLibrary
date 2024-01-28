@@ -1,4 +1,4 @@
-package steve6472.standalone.buildbattle.items;
+package steve6472.funnylib.item.builtin;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -9,14 +9,15 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+import org.joml.Vector3f;
 import org.joml.Vector3i;
 import steve6472.funnylib.CancellableResult;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.context.PlayerItemContext;
 import steve6472.funnylib.context.UseType;
+import steve6472.funnylib.entity.AdjustableDisplayEntity;
 import steve6472.funnylib.entity.FrameDisplayEntity;
-import steve6472.funnylib.entity.FrameDisplayWithCornersEntity;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.item.events.SwapHandEvent;
@@ -154,7 +155,7 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 		Vector3i maxPos = pos1.max(pos2, new Vector3i()).add(1, 1, 1);
 		Vector3i size = maxPos.sub(minPos, new Vector3i());
 
-		FrameDisplayWithCornersEntity frame = FunnyLib
+		FrameDisplayEntity frame = FunnyLib
 			.getPlayerboundEntityManager()
 			.getOrCreateMultiEntity(context.getPlayer(), nbt -> nbt.getBoolean("rectangle_select_frame", false), () -> createFrame(context, minPos, size));
 
@@ -165,7 +166,7 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 		ItemNBT data = context.getItemData();
 
 		boolean isFloating = data.getBoolean("isFloating", false);
-		JSONMessage.create((isFloating ? "Flating" : "Block") + "    " + MiscUtil.prettyPrintLocation(minPos) + "    " + MiscUtil.prettyPrintLocation(maxPos)).actionbar(context.getPlayer());
+		JSONMessage.create((isFloating ? "Floating" : "Block") + "    " + MiscUtil.prettyPrintLocation(minPos) + "    " + MiscUtil.prettyPrintLocation(maxPos)).actionbar(context.getPlayer());
 
 		if (isFloating)
 			renderFloatingPosition(context);
@@ -175,11 +176,11 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 	{
 		Vector vector = rayTrace(context.getPlayer(), context.isSneaking(), true);
 
-		FrameDisplayWithCornersEntity highlight = FunnyLib
+		FrameDisplayEntity highlight = FunnyLib
 			.getPlayerboundEntityManager()
 			.getOrCreateMultiEntity(context.getPlayer(), nbt -> nbt.getBoolean("rectangle_select_float_highlight", false), () ->
 			{
-				FrameDisplayWithCornersEntity fde = new FrameDisplayWithCornersEntity(
+				FrameDisplayEntity fde = new FrameDisplayEntity(
 					context.getPlayer(),
 					new Location(context.getWorld(), vector.getBlockX() + 0.5f, vector.getBlockY() + 0.5f, vector.getBlockZ() + 0.5f),
 					FrameDisplayEntity.FrameType.UGLY_PURPLE,
@@ -260,9 +261,9 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 		return vector;
 	}
 
-	public FrameDisplayWithCornersEntity createFrame(PlayerItemContext context, Vector3i minPos, Vector3i size)
+	public FrameDisplayEntity createFrame(PlayerItemContext context, Vector3i minPos, Vector3i size)
 	{
-		FrameDisplayWithCornersEntity fde = new FrameDisplayWithCornersEntity(
+		FrameDisplayEntity fde = new FrameDisplayEntity(
 			context.getPlayer(),
 			new Location(context.getWorld(), minPos.x + (size.x) / 2f, minPos.y + (size.y) / 2f, minPos.z + (size.z) / 2f),
 			FrameDisplayEntity.FrameType.MEDIUMAQUA_MARINE,
@@ -272,12 +273,12 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 
 		if (ENABLE_CORNERS)
 		{
-			fde.addCorner(FrameDisplayEntity.FrameType.DEBUG, t ->
+			fde.createFramePart(FrameDisplayEntity.FrameType.DEBUG, t ->
 			{
 				t.getScale().set(fde.getRadius() * 4f);
 				t.getTranslation().set(fde.getScaleX(), fde.getScaleY() + fde.getRadius(), fde.getScaleZ());
 			});
-			fde.addCorner(FrameDisplayEntity.FrameType.UGLY_PURPLE, t ->
+			fde.createFramePart(FrameDisplayEntity.FrameType.UGLY_PURPLE, t ->
 			{
 				t.getScale().set(fde.getRadius() * 4f);
 				t.getTranslation().set(-fde.getScaleX(), -fde.getScaleY() + fde.getRadius(), -fde.getScaleZ());
@@ -289,7 +290,7 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 		return fde;
 	}
 
-	public boolean aliveCondition(FrameDisplayWithCornersEntity fde, Player player)
+	public boolean aliveCondition(FrameDisplayEntity fde, Player player)
 	{
 		ItemStack itemStack = player.getInventory().getItem(EquipmentSlot.HAND);
 		if (Items.getCustomItem(itemStack) != this)
