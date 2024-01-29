@@ -179,6 +179,7 @@ public abstract class Menu
 	{
 		SlotLoc loc = new SlotLoc(x, y);
 
+		// Iterate from the top
 		for (int i = windows.size() - 1; i >= 0; i--)
 		{
 			Menu menu = windows.get(i);

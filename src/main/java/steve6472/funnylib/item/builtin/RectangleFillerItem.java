@@ -70,9 +70,9 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 		result.cancel();
 
 		ItemStackBuilder edit = ItemStackBuilder.edit(customMainHand);
-		boolean currentMode = edit.nbt().getBoolean("isFloating", false);
+		boolean currentMode = edit.nbt().getBoolean("is_floating", false);
 
-		edit.nbt().setBoolean("isFloating", !currentMode);
+		edit.nbt().setBoolean("is_floating", !currentMode);
 
 		// 'cause reasons
 		ItemStack item = edit.buildItemStack();
@@ -89,7 +89,7 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 
 		ItemNBT data = context.getItemData();
 
-		if (!data.getBoolean("isFloating", false))
+		if (!data.getBoolean("is_floating", false))
 		{
 			Vector loc = rayTrace(context.getPlayer(), context.isSneaking(), false);
 			if (useType.isLeft() && !data.has3i("pos1"))
@@ -120,7 +120,7 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 
 		ItemNBT data = context.getItemData();
 
-		if (data.getBoolean("isFloating", false))
+		if (data.getBoolean("is_floating", false))
 		{
 			Vector loc = rayTrace(context.getPlayer(), context.isPlayerSneaking(), true);
 			if (loc == null)
@@ -165,7 +165,7 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 
 		ItemNBT data = context.getItemData();
 
-		boolean isFloating = data.getBoolean("isFloating", false);
+		boolean isFloating = data.getBoolean("is_floating", false);
 		JSONMessage.create((isFloating ? "Floating" : "Block") + "    " + MiscUtil.prettyPrintLocation(minPos) + "    " + MiscUtil.prettyPrintLocation(maxPos)).actionbar(context.getPlayer());
 
 		if (isFloating)
@@ -195,7 +195,7 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 					ItemStack itemStack = context.getPlayer().getInventory().getItem(EquipmentSlot.HAND);
 					if (itemStack == null || itemStack.getType().isAir())
 						return false;
-					return ItemNBT.create(itemStack).getBoolean("isFloating", false) && aliveCondition(fde, context.getPlayer()) && additionalFloatingAliveCondition(context.getPlayer());
+					return ItemNBT.create(itemStack).getBoolean("is_floating", false) && aliveCondition(fde, context.getPlayer()) && additionalFloatingAliveCondition(context.getPlayer());
 				});
 				fde.getEntityPDC().setBoolean("rectangle_select_float_highlight", true);
 				return fde;
@@ -222,7 +222,7 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 				else
 					data.get3i("pos2", pos1);
 
-				Vector vector = rayTrace(context.getPlayer(), context.isSneaking(), data.getBoolean("isFloating", false));
+				Vector vector = rayTrace(context.getPlayer(), context.isSneaking(), data.getBoolean("is_floating", false));
 				if (vector == null)
 					return;
 
@@ -230,7 +230,7 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 			}
 		} else
 		{
-			Vector vector = rayTrace(context.getPlayer(), context.isSneaking(), data.getBoolean("isFloating", false));
+			Vector vector = rayTrace(context.getPlayer(), context.isSneaking(), data.getBoolean("is_floating", false));
 			if (vector == null)
 				return;
 

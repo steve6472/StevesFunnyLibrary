@@ -20,6 +20,7 @@ import java.util.function.BiFunction;
 public class ToggleButtonSlot extends Slot
 {
 	public BiFunction<Click, Boolean, Response> click;
+	public BiFunction<Click, Boolean, Boolean> canBeClicked;
 	ItemStack iconOn, iconOff;
 	private boolean isToggled;
 
@@ -49,9 +50,22 @@ public class ToggleButtonSlot extends Slot
 			.buildItemStack();
 	}
 
-	public ToggleButtonSlot setClick(BiFunction<Click, Boolean, Response>  click)
+	public ToggleButtonSlot setClick(BiFunction<Click, Boolean, Response> click)
 	{
 		this.click = click;
+		return this;
+	}
+
+	public ToggleButtonSlot canBeClicked(BiFunction<Click, Boolean, Boolean> canBeClicked)
+	{
+		this.canBeClicked = canBeClicked;
+		return this;
+	}
+
+	public ToggleButtonSlot setToggled(boolean isToggled)
+	{
+		this.isToggled = isToggled;
+		updateSlot();
 		return this;
 	}
 
@@ -75,6 +89,9 @@ public class ToggleButtonSlot extends Slot
 	@Override
 	public Response onClick(Click click)
 	{
+		if (canBeClicked != null && !canBeClicked.apply(click, isToggled))
+			return Response.cancel();
+
 		isToggled = !isToggled;
 		updateSlot(getIcon());
 

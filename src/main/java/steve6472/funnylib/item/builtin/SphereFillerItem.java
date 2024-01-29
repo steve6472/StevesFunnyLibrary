@@ -74,9 +74,9 @@ public class SphereFillerItem extends CustomItem implements TickInHandEvent, Swa
 		result.cancel();
 
 		ItemStackBuilder edit = ItemStackBuilder.edit(customMainHand);
-		boolean currentMode = edit.nbt().getBoolean("isFloating", false);
+		boolean currentMode = edit.nbt().getBoolean("is_floating", false);
 
-		edit.nbt().setBoolean("isFloating", !currentMode);
+		edit.nbt().setBoolean("is_floating", !currentMode);
 
 		// 'cause reasons
 		ItemStack item = edit.buildItemStack();
@@ -107,10 +107,10 @@ public class SphereFillerItem extends CustomItem implements TickInHandEvent, Swa
 
 		frame.setRotation(applyRandomOffset(frame.getRotation(), (float) Math.toRadians(1f)));
 
-		boolean isFloating = context.getItemData().getBoolean("isFloating", false);
+		boolean isFloating = context.getItemData().getBoolean("is_floating", false);
 		JSONMessage.create((isFloating ? "Floating" : "Block")).actionbar(context.getPlayer());
 
-		if (context.getItemData().getBoolean("isFloating", false))
+		if (context.getItemData().getBoolean("is_floating", false))
 		{
 			frame.move(vector.getBlockX() + 0.5f, vector.getBlockY() + 0.5f, vector.getBlockZ() + 0.5f);
 		}

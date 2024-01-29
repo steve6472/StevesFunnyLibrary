@@ -65,11 +65,66 @@ public class SphereFillerMenu extends Menu
 
 		setSlot(0, 3, new ToggleButtonSlot(ItemStackBuilder.quick(Material.LIME_DYE, "Advanced Fill"), ItemStackBuilder.quick(Material.RED_DYE, "Advanced Fill"), true).setClick((click, state) ->
 		{
+			ItemStack item = click.player().getInventory().getItem(EquipmentSlot.HAND);
+			if (item == null || !(Items.getCustomItem(item) instanceof SphereFillerItem))
+				return Response.exit();
+
+			ItemNBT itemData = ItemNBT.create(item);
+			boolean advancedFill = !itemData.getBoolean("advanced_fill", false);
+			itemData.setBoolean("advanced_fill", advancedFill);
+			boolean percentageFill = itemData.getBoolean("percentage_fill", false);
+			itemData.save();
+
+			if (advancedFill)
+			{
+				click.menu().getSlot(click.slot().getX() + 1, click.slot().getY()).updateSlot(percentageFill ? ItemStackBuilder.quick(Material.LIME_DYE, "Percentage Fill") : ItemStackBuilder.quick(Material.RED_DYE, "Percentage Fill"));
+			} else
+			{
+				click.menu().getSlot(click.slot().getX() + 1, click.slot().getY()).updateSlot(ItemStackBuilder.quick(Material.GRAY_STAINED_GLASS_PANE, ""));
+			}
+
 			return Response.cancel();
-		}));
+		}).setToggled(data.getBoolean("advanced_fill", false)));
+
+		boolean isAdvancedFill = data.getBoolean("advanced_fill", false);
 
 		// Visible only if Advanced Mask is true
-		setSlot(1, 3, new ToggleButtonSlot(ItemStackBuilder.quick(Material.LIME_DYE, "Percentage Fill"), ItemStackBuilder.quick(Material.RED_DYE, "Percentage Fill"), true));
+		setSlot(1, 3, new ToggleButtonSlot(ItemStackBuilder.quick(Material.LIME_DYE, "Percentage Fill"), ItemStackBuilder.quick(Material.RED_DYE, "Percentage Fill"), true)
+		{
+			private boolean flag = false;
+
+			@Override
+			public ItemStack getIcon()
+			{
+				if (!isAdvancedFill && !flag)
+				{
+					flag = true;
+					return ItemStackBuilder.quick(Material.GRAY_STAINED_GLASS_PANE, "");
+				}
+				flag = true;
+				return super.getIcon();
+			}
+		}.setClick((click, state) ->
+		{
+			ItemStack item = click.player().getInventory().getItem(EquipmentSlot.HAND);
+			if (item == null || !(Items.getCustomItem(item) instanceof SphereFillerItem))
+				return Response.exit();
+
+			ItemNBT itemData = ItemNBT.create(item);
+			itemData.setBoolean("percentage_fill", !itemData.getBoolean("percentage_fill", false));
+			itemData.save();
+
+			return Response.cancel();
+		}).setToggled(data.getBoolean("percentage_fill", false))
+			.canBeClicked((click, state) ->
+			{
+				ItemStack item = click.player().getInventory().getItem(EquipmentSlot.HAND);
+				if (item == null || !(Items.getCustomItem(item) instanceof SphereFillerItem))
+					return false;
+
+				ItemNBT itemData = ItemNBT.create(item);
+				return itemData.getBoolean("advanced_fill", false);
+			}));
 
 		final int currentRadius = data.getInt("radius", 2);
 		ItemStack decreaseRad = ItemStackBuilder.quick(Material.REDSTONE, "Decrease Size to: " + clampRadius(currentRadius - 1));
