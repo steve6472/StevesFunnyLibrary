@@ -87,18 +87,19 @@ public class FillerMenu extends Menu
 		);
 
 		// Visible only if Advanced Mask is true
-		setSlot(1, 3, new ToggleButtonSlot(ItemStackBuilder.quick(Material.LIME_DYE, "Percentage Fill"), ItemStackBuilder.quick(Material.RED_DYE, "Percentage Fill"), true)
-			.setClick((click, state) -> {
-				ItemNBT itemData = nbtFromPlayersHandOrStack(null);
-				if (itemData == null) return Response.cancel();
-				itemData.protectedData().setBoolean("percentage_fill", !itemData.protectedData().getBoolean("percentage_fill", false));
-				itemData.save();
+		setSlot(1, 3,
+			new ToggleButtonSlot(ItemStackBuilder.quick(Material.LIME_DYE, "Percentage Fill"), ItemStackBuilder.quick(Material.RED_DYE, "Percentage Fill"), true)
+				.setClick((click, state) -> {
+					ItemNBT itemData = nbtFromPlayersHandOrStack(null);
+					if (itemData == null) return Response.cancel();
+					itemData.protectedData().setBoolean("percentage_fill", !itemData.protectedData().getBoolean("percentage_fill", false));
+					itemData.save();
 
-				return Response.cancel();
-			})
-			.setToggled(data.getBoolean("percentage_fill", false))
-			.setDisabledIcon(ItemStackBuilder.quick(Material.GRAY_STAINED_GLASS_PANE, ""))
-			.setDisabled(!data.protectedData().getBoolean("advanced_fill", false))
+					return Response.cancel();
+				})
+				.setToggled(data.getBoolean("percentage_fill", false))
+				.setDisabledIcon(ItemStackBuilder.quick(Material.GRAY_STAINED_GLASS_PANE, ""))
+				.setDisabled(!data.protectedData().getBoolean("advanced_fill", false))
 		);
 
 		NumberScroller numberScroller = new NumberScroller(

@@ -3,7 +3,6 @@ package steve6472.funnylib.menu;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import steve6472.funnylib.menu.slots.IconSlot;
 
 /**
  * Created by steve6472
@@ -13,11 +12,10 @@ import steve6472.funnylib.menu.slots.IconSlot;
 public abstract class Slot
 {
 	private static final int MAX_INVENTORY_INDEX = 6 * 9;
+	//TODO: replace with variable inventory width (from Menu holder)
+	private static final int INVENTORY_WIDTH = 9;
 
 	Menu holder;
-//	Set<ClickType> allowedClickTypes;
-//	Set<InventoryAction> allowedInventoryActions;
-//	Map<ClickType, BiFunction<Click, Menu, Response>> conditionedClick;
 
 	final boolean isSticky;
 	int x, y;
@@ -78,7 +76,7 @@ public abstract class Slot
 				loop = loop.parent;
 			}
 
-			index = (visibleX) + (visibleY) * 9;
+			index = (visibleX) + (visibleY) * INVENTORY_WIDTH;
 		}
 
 		if (index >= MAX_INVENTORY_INDEX || index < 0)

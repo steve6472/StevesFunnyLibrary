@@ -27,8 +27,6 @@ public interface Disable<T>
 	}
 
 
-
-
 	default boolean isDisabled()
 	{
 		return getDisableComponent().isDisabled();

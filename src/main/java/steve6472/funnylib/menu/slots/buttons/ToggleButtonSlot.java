@@ -24,7 +24,7 @@ import java.util.function.Supplier;
  */
 public class ToggleButtonSlot extends Slot implements Disable<ToggleButtonSlot>
 {
-	private final DisableComponent disabled = new DisableComponent(this, ItemStackBuilder.quick(Material.GRAY_DYE, "Disabled button", ChatColor.DARK_GRAY));
+	private final DisableComponent disabled = new DisableComponent(this, ItemStackBuilder.quick(Material.GRAY_DYE, "Disabled Toggle Button", ChatColor.DARK_GRAY));
 	public BiFunction<Click, Boolean, Response> click;
 	ItemStack iconOn, iconOff;
 	private boolean isToggled;
@@ -83,8 +83,8 @@ public class ToggleButtonSlot extends Slot implements Disable<ToggleButtonSlot>
 	@Override
 	public ItemStack getIcon()
 	{
-		if (disabled.isDisabled())
-			return disabled.getDisabledIcon();
+		if (isDisabled())
+			return getDisabledIcon();
 
 		return isToggled ? iconOn : iconOff;
 	}
@@ -92,10 +92,7 @@ public class ToggleButtonSlot extends Slot implements Disable<ToggleButtonSlot>
 	@Override
 	public boolean canBeInteractedWith(Click click)
 	{
-		if (disabled.canInteractWhileDisabled())
-			return click.type() != ClickType.DOUBLE_CLICK && !click.type().isKeyboardClick() && click.type() != ClickType.SWAP_OFFHAND;
-		else
-			return !disabled.isDisabled() && click.type() != ClickType.DOUBLE_CLICK && !click.type().isKeyboardClick() && click.type() != ClickType.SWAP_OFFHAND;
+		return ButtonSlot.interactionCheckWithDisable(this, click);
 	}
 
 	public boolean isToggled()
@@ -106,8 +103,8 @@ public class ToggleButtonSlot extends Slot implements Disable<ToggleButtonSlot>
 	@Override
 	public Response onClick(Click click)
 	{
-		if (disabled.isDisabled())
-			return disabled.getDisabledResponse();
+		if (isDisabled())
+			return getDisabledResponse();
 
 		isToggled = !isToggled;
 		updateSlot(getIcon());
