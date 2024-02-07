@@ -20,6 +20,7 @@ import steve6472.funnylib.blocks.builtin.CustomNoteBlock;
 import steve6472.funnylib.blocks.builtin.MultiBlock;
 import steve6472.funnylib.command.impl.DebugCommands;
 import steve6472.funnylib.entity.PlayerboundEntityManager;
+import steve6472.funnylib.item.builtin.worldtools.SphereFillerItem;
 import steve6472.funnylib.item.nonbt.NbtRemover;
 import steve6472.funnylib.json.IJsonConfig;
 import steve6472.funnylib.json.INbtConfig;

@@ -12,6 +12,7 @@ import org.bukkit.inventory.meta.*;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import steve6472.funnylib.FunnyLib;
@@ -21,6 +22,7 @@ import steve6472.funnylib.serialize.NBT;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 /**
  * Created by steve6472
@@ -59,6 +61,13 @@ public class ItemStackBuilder
 		if (meta == null)
 			throw new RuntimeException("Item meta is null! Pls fix thx");
 		customData = data;
+	}
+
+	public static void modify(@NotNull ItemStack itemStack, @NotNull Consumer<ItemStackBuilder> action)
+	{
+		ItemStackBuilder itemStackBuilder = ItemStackBuilder.editNonStatic(itemStack);
+		action.accept(itemStackBuilder);
+		itemStackBuilder.buildItemStack();
 	}
 
 	/*
@@ -283,6 +292,14 @@ public class ItemStackBuilder
 		return this;
 	}
 
+	private static final JSONMessage EMPTY_LINE = JSONMessage.create();
+
+	public ItemStackBuilder addLore()
+	{
+		addLore(EMPTY_LINE);
+		return this;
+	}
+
 	private List<String> getLore()
 	{
 		return meta.getLore();
@@ -496,62 +513,32 @@ public class ItemStackBuilder
 
 	// region NBT
 
+
+	// TODO: remove, use nbt() instead
+
+	@Deprecated(forRemoval = true)
 	public int getInt(String key)
 	{
 		return customData.getInt(key);
 	}
 
-	public ItemStackBuilder setInt(String key, int value)
-	{
-		customData.setInt(key, value);
-		return this;
-	}
-
-	public boolean hasInt(String key)
-	{
-		return customData.hasInt(key);
-	}
-
-	public byte getByte(String key)
-	{
-		return customData.getByte(key);
-	}
-
-	public ItemStackBuilder setByte(String key, byte value)
-	{
-		customData.setByte(key, value);
-		return this;
-	}
-
-	public boolean hasByte(String key)
-	{
-		return customData.hasByte(key);
-	}
-
+	@Deprecated(forRemoval = true)
 	public String getString(String key)
 	{
 		return customData.getString(key);
 	}
 
+	@Deprecated(forRemoval = true)
 	public ItemStackBuilder setString(String key, String value)
 	{
 		customData.setString(key, value);
 		return this;
 	}
 
+	@Deprecated(forRemoval = true)
 	public boolean hasString(String key)
 	{
 		return customData.hasString(key);
-	}
-
-	public NBT getCompound(String key)
-	{
-		return customData.getCompound(key);
-	}
-
-	public boolean hasCompound(String key)
-	{
-		return customData.hasCompound(key);
 	}
 
 	// endregion NBT
@@ -644,7 +631,8 @@ public class ItemStackBuilder
 
 	public ItemStack buildItemStack()
 	{
-		item.setItemMeta(meta);
+		customData.save();
+//		item.setItemMeta(meta);
 		return item;
 	}
 }

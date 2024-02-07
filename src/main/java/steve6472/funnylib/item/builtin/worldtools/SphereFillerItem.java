@@ -1,33 +1,27 @@
-package steve6472.funnylib.item.builtin;
+package steve6472.funnylib.item.builtin.worldtools;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
-import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
-import org.joml.Vector3f;
 import org.joml.Vector3i;
-import org.joml.sampling.UniformSampling;
 import steve6472.funnylib.CancellableResult;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.context.PlayerItemContext;
-import steve6472.funnylib.entity.AdjustableDisplayEntity;
 import steve6472.funnylib.entity.FrameDisplayEntity;
 import steve6472.funnylib.entity.SphereFrameDisplayEntity;
 import steve6472.funnylib.item.CustomItem;
+import steve6472.funnylib.item.builtin.worldtools.menu.FillerMenu;
 import steve6472.funnylib.item.events.SwapHandEvent;
 import steve6472.funnylib.item.events.TickInHandEvent;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
-import steve6472.funnylib.util.Pair;
 
 import java.util.*;
 
@@ -65,7 +59,7 @@ public class SphereFillerItem extends CustomItem implements TickInHandEvent, Swa
 	{
 		result.cancel();
 
-		new SphereFillerMenu(context.getItemStack()).showToPlayer(context.getPlayer());
+		new FillerMenu("Sphere Filler", context.getItemStack()).showToPlayer(context.getPlayer());
 	}
 
 	@Override
@@ -74,9 +68,9 @@ public class SphereFillerItem extends CustomItem implements TickInHandEvent, Swa
 		result.cancel();
 
 		ItemStackBuilder edit = ItemStackBuilder.edit(customMainHand);
-		boolean currentMode = edit.nbt().getBoolean("is_floating", false);
+		boolean currentMode = edit.nbt().protectedData().getBoolean("is_floating", false);
 
-		edit.nbt().setBoolean("is_floating", !currentMode);
+		edit.nbt().protectedData().setBoolean("is_floating", !currentMode);
 
 		// 'cause reasons
 		ItemStack item = edit.buildItemStack();
@@ -93,7 +87,7 @@ public class SphereFillerItem extends CustomItem implements TickInHandEvent, Swa
 		if (vector == null)
 			return;
 
-		int radius = context.getItemData().getInt("radius", 2);
+		int radius = context.getItemData().protectedData().getInt("radius", 2);
 
 		SphereFrameDisplayEntity frame = FunnyLib
 			.getPlayerboundEntityManager()
@@ -107,10 +101,10 @@ public class SphereFillerItem extends CustomItem implements TickInHandEvent, Swa
 
 		frame.setRotation(applyRandomOffset(frame.getRotation(), (float) Math.toRadians(1f)));
 
-		boolean isFloating = context.getItemData().getBoolean("is_floating", false);
+		boolean isFloating = context.getItemData().protectedData().getBoolean("is_floating", false);
 		JSONMessage.create((isFloating ? "Floating" : "Block")).actionbar(context.getPlayer());
 
-		if (context.getItemData().getBoolean("is_floating", false))
+		if (context.getItemData().protectedData().getBoolean("is_floating", false))
 		{
 			frame.move(vector.getBlockX() + 0.5f, vector.getBlockY() + 0.5f, vector.getBlockZ() + 0.5f);
 		}

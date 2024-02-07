@@ -25,6 +25,8 @@ import java.util.List;
  */
 public class NbtRemover implements Listener
 {
+	private static final boolean CREATIVE_SHOW_DATA = false;
+
 	private final Plugin plugin;
 	private final List<PacketAdapter> adapters = new LinkedList<>();
 
@@ -43,7 +45,7 @@ public class NbtRemover implements Listener
 			@Override
 			public void onPacketSending(PacketEvent event)
 			{
-				if (event.getPlayer().getGameMode() == GameMode.CREATIVE)
+				if (CREATIVE_SHOW_DATA && event.getPlayer().getGameMode() == GameMode.CREATIVE)
 					return;
 
 				PacketContainer packet = event.getPacket();
@@ -60,7 +62,7 @@ public class NbtRemover implements Listener
 			@Override
 			public void onPacketSending(PacketEvent event)
 			{
-				if (event.getPlayer().getGameMode() == GameMode.CREATIVE)
+				if (CREATIVE_SHOW_DATA && event.getPlayer().getGameMode() == GameMode.CREATIVE)
 					return;
 
 				PacketContainer packet = event.getPacket();
@@ -95,7 +97,11 @@ public class NbtRemover implements Listener
 		if (nbt.hasCompound("_protected"))
 		{
 			nbt.remove("_protected");
+		} else
+		{
+			return itemStack;
 		}
+
 		nbt.save();
 		return nbt.getItemStack();
 	}

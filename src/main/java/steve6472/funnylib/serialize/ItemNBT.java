@@ -13,6 +13,7 @@ public class ItemNBT extends NBT
 {
 	private ItemStack itemStack;
 	private ItemMeta meta;
+	private NBT protectedData;
 
 	public ItemStack getItemStack()
 	{
@@ -55,6 +56,15 @@ public class ItemNBT extends NBT
 		return nbt;
 	}
 
+	public PdcNBT protectedData()
+	{
+		// Lazy get _protected compound or create
+		if (protectedData == null)
+			protectedData = getOrCreateCompound("_protected");
+
+		return PdcNBT.fromPDC(protectedData.getContainer());
+	}
+
 	public boolean hasCustomId()
 	{
 		return hasString("custom_id");
@@ -72,6 +82,8 @@ public class ItemNBT extends NBT
 
 	public void save()
 	{
+		if (protectedData != null)
+			setCompound("_protected", protectedData);
 		itemStack.setItemMeta(meta);
 	}
 }

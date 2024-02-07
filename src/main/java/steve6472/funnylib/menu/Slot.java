@@ -12,6 +12,8 @@ import steve6472.funnylib.menu.slots.IconSlot;
  */
 public abstract class Slot
 {
+	private static final int MAX_INVENTORY_INDEX = 6 * 9;
+
 	Menu holder;
 //	Set<ClickType> allowedClickTypes;
 //	Set<InventoryAction> allowedInventoryActions;
@@ -59,32 +61,27 @@ public abstract class Slot
 			return this;
 
 		int index;
-		int visibleX = x - holder.windowX + holder.offsetX;
-		int visibleY = y - holder.windowY + holder.offsetY;
-
-		Menu loop = holder.parent;
-		while (loop != null)
-		{
-			visibleX -= loop.windowX + loop.offsetX;
-			visibleY -= loop.windowY + loop.offsetY;
-			loop = loop.parent;
-		}
-
-//		if (this instanceof IconSlot is)
-//		{
-//			System.out.println(visibleX + " " + visibleY + " " + is.getIcon());
-//		}
 
 		if (isSticky)
 		{
 			index = x + y * holder.windowWidth;
 		} else
 		{
-//			if (x - holder.offsetX < 0 || x - holder.offsetX > 8 || y - holder.offsetY < 0 || y - holder.offsetY > holder.rows) return this;
-			index = (visibleX) + (visibleY) * holder.windowWidth;
+			int visibleX = x + holder.windowX + holder.offsetX;
+			int visibleY = y + holder.windowY + holder.offsetY;
+
+			Menu loop = holder.parent;
+			while (loop != null)
+			{
+				visibleX += loop.windowX + loop.offsetX;
+				visibleY += loop.windowY + loop.offsetY;
+				loop = loop.parent;
+			}
+
+			index = (visibleX) + (visibleY) * 9;
 		}
 
-		if (index >= 54)
+		if (index >= MAX_INVENTORY_INDEX || index < 0)
 			return this;
 
 		Inventory inventory = holder.getInventory();

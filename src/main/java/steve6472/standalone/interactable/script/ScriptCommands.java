@@ -15,7 +15,7 @@ import steve6472.standalone.interactable.Interactable;
  * Project: AkmaShorts
  */
 public class ScriptCommands
-{
+{/*
 	@Command
 	@Description("Reloads scripts & removes then from ticking")
 	@Usage("/reloadScripts")
@@ -68,5 +68,5 @@ public class ScriptCommands
 		player.sendMessage(ScriptRepository.runTillDelay(script).toString());
 
 		return true;
-	}
+	}*/
 }

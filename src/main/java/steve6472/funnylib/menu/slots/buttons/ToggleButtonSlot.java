@@ -4,23 +4,28 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import steve6472.funnylib.menu.Click;
 import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.menu.Slot;
+import steve6472.funnylib.menu.components.Disable;
+import steve6472.funnylib.menu.components.DisableComponent;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
 
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Created by steve6472
  * Date: 6/28/2023
  * Project: StevesFunnyLibrary <br>
  */
-public class ToggleButtonSlot extends Slot
+public class ToggleButtonSlot extends Slot implements Disable<ToggleButtonSlot>
 {
+	private final DisableComponent disabled = new DisableComponent(this, ItemStackBuilder.quick(Material.GRAY_DYE, "Disabled button", ChatColor.DARK_GRAY));
 	public BiFunction<Click, Boolean, Response> click;
-	public BiFunction<Click, Boolean, Boolean> canBeClicked;
 	ItemStack iconOn, iconOff;
 	private boolean isToggled;
 
@@ -56,12 +61,6 @@ public class ToggleButtonSlot extends Slot
 		return this;
 	}
 
-	public ToggleButtonSlot canBeClicked(BiFunction<Click, Boolean, Boolean> canBeClicked)
-	{
-		this.canBeClicked = canBeClicked;
-		return this;
-	}
-
 	public ToggleButtonSlot setToggled(boolean isToggled)
 	{
 		this.isToggled = isToggled;
@@ -70,15 +69,33 @@ public class ToggleButtonSlot extends Slot
 	}
 
 	@Override
+	public DisableComponent getDisableComponent()
+	{
+		return disabled;
+	}
+
+	@Override
+	public ToggleButtonSlot getThis()
+	{
+		return this;
+	}
+
+	@Override
 	public ItemStack getIcon()
 	{
+		if (disabled.isDisabled())
+			return disabled.getDisabledIcon();
+
 		return isToggled ? iconOn : iconOff;
 	}
 
 	@Override
 	public boolean canBeInteractedWith(Click click)
 	{
-		return click.type() != ClickType.DOUBLE_CLICK && !click.type().isKeyboardClick() && click.type() != ClickType.SWAP_OFFHAND;
+		if (disabled.canInteractWhileDisabled())
+			return click.type() != ClickType.DOUBLE_CLICK && !click.type().isKeyboardClick() && click.type() != ClickType.SWAP_OFFHAND;
+		else
+			return !disabled.isDisabled() && click.type() != ClickType.DOUBLE_CLICK && !click.type().isKeyboardClick() && click.type() != ClickType.SWAP_OFFHAND;
 	}
 
 	public boolean isToggled()
@@ -89,8 +106,8 @@ public class ToggleButtonSlot extends Slot
 	@Override
 	public Response onClick(Click click)
 	{
-		if (canBeClicked != null && !canBeClicked.apply(click, isToggled))
-			return Response.cancel();
+		if (disabled.isDisabled())
+			return disabled.getDisabledResponse();
 
 		isToggled = !isToggled;
 		updateSlot(getIcon());
