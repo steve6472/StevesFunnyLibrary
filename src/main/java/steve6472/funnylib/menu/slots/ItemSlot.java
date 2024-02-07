@@ -15,7 +15,7 @@ public abstract class ItemSlot extends Slot
 	public ItemSlot(ItemStack icon, boolean isSticky)
 	{
 		super(isSticky);
-		setIcon(icon);
+		this.icon = icon;
 	}
 
 	public void setIcon(ItemStack icon)

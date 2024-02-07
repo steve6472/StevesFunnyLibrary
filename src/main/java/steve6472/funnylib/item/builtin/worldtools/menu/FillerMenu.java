@@ -64,8 +64,8 @@ public class FillerMenu extends Menu
 
 		applyMask(background);
 
-		Material match = matOrAir(Material.matchMaterial(data.getString("match", Material.AIR.toString())));
-		Material place = matOrAir(Material.matchMaterial(data.getString("place", Material.AIR.toString())));
+		Material match = matOrAir(Material.matchMaterial(data.protectedData().getString("match", Material.AIR.toString())));
+		Material place = matOrAir(Material.matchMaterial(data.protectedData().getString("place", Material.AIR.toString())));
 
 		addSetSlot(1, 1, "match", new ItemStack(match));
 		addSetSlot(4, 1, "place", new ItemStack(place));
