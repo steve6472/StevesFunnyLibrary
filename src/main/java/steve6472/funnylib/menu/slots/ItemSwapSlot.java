@@ -2,24 +2,18 @@ package steve6472.funnylib.menu.slots;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import steve6472.funnylib.item.Items;
-import steve6472.funnylib.item.builtin.worldtools.SphereFillerItem;
 import steve6472.funnylib.menu.Click;
 import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.menu.components.Disable;
 import steve6472.funnylib.menu.components.DisableComponent;
 import steve6472.funnylib.menu.slots.buttons.ButtonSlot;
-import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.Procedure;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -39,15 +33,15 @@ public class ItemSwapSlot extends ItemSlot implements Disable<ItemSwapSlot>
 
 	public ItemSwapSlot(ItemStack placedItem, boolean isSticky)
 	{
-		super(addLore(false, placedItem), isSticky);
-		this.placedItem = placedItem.clone();
+		super(addLore(false, placedItem == null ? null : placedItem.clone()), isSticky);
+		this.placedItem = placedItem == null ? null : placedItem.clone();
 	}
 
 	public ItemSwapSlot(ItemStack placedItem, boolean rightClickClear, boolean isSticky)
 	{
-		super(addLore(rightClickClear, placedItem), isSticky);
+		super(addLore(rightClickClear, placedItem == null ? null : placedItem.clone()), isSticky);
 		this.rightClickClear = rightClickClear;
-		this.placedItem = placedItem.clone();
+		this.placedItem = placedItem == null ? null : placedItem.clone();
 	}
 
 	public ItemSwapSlot setItemCheck(@NotNull Predicate<ItemStack> itemCheck)
@@ -105,7 +99,8 @@ public class ItemSwapSlot extends ItemSlot implements Disable<ItemSwapSlot>
 		{
 			if (onClear != null)
 				onClear.apply();
-			click.slot().updateSlot(new ItemStack(Material.AIR));
+			setIcon(new ItemStack(Material.AIR));
+			placedItem = null;
 			return Response.cancel();
 		}
 
@@ -127,7 +122,7 @@ public class ItemSwapSlot extends ItemSlot implements Disable<ItemSwapSlot>
 			ItemStack clone = cursorStack.clone();
 			addLore(rightClickClear, clone);
 
-			click.slot().updateSlot(clone);
+			setIcon(clone);
 			return Response.cancel();
 		}
 
@@ -144,7 +139,7 @@ public class ItemSwapSlot extends ItemSlot implements Disable<ItemSwapSlot>
 			if (rightClickClear)
 			{
 				builder.addLore();
-				builder.addLore(JSONMessage.create("-".repeat(16), ChatColor.DARK_GRAY).setItalic(false));
+				builder.addLore(JSONMessage.create("-".repeat(17), ChatColor.DARK_GRAY).setItalic(false));
 				builder.addLore(JSONMessage.create("Right click to remove", ChatColor.RED).setItalic(true));
 			}
 		});

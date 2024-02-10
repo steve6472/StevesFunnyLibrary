@@ -1,4 +1,4 @@
-package steve6472.funnylib.item.builtin;
+package steve6472.funnylib.item.builtin.worldtools;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -9,20 +9,20 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
-import org.joml.Vector3f;
 import org.joml.Vector3i;
 import steve6472.funnylib.CancellableResult;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.context.PlayerItemContext;
 import steve6472.funnylib.context.UseType;
-import steve6472.funnylib.entity.AdjustableDisplayEntity;
 import steve6472.funnylib.entity.FrameDisplayEntity;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.Items;
+import steve6472.funnylib.item.builtin.worldtools.menu.FillerMenu;
 import steve6472.funnylib.item.events.SwapHandEvent;
 import steve6472.funnylib.item.events.TickInHandEvent;
 import steve6472.funnylib.serialize.ItemNBT;
+import steve6472.funnylib.serialize.PdcNBT;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.MiscUtil;
@@ -61,7 +61,7 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 	{
 		result.cancel();
 
-		new RectangleFillerMenu(context.getItemStack()).showToPlayer(context.getPlayer());
+		new FillerMenu("Rectangle Filler", context.getItemStack(), false).showToPlayer(context.getPlayer());
 	}
 
 	@Override
@@ -89,15 +89,15 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 
 		ItemNBT data = context.getItemData();
 
-		if (!data.getBoolean("is_floating", false))
+		if (!data.protectedData().getBoolean("is_floating", false))
 		{
 			Vector loc = rayTrace(context.getPlayer(), context.isSneaking(), false);
-			if (useType.isLeft() && !data.has3i("pos1"))
+			if (useType.isLeft() && !data.protectedData().has3i("pos1"))
 			{
-				data.set3i("pos1", loc.toVector3i());
+				data.protectedData().set3i("pos1", loc.toVector3i());
 			} else if (useType.isRight() && !data.has3i("pos2"))
 			{
-				data.set3i("pos2", loc.toVector3i());
+				data.protectedData().set3i("pos2", loc.toVector3i());
 			}
 
 			return;
@@ -107,7 +107,7 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 		if (loc == null)
 			return;
 
-		data.set3i(useType.isLeft() ? "pos1" : "pos2", loc.toVector3i());
+		data.protectedData().set3i(useType.isLeft() ? "pos1" : "pos2", loc.toVector3i());
 	}
 
 	@Override
@@ -120,13 +120,13 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 
 		ItemNBT data = context.getItemData();
 
-		if (data.getBoolean("is_floating", false))
+		if (data.protectedData().getBoolean("is_floating", false))
 		{
 			Vector loc = rayTrace(context.getPlayer(), context.isPlayerSneaking(), true);
 			if (loc == null)
 				return;
 
-			data.set3i(useType.isLeft() ? "pos1" : "pos2", (int) loc.getX(), (int) loc.getY(), (int) loc.getZ());
+			data.protectedData().set3i(useType.isLeft() ? "pos1" : "pos2", (int) loc.getX(), (int) loc.getY(), (int) loc.getZ());
 
 			return;
 		}
@@ -137,7 +137,7 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 		if (context.isPlayerSneaking())
 			loc.add(context.getFace().getDirection());
 
-		data.set3i(useType.isLeft() ? "pos1" : "pos2", (int) loc.getX(), (int) loc.getY(), (int) loc.getZ());
+		data.protectedData().set3i(useType.isLeft() ? "pos1" : "pos2", (int) loc.getX(), (int) loc.getY(), (int) loc.getZ());
 	}
 
 	@Override
@@ -165,7 +165,7 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 
 		ItemNBT data = context.getItemData();
 
-		boolean isFloating = data.getBoolean("is_floating", false);
+		boolean isFloating = data.protectedData().getBoolean("is_floating", false);
 		JSONMessage.create((isFloating ? "Floating" : "Block") + "    " + MiscUtil.prettyPrintLocation(minPos) + "    " + MiscUtil.prettyPrintLocation(maxPos)).actionbar(context.getPlayer());
 
 		if (isFloating)
@@ -208,21 +208,22 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 	public void adjustPositions(PlayerItemContext context, Vector3i pos1, Vector3i pos2)
 	{
 		ItemNBT data = context.getItemData();
+		PdcNBT protectedData = data.protectedData();
 
-		if (data.has3i("pos1") || data.has3i("pos2"))
+		if (protectedData.has3i("pos1") || protectedData.has3i("pos2"))
 		{
-			if (data.has3i("pos1") && data.has3i("pos2"))
+			if (protectedData.has3i("pos1") && protectedData.has3i("pos2"))
 			{
-				data.get3i("pos1", pos1);
-				data.get3i("pos2", pos2);
+				protectedData.get3i("pos1", pos1);
+				protectedData.get3i("pos2", pos2);
 			} else
 			{
-				if (data.has3i("pos1"))
-					data.get3i("pos1", pos1);
+				if (protectedData.has3i("pos1"))
+					protectedData.get3i("pos1", pos1);
 				else
-					data.get3i("pos2", pos1);
+					protectedData.get3i("pos2", pos1);
 
-				Vector vector = rayTrace(context.getPlayer(), context.isSneaking(), data.getBoolean("is_floating", false));
+				Vector vector = rayTrace(context.getPlayer(), context.isSneaking(), protectedData.getBoolean("is_floating", false));
 				if (vector == null)
 					return;
 
@@ -230,7 +231,7 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 			}
 		} else
 		{
-			Vector vector = rayTrace(context.getPlayer(), context.isSneaking(), data.getBoolean("is_floating", false));
+			Vector vector = rayTrace(context.getPlayer(), context.isSneaking(), protectedData.getBoolean("is_floating", false));
 			if (vector == null)
 				return;
 

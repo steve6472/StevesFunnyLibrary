@@ -32,7 +32,7 @@ public class SphereFrameDisplayEntity extends AdjustableDisplayEntity
 
 	private void create()
 	{
-		IcoSphereCreator.MeshGeometry3D meshGeometry3D = new IcoSphereCreator().create(2);
+		IcoSphereCreator.MeshGeometry3D meshGeometry3D = new IcoSphereCreator().create(1);
 		List<Pair<Vector3f, Vector3f>> lines = getPairs(meshGeometry3D);
 
 		lines = deduplicateLines(lines);

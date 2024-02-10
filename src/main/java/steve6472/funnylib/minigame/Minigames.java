@@ -12,7 +12,7 @@ import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.TriFunction;
 import steve6472.standalone.buildbattle.BuildBattleGame;
 import steve6472.standalone.buildbattle.items.LimitedRectangleFillerItem;
-import steve6472.funnylib.item.builtin.RectangleFillerItem;
+import steve6472.funnylib.item.builtin.worldtools.RectangleFillerItem;
 
 import java.util.ArrayList;
 import java.util.List;

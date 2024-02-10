@@ -8,4 +8,5 @@ package steve6472.funnylib;
 public class LibSettings
 {
 	public boolean enableCustomNoteBlocks = false;
+	public boolean enableFakeClickFromDrag = true;
 }

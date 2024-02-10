@@ -46,7 +46,7 @@ public class NumberScroller extends Menu
 				setValue(getMin());
 			} else
 			{
-				setValue(clampValue(getValue() - 1));
+				setValue(getValue() - 1);
 			}
 			return Response.cancel();
 		}));
@@ -60,7 +60,7 @@ public class NumberScroller extends Menu
 				setValue(getMax());
 			} else
 			{
-				setValue(clampValue(getValue() + 1));
+				setValue(getValue() + 1);
 			}
 			return Response.cancel();
 		}));
@@ -87,10 +87,16 @@ public class NumberScroller extends Menu
 	 */
 	public void setValue(int value)
 	{
+		value = clampValue(value);
 		setValue.accept(value);
 		getSlot(0, 0).updateSlot(createDecreaseItem());
 		getSlot(1, 0).updateSlot(createCurrentItem(value));
 		getSlot(2, 0).updateSlot(createIncreaseItem());
+	}
+
+	public void update()
+	{
+		setValue(getValue());
 	}
 
 	/*

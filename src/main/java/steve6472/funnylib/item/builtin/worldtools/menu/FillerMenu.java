@@ -8,7 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import org.joml.Vector3i;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.item.Items;
-import steve6472.funnylib.item.builtin.RectangleFillerItem;
+import steve6472.funnylib.item.builtin.worldtools.RectangleFillerItem;
 import steve6472.funnylib.item.builtin.worldtools.SphereFillerItem;
 import steve6472.funnylib.menu.Click;
 import steve6472.funnylib.menu.Mask;
@@ -20,9 +20,13 @@ import steve6472.funnylib.menu.slots.ItemSwapSlot;
 import steve6472.funnylib.menu.slots.buttons.ButtonSlot;
 import steve6472.funnylib.menu.slots.buttons.ToggleButtonSlot;
 import steve6472.funnylib.serialize.ItemNBT;
+import steve6472.funnylib.serialize.PdcNBT;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.workdistro.impl.PlaceBlockWorkload;
+import steve6472.funnylib.workdistro.impl.PlaceWithWeightedMaterialWorkload;
 import steve6472.funnylib.workdistro.impl.ReplaceBlockWorkload;
+import steve6472.funnylib.workdistro.impl.ReplaceWithWeightedMaterialWorkload;
+import steve6472.funnylib.workdistro.util.WeightedRandomBag;
 
 import java.util.UUID;
 
@@ -33,57 +37,123 @@ import java.util.UUID;
  */
 public class FillerMenu extends Menu
 {
-	private UUID viewer = null;
+	UUID viewer = null;
+	ItemStack itemStack;
 
-	private static final int MIN_RADIUS = 2;
-	private static final int MAX_RADIUS = 8;
+	public boolean isSphere;
+	private final FillFunctions fills;
 
-	private ItemStack itemStack;
+	public static final int MIN_RADIUS = 2;
+	public static final int MAX_RADIUS = 12;
+	public static final double RADIUS_OFFSET = 0.1;
 
-	public FillerMenu(String title, ItemStack itemStack)
+	public FillerMenu(String title, ItemStack itemStack, boolean sphere)
 	{
 		super(4, title, false);
 		this.itemStack = itemStack.clone();
 		allowPlayerInventory();
+		this.isSphere = sphere;
+		this.fills = new FillFunctions(this);
 	}
 
 	@Override
 	protected void setup()
 	{
 		ItemNBT data = ItemNBT.create(itemStack);
+		PdcNBT protData = data.protectedData();
 
 		Mask background = new Mask()
 			.addRow("RRRFFFAAA")
 			.addRow("R RF FAAA")
-			.addRow("RRRFFFAAA")
+			.addRow("R RFFFAAA")
 			.addRow("  ----   ")
-			.addItem('F', () -> new IconSlot(ItemStackBuilder.quick(Material.CYAN_STAINED_GLASS_PANE, "Fill"), true))
-			.addItem('R', () -> new IconSlot(ItemStackBuilder.quick(Material.RED_STAINED_GLASS_PANE, "Replace"), true))
-			.addItem('A', () -> new ButtonSlot(ItemStackBuilder.quick(Material.LIME_STAINED_GLASS_PANE, "Apply"), true).setClick(this::apply))
-			.addItem('-', () -> new IconSlot(ItemStackBuilder.quick(Material.GRAY_STAINED_GLASS_PANE, ""), true));
+			.addItem('F', () -> new IconSlot(ItemStackBuilder.quick(Material.CYAN_STAINED_GLASS_PANE, "Fill"), false))
+			.addItem('R', () -> new IconSlot(ItemStackBuilder.quick(Material.RED_STAINED_GLASS_PANE, "Replace"), false))
+			.addItem('A', () -> new ButtonSlot(ItemStackBuilder.quick(Material.LIME_STAINED_GLASS_PANE, "Apply"), false).setClick(click ->
+			{
+				ItemNBT itemData = nbtFromPlayersHandOrStack(null);
+				if (itemData == null) return Response.cancel();
+				boolean advanced = itemData.protectedData().getBoolean("advanced_fill", false);
+
+				if (!isSphere)
+				{
+					if (advanced)
+						fills.applyAdvancedRectangle(click);
+					else
+						fills.applyRectangle(click);
+					return Response.exit();
+				}
+
+				if (advanced)
+					fills.applyAdvancedSphere(click);
+				else
+					fills.applySphere(click);
+				return Response.exit();
+			}))
+			.addItem('-', () -> new IconSlot(ItemStackBuilder.quick(Material.GRAY_STAINED_GLASS_PANE, ""), false));
 
 		applyMask(background);
 
-		Material match = matOrAir(Material.matchMaterial(data.protectedData().getString("match", Material.AIR.toString())));
-		Material place = matOrAir(Material.matchMaterial(data.protectedData().getString("place", Material.AIR.toString())));
+		if (!isSphere)
+		{
+			setSlot(6, 3, new IconSlot(ItemStackBuilder.quick(Material.GRAY_STAINED_GLASS_PANE, ""), false));
+			setSlot(7, 3, new IconSlot(ItemStackBuilder.quick(Material.GRAY_STAINED_GLASS_PANE, ""), false));
+			setSlot(8, 3, new IconSlot(ItemStackBuilder.quick(Material.GRAY_STAINED_GLASS_PANE, ""), false));
+		}
 
-		addSetSlot(1, 1, "match", new ItemStack(match));
-		addSetSlot(4, 1, "place", new ItemStack(place));
+		setSlot(1, 2,
+			new ToggleButtonSlot(ItemStackBuilder.quick(Material.LIME_DYE, "Fill"), ItemStackBuilder.quick(Material.RED_DYE, "Replace"), false)
+				.setClick((click, state) -> {
+
+					ItemNBT itemData = nbtFromPlayersHandOrStack(null);
+					if (itemData == null) return Response.cancel();
+					itemData.protectedData().setBoolean("match_any_block", state);
+					itemData.save();
+
+					ItemSwapSlot slot = (ItemSwapSlot) getSlot(1, 1);
+					slot.setDisabled(state);
+
+					return Response.cancel();
+				})
+				.setToggled(protData.getBoolean("match_any_block", true))
+		);
+
+		PercentageFillComponent percentageFillComponent = new PercentageFillComponent(this);
+		percentageFillComponent.setWindowPosition(3, 0);
+		percentageFillComponent.isEnabled = percentageFillEnabled(data);
+		addWindow(percentageFillComponent);
+
+		AdvancedFillComponent advancedFillComponent = new AdvancedFillComponent(this);
+		advancedFillComponent.setWindowPosition(3, 0);
+		advancedFillComponent.isEnabled = advancedFillEnabled(data);
+		addWindow(advancedFillComponent);
+
+		Material match = matOrAir(Material.matchMaterial(protData.getString("match", Material.AIR.toString())));
+		Material place = matOrAir(Material.matchMaterial(protData.getString("place", Material.AIR.toString())));
+
+		addSetSlot(1, "match", new ItemStack(match));
+		addSetSlot(4, "place", new ItemStack(place));
+
+		((ItemSwapSlot) getSlot(1, 1)).setDisabled(protData.getBoolean("match_any_block", true));
 
 		setSlot(0, 3,
 			new ToggleButtonSlot(ItemStackBuilder.quick(Material.LIME_DYE, "Advanced Fill"), ItemStackBuilder.quick(Material.RED_DYE, "Advanced Fill"), true)
 				.setClick((click, state) -> {
 					ItemNBT itemData = nbtFromPlayersHandOrStack(null);
 					if (itemData == null) return Response.cancel();
-					boolean advancedFill = !itemData.protectedData().getBoolean("advanced_fill", false);
-					itemData.protectedData().setBoolean("advanced_fill", advancedFill);
+					itemData.protectedData().setBoolean("advanced_fill", state);
 					itemData.save();
 
-					((ToggleButtonSlot) click.menu().getSlot(click.slot().getX() + 1, click.slot().getY())).getDisableComponent().setDisabled(!advancedFill);
+					// TODO: finish percentage fill
+//					((ToggleButtonSlot) click.menu().getSlot(click.slot().getX() + 1, click.slot().getY())).getDisableComponent().setDisabled(!state);
+
+					advancedFillComponent.isEnabled = advancedFillEnabled(itemData);
+					percentageFillComponent.isEnabled = percentageFillEnabled(itemData);
+					reload();
 
 					return Response.cancel();
 				})
-				.setToggled(data.protectedData().getBoolean("advanced_fill", false))
+				.setToggled(protData.getBoolean("advanced_fill", false))
 		);
 
 		// Visible only if Advanced Mask is true
@@ -95,12 +165,25 @@ public class FillerMenu extends Menu
 					itemData.protectedData().setBoolean("percentage_fill", !itemData.protectedData().getBoolean("percentage_fill", false));
 					itemData.save();
 
+					advancedFillComponent.isEnabled = advancedFillEnabled(itemData);
+					percentageFillComponent.isEnabled = percentageFillEnabled(itemData);
+					reload();
+
 					return Response.cancel();
 				})
-				.setToggled(data.getBoolean("percentage_fill", false))
-				.setDisabledIcon(ItemStackBuilder.quick(Material.GRAY_STAINED_GLASS_PANE, ""))
-				.setDisabled(!data.protectedData().getBoolean("advanced_fill", false))
+//				.setToggled(protData.getBoolean("percentage_fill", false))
+//				.setDisabledIcon(ItemStackBuilder.quick(Material.GRAY_STAINED_GLASS_PANE, ""))
+//				.setDisabled(!protData.getBoolean("advanced_fill", false))
+				.setDisabled(true)
+				.setToggled(false)
 		);
+
+		if (!isSphere)
+		{
+			// Set itemStack back to null so it can not be used
+			itemStack = null;
+			return;
+		}
 
 		NumberScroller numberScroller = new NumberScroller(
 			() -> MIN_RADIUS,
@@ -129,11 +212,31 @@ public class FillerMenu extends Menu
 		itemStack = null;
 	}
 
-	private ItemNBT nbtFromPlayersHandOrStack(ItemStack itemStack)
+	private boolean advancedFillEnabled(ItemNBT itemData)
+	{
+		PdcNBT data = itemData.protectedData();
+		if (data.getBoolean("advanced_fill", false))
+		{
+			return !data.getBoolean("percentage_fill", false);
+		}
+		return false;
+	}
+
+	private boolean percentageFillEnabled(ItemNBT itemData)
+	{
+		PdcNBT data = itemData.protectedData();
+		if (data.getBoolean("advanced_fill", false))
+		{
+			return data.getBoolean("percentage_fill", false);
+		}
+		return false;
+	}
+
+	ItemNBT nbtFromPlayersHandOrStack(ItemStack itemStack)
 	{
 		if (itemStack != null)
 		{
-			if (!(Items.getCustomItem(itemStack) instanceof SphereFillerItem))
+			if (!(isSphere ? Items.getCustomItem(itemStack) instanceof SphereFillerItem : Items.getCustomItem(itemStack) instanceof RectangleFillerItem))
 				return null;
 
 			return ItemNBT.create(itemStack);
@@ -144,7 +247,7 @@ public class FillerMenu extends Menu
 			return null;
 
 		ItemStack item = player.getInventory().getItem(EquipmentSlot.HAND);
-		if (item == null || !(Items.getCustomItem(item) instanceof SphereFillerItem))
+		if (item == null || !(isSphere ? Items.getCustomItem(item) instanceof SphereFillerItem : Items.getCustomItem(item) instanceof RectangleFillerItem))
 			return null;
 
 		return ItemNBT.create(item);
@@ -155,61 +258,10 @@ public class FillerMenu extends Menu
 		return material == null ? Material.AIR : material;
 	}
 
-	private Response apply(Click click)
+	private void addSetSlot(int x, String id, ItemStack a)
 	{
-		Vector3i pos1 = new Vector3i();
-		Vector3i pos2 = new Vector3i();
-
-		ItemStack item = click.player().getInventory().getItem(EquipmentSlot.HAND);
-		if (item == null || !(Items.getCustomItem(item) instanceof RectangleFillerItem))
-			return Response.exit();
-
-		ItemNBT data = ItemNBT.create(item);
-
-		if (!data.has3i("pos1") || !data.has3i("pos2"))
-		{
-			return Response.exit();
-		}
-
-		data.get3i("pos1", pos1);
-		data.get3i("pos2", pos2);
-
-		Vector3i minPos = pos1.min(pos2, new Vector3i());
-		Vector3i maxPos = pos1.max(pos2, new Vector3i()).add(1, 1, 1);
-
-		Material match = Material.matchMaterial(data.getString("match", Material.AIR.toString()));
-		Material place = Material.matchMaterial(data.getString("place", Material.AIR.toString()));
-
-		boolean hasMatch = data.hasString("match");
-
-		for (int i = minPos.x; i < maxPos.x; i++)
-		{
-			for (int j = minPos.y; j < maxPos.y; j++)
-			{
-				for (int k = minPos.z; k < maxPos.z; k++)
-				{
-					if (hasMatch)
-					{
-						FunnyLib
-							.getWorkloadRunnable()
-							.addWorkload(new ReplaceBlockWorkload(click.player().getWorld(), i, j, k, match, place));
-					} else
-					{
-						FunnyLib
-							.getWorkloadRunnable()
-							.addWorkload(new PlaceBlockWorkload(click.player().getWorld(), i, j, k, place));
-					}
-				}
-			}
-		}
-
-		return Response.exit();
-	}
-
-	private void addSetSlot(int x, int y, String id, ItemStack a)
-	{
-		setSlot(x, y,
-			new ItemSwapSlot(a, true, true)
+		setSlot(x, 1,
+			new ItemSwapSlot(a, true, false)
 				.setItemCheck(item -> item.getType().isBlock())
 				.onPlace(item ->
 				{
@@ -225,6 +277,7 @@ public class FillerMenu extends Menu
 					itemData.protectedData().remove(id);
 					itemData.save();
 				})
+				.setDisabledIcon(ItemStackBuilder.quick(Material.RED_STAINED_GLASS_PANE, ""))
 		);
 	}
 

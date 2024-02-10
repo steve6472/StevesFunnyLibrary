@@ -182,7 +182,9 @@ public class BlockStateCodeGenerator
 			boolean hasFaces = false;
 			boolean isWall = false;
 			boolean isRedstone = false;
-			m: for (Method method : value.data.getMethods())
+			Method[] methods = value.data.getMethods();
+			List<Method> list = Arrays.stream(methods).sorted(Comparator.comparing(s -> s.getName().toLowerCase())).toList();
+			m: for (Method method : list)
 			{
 				for (Method blockDataMethod : Arrays.stream(BlockData.class.getMethods()).sorted(Comparator.comparing(m -> m.getName() + m.getReturnType().getSimpleName() + Arrays.toString(m.getParameterTypes()))).toList())
 				{

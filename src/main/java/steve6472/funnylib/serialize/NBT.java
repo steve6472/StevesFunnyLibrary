@@ -18,7 +18,9 @@ import steve6472.funnylib.util.MiscUtil;
 import steve6472.funnylib.util.Preconditions;
 
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Created by steve6472
@@ -62,6 +64,11 @@ public class NBT
 	public boolean isEmpty()
 	{
 		return container.isEmpty();
+	}
+
+	public Set<String> getKeys()
+	{
+		return container.getKeys().stream().map(NamespacedKey::getKey).collect(Collectors.toSet());
 	}
 
 	public void save()

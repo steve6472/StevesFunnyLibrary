@@ -89,7 +89,48 @@ public class MenuListener implements Listener
 		if (menu == null)
 			return;
 
-		e.setCancelled(true);
+		if (!FunnyLib.getSettings().enableFakeClickFromDrag)
+		{
+			e.setCancelled(true);
+			return;
+		}
+
+		// I'm lazy
+		if (e.getInventory().getType() != InventoryType.CHEST)
+		{
+			e.setCancelled(true);
+			return;
+		}
+
+		if (e.getInventorySlots().size() == 1)
+		{
+			DragType type = e.getType();
+
+			int slot = e.getRawSlots().stream().findFirst().get();
+			if (slot > menu.rows * 9)
+			{
+				return;
+			}
+
+			ItemStack cursor = e.getOldCursor();
+
+			FakeInventoryClickEvent fakeClick = new FakeInventoryClickEvent(
+				e.getView(),
+				InventoryType.SlotType.CONTAINER,
+				slot,
+				type == DragType.SINGLE ? ClickType.RIGHT : ClickType.LEFT,
+				type == DragType.SINGLE ? InventoryAction.PICKUP_HALF : InventoryAction.PLACE_ALL,
+				cursor);
+
+			click(fakeClick);
+
+			if (fakeClick.isCancelled())
+				e.setCancelled(true);
+
+		} else
+		{
+			e.setCancelled(true);
+		}
 	}
 
 	@EventHandler
@@ -132,6 +173,8 @@ public class MenuListener implements Listener
 		click.itemOnCursor = e.getCursor();
 		click.type = e.getClick();
 		click.action = e.getAction();
+
+		Bukkit.broadcastMessage(click.toString());
 
 		if (slot == null || !slot.canBeInteractedWith(click))
 		{

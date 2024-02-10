@@ -78,7 +78,7 @@ public class TeleportButtonBlock extends CustomBlock implements IBlockData, Bloc
 	@Override
 	public BlockData getVanillaState(BlockContext context)
 	{
-		return BlockGen.StoneButton(context.getState().get(FACING), context.getState().get(ATTACHED), false);
+		return BlockGen.StoneButton(context.getState().get(ATTACHED), context.getState().get(FACING), false);
 	}
 
 	@Override

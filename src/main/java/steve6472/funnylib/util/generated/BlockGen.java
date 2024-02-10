@@ -105,12 +105,12 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData TuffStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData TuffStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.TUFF_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
@@ -132,12 +132,12 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData PolishedTuffStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData PolishedTuffStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.POLISHED_TUFF_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
@@ -159,12 +159,12 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData TuffBrickStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData TuffBrickStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.TUFF_BRICK_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
@@ -279,42 +279,42 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData CutCopperStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData CutCopperStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.CUT_COPPER_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData ExposedCutCopperStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData ExposedCutCopperStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.EXPOSED_CUT_COPPER_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData WeatheredCutCopperStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData WeatheredCutCopperStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.WEATHERED_CUT_COPPER_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData OxidizedCutCopperStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData OxidizedCutCopperStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.OXIDIZED_CUT_COPPER_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
@@ -351,42 +351,42 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData WaxedCutCopperStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData WaxedCutCopperStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.WAXED_CUT_COPPER_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData WaxedExposedCutCopperStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData WaxedExposedCutCopperStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.WAXED_EXPOSED_CUT_COPPER_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData WaxedWeatheredCutCopperStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData WaxedWeatheredCutCopperStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.WAXED_WEATHERED_CUT_COPPER_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData WaxedOxidizedCutCopperStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData WaxedOxidizedCutCopperStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.WAXED_OXIDIZED_CUT_COPPER_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
@@ -864,11 +864,11 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData PinkPetals(int flowerAmount, BlockFace facing)
+	public static BlockData PinkPetals(BlockFace facing, int flowerAmount)
 	{
 		PinkPetals data = (PinkPetals) Material.PINK_PETALS.createBlockData();
-		data.setFlowerAmount(flowerAmount);
 		data.setFacing(facing);
+		data.setFlowerAmount(flowerAmount);
 		return data;
 	}
 
@@ -879,29 +879,29 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData BigDripleaf(BigDripleaf.Tilt tilt, BlockFace facing, boolean waterlogged)
+	public static BlockData BigDripleaf(BlockFace facing, BigDripleaf.Tilt tilt, boolean waterlogged)
 	{
 		BigDripleaf data = (BigDripleaf) Material.BIG_DRIPLEAF.createBlockData();
-		data.setTilt(tilt);
 		data.setFacing(facing);
+		data.setTilt(tilt);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData SmallDripleaf(BlockFace facing, boolean waterlogged, Bisected.Half half)
+	public static BlockData SmallDripleaf(BlockFace facing, Bisected.Half half, boolean waterlogged)
 	{
 		SmallDripleaf data = (SmallDripleaf) Material.SMALL_DRIPLEAF.createBlockData();
 		data.setFacing(facing);
-		data.setWaterlogged(waterlogged);
 		data.setHalf(half);
+		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData Bamboo(Bamboo.Leaves leaves, int age, int stage)
+	public static BlockData Bamboo(int age, Bamboo.Leaves leaves, int stage)
 	{
 		Bamboo data = (Bamboo) Material.BAMBOO.createBlockData();
-		data.setLeaves(leaves);
 		data.setAge(age);
+		data.setLeaves(leaves);
 		data.setStage(stage);
 		return data;
 	}
@@ -1195,21 +1195,21 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData PurpurStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData PurpurStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.PURPUR_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData Chest(Chest.Type type, BlockFace facing, boolean waterlogged)
+	public static BlockData Chest(BlockFace facing, Chest.Type type, boolean waterlogged)
 	{
 		Chest data = (Chest) Material.CHEST.createBlockData();
-		data.setType(type);
 		data.setFacing(facing);
+		data.setType(type);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
@@ -1237,12 +1237,12 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData CobblestoneStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData CobblestoneStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.COBBLESTONE_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
@@ -1576,32 +1576,32 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData BrickStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData BrickStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.BRICK_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData StoneBrickStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData StoneBrickStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.STONE_BRICK_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData MudBrickStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData MudBrickStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.MUD_BRICK_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
@@ -1628,12 +1628,12 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData NetherBrickStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData NetherBrickStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.NETHER_BRICK_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
@@ -1660,11 +1660,11 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData SculkShrieker(boolean shrieking, boolean canSummon, boolean waterlogged)
+	public static BlockData SculkShrieker(boolean canSummon, boolean shrieking, boolean waterlogged)
 	{
 		SculkShrieker data = (SculkShrieker) Material.SCULK_SHRIEKER.createBlockData();
-		data.setShrieking(shrieking);
 		data.setCanSummon(canSummon);
+		data.setShrieking(shrieking);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
@@ -1677,12 +1677,12 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData SandstoneStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData SandstoneStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.SANDSTONE_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
@@ -1695,122 +1695,122 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData OakStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData OakStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.OAK_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData SpruceStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData SpruceStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.SPRUCE_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData BirchStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData BirchStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.BIRCH_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData JungleStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData JungleStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.JUNGLE_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData AcaciaStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData AcaciaStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.ACACIA_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData CherryStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData CherryStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.CHERRY_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData DarkOakStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData DarkOakStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.DARK_OAK_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData MangroveStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData MangroveStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.MANGROVE_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData BambooStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData BambooStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.BAMBOO_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData BambooMosaicStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData BambooMosaicStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.BAMBOO_MOSAIC_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData CrimsonStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData CrimsonStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.CRIMSON_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData WarpedStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData WarpedStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.WARPED_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
@@ -2049,12 +2049,12 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData QuartzStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData QuartzStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.QUARTZ_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
@@ -2363,42 +2363,42 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData PrismarineStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData PrismarineStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.PRISMARINE_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData PrismarineBrickStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData PrismarineBrickStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.PRISMARINE_BRICK_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData DarkPrismarineStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData DarkPrismarineStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.DARK_PRISMARINE_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData RedSandstoneStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData RedSandstoneStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.RED_SANDSTONE_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
@@ -2819,182 +2819,182 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData PolishedGraniteStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData PolishedGraniteStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.POLISHED_GRANITE_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData SmoothRedSandstoneStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData SmoothRedSandstoneStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.SMOOTH_RED_SANDSTONE_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData MossyStoneBrickStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData MossyStoneBrickStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.MOSSY_STONE_BRICK_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData PolishedDioriteStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData PolishedDioriteStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.POLISHED_DIORITE_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData MossyCobblestoneStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData MossyCobblestoneStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.MOSSY_COBBLESTONE_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData EndStoneBrickStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData EndStoneBrickStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.END_STONE_BRICK_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData StoneStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData StoneStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.STONE_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData SmoothSandstoneStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData SmoothSandstoneStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.SMOOTH_SANDSTONE_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData SmoothQuartzStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData SmoothQuartzStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.SMOOTH_QUARTZ_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData GraniteStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData GraniteStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.GRANITE_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData AndesiteStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData AndesiteStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.ANDESITE_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData RedNetherBrickStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData RedNetherBrickStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.RED_NETHER_BRICK_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData PolishedAndesiteStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData PolishedAndesiteStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.POLISHED_ANDESITE_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData DioriteStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData DioriteStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.DIORITE_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData CobbledDeepslateStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData CobbledDeepslateStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.COBBLED_DEEPSLATE_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData PolishedDeepslateStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData PolishedDeepslateStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.POLISHED_DEEPSLATE_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData DeepslateBrickStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData DeepslateBrickStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.DEEPSLATE_BRICK_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData DeepslateTileStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData DeepslateTileStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.DEEPSLATE_TILE_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
@@ -3135,11 +3135,11 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData Scaffolding(int distance, boolean bottom, boolean waterlogged)
+	public static BlockData Scaffolding(boolean bottom, int distance, boolean waterlogged)
 	{
 		Scaffolding data = (Scaffolding) Material.SCAFFOLDING.createBlockData();
-		data.setDistance(distance);
 		data.setBottom(bottom);
+		data.setDistance(distance);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
@@ -3151,21 +3151,21 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData Repeater(int delay, boolean locked, BlockFace facing, boolean powered)
+	public static BlockData Repeater(int delay, BlockFace facing, boolean locked, boolean powered)
 	{
 		Repeater data = (Repeater) Material.REPEATER.createBlockData();
 		data.setDelay(delay);
-		data.setLocked(locked);
 		data.setFacing(facing);
+		data.setLocked(locked);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData Comparator(Comparator.Mode mode, BlockFace facing, boolean powered)
+	public static BlockData Comparator(BlockFace facing, Comparator.Mode mode, boolean powered)
 	{
 		Comparator data = (Comparator) Material.COMPARATOR.createBlockData();
-		data.setMode(mode);
 		data.setFacing(facing);
+		data.setMode(mode);
 		data.setPowered(powered);
 		return data;
 	}
@@ -3202,19 +3202,19 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData Dispenser(boolean triggered, BlockFace facing)
+	public static BlockData Dispenser(BlockFace facing, boolean triggered)
 	{
 		Dispenser data = (Dispenser) Material.DISPENSER.createBlockData();
-		data.setTriggered(triggered);
 		data.setFacing(facing);
+		data.setTriggered(triggered);
 		return data;
 	}
 
-	public static BlockData Dropper(boolean triggered, BlockFace facing)
+	public static BlockData Dropper(BlockFace facing, boolean triggered)
 	{
 		Dispenser data = (Dispenser) Material.DROPPER.createBlockData();
-		data.setTriggered(triggered);
 		data.setFacing(facing);
+		data.setTriggered(triggered);
 		return data;
 	}
 
@@ -3233,11 +3233,11 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData Lever(BlockFace facing, FaceAttachable.AttachedFace attachedFace, boolean powered)
+	public static BlockData Lever(FaceAttachable.AttachedFace attachedFace, BlockFace facing, boolean powered)
 	{
 		Switch data = (Switch) Material.LEVER.createBlockData();
-		data.setFacing(facing);
 		data.setAttachedFace(attachedFace);
+		data.setFacing(facing);
 		data.setPowered(powered);
 		return data;
 	}
@@ -3287,11 +3287,11 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData TrappedChest(Chest.Type type, BlockFace facing, boolean waterlogged)
+	public static BlockData TrappedChest(BlockFace facing, Chest.Type type, boolean waterlogged)
 	{
 		Chest data = (Chest) Material.TRAPPED_CHEST.createBlockData();
-		data.setType(type);
 		data.setFacing(facing);
+		data.setType(type);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
@@ -3319,119 +3319,119 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData StoneButton(BlockFace facing, FaceAttachable.AttachedFace attachedFace, boolean powered)
+	public static BlockData StoneButton(FaceAttachable.AttachedFace attachedFace, BlockFace facing, boolean powered)
 	{
 		Switch data = (Switch) Material.STONE_BUTTON.createBlockData();
-		data.setFacing(facing);
 		data.setAttachedFace(attachedFace);
+		data.setFacing(facing);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData PolishedBlackstoneButton(BlockFace facing, FaceAttachable.AttachedFace attachedFace, boolean powered)
+	public static BlockData PolishedBlackstoneButton(FaceAttachable.AttachedFace attachedFace, BlockFace facing, boolean powered)
 	{
 		Switch data = (Switch) Material.POLISHED_BLACKSTONE_BUTTON.createBlockData();
-		data.setFacing(facing);
 		data.setAttachedFace(attachedFace);
+		data.setFacing(facing);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData OakButton(BlockFace facing, FaceAttachable.AttachedFace attachedFace, boolean powered)
+	public static BlockData OakButton(FaceAttachable.AttachedFace attachedFace, BlockFace facing, boolean powered)
 	{
 		Switch data = (Switch) Material.OAK_BUTTON.createBlockData();
-		data.setFacing(facing);
 		data.setAttachedFace(attachedFace);
+		data.setFacing(facing);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData SpruceButton(BlockFace facing, FaceAttachable.AttachedFace attachedFace, boolean powered)
+	public static BlockData SpruceButton(FaceAttachable.AttachedFace attachedFace, BlockFace facing, boolean powered)
 	{
 		Switch data = (Switch) Material.SPRUCE_BUTTON.createBlockData();
-		data.setFacing(facing);
 		data.setAttachedFace(attachedFace);
+		data.setFacing(facing);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData BirchButton(BlockFace facing, FaceAttachable.AttachedFace attachedFace, boolean powered)
+	public static BlockData BirchButton(FaceAttachable.AttachedFace attachedFace, BlockFace facing, boolean powered)
 	{
 		Switch data = (Switch) Material.BIRCH_BUTTON.createBlockData();
-		data.setFacing(facing);
 		data.setAttachedFace(attachedFace);
+		data.setFacing(facing);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData JungleButton(BlockFace facing, FaceAttachable.AttachedFace attachedFace, boolean powered)
+	public static BlockData JungleButton(FaceAttachable.AttachedFace attachedFace, BlockFace facing, boolean powered)
 	{
 		Switch data = (Switch) Material.JUNGLE_BUTTON.createBlockData();
-		data.setFacing(facing);
 		data.setAttachedFace(attachedFace);
+		data.setFacing(facing);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData AcaciaButton(BlockFace facing, FaceAttachable.AttachedFace attachedFace, boolean powered)
+	public static BlockData AcaciaButton(FaceAttachable.AttachedFace attachedFace, BlockFace facing, boolean powered)
 	{
 		Switch data = (Switch) Material.ACACIA_BUTTON.createBlockData();
-		data.setFacing(facing);
 		data.setAttachedFace(attachedFace);
+		data.setFacing(facing);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData CherryButton(BlockFace facing, FaceAttachable.AttachedFace attachedFace, boolean powered)
+	public static BlockData CherryButton(FaceAttachable.AttachedFace attachedFace, BlockFace facing, boolean powered)
 	{
 		Switch data = (Switch) Material.CHERRY_BUTTON.createBlockData();
-		data.setFacing(facing);
 		data.setAttachedFace(attachedFace);
+		data.setFacing(facing);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData DarkOakButton(BlockFace facing, FaceAttachable.AttachedFace attachedFace, boolean powered)
+	public static BlockData DarkOakButton(FaceAttachable.AttachedFace attachedFace, BlockFace facing, boolean powered)
 	{
 		Switch data = (Switch) Material.DARK_OAK_BUTTON.createBlockData();
-		data.setFacing(facing);
 		data.setAttachedFace(attachedFace);
+		data.setFacing(facing);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData MangroveButton(BlockFace facing, FaceAttachable.AttachedFace attachedFace, boolean powered)
+	public static BlockData MangroveButton(FaceAttachable.AttachedFace attachedFace, BlockFace facing, boolean powered)
 	{
 		Switch data = (Switch) Material.MANGROVE_BUTTON.createBlockData();
-		data.setFacing(facing);
 		data.setAttachedFace(attachedFace);
+		data.setFacing(facing);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData BambooButton(BlockFace facing, FaceAttachable.AttachedFace attachedFace, boolean powered)
+	public static BlockData BambooButton(FaceAttachable.AttachedFace attachedFace, BlockFace facing, boolean powered)
 	{
 		Switch data = (Switch) Material.BAMBOO_BUTTON.createBlockData();
-		data.setFacing(facing);
 		data.setAttachedFace(attachedFace);
+		data.setFacing(facing);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData CrimsonButton(BlockFace facing, FaceAttachable.AttachedFace attachedFace, boolean powered)
+	public static BlockData CrimsonButton(FaceAttachable.AttachedFace attachedFace, BlockFace facing, boolean powered)
 	{
 		Switch data = (Switch) Material.CRIMSON_BUTTON.createBlockData();
-		data.setFacing(facing);
 		data.setAttachedFace(attachedFace);
+		data.setFacing(facing);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData WarpedButton(BlockFace facing, FaceAttachable.AttachedFace attachedFace, boolean powered)
+	public static BlockData WarpedButton(FaceAttachable.AttachedFace attachedFace, BlockFace facing, boolean powered)
 	{
 		Switch data = (Switch) Material.WARPED_BUTTON.createBlockData();
-		data.setFacing(facing);
 		data.setAttachedFace(attachedFace);
+		data.setFacing(facing);
 		data.setPowered(powered);
 		return data;
 	}
@@ -3541,551 +3541,551 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData IronDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	public static BlockData IronDoor(BlockFace facing, Bisected.Half half, Door.Hinge hinge, boolean open, boolean powered)
 	{
 		Door data = (Door) Material.IRON_DOOR.createBlockData();
-		data.setHinge(hinge);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setHinge(hinge);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData OakDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	public static BlockData OakDoor(BlockFace facing, Bisected.Half half, Door.Hinge hinge, boolean open, boolean powered)
 	{
 		Door data = (Door) Material.OAK_DOOR.createBlockData();
-		data.setHinge(hinge);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setHinge(hinge);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData SpruceDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	public static BlockData SpruceDoor(BlockFace facing, Bisected.Half half, Door.Hinge hinge, boolean open, boolean powered)
 	{
 		Door data = (Door) Material.SPRUCE_DOOR.createBlockData();
-		data.setHinge(hinge);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setHinge(hinge);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData BirchDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	public static BlockData BirchDoor(BlockFace facing, Bisected.Half half, Door.Hinge hinge, boolean open, boolean powered)
 	{
 		Door data = (Door) Material.BIRCH_DOOR.createBlockData();
-		data.setHinge(hinge);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setHinge(hinge);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData JungleDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	public static BlockData JungleDoor(BlockFace facing, Bisected.Half half, Door.Hinge hinge, boolean open, boolean powered)
 	{
 		Door data = (Door) Material.JUNGLE_DOOR.createBlockData();
-		data.setHinge(hinge);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setHinge(hinge);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData AcaciaDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	public static BlockData AcaciaDoor(BlockFace facing, Bisected.Half half, Door.Hinge hinge, boolean open, boolean powered)
 	{
 		Door data = (Door) Material.ACACIA_DOOR.createBlockData();
-		data.setHinge(hinge);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setHinge(hinge);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData CherryDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	public static BlockData CherryDoor(BlockFace facing, Bisected.Half half, Door.Hinge hinge, boolean open, boolean powered)
 	{
 		Door data = (Door) Material.CHERRY_DOOR.createBlockData();
-		data.setHinge(hinge);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setHinge(hinge);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData DarkOakDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	public static BlockData DarkOakDoor(BlockFace facing, Bisected.Half half, Door.Hinge hinge, boolean open, boolean powered)
 	{
 		Door data = (Door) Material.DARK_OAK_DOOR.createBlockData();
-		data.setHinge(hinge);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setHinge(hinge);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData MangroveDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	public static BlockData MangroveDoor(BlockFace facing, Bisected.Half half, Door.Hinge hinge, boolean open, boolean powered)
 	{
 		Door data = (Door) Material.MANGROVE_DOOR.createBlockData();
-		data.setHinge(hinge);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setHinge(hinge);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData BambooDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	public static BlockData BambooDoor(BlockFace facing, Bisected.Half half, Door.Hinge hinge, boolean open, boolean powered)
 	{
 		Door data = (Door) Material.BAMBOO_DOOR.createBlockData();
-		data.setHinge(hinge);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setHinge(hinge);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData CrimsonDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	public static BlockData CrimsonDoor(BlockFace facing, Bisected.Half half, Door.Hinge hinge, boolean open, boolean powered)
 	{
 		Door data = (Door) Material.CRIMSON_DOOR.createBlockData();
-		data.setHinge(hinge);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setHinge(hinge);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData WarpedDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	public static BlockData WarpedDoor(BlockFace facing, Bisected.Half half, Door.Hinge hinge, boolean open, boolean powered)
 	{
 		Door data = (Door) Material.WARPED_DOOR.createBlockData();
-		data.setHinge(hinge);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setHinge(hinge);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData CopperDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	public static BlockData CopperDoor(BlockFace facing, Bisected.Half half, Door.Hinge hinge, boolean open, boolean powered)
 	{
 		Door data = (Door) Material.COPPER_DOOR.createBlockData();
-		data.setHinge(hinge);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setHinge(hinge);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData ExposedCopperDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	public static BlockData ExposedCopperDoor(BlockFace facing, Bisected.Half half, Door.Hinge hinge, boolean open, boolean powered)
 	{
 		Door data = (Door) Material.EXPOSED_COPPER_DOOR.createBlockData();
-		data.setHinge(hinge);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setHinge(hinge);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData WeatheredCopperDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	public static BlockData WeatheredCopperDoor(BlockFace facing, Bisected.Half half, Door.Hinge hinge, boolean open, boolean powered)
 	{
 		Door data = (Door) Material.WEATHERED_COPPER_DOOR.createBlockData();
-		data.setHinge(hinge);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setHinge(hinge);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData OxidizedCopperDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	public static BlockData OxidizedCopperDoor(BlockFace facing, Bisected.Half half, Door.Hinge hinge, boolean open, boolean powered)
 	{
 		Door data = (Door) Material.OXIDIZED_COPPER_DOOR.createBlockData();
-		data.setHinge(hinge);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setHinge(hinge);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData WaxedCopperDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	public static BlockData WaxedCopperDoor(BlockFace facing, Bisected.Half half, Door.Hinge hinge, boolean open, boolean powered)
 	{
 		Door data = (Door) Material.WAXED_COPPER_DOOR.createBlockData();
-		data.setHinge(hinge);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setHinge(hinge);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData WaxedExposedCopperDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	public static BlockData WaxedExposedCopperDoor(BlockFace facing, Bisected.Half half, Door.Hinge hinge, boolean open, boolean powered)
 	{
 		Door data = (Door) Material.WAXED_EXPOSED_COPPER_DOOR.createBlockData();
-		data.setHinge(hinge);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setHinge(hinge);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData WaxedWeatheredCopperDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	public static BlockData WaxedWeatheredCopperDoor(BlockFace facing, Bisected.Half half, Door.Hinge hinge, boolean open, boolean powered)
 	{
 		Door data = (Door) Material.WAXED_WEATHERED_COPPER_DOOR.createBlockData();
-		data.setHinge(hinge);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setHinge(hinge);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData WaxedOxidizedCopperDoor(Door.Hinge hinge, Bisected.Half half, BlockFace facing, boolean open, boolean powered)
+	public static BlockData WaxedOxidizedCopperDoor(BlockFace facing, Bisected.Half half, Door.Hinge hinge, boolean open, boolean powered)
 	{
 		Door data = (Door) Material.WAXED_OXIDIZED_COPPER_DOOR.createBlockData();
-		data.setHinge(hinge);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setHinge(hinge);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData IronTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	public static BlockData IronTrapdoor(BlockFace facing, Bisected.Half half, boolean open, boolean powered, boolean waterlogged)
 	{
 		TrapDoor data = (TrapDoor) Material.IRON_TRAPDOOR.createBlockData();
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
 		data.setOpen(open);
 		data.setPowered(powered);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData OakTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	public static BlockData OakTrapdoor(BlockFace facing, Bisected.Half half, boolean open, boolean powered, boolean waterlogged)
 	{
 		TrapDoor data = (TrapDoor) Material.OAK_TRAPDOOR.createBlockData();
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
 		data.setOpen(open);
 		data.setPowered(powered);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData SpruceTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	public static BlockData SpruceTrapdoor(BlockFace facing, Bisected.Half half, boolean open, boolean powered, boolean waterlogged)
 	{
 		TrapDoor data = (TrapDoor) Material.SPRUCE_TRAPDOOR.createBlockData();
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
 		data.setOpen(open);
 		data.setPowered(powered);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData BirchTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	public static BlockData BirchTrapdoor(BlockFace facing, Bisected.Half half, boolean open, boolean powered, boolean waterlogged)
 	{
 		TrapDoor data = (TrapDoor) Material.BIRCH_TRAPDOOR.createBlockData();
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
 		data.setOpen(open);
 		data.setPowered(powered);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData JungleTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	public static BlockData JungleTrapdoor(BlockFace facing, Bisected.Half half, boolean open, boolean powered, boolean waterlogged)
 	{
 		TrapDoor data = (TrapDoor) Material.JUNGLE_TRAPDOOR.createBlockData();
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
 		data.setOpen(open);
 		data.setPowered(powered);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData AcaciaTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	public static BlockData AcaciaTrapdoor(BlockFace facing, Bisected.Half half, boolean open, boolean powered, boolean waterlogged)
 	{
 		TrapDoor data = (TrapDoor) Material.ACACIA_TRAPDOOR.createBlockData();
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
 		data.setOpen(open);
 		data.setPowered(powered);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData CherryTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	public static BlockData CherryTrapdoor(BlockFace facing, Bisected.Half half, boolean open, boolean powered, boolean waterlogged)
 	{
 		TrapDoor data = (TrapDoor) Material.CHERRY_TRAPDOOR.createBlockData();
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
 		data.setOpen(open);
 		data.setPowered(powered);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData DarkOakTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	public static BlockData DarkOakTrapdoor(BlockFace facing, Bisected.Half half, boolean open, boolean powered, boolean waterlogged)
 	{
 		TrapDoor data = (TrapDoor) Material.DARK_OAK_TRAPDOOR.createBlockData();
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
 		data.setOpen(open);
 		data.setPowered(powered);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData MangroveTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	public static BlockData MangroveTrapdoor(BlockFace facing, Bisected.Half half, boolean open, boolean powered, boolean waterlogged)
 	{
 		TrapDoor data = (TrapDoor) Material.MANGROVE_TRAPDOOR.createBlockData();
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
 		data.setOpen(open);
 		data.setPowered(powered);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData BambooTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	public static BlockData BambooTrapdoor(BlockFace facing, Bisected.Half half, boolean open, boolean powered, boolean waterlogged)
 	{
 		TrapDoor data = (TrapDoor) Material.BAMBOO_TRAPDOOR.createBlockData();
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
 		data.setOpen(open);
 		data.setPowered(powered);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData CrimsonTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	public static BlockData CrimsonTrapdoor(BlockFace facing, Bisected.Half half, boolean open, boolean powered, boolean waterlogged)
 	{
 		TrapDoor data = (TrapDoor) Material.CRIMSON_TRAPDOOR.createBlockData();
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
 		data.setOpen(open);
 		data.setPowered(powered);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData WarpedTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	public static BlockData WarpedTrapdoor(BlockFace facing, Bisected.Half half, boolean open, boolean powered, boolean waterlogged)
 	{
 		TrapDoor data = (TrapDoor) Material.WARPED_TRAPDOOR.createBlockData();
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
 		data.setOpen(open);
 		data.setPowered(powered);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData CopperTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	public static BlockData CopperTrapdoor(BlockFace facing, Bisected.Half half, boolean open, boolean powered, boolean waterlogged)
 	{
 		TrapDoor data = (TrapDoor) Material.COPPER_TRAPDOOR.createBlockData();
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
 		data.setOpen(open);
 		data.setPowered(powered);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData ExposedCopperTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	public static BlockData ExposedCopperTrapdoor(BlockFace facing, Bisected.Half half, boolean open, boolean powered, boolean waterlogged)
 	{
 		TrapDoor data = (TrapDoor) Material.EXPOSED_COPPER_TRAPDOOR.createBlockData();
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
 		data.setOpen(open);
 		data.setPowered(powered);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData WeatheredCopperTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	public static BlockData WeatheredCopperTrapdoor(BlockFace facing, Bisected.Half half, boolean open, boolean powered, boolean waterlogged)
 	{
 		TrapDoor data = (TrapDoor) Material.WEATHERED_COPPER_TRAPDOOR.createBlockData();
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
 		data.setOpen(open);
 		data.setPowered(powered);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData OxidizedCopperTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	public static BlockData OxidizedCopperTrapdoor(BlockFace facing, Bisected.Half half, boolean open, boolean powered, boolean waterlogged)
 	{
 		TrapDoor data = (TrapDoor) Material.OXIDIZED_COPPER_TRAPDOOR.createBlockData();
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
 		data.setOpen(open);
 		data.setPowered(powered);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData WaxedCopperTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	public static BlockData WaxedCopperTrapdoor(BlockFace facing, Bisected.Half half, boolean open, boolean powered, boolean waterlogged)
 	{
 		TrapDoor data = (TrapDoor) Material.WAXED_COPPER_TRAPDOOR.createBlockData();
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
 		data.setOpen(open);
 		data.setPowered(powered);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData WaxedExposedCopperTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	public static BlockData WaxedExposedCopperTrapdoor(BlockFace facing, Bisected.Half half, boolean open, boolean powered, boolean waterlogged)
 	{
 		TrapDoor data = (TrapDoor) Material.WAXED_EXPOSED_COPPER_TRAPDOOR.createBlockData();
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
 		data.setOpen(open);
 		data.setPowered(powered);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData WaxedWeatheredCopperTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	public static BlockData WaxedWeatheredCopperTrapdoor(BlockFace facing, Bisected.Half half, boolean open, boolean powered, boolean waterlogged)
 	{
 		TrapDoor data = (TrapDoor) Material.WAXED_WEATHERED_COPPER_TRAPDOOR.createBlockData();
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
 		data.setOpen(open);
 		data.setPowered(powered);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData WaxedOxidizedCopperTrapdoor(Bisected.Half half, BlockFace facing, boolean open, boolean powered, boolean waterlogged)
+	public static BlockData WaxedOxidizedCopperTrapdoor(BlockFace facing, Bisected.Half half, boolean open, boolean powered, boolean waterlogged)
 	{
 		TrapDoor data = (TrapDoor) Material.WAXED_OXIDIZED_COPPER_TRAPDOOR.createBlockData();
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
 		data.setOpen(open);
 		data.setPowered(powered);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData OakFenceGate(boolean inWall, BlockFace facing, boolean open, boolean powered)
+	public static BlockData OakFenceGate(BlockFace facing, boolean inWall, boolean open, boolean powered)
 	{
 		Gate data = (Gate) Material.OAK_FENCE_GATE.createBlockData();
-		data.setInWall(inWall);
 		data.setFacing(facing);
+		data.setInWall(inWall);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData SpruceFenceGate(boolean inWall, BlockFace facing, boolean open, boolean powered)
+	public static BlockData SpruceFenceGate(BlockFace facing, boolean inWall, boolean open, boolean powered)
 	{
 		Gate data = (Gate) Material.SPRUCE_FENCE_GATE.createBlockData();
-		data.setInWall(inWall);
 		data.setFacing(facing);
+		data.setInWall(inWall);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData BirchFenceGate(boolean inWall, BlockFace facing, boolean open, boolean powered)
+	public static BlockData BirchFenceGate(BlockFace facing, boolean inWall, boolean open, boolean powered)
 	{
 		Gate data = (Gate) Material.BIRCH_FENCE_GATE.createBlockData();
-		data.setInWall(inWall);
 		data.setFacing(facing);
+		data.setInWall(inWall);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData JungleFenceGate(boolean inWall, BlockFace facing, boolean open, boolean powered)
+	public static BlockData JungleFenceGate(BlockFace facing, boolean inWall, boolean open, boolean powered)
 	{
 		Gate data = (Gate) Material.JUNGLE_FENCE_GATE.createBlockData();
-		data.setInWall(inWall);
 		data.setFacing(facing);
+		data.setInWall(inWall);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData AcaciaFenceGate(boolean inWall, BlockFace facing, boolean open, boolean powered)
+	public static BlockData AcaciaFenceGate(BlockFace facing, boolean inWall, boolean open, boolean powered)
 	{
 		Gate data = (Gate) Material.ACACIA_FENCE_GATE.createBlockData();
-		data.setInWall(inWall);
 		data.setFacing(facing);
+		data.setInWall(inWall);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData CherryFenceGate(boolean inWall, BlockFace facing, boolean open, boolean powered)
+	public static BlockData CherryFenceGate(BlockFace facing, boolean inWall, boolean open, boolean powered)
 	{
 		Gate data = (Gate) Material.CHERRY_FENCE_GATE.createBlockData();
-		data.setInWall(inWall);
 		data.setFacing(facing);
+		data.setInWall(inWall);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData DarkOakFenceGate(boolean inWall, BlockFace facing, boolean open, boolean powered)
+	public static BlockData DarkOakFenceGate(BlockFace facing, boolean inWall, boolean open, boolean powered)
 	{
 		Gate data = (Gate) Material.DARK_OAK_FENCE_GATE.createBlockData();
-		data.setInWall(inWall);
 		data.setFacing(facing);
+		data.setInWall(inWall);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData MangroveFenceGate(boolean inWall, BlockFace facing, boolean open, boolean powered)
+	public static BlockData MangroveFenceGate(BlockFace facing, boolean inWall, boolean open, boolean powered)
 	{
 		Gate data = (Gate) Material.MANGROVE_FENCE_GATE.createBlockData();
-		data.setInWall(inWall);
 		data.setFacing(facing);
+		data.setInWall(inWall);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData BambooFenceGate(boolean inWall, BlockFace facing, boolean open, boolean powered)
+	public static BlockData BambooFenceGate(BlockFace facing, boolean inWall, boolean open, boolean powered)
 	{
 		Gate data = (Gate) Material.BAMBOO_FENCE_GATE.createBlockData();
-		data.setInWall(inWall);
 		data.setFacing(facing);
+		data.setInWall(inWall);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData CrimsonFenceGate(boolean inWall, BlockFace facing, boolean open, boolean powered)
+	public static BlockData CrimsonFenceGate(BlockFace facing, boolean inWall, boolean open, boolean powered)
 	{
 		Gate data = (Gate) Material.CRIMSON_FENCE_GATE.createBlockData();
-		data.setInWall(inWall);
 		data.setFacing(facing);
+		data.setInWall(inWall);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
 	}
 
-	public static BlockData WarpedFenceGate(boolean inWall, BlockFace facing, boolean open, boolean powered)
+	public static BlockData WarpedFenceGate(BlockFace facing, boolean inWall, boolean open, boolean powered)
 	{
 		Gate data = (Gate) Material.WARPED_FENCE_GATE.createBlockData();
-		data.setInWall(inWall);
 		data.setFacing(facing);
+		data.setInWall(inWall);
 		data.setOpen(open);
 		data.setPowered(powered);
 		return data;
@@ -4341,140 +4341,140 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData WhiteBed(Bed.Part part, BlockFace facing)
+	public static BlockData WhiteBed(BlockFace facing, Bed.Part part)
 	{
 		Bed data = (Bed) Material.WHITE_BED.createBlockData();
-		data.setPart(part);
 		data.setFacing(facing);
+		data.setPart(part);
 		return data;
 	}
 
-	public static BlockData OrangeBed(Bed.Part part, BlockFace facing)
+	public static BlockData OrangeBed(BlockFace facing, Bed.Part part)
 	{
 		Bed data = (Bed) Material.ORANGE_BED.createBlockData();
-		data.setPart(part);
 		data.setFacing(facing);
+		data.setPart(part);
 		return data;
 	}
 
-	public static BlockData MagentaBed(Bed.Part part, BlockFace facing)
+	public static BlockData MagentaBed(BlockFace facing, Bed.Part part)
 	{
 		Bed data = (Bed) Material.MAGENTA_BED.createBlockData();
-		data.setPart(part);
 		data.setFacing(facing);
+		data.setPart(part);
 		return data;
 	}
 
-	public static BlockData LightBlueBed(Bed.Part part, BlockFace facing)
+	public static BlockData LightBlueBed(BlockFace facing, Bed.Part part)
 	{
 		Bed data = (Bed) Material.LIGHT_BLUE_BED.createBlockData();
-		data.setPart(part);
 		data.setFacing(facing);
+		data.setPart(part);
 		return data;
 	}
 
-	public static BlockData YellowBed(Bed.Part part, BlockFace facing)
+	public static BlockData YellowBed(BlockFace facing, Bed.Part part)
 	{
 		Bed data = (Bed) Material.YELLOW_BED.createBlockData();
-		data.setPart(part);
 		data.setFacing(facing);
+		data.setPart(part);
 		return data;
 	}
 
-	public static BlockData LimeBed(Bed.Part part, BlockFace facing)
+	public static BlockData LimeBed(BlockFace facing, Bed.Part part)
 	{
 		Bed data = (Bed) Material.LIME_BED.createBlockData();
-		data.setPart(part);
 		data.setFacing(facing);
+		data.setPart(part);
 		return data;
 	}
 
-	public static BlockData PinkBed(Bed.Part part, BlockFace facing)
+	public static BlockData PinkBed(BlockFace facing, Bed.Part part)
 	{
 		Bed data = (Bed) Material.PINK_BED.createBlockData();
-		data.setPart(part);
 		data.setFacing(facing);
+		data.setPart(part);
 		return data;
 	}
 
-	public static BlockData GrayBed(Bed.Part part, BlockFace facing)
+	public static BlockData GrayBed(BlockFace facing, Bed.Part part)
 	{
 		Bed data = (Bed) Material.GRAY_BED.createBlockData();
-		data.setPart(part);
 		data.setFacing(facing);
+		data.setPart(part);
 		return data;
 	}
 
-	public static BlockData LightGrayBed(Bed.Part part, BlockFace facing)
+	public static BlockData LightGrayBed(BlockFace facing, Bed.Part part)
 	{
 		Bed data = (Bed) Material.LIGHT_GRAY_BED.createBlockData();
-		data.setPart(part);
 		data.setFacing(facing);
+		data.setPart(part);
 		return data;
 	}
 
-	public static BlockData CyanBed(Bed.Part part, BlockFace facing)
+	public static BlockData CyanBed(BlockFace facing, Bed.Part part)
 	{
 		Bed data = (Bed) Material.CYAN_BED.createBlockData();
-		data.setPart(part);
 		data.setFacing(facing);
+		data.setPart(part);
 		return data;
 	}
 
-	public static BlockData PurpleBed(Bed.Part part, BlockFace facing)
+	public static BlockData PurpleBed(BlockFace facing, Bed.Part part)
 	{
 		Bed data = (Bed) Material.PURPLE_BED.createBlockData();
-		data.setPart(part);
 		data.setFacing(facing);
+		data.setPart(part);
 		return data;
 	}
 
-	public static BlockData BlueBed(Bed.Part part, BlockFace facing)
+	public static BlockData BlueBed(BlockFace facing, Bed.Part part)
 	{
 		Bed data = (Bed) Material.BLUE_BED.createBlockData();
-		data.setPart(part);
 		data.setFacing(facing);
+		data.setPart(part);
 		return data;
 	}
 
-	public static BlockData BrownBed(Bed.Part part, BlockFace facing)
+	public static BlockData BrownBed(BlockFace facing, Bed.Part part)
 	{
 		Bed data = (Bed) Material.BROWN_BED.createBlockData();
-		data.setPart(part);
 		data.setFacing(facing);
+		data.setPart(part);
 		return data;
 	}
 
-	public static BlockData GreenBed(Bed.Part part, BlockFace facing)
+	public static BlockData GreenBed(BlockFace facing, Bed.Part part)
 	{
 		Bed data = (Bed) Material.GREEN_BED.createBlockData();
-		data.setPart(part);
 		data.setFacing(facing);
+		data.setPart(part);
 		return data;
 	}
 
-	public static BlockData RedBed(Bed.Part part, BlockFace facing)
+	public static BlockData RedBed(BlockFace facing, Bed.Part part)
 	{
 		Bed data = (Bed) Material.RED_BED.createBlockData();
-		data.setPart(part);
 		data.setFacing(facing);
+		data.setPart(part);
 		return data;
 	}
 
-	public static BlockData BlackBed(Bed.Part part, BlockFace facing)
+	public static BlockData BlackBed(BlockFace facing, Bed.Part part)
 	{
 		Bed data = (Bed) Material.BLACK_BED.createBlockData();
-		data.setPart(part);
 		data.setFacing(facing);
+		data.setPart(part);
 		return data;
 	}
 
-	public static BlockData Crafter(boolean crafting, boolean triggered, Crafter.Orientation orientation)
+	public static BlockData Crafter(boolean crafting, Crafter.Orientation orientation, boolean triggered)
 	{
 		Crafter data = (Crafter) Material.CRAFTER.createBlockData();
 		data.setCrafting(crafting);
-		data.setTriggered(triggered);
 		data.setOrientation(orientation);
+		data.setTriggered(triggered);
 		return data;
 	}
 
@@ -4693,11 +4693,11 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData Grindstone(BlockFace facing, FaceAttachable.AttachedFace attachedFace)
+	public static BlockData Grindstone(FaceAttachable.AttachedFace attachedFace, BlockFace facing)
 	{
 		Grindstone data = (Grindstone) Material.GRINDSTONE.createBlockData();
-		data.setFacing(facing);
 		data.setAttachedFace(attachedFace);
+		data.setFacing(facing);
 		return data;
 	}
 
@@ -4733,39 +4733,39 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData Campfire(boolean signalFire, BlockFace facing, boolean lit, boolean waterlogged)
+	public static BlockData Campfire(BlockFace facing, boolean lit, boolean signalFire, boolean waterlogged)
 	{
 		Campfire data = (Campfire) Material.CAMPFIRE.createBlockData();
-		data.setSignalFire(signalFire);
 		data.setFacing(facing);
 		data.setLit(lit);
+		data.setSignalFire(signalFire);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData SoulCampfire(boolean signalFire, BlockFace facing, boolean lit, boolean waterlogged)
+	public static BlockData SoulCampfire(BlockFace facing, boolean lit, boolean signalFire, boolean waterlogged)
 	{
 		Campfire data = (Campfire) Material.SOUL_CAMPFIRE.createBlockData();
-		data.setSignalFire(signalFire);
 		data.setFacing(facing);
 		data.setLit(lit);
+		data.setSignalFire(signalFire);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
 
-	public static BlockData BeeNest(int honeyLevel, BlockFace facing)
+	public static BlockData BeeNest(BlockFace facing, int honeyLevel)
 	{
 		Beehive data = (Beehive) Material.BEE_NEST.createBlockData();
-		data.setHoneyLevel(honeyLevel);
 		data.setFacing(facing);
+		data.setHoneyLevel(honeyLevel);
 		return data;
 	}
 
-	public static BlockData Beehive(int honeyLevel, BlockFace facing)
+	public static BlockData Beehive(BlockFace facing, int honeyLevel)
 	{
 		Beehive data = (Beehive) Material.BEEHIVE.createBlockData();
-		data.setHoneyLevel(honeyLevel);
 		data.setFacing(facing);
+		data.setHoneyLevel(honeyLevel);
 		return data;
 	}
 
@@ -4777,12 +4777,12 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData BlackstoneStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData BlackstoneStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.BLACKSTONE_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
@@ -4795,12 +4795,12 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData PolishedBlackstoneStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData PolishedBlackstoneStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.POLISHED_BLACKSTONE_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
@@ -4813,12 +4813,12 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData PolishedBlackstoneBrickStairs(Stairs.Shape shape, Bisected.Half half, BlockFace facing, boolean waterlogged)
+	public static BlockData PolishedBlackstoneBrickStairs(BlockFace facing, Bisected.Half half, Stairs.Shape shape, boolean waterlogged)
 	{
 		Stairs data = (Stairs) Material.POLISHED_BLACKSTONE_BRICK_STAIRS.createBlockData();
-		data.setShape(shape);
-		data.setHalf(half);
 		data.setFacing(facing);
+		data.setHalf(half);
+		data.setShape(shape);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
@@ -5015,11 +5015,11 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData PointedDripstone(BlockFace verticalDirection, PointedDripstone.Thickness thickness, boolean waterlogged)
+	public static BlockData PointedDripstone(PointedDripstone.Thickness thickness, BlockFace verticalDirection, boolean waterlogged)
 	{
 		PointedDripstone data = (PointedDripstone) Material.POINTED_DRIPSTONE.createBlockData();
-		data.setVerticalDirection(verticalDirection);
 		data.setThickness(thickness);
+		data.setVerticalDirection(verticalDirection);
 		data.setWaterlogged(waterlogged);
 		return data;
 	}
@@ -5193,20 +5193,20 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData PistonHead(boolean _short, TechnicalPiston.Type type, BlockFace facing)
+	public static BlockData PistonHead(BlockFace facing, boolean _short, TechnicalPiston.Type type)
 	{
 		PistonHead data = (PistonHead) Material.PISTON_HEAD.createBlockData();
+		data.setFacing(facing);
 		data.setShort(_short);
 		data.setType(type);
-		data.setFacing(facing);
 		return data;
 	}
 
-	public static BlockData MovingPiston(TechnicalPiston.Type type, BlockFace facing)
+	public static BlockData MovingPiston(BlockFace facing, TechnicalPiston.Type type)
 	{
 		TechnicalPiston data = (TechnicalPiston) Material.MOVING_PISTON.createBlockData();
-		data.setType(type);
 		data.setFacing(facing);
+		data.setType(type);
 		return data;
 	}
 
@@ -5479,11 +5479,11 @@ public class BlockGen
 		return data;
 	}
 
-	public static BlockData Tripwire(boolean disarmed, boolean attached, Faces face, boolean powered)
+	public static BlockData Tripwire(boolean attached, boolean disarmed, Faces face, boolean powered)
 	{
 		Tripwire data = (Tripwire) Material.TRIPWIRE.createBlockData();
-		data.setDisarmed(disarmed);
 		data.setAttached(attached);
+		data.setDisarmed(disarmed);
 		data.setPowered(powered);
 		face.faces.forEach((f, b) -> {
 			if (!data.getAllowedFaces().contains(f))

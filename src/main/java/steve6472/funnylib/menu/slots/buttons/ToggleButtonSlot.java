@@ -2,9 +2,7 @@ package steve6472.funnylib.menu.slots.buttons;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 import steve6472.funnylib.menu.Click;
 import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.menu.Slot;
@@ -14,8 +12,6 @@ import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
 
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * Created by steve6472

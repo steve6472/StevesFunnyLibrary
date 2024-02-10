@@ -59,7 +59,7 @@ public class SphereFillerItem extends CustomItem implements TickInHandEvent, Swa
 	{
 		result.cancel();
 
-		new FillerMenu("Sphere Filler", context.getItemStack()).showToPlayer(context.getPlayer());
+		new FillerMenu("Sphere Filler", context.getItemStack(), true).showToPlayer(context.getPlayer());
 	}
 
 	@Override
@@ -103,6 +103,7 @@ public class SphereFillerItem extends CustomItem implements TickInHandEvent, Swa
 
 		boolean isFloating = context.getItemData().protectedData().getBoolean("is_floating", false);
 		JSONMessage.create((isFloating ? "Floating" : "Block")).actionbar(context.getPlayer());
+		context.getItemData().protectedData().set3i("center", vector.toVector3i());
 
 		if (context.getItemData().protectedData().getBoolean("is_floating", false))
 		{
