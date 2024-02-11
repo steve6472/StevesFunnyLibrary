@@ -1,4 +1,4 @@
-package steve6472.funnylib.entity;
+package steve6472.funnylib.entity.display;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,7 +24,7 @@ import java.util.*;
  * Date: 6/27/2023
  * Project: StevesFunnyLibrary <br>
  */
-public class BlockStructureEntity extends MultiDisplayEntity
+public class BlockStructureEntity extends AdjustableDisplayEntity
 {
 	public BlockStructureEntity(Entity root)
 	{

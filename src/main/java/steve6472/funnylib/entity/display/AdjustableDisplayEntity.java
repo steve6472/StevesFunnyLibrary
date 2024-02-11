@@ -1,4 +1,4 @@
-package steve6472.funnylib.entity;
+package steve6472.funnylib.entity.display;
 
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
@@ -7,7 +7,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Transformation;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import steve6472.funnylib.FunnyLib;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -58,6 +57,11 @@ public class AdjustableDisplayEntity extends MultiDisplayEntity
 		});
 	}
 
+	public void addPart(Display display, Consumer<Transformation> partBehavior)
+	{
+		this.partBehaviour.put(display.getUniqueId(), partBehavior);
+	}
+
 	public static void transformBlockToLine(Transformation transformation, Vector3f point1, Vector3f point2, float width)
 	{
 		// Calculate the direction vector between the two points
@@ -78,6 +82,7 @@ public class AdjustableDisplayEntity extends MultiDisplayEntity
 		transformation.getScale().set(width, scale, width);
 	}
 
+	// Skulls are basically "slabs"
 	public static void transformSlabToLine(Transformation transformation, Vector3f point1, Vector3f point2, float width)
 	{
 		// Calculate the direction vector between the two points

@@ -4,10 +4,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.*;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.util.Vector;
 import org.joml.Vector2i;
 import org.joml.Vector3d;
@@ -133,6 +134,27 @@ public class BuildPhase extends AbstractGamePhase
 			if (event.getCause() == PlayerTeleportEvent.TeleportCause.SPECTATE) return;
 
 			event.setCancelled(true);
+		});
+
+		registerEvent(PlayerInteractEvent.class, event ->
+		{
+			Block clickedBlock = event.getClickedBlock();
+			if (clickedBlock == null) return;
+
+			Location loc = clickedBlock.getLocation();
+
+			if (event.getAction() == Action.RIGHT_CLICK_BLOCK && (!clickedBlock.getType().isInteractable() || (event.getPlayer().isSneaking() && !Objects
+				.requireNonNull(event.getPlayer().getInventory().getItem(EquipmentSlot.HAND))
+				.getType().isAir())))
+			{
+				loc.add(event.getBlockFace().getDirection());
+			}
+
+			Plot plot = ((BuildBattleGame) game).getPlayersPlot(event.getPlayer());
+			if (!plot.locationInPlot(loc))
+			{
+				event.setCancelled(true);
+			}
 		});
 	}
 

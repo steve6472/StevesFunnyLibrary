@@ -1,7 +1,6 @@
-package steve6472.funnylib.entity;
+package steve6472.funnylib.entity.display;
 
 import org.bukkit.Location;
-import org.bukkit.entity.Display;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

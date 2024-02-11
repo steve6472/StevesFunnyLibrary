@@ -9,6 +9,7 @@ import org.joml.Vector3i;
 import steve6472.funnylib.CancellableResult;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.context.PlayerBlockContext;
+import steve6472.funnylib.context.PlayerContext;
 import steve6472.funnylib.context.PlayerItemContext;
 import steve6472.funnylib.context.UseType;
 import steve6472.funnylib.item.Items;
@@ -37,129 +38,54 @@ public class LimitedRectangleFillerItem extends RectangleFillerItem
 	{
 		return ItemStackBuilder
 			.editNonStatic(super.item())
-			.addLore(JSONMessage.create(""))
+			.addLore(JSONMessage.create())
 			.addLore(JSONMessage.create("Limited Edition!").color(ChatColor.GOLD))
 			.buildItemStack();
 	}
 
 	@Override
-	public void useOnBlock(PlayerBlockContext context, UseType useType, CancellableResult result)
+	public boolean canBeUsed(PlayerContext context)
 	{
 		if (!(FunnyLib.currentGame instanceof BuildBattleGame bbg))
-		{
-			JSONMessage.create("Minigame not running!").actionbar(context.getPlayer());
-			result.setCancelled(true);
-			return;
-		}
+			return false;
 
 		Plot plot = bbg.getPlayersPlot(context.getPlayer());
 		if (plot == null)
-		{
-			JSONMessage.create("You do not have a plot!").actionbar(context.getPlayer());
-			result.setCancelled(true);
-			return;
-		}
+			return false;
 
-		ItemNBT data = context.getItemData();
-
-		boolean isFloating = data.getBoolean("isFloating", false);
-		if (isFloating)
-		{
-			Vector loc = rayTrace(context.getPlayer(), false, true);
-
-			if (!plot.locationInPlot(loc.toVector3i()))
-			{
-				JSONMessage.create("Selected location out of plot boundary!").actionbar(context.getPlayer());
-				result.cancel();
-				return;
-			}
-			super.useOnBlock(context, useType, result);
-			return;
-		}
-
-		Vector vector = context.getBlockLocation().toVector();
-
-		if (context.isPlayerSneaking())
-			vector.add(context.getFace().getDirection());
-
-		if (!plot.locationInPlot(vector.toVector3i()))
-		{
-			JSONMessage.create("Selected location out of plot boundary!").actionbar(context.getPlayer());
-			result.cancel();
-			return;
-		}
-
-		super.useOnBlock(context, useType, result);
+		return super.canBeUsed(context);
 	}
 
 	@Override
-	public void useOnAir(PlayerItemContext context, UseType useType, CancellableResult result)
+	public JSONMessage canNotBeUsedMessage(PlayerContext context)
 	{
 		if (!(FunnyLib.currentGame instanceof BuildBattleGame bbg))
-		{
-			return;
-		}
+			return JSONMessage.create("Minigame not running!");
 
 		Plot plot = bbg.getPlayersPlot(context.getPlayer());
 		if (plot == null)
-		{
-			return;
-		}
+			return JSONMessage.create("You do not own a plot!");
 
-		Vector loc = rayTrace(context.getPlayer(), false, true);
-
-		if (!plot.locationInPlot(loc.toVector3i()))
-		{
-			JSONMessage.create("Selected location out of plot boundary!").actionbar(context.getPlayer());
-			return;
-		}
-
-		super.useOnAir(context, useType, result);
+		return super.canNotBeUsedMessage(context);
 	}
 
 	@Override
-	public void tickInHand(PlayerItemContext context)
+	public boolean isInBounds(PlayerContext context, Vector3i pos)
 	{
 		if (!(FunnyLib.currentGame instanceof BuildBattleGame bbg))
-		{
-			JSONMessage.create("Minigame not running!").actionbar(context.getPlayer());
-			return;
-		}
+			return false;
 
 		Plot plot = bbg.getPlayersPlot(context.getPlayer());
 		if (plot == null)
-		{
-			JSONMessage.create("You do not have a plot!").actionbar(context.getPlayer());
-			return;
-		}
+			return false;
 
-		Vector3i pos1 = new Vector3i();
-		Vector3i pos2 = new Vector3i();
-
-		adjustPositions(context, pos1, pos2);
-
-		if (!plot.locationInPlot(pos1) || !plot.locationInPlot(pos2))
-		{
-			JSONMessage.create("Selected location out of plot boundary!").actionbar(context.getPlayer());
-			return;
-		}
-
-		super.tickInHand(context);
+		return plot.locationInPlot(pos);
 	}
 
 	@Override
-	protected void renderFloatingPosition(PlayerItemContext context)
+	public JSONMessage outOfBoundsMessage(PlayerContext context)
 	{
-		Vector vector = rayTrace(context.getPlayer(), context.isSneaking(), true);
-
-		Plot plot = ((BuildBattleGame) FunnyLib.currentGame).getPlayersPlot(context.getPlayer());
-		if (!plot.locationInPlot(vector.toVector3i()))
-		{
-			JSONMessage.create("Selected location out of plot boundary!").actionbar(context.getPlayer());
-			return;
-		}
-
-		super.renderFloatingPosition(context);
+		return JSONMessage.create("Out of your plot bounds!");
 	}
 
 	@Override

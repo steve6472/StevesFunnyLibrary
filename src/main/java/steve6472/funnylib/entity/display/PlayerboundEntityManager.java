@@ -1,4 +1,4 @@
-package steve6472.funnylib.entity;
+package steve6472.funnylib.entity.display;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -7,7 +7,6 @@ import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import steve6472.funnylib.events.ServerTickEvent;
 import steve6472.funnylib.serialize.NBT;
-import steve6472.funnylib.serialize.PdcNBT;
 
 import java.util.*;
 import java.util.function.Predicate;

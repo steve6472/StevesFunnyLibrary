@@ -174,8 +174,6 @@ public class MenuListener implements Listener
 		click.type = e.getClick();
 		click.action = e.getAction();
 
-		Bukkit.broadcastMessage(click.toString());
-
 		if (slot == null || !slot.canBeInteractedWith(click))
 		{
 			e.setCancelled(true);

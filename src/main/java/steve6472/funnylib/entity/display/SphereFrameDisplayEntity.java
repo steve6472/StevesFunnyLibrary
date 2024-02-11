@@ -1,4 +1,4 @@
-package steve6472.funnylib.entity;
+package steve6472.funnylib.entity.display;
 
 import org.bukkit.Location;
 import org.bukkit.entity.ItemDisplay;

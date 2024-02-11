@@ -14,8 +14,9 @@ import org.joml.Vector3i;
 import steve6472.funnylib.CancellableResult;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.context.PlayerItemContext;
-import steve6472.funnylib.entity.FrameDisplayEntity;
-import steve6472.funnylib.entity.SphereFrameDisplayEntity;
+import steve6472.funnylib.data.GameStructure;
+import steve6472.funnylib.entity.display.FrameDisplayEntity;
+import steve6472.funnylib.entity.display.StructureHighlightEntity;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.builtin.worldtools.menu.FillerMenu;
 import steve6472.funnylib.item.events.SwapHandEvent;
@@ -30,7 +31,7 @@ import java.util.*;
  * Date: 1/26/2024
  * Project: StevesFunnyLibrary <br>
  */
-public class SphereFillerItem extends CustomItem implements TickInHandEvent, SwapHandEvent
+public class SphereFillerItem extends CustomItem implements TickInHandEvent, SwapHandEvent, Boundable
 {
 	private static final double RAY_DISTANCE = 64;
 	private static final double FLOATING_MODE_DISTANCE = 3;
@@ -47,12 +48,13 @@ public class SphereFillerItem extends CustomItem implements TickInHandEvent, Swa
 		return ItemStackBuilder.create(Material.POPPED_CHORUS_FRUIT)
 			.setName(JSONMessage.create("Sphere Filler").color(ChatColor.DARK_AQUA))
 			.addLore(JSONMessage.create(""))
-			.addLore(JSONMessage.create("[", ChatColor.WHITE).thenKeybind("key.sneak", ChatColor.BLUE).then("] to select on face", ChatColor.WHITE).setItalic(false))
+			.addLore(JSONMessage.create("Hold [", ChatColor.WHITE).thenKeybind("key.sneak", ChatColor.BLUE).then("] to select ", ChatColor.WHITE).then("on", ChatColor.WHITE).style(ChatColor.UNDERLINE).then(" block face", ChatColor.WHITE).setItalic(false))
 			.addLore(JSONMessage.create("[", ChatColor.WHITE).thenKeybind("key.swapOffhand", ChatColor.BLUE).then("] to switch modes", ChatColor.WHITE).setItalic(false))
 			.addLore(JSONMessage.create("[", ChatColor.WHITE).thenKeybind("key.drop", ChatColor.BLUE).then("] to open menu", ChatColor.WHITE).setItalic(false))
+			.addLore(JSONMessage.create(""))
+			.addLore(JSONMessage.create("[", ChatColor.WHITE).thenKeybind("key.use", ChatColor.BLUE).then("] to apply", ChatColor.WHITE).setItalic(false))
 			.buildItemStack();
 	}
-
 
 	@Override
 	public void onDrop(PlayerItemContext context, CancellableResult result)
@@ -89,7 +91,17 @@ public class SphereFillerItem extends CustomItem implements TickInHandEvent, Swa
 
 		int radius = context.getItemData().protectedData().getInt("radius", 2);
 
-		SphereFrameDisplayEntity frame = FunnyLib
+		StructureHighlightEntity frame = FunnyLib
+			.getPlayerboundEntityManager()
+			.getOrCreateMultiEntity(
+				context.getPlayer(),
+				nbt -> nbt.getBoolean("sphere_structure_shell", false),
+				() -> createFrame(context, vector.toVector3i(), radius)
+			);
+
+//		frame.setBlockOffset(1f / 32f + (float) Math.cos(Math.toRadians(FunnyLib.getUptimeTicks() % 3600)) * 0.01f);
+
+		/*SphereFrameDisplayEntity frame = FunnyLib
 			.getPlayerboundEntityManager()
 			.getOrCreateMultiEntity(
 				context.getPlayer(),
@@ -99,7 +111,7 @@ public class SphereFillerItem extends CustomItem implements TickInHandEvent, Swa
 		frame.setWidth(1f / 16f + (float) Math.cos(Math.toRadians(FunnyLib.getUptimeTicks() % 3600)) * 0.01f);
 		frame.setRadius(radius);
 
-		frame.setRotation(applyRandomOffset(frame.getRotation(), (float) Math.toRadians(1f)));
+		frame.setRotation(applyRandomOffset(frame.getRotation(), (float) Math.toRadians(1f)));*/
 
 		boolean isFloating = context.getItemData().protectedData().getBoolean("is_floating", false);
 		JSONMessage.create((isFloating ? "Floating" : "Block")).actionbar(context.getPlayer());
@@ -133,7 +145,7 @@ public class SphereFillerItem extends CustomItem implements TickInHandEvent, Swa
 		return vector;
 	}
 
-	public SphereFrameDisplayEntity createFrame(PlayerItemContext context, Vector3i pos, float radius)
+	/*public SphereFrameDisplayEntity createFrame(PlayerItemContext context, Vector3i pos, float radius)
 	{
 		SphereFrameDisplayEntity fde = new SphereFrameDisplayEntity(
 			new Location(context.getWorld(), pos.x + 0.5f, pos.y + 0.5f, pos.z + 0.5f),
@@ -142,13 +154,24 @@ public class SphereFillerItem extends CustomItem implements TickInHandEvent, Swa
 		fde.teleportDuration = 3;
 		fde.setRotation(createRandomRotation());
 
-//		fde.createCenteredPart(new ItemStack(Material.HEART_OF_THE_SEA), t ->
-//		{
-//			t.getLeftRotation().rotateY((float) Math.toRadians((FunnyLib.getUptimeTicks() % 3600) / 250f));
-//		});
-
 		fde.setAliveCondition(context.getPlayer(), FrameDisplayEntity.holdingCustomItemCondition(context.getPlayer(), FunnyLib.SPHERE_FILLER));
 		fde.getEntityPDC().setBoolean("sphere_select_frame", true);
+		return fde;
+	}*/
+
+	public StructureHighlightEntity createFrame(PlayerItemContext context, Vector3i pos, float radius)
+	{
+		StructureHighlightEntity fde = new StructureHighlightEntity(
+			context.getPlayer(),
+			new Location(context.getWorld(), pos.x + 0.5f, pos.y + 0.5f, pos.z + 0.5f),
+			GameStructure.fromItem(context.getPlayer().getInventory().getItem(EquipmentSlot.OFF_HAND)),
+			1f / 32f
+			);
+
+		fde.teleportDuration = 3;
+
+		fde.setAliveCondition(context.getPlayer(), FrameDisplayEntity.holdingCustomItemCondition(context.getPlayer(), FunnyLib.SPHERE_FILLER));
+		fde.getEntityPDC().setBoolean("sphere_structure_shell", true);
 		return fde;
 	}
 

@@ -20,7 +20,6 @@ import steve6472.funnylib.command.Usage;
 import steve6472.funnylib.coroutine.Coroutine;
 import steve6472.funnylib.coroutine.CoroutineExecutor;
 import steve6472.funnylib.data.GameStructure;
-import steve6472.funnylib.entity.BlockStructureEntity;
 import steve6472.funnylib.item.CustomItem;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.json.JsonPrettify;
