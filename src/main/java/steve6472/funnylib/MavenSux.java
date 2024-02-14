@@ -1,5 +1,7 @@
 package steve6472.funnylib;
 
+import dev.dominion.ecs.api.Results;
+import dev.dominion.ecs.engine.ResultSet;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONString;
@@ -33,5 +35,7 @@ public class MavenSux
 		new ParticleUtil();
 		new ReflectionHacker();
 		new JsonPrettify();
+		Class<ResultSet.With1> with1Class = ResultSet.With1.class;
+		Class<ResultSet.NextWith1> nextWith1Class = ResultSet.NextWith1.class;
 	}
 }

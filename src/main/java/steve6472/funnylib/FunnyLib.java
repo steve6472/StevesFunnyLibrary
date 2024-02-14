@@ -20,13 +20,17 @@ import steve6472.funnylib.blocks.builtin.CustomNoteBlock;
 import steve6472.funnylib.blocks.builtin.MultiBlock;
 import steve6472.funnylib.command.impl.DebugCommands;
 import steve6472.funnylib.entity.display.PlayerboundEntityManager;
+import steve6472.funnylib.entity.ecs.ECSMain;
+import steve6472.funnylib.entity.ecs.TestZombieEgg;
 import steve6472.funnylib.item.builtin.worldtools.SphereFillerItem;
-import steve6472.funnylib.item.nonbt.NbtRemover;
+import steve6472.funnylib.item.NbtPacketEditor;
 import steve6472.funnylib.json.IJsonConfig;
 import steve6472.funnylib.json.INbtConfig;
 import steve6472.funnylib.json.JsonConfig;
 import steve6472.funnylib.json.JsonNBT;
 import steve6472.funnylib.minigame.Game;
+import steve6472.funnylib.packgen.PackCommand;
+import steve6472.funnylib.packgen.PackEngine;
 import steve6472.funnylib.serialize.PdcNBT;
 import steve6472.funnylib.util.GlowingUtil;
 import steve6472.funnylib.blocks.builtin.TeleportButtonBlock;
@@ -65,7 +69,7 @@ public class FunnyLib
 	private static Blocks blocks;
 	private static JsonConfig configJson, configNbt;
 	private static LibSettings settings;
-	private static NbtRemover nbtRemover;
+	private static NbtPacketEditor nbtRemover;
 	private static WorkloadRunnable workloadRunnable;
 
 	private static PlayerboundEntityManager playerboundEntityManager;
@@ -74,6 +78,8 @@ public class FunnyLib
 	private static Set<INbtConfig> configurationsNbt;
 
 	public static Game currentGame;
+	public static ECSMain ecs;
+	public static PackEngine packEngine;
 
 	private FunnyLib()
 	{
@@ -83,7 +89,7 @@ public class FunnyLib
 	public static void init(Plugin plugin, LibSettings settings)
 	{
 		new MavenSux();
-		Bukkit.getPluginManager().registerEvents(nbtRemover = new NbtRemover(plugin), plugin);
+		Bukkit.getPluginManager().registerEvents(nbtRemover = new NbtPacketEditor(plugin), plugin);
 
 		configurationsJson = new HashSet<>();
 		configurationsNbt = new HashSet<>();
@@ -91,6 +97,7 @@ public class FunnyLib
 		configNbt = new JsonConfig("config_nbt", plugin);
 		workloadRunnable = new WorkloadRunnable();
 		FunnyLib.settings = settings;
+		ecs = new ECSMain();
 
 //		if (FunnyLib.PLUGIN != null)
 //			throw new RuntimeException("Plugin %s tried to initialize FunnyLib again. This is not allowed!".formatted(plugin.getName()));
@@ -99,6 +106,8 @@ public class FunnyLib
 
 		Log.init(plugin);
 		GlowingUtil.init();
+
+		Brigit.addBrigitCommand(plugin, new PackCommand(packEngine = new PackEngine()));
 
 		// TODO: remove
 		AnnotationCommand.registerCommands(MenuTest.class);
@@ -130,6 +139,7 @@ public class FunnyLib
 				ex.printStackTrace();
 			}
 			Items.tick();
+			ecs.tick();
 //			debugGame();
 			workloadRunnable.run();
 
@@ -171,6 +181,8 @@ public class FunnyLib
 		if (currentGame != null)
 			currentGame.dispose();
 		Brigit.removeCommands(plugin);
+
+		ecs.unload();
 	}
 
 	public static Plugin getPlugin()
@@ -319,5 +331,7 @@ public class FunnyLib
 		Items.registerItem(NOTE_BLOCK_TUNER = new NoteBlockTuner());
 
 		Items.registerAdminItem(SPHERE_FILLER = new SphereFillerItem());
+
+		Items.registerAdminItem(new TestZombieEgg());
 	}
 }

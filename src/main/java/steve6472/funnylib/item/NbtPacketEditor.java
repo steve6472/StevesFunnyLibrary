@@ -1,4 +1,4 @@
-package steve6472.funnylib.item.nonbt;
+package steve6472.funnylib.item;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
@@ -12,8 +12,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
+import steve6472.funnylib.FunnyLib;
+import steve6472.funnylib.packgen.Model;
 import steve6472.funnylib.serialize.ItemNBT;
+import steve6472.funnylib.serialize.NBT;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -23,14 +27,18 @@ import java.util.List;
  * Date: 6/17/2023
  * Project: StevesFunnyLibrary <br>
  */
-public class NbtRemover implements Listener
+public class NbtPacketEditor implements Listener
 {
-	private static final boolean CREATIVE_SHOW_DATA = false;
+	/**
+	 * If this setting is off, shit breaks
+	 * I fucking hate how client side the creative inventory is
+	 */
+	private static final boolean CREATIVE_SHOW_DATA = true;
 
 	private final Plugin plugin;
 	private final List<PacketAdapter> adapters = new LinkedList<>();
 
-	public NbtRemover(Plugin plugin)
+	public NbtPacketEditor(Plugin plugin)
 	{
 		this.plugin = plugin;
 		registerListener(plugin);
@@ -92,11 +100,23 @@ public class NbtRemover implements Listener
 			return itemStack;
 
 		ItemStack copy = itemStack.clone();
-		ItemNBT nbt = ItemNBT.create(copy);
+		ItemMeta meta = copy.getItemMeta();
+		ItemNBT nbt = ItemNBT.create(copy, meta);
 
 		if (nbt.hasCompound("_protected"))
 		{
+			NBT aProtected = nbt.getCompound("_protected");
 			nbt.remove("_protected");
+
+			String modelId = aProtected.getString("_model", null);
+			if (modelId != null)
+			{
+				Model model = FunnyLib.packEngine.models.getModel(modelId);
+				if (model != null)
+				{
+					meta.setCustomModelData(model.customModelData);
+				}
+			}
 		} else
 		{
 			return itemStack;
@@ -109,6 +129,7 @@ public class NbtRemover implements Listener
 	@EventHandler
 	public void changeGameMode(PlayerGameModeChangeEvent e)
 	{
-		Bukkit.getScheduler().runTaskLater(plugin, () -> e.getPlayer().updateInventory(), 0);
+		if (CREATIVE_SHOW_DATA)
+			Bukkit.getScheduler().runTaskLater(plugin, () -> e.getPlayer().updateInventory(), 0);
 	}
 }

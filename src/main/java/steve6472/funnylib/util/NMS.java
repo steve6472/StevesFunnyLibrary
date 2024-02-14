@@ -14,19 +14,13 @@ import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_20_R3.persistence.CraftPersistentDataContainer;
 import org.bukkit.craftbukkit.v1_20_R3.persistence.CraftPersistentDataTypeRegistry;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftMagicNumbers;
-import org.bukkit.craftbukkit.v1_20_R3.util.CraftNBTTagConfigSerializer;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by steve6472
@@ -56,6 +50,14 @@ public class NMS
 			return ((Map<String, Object>) serialize(cpdc.toTagCompound()));
 		}
 		throw new RuntimeException("PDC not instance of CraftPersistentDataContainer");
+	}
+
+	public static Entity getEntityInWorld(World world, UUID entityUUID)
+	{
+		net.minecraft.world.entity.Entity entity = ((CraftWorld) world).getHandle().getEntity(entityUUID);
+		if (entity != null)
+			return entity.getBukkitEntity();
+		return null;
 	}
 
 	private static Object serialize(Tag base)

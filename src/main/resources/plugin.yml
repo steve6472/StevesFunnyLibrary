@@ -3,6 +3,7 @@ version: '${project.version}'
 main: steve6472.standalone.FunnyLibStandalone
 api-version: 1.18
 depend:
+  - SparklingPack
   - Citizens
   - ProtocolLib
   - CrazyAdvancementsAPI

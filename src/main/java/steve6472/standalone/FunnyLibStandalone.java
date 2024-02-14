@@ -35,6 +35,7 @@ public class FunnyLibStandalone extends JavaPlugin
 	@Override
 	public void onEnable()
 	{
+		Brigit.removeCommands(this);
 		FunnyLib.init(this, new LibSettings());
 //		ExNulla.init();
 		Interactable.init();
@@ -50,7 +51,6 @@ public class FunnyLibStandalone extends JavaPlugin
 		AnnotationCommand.registerCommands(HNSStartCommand.class);
 		AnnotationCommand.registerCommands(TagStartCommand.class);
 
-		Brigit.removeCommands(this);
 		Brigit.addBrigitCommand(this, new BingoCommand(this));
 		Brigit.addBrigitCommand(this, new MinigameCommand());
 //		Brigit.addBrigitCommand(this, new VarCommand(this));
