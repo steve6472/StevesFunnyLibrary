@@ -1,10 +1,21 @@
 package steve6472.standalone.buildbattle;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.LiteralMessage;
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.ResourceArgument;
+import net.minecraft.commands.arguments.ResourceOrTagArgument;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.biome.Biome;
 import org.bukkit.WeatherType;
 import org.bukkit.entity.Player;
 import steve6472.brigit.BrigitCommand;
@@ -13,6 +24,7 @@ import steve6472.funnylib.minigame.Minigames;
 import steve6472.standalone.buildbattle.phases.BuildPhase;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by steve6472
@@ -65,8 +77,24 @@ public class PlotCommand extends BrigitCommand
 							return 0;
 						})
 					)
+				).then(literal("tool")
+					.then(literal("sphere")
+						.executes(c -> {
+							getPlayer(c).getInventory().addItem(Minigames.FILL_SPHERE_LIMITED.newItemStack());
+							return 0;
+						})
+					).then(literal("rectangle")
+						.executes(c -> {
+							getPlayer(c).getInventory().addItem(Minigames.FILL_RECTANGLE_LIMITED.newItemStack());
+							return 0;
+						})
+					)
 				)
 		);
+	}
+
+	protected ResourceArgument<Biome> biome(CommandBuildContext commandBuildContext) {
+		return ResourceArgument.resource(commandBuildContext, Registries.BIOME);
 	}
 
 	private void checkGame() throws CommandSyntaxException

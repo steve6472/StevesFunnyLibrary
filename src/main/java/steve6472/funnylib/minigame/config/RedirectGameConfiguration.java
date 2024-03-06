@@ -3,6 +3,7 @@ package steve6472.funnylib.minigame.config;
 import org.apache.logging.log4j.util.TriConsumer;
 
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Created by steve6472
@@ -13,6 +14,7 @@ public class RedirectGameConfiguration<T> extends GameConfiguration
 {
 	private final GameConfiguration parent;
 	private final TriConsumer<Value<T>, T, GameConfiguration> redirect;
+	public Function<Value<?>, T> getValueFunc;
 
 	public RedirectGameConfiguration(GameConfiguration parent, ConfigTypeRegistry configTypeRegistry, TriConsumer<Value<T>, T, GameConfiguration> redirect)
 	{
@@ -36,7 +38,10 @@ public class RedirectGameConfiguration<T> extends GameConfiguration
 	@Override
 	public <T> T getValue(Value<T> value)
 	{
-		throw new RuntimeException("Unsupported");
+		if (getValueFunc == null)
+			throw new RuntimeException("Unsupported");
+		else
+			return (T) getValueFunc.apply(value);
 	}
 
 	@Override

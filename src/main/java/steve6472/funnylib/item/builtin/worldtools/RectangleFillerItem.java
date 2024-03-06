@@ -65,7 +65,7 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 	{
 		result.cancel();
 
-		new FillerMenu("Rectangle Filler", context.getItemStack(), false).showToPlayer(context.getPlayer());
+		new FillerMenu(this, "Rectangle Filler", context.getItemStack(), false).showToPlayer(context.getPlayer());
 	}
 
 	@Override

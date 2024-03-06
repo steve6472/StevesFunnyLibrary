@@ -52,18 +52,24 @@ public class SphereFrameDisplayEntity extends AdjustableDisplayEntity
 
 	public void setRadius(float radius)
 	{
+		if (this.radius == radius)
+			return;
 		this.radius = radius;
 		update();
 	}
 
 	public void setWidth(float width)
 	{
+		if (this.width == width)
+			return;
 		this.width = width;
 		update();
 	}
 
 	public void setRotation(Quaternionf rotation)
 	{
+		if (this.rotation.equals(rotation, 0.000001f))
+			return;
 		this.rotation = rotation;
 		update();
 	}

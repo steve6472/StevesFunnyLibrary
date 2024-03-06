@@ -2,6 +2,7 @@ package steve6472.funnylib.minigame.config;
 
 import net.wesjd.anvilgui.AnvilGUI;
 import org.apache.logging.log4j.util.TriConsumer;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -9,24 +10,25 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3i;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.data.GameStructure;
 import steve6472.funnylib.data.Marker;
+import steve6472.funnylib.events.ConfigValueChangeEvent;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.item.builtin.StructureItem;
 import steve6472.funnylib.json.INBT;
 import steve6472.funnylib.json.JsonNBT;
 import steve6472.funnylib.menu.Click;
 import steve6472.funnylib.menu.Response;
+import steve6472.funnylib.minigame.config.menu.StringListConfigMenu;
 import steve6472.funnylib.minigame.config.menu.Vec3iConfigMenu;
 import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.serialize.PdcNBT;
 import steve6472.funnylib.util.*;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.*;
 import java.util.regex.Pattern;
 
@@ -140,7 +142,10 @@ public class ConfigTypeRegistry
 				a[0] = true;
 
 				T object = toObject.apply(text);
-				gameConfig.setValue(value, object);
+
+				if (!ConfigValueChangeEvent.change(gameConfig, value, object, click.player()))
+					return Collections.singletonList(AnvilGUI.ResponseAction.close());
+
 				click.slot().updateSlot(createIcon(value, object));
 
 				JSONMessage.create("Value updated!").color(ChatColor.GREEN).send(click.player());
@@ -163,7 +168,9 @@ public class ConfigTypeRegistry
 	{
 		if (rightClickClear && click.type().isRightClick())
 		{
-			gameConfig.setValue(value, null);
+			if (!ConfigValueChangeEvent.change(gameConfig, value, null, click.player()))
+				return Response.cancel();
+
 			click.slot().updateSlot(createIcon(value, null));
 			return Response.cancel();
 		}
@@ -182,7 +189,9 @@ public class ConfigTypeRegistry
 			if (obj == null)
 				return Response.cancel();
 
-			gameConfig.setValue(value, obj);
+			if (!ConfigValueChangeEvent.change(gameConfig, value, obj, click.player()))
+				return Response.cancel();
+
 			click.slot().updateSlot(toItem.apply(obj));
 			return Response.cancel();
 		}
@@ -230,6 +239,36 @@ public class ConfigTypeRegistry
 		);
 
 		registerType(
+			BuiltInConfigType.STRING_LIST,
+			(value, json) ->
+			{
+				JSONArray array = json.optJSONArray(value.getId());
+				List<String> list = new ArrayList<>();
+				if (array == null)
+				{
+					return list;
+				}
+				for (int i = 0; i < array.length(); i++)
+				{
+					list.add(array.getString(i));
+				}
+
+				return list;
+			},
+			(value, object, json) ->
+			{
+				JSONArray array = new JSONArray();
+				for (String s : object)
+				{
+					array.put(s);
+				}
+				json.put(value.getId(), array);
+			},
+			(value, object) -> toStringIcon(value.getName(), Material.COBWEB, object, false),
+			(click, value, gameConfig) -> Response.redirect(new StringListConfigMenu(this, gameConfig, value))
+		);
+
+		registerType(
 			BuiltInConfigType.ID_MATCH,
 			(value, json) -> json.optString(value.getId(), null),
 			(value, object, json) -> json.put(value.getId(), object),
@@ -252,7 +291,12 @@ public class ConfigTypeRegistry
 			(value, object) -> toStringIcon(value.getName(), object ? Material.GREEN_DYE : Material.RED_DYE, object, false),
 			(click, value, gameConfig) ->
 			{
-				click.slot().updateSlot(createIcon(value, !gameConfig.getValue(value)));
+				boolean current = gameConfig.getValue(value);
+
+				if (!ConfigValueChangeEvent.change(gameConfig, value, !current, click.player()))
+					return Response.cancel();
+
+				click.slot().updateSlot(createIcon(value, !current));
 				return Response.cancel();
 			}
 		);

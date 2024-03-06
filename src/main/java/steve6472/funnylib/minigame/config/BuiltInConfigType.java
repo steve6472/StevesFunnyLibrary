@@ -4,6 +4,7 @@ import org.joml.Vector3i;
 import steve6472.funnylib.data.GameStructure;
 import steve6472.funnylib.data.Marker;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -23,6 +24,7 @@ public class BuiltInConfigType<T> implements ConfigType<T>
 	public static final ConfigType<Boolean> BOOLEAN = new BuiltInConfigType<>("BOOLEAN", boolean.class, Boolean.class);
 
 	public static final ConfigType<String> ID_MATCH = new BuiltInConfigType<>("ID_MATCH", String.class);
+	public static final ConfigType<List<String>> STRING_LIST = new BuiltInConfigType<>("STRING_LIST", List.class);
 
 	/*
 	 * Custom

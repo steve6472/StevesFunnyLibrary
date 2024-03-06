@@ -12,6 +12,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
+import org.joml.Quaternionf;
 import org.joml.Vector3i;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -78,6 +79,42 @@ public class MiscUtil
 			out[0] += msg + "\n";
 		});
 		return out[0];
+	}
+
+	public static Quaternionf createRandomRotation()
+	{
+		// Create a Quaternionf with random rotations on all axes
+		float randomAngleX = (float) Math.toRadians(Math.random() * 360.0);
+		float randomAngleY = (float) Math.toRadians(Math.random() * 360.0);
+		float randomAngleZ = (float) Math.toRadians(Math.random() * 360.0);
+
+		// Create individual quaternions for each axis
+		Quaternionf quaternionX = new Quaternionf().rotationX(randomAngleX);
+		Quaternionf quaternionY = new Quaternionf().rotationY(randomAngleY);
+		Quaternionf quaternionZ = new Quaternionf().rotationZ(randomAngleZ);
+
+		// Combine the individual quaternions to get the final random rotation
+		return new Quaternionf().identity().mul(quaternionX).mul(quaternionY).mul(quaternionZ);
+	}
+
+	public static Quaternionf applyRandomOffset(Quaternionf originalQuaternion, float maxOffsetAngle)
+	{
+		// Create a random number generator
+		Random random = new Random();
+
+		// Generate random offsets for each axis
+		float offsetX = random.nextFloat() * maxOffsetAngle;
+		float offsetY = random.nextFloat() * maxOffsetAngle;
+		float offsetZ = random.nextFloat() * maxOffsetAngle;
+
+		// Create a quaternion representing the random offset
+		Quaternionf offsetQuaternion = new Quaternionf()
+			.rotateAxis(offsetX, 1, 0, 0)
+			.rotateAxis(offsetY, 0, 1, 0)
+			.rotateAxis(offsetZ, 0, 0, 1);
+
+		// Apply the random offset to the original quaternion
+		return new Quaternionf(originalQuaternion).mul(offsetQuaternion);
 	}
 
 	private static final String MAP_FROM = "0123456789abcdef";

@@ -13,6 +13,7 @@ import steve6472.funnylib.util.TriFunction;
 import steve6472.standalone.buildbattle.BuildBattleGame;
 import steve6472.standalone.buildbattle.items.LimitedRectangleFillerItem;
 import steve6472.funnylib.item.builtin.worldtools.RectangleFillerItem;
+import steve6472.standalone.buildbattle.items.LimitedSphereFillerItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +30,8 @@ public class Minigames
 	public final ConfigTypeRegistry configTypeRegistry;
 	public final List<GameConfiguration> games;
 
-	public static CustomItem FILL_RECTANGLE;
 	public static CustomItem FILL_RECTANGLE_LIMITED;
+	public static CustomItem FILL_SPHERE_LIMITED;
 
 	public Minigames()
 	{
@@ -44,8 +45,8 @@ public class Minigames
 
 	private void initMinigamesItems()
 	{
-		FILL_RECTANGLE = Items.registerItem(new RectangleFillerItem());
 		FILL_RECTANGLE_LIMITED = Items.registerItem(new LimitedRectangleFillerItem());
+		FILL_SPHERE_LIMITED = Items.registerItem(new LimitedSphereFillerItem());
 	}
 
 	private GameConfiguration registerMinigame(String id, TriFunction<Plugin, World, GameConfiguration, Game> init)
@@ -66,6 +67,7 @@ public class Minigames
 			.registerValue(BuildBattleGame.CENTER)
 			.registerValue(BuildBattleGame.PLOT_BUILD_SIZE)
 			.registerValue(BuildBattleGame.PLOT_BUILD_OFFSET)
+			.registerValue(BuildBattleGame.THEMES)
 		;
 
 //		registerMinigame("tnt_tag")

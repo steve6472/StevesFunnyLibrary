@@ -22,6 +22,7 @@ import steve6472.funnylib.command.impl.DebugCommands;
 import steve6472.funnylib.entity.display.PlayerboundEntityManager;
 import steve6472.funnylib.entity.ecs.ECSMain;
 import steve6472.funnylib.entity.ecs.TestZombieEgg;
+import steve6472.funnylib.item.builtin.worldtools.RectangleFillerItem;
 import steve6472.funnylib.item.builtin.worldtools.SphereFillerItem;
 import steve6472.funnylib.item.NbtPacketEditor;
 import steve6472.funnylib.json.IJsonConfig;
@@ -307,6 +308,7 @@ public class FunnyLib
 	public static CustomItem ENTITY_HITBOX_DEBUGGER;
 	public static CustomItem ITEM_DISPLAY_EDITOR;
 	public static CustomItem NOTE_BLOCK_TUNER;
+	public static CustomItem FILL_RECTANGLE;
 	public static CustomItem SPHERE_FILLER;
 
 	private static void initBuiltin()
@@ -330,6 +332,7 @@ public class FunnyLib
 
 		Items.registerItem(NOTE_BLOCK_TUNER = new NoteBlockTuner());
 
+		Items.registerAdminItem(FILL_RECTANGLE = new RectangleFillerItem());
 		Items.registerAdminItem(SPHERE_FILLER = new SphereFillerItem());
 
 		Items.registerAdminItem(new TestZombieEgg());

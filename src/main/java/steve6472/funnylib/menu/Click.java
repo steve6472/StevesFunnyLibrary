@@ -18,6 +18,20 @@ public class Click
 	InventoryAction action;
 	ItemStack itemOnCursor;
 
+	public Click()
+	{
+
+	}
+
+	public Click(Player player, Slot slot, ClickType type, InventoryAction action, ItemStack itemOnCursor)
+	{
+		this.player = player;
+		this.slot = slot;
+		this.type = type;
+		this.action = action;
+		this.itemOnCursor = itemOnCursor;
+	}
+
 	// TODO: make getters
 
 	public Player player()

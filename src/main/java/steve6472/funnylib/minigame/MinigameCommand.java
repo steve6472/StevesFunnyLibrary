@@ -200,8 +200,9 @@ public class MinigameCommand extends BrigitCommand
 										Game currentGame = FunnyLib.currentGame;
 										if (currentGame != null && currentGame.getConfig() == gameConfig)
 										{
-											JSONMessage.create("You can not edit a running game!").color(ChatColor.RED).send(player);
-											return;
+//											JSONMessage.create("You can not edit a running game!").color(ChatColor.RED).send(player);
+											JSONMessage.create("You are editing a running game!").newline().then("Glitches might occur.").color(ChatColor.RED).send(player);
+//											return;
 										}
 
 										gameConfig.load();

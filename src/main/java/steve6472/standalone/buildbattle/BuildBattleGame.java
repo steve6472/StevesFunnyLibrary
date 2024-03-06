@@ -30,7 +30,8 @@ public class BuildBattleGame extends Game
 	/*
 	 * [x] Ability to change day/night and weather
 	 * [x] Custom heads
-	 * [ ] Plot biome
+	 * [ ] Plot biome (no)
+	 * [ ] Line tool - Bezier curve points
 	 */
 
 	public static final Value<GameStructure> PLOT = Value.create(BuiltInConfigType.STRUCTURE, "Plot", "plot");
@@ -39,6 +40,7 @@ public class BuildBattleGame extends Game
 	public static final Value<Vector3i> PLOT_BUILD_SIZE = Value.create(BuiltInConfigType.VEC_3I, "Plot Build Size", "plot_build_size");
 	public static final Value<Vector3i> PLOT_BUILD_OFFSET = Value.create(BuiltInConfigType.VEC_3I, "Plot Build Offset", "plot_build_offset");
 	public static final Value<Vector3i> PLOT_PLACE_OFFSET = Value.create(BuiltInConfigType.VEC_3I, "Plot Place Offset", "plot_place_offset");
+	public static final Value<List<String>> THEMES = Value.create(BuiltInConfigType.STRING_LIST, "Themes", "themes", true);
 
 	public World world;
 	public final List<String> themes;
@@ -74,8 +76,6 @@ public class BuildBattleGame extends Game
 		world.setGameRule(GameRule.DO_MOB_LOOT, false);
 		world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
 		world.setFullTime(6000);
-
-		start();
 	}
 
 	public Plot getPlayersPlot(Player player)

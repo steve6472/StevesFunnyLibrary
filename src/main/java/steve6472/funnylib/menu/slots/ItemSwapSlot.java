@@ -15,6 +15,7 @@ import steve6472.funnylib.util.Procedure;
 
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * Created by steve6472
@@ -26,6 +27,7 @@ public class ItemSwapSlot extends ItemSlot implements Disable<ItemSwapSlot>
 	private final DisableComponent disabled = new DisableComponent(this, ItemStackBuilder.quick(Material.GRAY_DYE, "Disabled Swap Slot", ChatColor.DARK_GRAY));
 
 	private ItemStack placedItem;
+	private Supplier<ItemStack> clearStack;
 	private Predicate<ItemStack> itemCheck = stack -> true;
 	private Consumer<ItemStack> onPlace;
 	private Procedure onClear;
@@ -76,6 +78,12 @@ public class ItemSwapSlot extends ItemSlot implements Disable<ItemSwapSlot>
 		return this;
 	}
 
+	public ItemSwapSlot setClearItem(Supplier<ItemStack> supplier)
+	{
+		this.clearStack = supplier;
+		return this;
+	}
+
 	@Override
 	public boolean canBeInteractedWith(Click click)
 	{
@@ -99,7 +107,7 @@ public class ItemSwapSlot extends ItemSlot implements Disable<ItemSwapSlot>
 		{
 			if (onClear != null)
 				onClear.apply();
-			setIcon(new ItemStack(Material.AIR));
+			setIcon(clearStack == null ? new ItemStack(Material.AIR) : clearStack.get());
 			placedItem = null;
 			return Response.cancel();
 		}

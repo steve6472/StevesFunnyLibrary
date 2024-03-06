@@ -1,9 +1,6 @@
 package steve6472.standalone.buildbattle.phases;
 
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
@@ -13,8 +10,11 @@ import org.bukkit.util.Vector;
 import org.joml.Vector2i;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
+import steve6472.funnylib.events.ConfigValueChangeEvent;
 import steve6472.funnylib.minigame.AbstractGamePhase;
 import steve6472.funnylib.minigame.Game;
+import steve6472.funnylib.util.JSONMessage;
+import steve6472.funnylib.util.MiscUtil;
 import steve6472.funnylib.util.RandomUtil;
 import steve6472.standalone.buildbattle.BuildBattleGame;
 import steve6472.standalone.buildbattle.Plot;
@@ -50,6 +50,7 @@ public class BuildPhase extends AbstractGamePhase
 		UUID uuid = player.getUniqueId();
 		Plot plot = plots.computeIfAbsent(uuid, this::createNewPlot);
 		plot.teleportToPlot(player);
+		player.setGameMode(GameMode.CREATIVE);
 	}
 
 	private World getWorld()
@@ -78,15 +79,33 @@ public class BuildPhase extends AbstractGamePhase
 	@Override
 	public void start()
 	{
+		JSONMessage joinMessage = JSONMessage
+			.create("Welcome to testing version of the Build Battle Minigame.").newline()
+			.then("There is no time limit and there is no theme").newline()
+			.then("You can use these commands:").newline()
+			.then("(Hover over gold text to see what the command does)").newline()
+			.then("/giveskull", ChatColor.GREEN).newline()
+			.then("  <player>", ChatColor.GOLD).tooltip("Gives you a skull of said player").newline().newline()
+			.then("/plot", ChatColor.GREEN).newline()
+			.then("  tool", ChatColor.GRAY).newline()
+			.then("    sphere", ChatColor.GOLD).tooltip("Gives you the Sphere Filler Tool").newline()
+			.then("    rectangle", ChatColor.GOLD).tooltip("Gives you the Rectangle Filler Tool").newline()
+			.then("  weather", ChatColor.GRAY).newline()
+			.then("    [clear, downfall]", ChatColor.GOLD).tooltip("Sets the plot weather").newline()
+			.then("  time", ChatColor.GRAY).newline()
+			.then("    <time>", ChatColor.GOLD).tooltip("Sets plot time");
+
 		for (Player onlinePlayer : Bukkit.getOnlinePlayers())
 		{
 			game.addPlayer(onlinePlayer);
 			addPlayer(onlinePlayer);
+			joinMessage.send(onlinePlayer);
 		}
 
 		registerEvent(PlayerJoinEvent.class, event ->
 		{
 			addPlayer(event.getPlayer());
+			joinMessage.send(event.getPlayer());
 		});
 
 		registerEvent(PlayerMoveEvent.class, event ->

@@ -5,8 +5,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.joml.Vector3i;
 import steve6472.funnylib.events.ConfigValueChangeEvent;
+import steve6472.funnylib.menu.Click;
 import steve6472.funnylib.menu.Menu;
 import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.menu.Slot;
@@ -15,29 +15,29 @@ import steve6472.funnylib.minigame.config.*;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by steve6472
  * Date: 1/20/2024
  * Project: StevesFunnyLibrary <br>
  */
-public class Vec3iConfigMenu extends Menu
+public class StringListConfigMenu extends Menu
 {
-	private static final Value<Integer> X = Value.create(BuiltInConfigType.INT, "X", "x");
-	private static final Value<Integer> Y = Value.create(BuiltInConfigType.INT, "Y", "y");
-	private static final Value<Integer> Z = Value.create(BuiltInConfigType.INT, "Z", "z");
-
 	private final ConfigTypeRegistry configTypeRegistry;
 	private final GameConfiguration gameConfig;
-	private final Value<Vector3i> value;
-	private final Vector3i originalValue;
+	private final Value<List<String>> value;
+	private final List<String> originalValue;
 
-	public Vec3iConfigMenu(ConfigTypeRegistry configTypeRegistry, GameConfiguration gameConfig, Value<Vector3i> value)
+	public StringListConfigMenu(ConfigTypeRegistry configTypeRegistry, GameConfiguration gameConfig, Value<List<String>> value)
 	{
-		super(4, "Vec 3i - " + value.getName(), true);
+		super(4, "String List - " + value.getName(), true);
 		this.configTypeRegistry = configTypeRegistry;
 		this.gameConfig = gameConfig;
 		this.value = value;
-		this.originalValue = new Vector3i(gameConfig.getValue(value));
+		this.originalValue = new ArrayList<>();
+		this.originalValue.addAll(gameConfig.getValue(value));
 	}
 
 	@Override
@@ -60,10 +60,47 @@ public class Vec3iConfigMenu extends Menu
 			return Response.backReload();
 		}));
 
-		// TODO: move to createConfigButton(Value<?>, Object) method
-		createConfigButton(X, gameConfig.getValue(value).x, 2, 1, (value, object, config) -> config.getValue(this.value).x = object);
-		createConfigButton(Y, gameConfig.getValue(value).y, 4, 1, (value, object, config) -> config.getValue(this.value).y = object);
-		createConfigButton(Z, gameConfig.getValue(value).z, 6, 1, (value, object, config) -> config.getValue(this.value).z = object);
+		setSlot(0, 3, new ButtonSlot(JSONMessage.create("Add String").color(ChatColor.GREEN), Material.PAPER).setClick(click ->
+		{
+			List<String> stringList = gameConfig.getValue(value);
+			stringList.add("");
+			int i = stringList.size() - 1;
+			int page = i / 27;
+			Value<String> val = Value.create(BuiltInConfigType.STRING, "String: " + i, "str_" + i);
+			createConfigButton(val, "", (i % 9) + (page * 9), (i / 9) % 3, (value, object, config) -> {
+				stringList.set(i, object);
+			});
+			Slot slot = getSlot((i % 9) + (page * 9), (i / 9) % 3);
+			slot.updateSlot();
+			Click newClick = new Click(click.player(), slot, click.type(), click.action(), click.itemOnCursor());
+			((ButtonSlot) slot).click.apply(newClick);
+			return Response.cancel();
+		}));
+
+		createStringSlots(0);
+	}
+
+	private void createStringSlots(int slotsToClear)
+	{
+		for (int i = 0; i < slotsToClear; i++)
+		{
+			int page = i / 27;
+			removeSlot((i % 9) + (page * 9), (i / 9) % 3);
+		}
+
+		List<String> stringList = gameConfig.getValue(value);
+		for (int i = 0; i < stringList.size(); i++)
+		{
+			String s = stringList.get(i);
+			int page = i / 27;
+			Value<String> val = Value.create(BuiltInConfigType.STRING, "String: " + i, "str_" + i);
+			int finalI = i;
+			createConfigButton(val, s, (i % 9) + (page * 9), (i / 9) % 3, (value, object, config) -> {
+				stringList.set(finalI, object);
+			});
+		}
+
+		reload();
 	}
 
 	private <T> void createConfigButton(Value<T> value, T object, int x, int y, TriConsumer<Value<T>, T, GameConfiguration> redirect)
@@ -81,7 +118,25 @@ public class Vec3iConfigMenu extends Menu
 				ItemStack editedIcon = debugIcon.buildItemStack();
 				return super.updateSlot(editedIcon);
 			}
-		}.setClick(click -> configTypeRegistry.onClick(value, click, new RedirectGameConfiguration<>(gameConfig, configTypeRegistry, redirect))));
+		}.setClick(click ->
+		{
+			if (click.type().isRightClick())
+			{
+				List<String> stringList = gameConfig.getValue(this.value);
+				String s = stringList.remove(Integer.parseInt(value.getId().split("_")[1]));
+				click.player().sendMessage("Removed '" + s + "'");
+				createStringSlots(stringList.size() + 1);
+				return Response.cancel();
+			}
+			RedirectGameConfiguration<T> config = new RedirectGameConfiguration<>(gameConfig, configTypeRegistry, redirect);
+			config.getValueFunc = (val) ->
+			{
+				List<String> stringList = gameConfig.getValue(this.value);
+				String s = stringList.get(Integer.parseInt(val.getId().split("_")[1]));
+				return (T) s;
+			};
+			return configTypeRegistry.onClick(value, click, config);
+		}));
 	}
 
 	private void addDebugInfoToIcon(ItemStackBuilder icon, Value<?> value, Object object)

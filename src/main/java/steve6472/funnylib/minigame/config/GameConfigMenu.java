@@ -4,9 +4,12 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.menu.Menu;
 import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.menu.slots.buttons.ButtonSlot;
+import steve6472.funnylib.menu.slots.buttons.MoveButtonSlot;
+import steve6472.funnylib.minigame.Game;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
 
@@ -56,15 +59,32 @@ public class GameConfigMenu extends Menu
 
 					ItemStackBuilder debugIcon = ItemStackBuilder.editNonStatic(configTypeRegistry.createIcon(value, object));
 					addDebugInfoToIcon(debugIcon, value, object);
-					debugIcon.setName(value.getName());
+					JSONMessage name = JSONMessage.create(value.getName());
+					Game currentGame = FunnyLib.currentGame;
+					if (!value.allowRuntimeEdit() && (currentGame != null && currentGame.getConfig() == gameConfig))
+					{
+						name.color(ChatColor.DARK_RED).then(" (Uneditable during runtime)");
+					}
+					debugIcon.setName(name);
 					return debugIcon.buildItemStack();
 				}
-			}.setClick(click -> configTypeRegistry.onClick(value, click, gameConfig)));
+			}.setClick(click ->
+			{
+				Game currentGame = FunnyLib.currentGame;
+				if (!value.allowRuntimeEdit() && (currentGame != null && currentGame.getConfig() == gameConfig))
+				{
+					return Response.cancel();
+				}
+				return configTypeRegistry.onClick(value, click, gameConfig);
+			}));
 
 			i++;
 		}
 
-		setSlot(8, 3, new ButtonSlot(JSONMessage.create("Save").color(ChatColor.GREEN), Material.EMERALD).setClick(click ->
+		setSlot(0, 1, new MoveButtonSlot(JSONMessage.create("Left"), Material.ARROW, -1, 0, true));
+		setSlot(8, 1, new MoveButtonSlot(JSONMessage.create("Right"), Material.ARROW, 1, 0, true));
+
+		setSlot(8, 3, new ButtonSlot(JSONMessage.create("Save").color(ChatColor.GREEN), Material.EMERALD, true).setClick(click ->
 		{
 			gameConfig.save();
 			saved = true;
@@ -74,7 +94,7 @@ public class GameConfigMenu extends Menu
 			return Response.exit();
 		}));
 
-		setSlot(7, 3, new ButtonSlot(JSONMessage.create("Discard").color(ChatColor.RED), Material.REDSTONE).setClick(click ->
+		setSlot(7, 3, new ButtonSlot(JSONMessage.create("Discard").color(ChatColor.RED), Material.REDSTONE, true).setClick(click ->
 		{
 			gameConfig.load();
 			return Response.exit();

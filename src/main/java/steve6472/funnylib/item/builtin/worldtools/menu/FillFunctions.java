@@ -2,8 +2,12 @@ package steve6472.funnylib.item.builtin.worldtools.menu;
 
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.joml.Vector3i;
 import steve6472.funnylib.FunnyLib;
+import steve6472.funnylib.context.PlayerContext;
+import steve6472.funnylib.item.builtin.worldtools.Boundable;
 import steve6472.funnylib.menu.Click;
 import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.serialize.PdcNBT;
@@ -27,23 +31,24 @@ public class FillFunctions
 		this.menu = menu;
 	}
 
-	public void applySphere(Click click)
+	public void applySphere(Player player, Boundable boundable)
 	{
-		click.player().sendMessage("Normal appply");
-		ItemNBT data = menu.nbtFromPlayersHandOrStack(null);
+		ItemNBT data = getItemNBT();
 		if (data == null) return;
+		PdcNBT playerNbt = PdcNBT.fromPDC(player.getPersistentDataContainer());
+
 		PdcNBT protectedData = data.protectedData();
-		if (!protectedData.has3i("center")) return;
+		if (!playerNbt.has3i("sphere_filler_center")) return;
 
 		int radius = protectedData.getInt("radius", 2);
 		boolean matchAnyBlock = protectedData.getBoolean("match_any_block", true);
 
-		Vector3i center = protectedData.get3i("center");
+		Vector3i center = playerNbt.get3i("sphere_filler_center");
 
 		Material match = Material.matchMaterial(protectedData.getString("match", Material.AIR.toString()));
 		Material place = Material.matchMaterial(protectedData.getString("place", Material.AIR.toString()));
 
-		World world = click.player().getWorld();
+		World world = player.getWorld();
 		for (int i = -radius; i <= radius; i++)
 		{
 			for (int j = -radius; j <= radius; j++)
@@ -51,6 +56,9 @@ public class FillFunctions
 				for (int k = -radius; k < radius; k++)
 				{
 					if (Math.sqrt(i * i + j * j + k * k) > radius - FillerMenu.RADIUS_OFFSET) continue;
+
+					if (!boundable.isInBounds(new PlayerContext(player, EquipmentSlot.HAND), new Vector3i(center.x + i, center.y + j, center.z + k)))
+						continue;
 
 					if (matchAnyBlock)
 					{
@@ -68,18 +76,20 @@ public class FillFunctions
 		}
 	}
 
-	public void applyAdvancedSphere(Click click)
+	public void applyAdvancedSphere(Player player, Boundable boundable)
 	{
-		click.player().sendMessage("Advanced appply");
-		ItemNBT data = menu.nbtFromPlayersHandOrStack(null);
+		ItemNBT data = getItemNBT();
 		if (data == null) return;
+
+		PdcNBT playerNbt = PdcNBT.fromPDC(player.getPersistentDataContainer());
+
 		PdcNBT protectedData = data.protectedData();
-		if (!protectedData.has3i("center")) return;
+		if (!playerNbt.has3i("sphere_filler_center")) return;
 
 		int radius = protectedData.getInt("radius", 2);
 		boolean matchAnyBlock = protectedData.getBoolean("match_any_block", true);
 
-		Vector3i center = protectedData.get3i("center");
+		Vector3i center = playerNbt.get3i("sphere_filler_center");
 
 		Material match = Material.matchMaterial(protectedData.getString("match", Material.AIR.toString()));
 
@@ -100,7 +110,7 @@ public class FillFunctions
 			bag.addEntry(Material.AIR, airCount);
 		}
 
-		World world = click.player().getWorld();
+		World world = player.getWorld();
 		for (int i = -radius; i <= radius; i++)
 		{
 			for (int j = -radius; j <= radius; j++)
@@ -108,6 +118,9 @@ public class FillFunctions
 				for (int k = -radius; k <= radius; k++)
 				{
 					if (Math.sqrt(i * i + j * j + k * k) > radius - FillerMenu.RADIUS_OFFSET) continue;
+
+					if (!boundable.isInBounds(new PlayerContext(player, EquipmentSlot.HAND), new Vector3i(center.x + i, center.y + j, center.z + k)))
+						continue;
 
 					if (matchAnyBlock)
 					{
@@ -125,12 +138,12 @@ public class FillFunctions
 		}
 	}
 
-	public void applyRectangle(Click click)
+	public void applyRectangle(Click click, Boundable boundable)
 	{
 		Vector3i pos1 = new Vector3i();
 		Vector3i pos2 = new Vector3i();
 
-		ItemNBT data = menu.nbtFromPlayersHandOrStack(null);
+		ItemNBT data = getItemNBT();
 		if (data == null) return;
 		PdcNBT protectedData = data.protectedData();
 
@@ -157,6 +170,9 @@ public class FillFunctions
 			{
 				for (int k = minPos.z; k < maxPos.z; k++)
 				{
+					if (!boundable.isInBounds(new PlayerContext(click.player(), EquipmentSlot.HAND), new Vector3i(i, j, k)))
+						continue;
+
 					if (matchAnyBlock)
 					{
 						FunnyLib
@@ -173,12 +189,12 @@ public class FillFunctions
 		}
 	}
 
-	public void applyAdvancedRectangle(Click click)
+	public void applyAdvancedRectangle(Click click, Boundable boundable)
 	{
 		Vector3i pos1 = new Vector3i();
 		Vector3i pos2 = new Vector3i();
 
-		ItemNBT data = menu.nbtFromPlayersHandOrStack(null);
+		ItemNBT data = getItemNBT();
 		if (data == null) return;
 		PdcNBT protectedData = data.protectedData();
 
@@ -220,6 +236,9 @@ public class FillFunctions
 			{
 				for (int k = minPos.z; k < maxPos.z; k++)
 				{
+					if (!boundable.isInBounds(new PlayerContext(click.player(), EquipmentSlot.HAND), new Vector3i(i, j, k)))
+						continue;
+
 					if (matchAnyBlock)
 					{
 						FunnyLib
@@ -234,5 +253,10 @@ public class FillFunctions
 				}
 			}
 		}
+	}
+
+	public ItemNBT getItemNBT()
+	{
+		return menu.nbtFromPlayersHandOrStack(null);
 	}
 }
