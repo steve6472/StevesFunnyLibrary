@@ -2,6 +2,7 @@ package steve6472.standalone.buildbattle.phases;
 
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.*;
@@ -10,11 +11,9 @@ import org.bukkit.util.Vector;
 import org.joml.Vector2i;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
-import steve6472.funnylib.events.ConfigValueChangeEvent;
 import steve6472.funnylib.minigame.AbstractGamePhase;
 import steve6472.funnylib.minigame.Game;
 import steve6472.funnylib.util.JSONMessage;
-import steve6472.funnylib.util.MiscUtil;
 import steve6472.funnylib.util.RandomUtil;
 import steve6472.standalone.buildbattle.BuildBattleGame;
 import steve6472.standalone.buildbattle.Plot;
@@ -30,18 +29,19 @@ public class BuildPhase extends AbstractGamePhase
 {
 	public final List<String> themes;
 	public final Map<UUID, Plot> plots;
+	public int timeElapsed;
 
 	public BuildPhase(Game game)
 	{
 		super(game);
-		this.themes = ((BuildBattleGame) game).themes;
+		this.themes = game.getConfig().getValue(BuildBattleGame.THEMES);
 		this.plots = ((BuildBattleGame) game).plots;
 	}
 
 	private String pickRandomTheme()
 	{
 		if (themes.isEmpty())
-			themes.addAll(BuildBattleGame.POSSIBLE_THEMES);
+			themes.addAll(game.getConfig().getValue(BuildBattleGame.THEMES));
 		return themes.remove(RandomUtil.randomInt(0, themes.size() - 1));
 	}
 
@@ -71,7 +71,8 @@ public class BuildPhase extends AbstractGamePhase
 				newPlotPos.x * (plotSize.x + 1 + plotOffset.x),
 				game.getConfig().getValue(BuildBattleGame.CENTER).y(),
 				newPlotPos.y * (plotSize.z + 1 + plotOffset.z)
-			).add(game.getConfig().getValue(BuildBattleGame.CENTER).toVec3i()));
+			).add(game.getConfig().getValue(BuildBattleGame.CENTER).toVec3i()),
+			pickRandomTheme());
 		plot.place(getWorld());
 		return plot;
 	}
@@ -81,7 +82,8 @@ public class BuildPhase extends AbstractGamePhase
 	{
 		JSONMessage joinMessage = JSONMessage
 			.create("Welcome to testing version of the Build Battle Minigame.").newline()
-			.then("There is no time limit and there is no theme").newline()
+			.then("Time limit is 24 hours").newline()
+			.then("You have been given a theme, but you do not need to follow it").newline()
 			.then("You can use these commands:").newline()
 			.then("(Hover over gold text to see what the command does)").newline()
 			.then("/giveskull", ChatColor.GREEN).newline()
@@ -143,7 +145,7 @@ public class BuildPhase extends AbstractGamePhase
 			});
 
 			// Apply current plot settings
-			currentPlot.ifPresentOrElse(plot -> plot.applyPlotSettings(player, true), () -> resetPlotSettings(player));
+			currentPlot.ifPresentOrElse(plot -> plot.applyPlotSettings(player, true), () -> resetPlotSettings(player, true));
 		});
 
 		registerEvent(PlayerTeleportEvent.class, event ->
@@ -175,6 +177,18 @@ public class BuildPhase extends AbstractGamePhase
 				event.setCancelled(true);
 			}
 		});
+
+		scheduleRepeatingTask(task -> {
+			plots.forEach((k, plot) -> {
+				timeElapsed++;
+				plot.getPlotBossBar().setProgress(Math.min(1.0, Math.max(0.0, 1.0 - timeElapsed / (double) game.getConfig().getValue(BuildBattleGame.BUILD_TIME))));
+				plot.setBarTime(game.getConfig().getValue(BuildBattleGame.BUILD_TIME) - timeElapsed);
+				if (timeElapsed >= game.getConfig().getValue(BuildBattleGame.BUILD_TIME))
+				{
+					endPhase();
+				}
+			});
+		}, 10 * 20, 20);
 	}
 
 	public Optional<Plot> getPlayersCurrentPlot(Player player)
@@ -193,16 +207,34 @@ public class BuildPhase extends AbstractGamePhase
 		return Optional.empty();
 	}
 
-	public static void resetPlotSettings(Player player)
+	public static void resetPlotSettings(Player player, boolean clearBorder)
 	{
 		player.resetPlayerWeather();
 		player.resetPlayerTime();
-		player.setWorldBorder(player.getWorld().getWorldBorder());
+		if (clearBorder)
+			player.setWorldBorder(player.getWorld().getWorldBorder());
+		clearBossBars(player);
+	}
+
+	public static void clearBossBars(Player player)
+	{
+		Set<BossBar> bars = new HashSet<>();
+		Bukkit.getBossBars().forEachRemaining(bar -> {
+			if (bar.getKey().getKey().startsWith("plot_"))
+			{
+				if (bar.getPlayers().contains(player))
+				{
+					bars.add(bar);
+				}
+			}
+		});
+		bars.forEach(bar -> bar.removePlayer(player));
 	}
 
 	@Override
 	public void end()
 	{
-		game.getPlayers().forEach(BuildPhase::resetPlotSettings);
+		plots.forEach((k, plot) -> plot.setBarTime(-1));
+		game.getPlayers().forEach(player -> resetPlotSettings(player, true));
 	}
 }

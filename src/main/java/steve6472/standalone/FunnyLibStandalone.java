@@ -1,7 +1,12 @@
 package steve6472.standalone;
 
+import com.mojang.brigadier.CommandDispatcher;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.gametest.framework.TestCommand;
+import net.minecraft.server.commands.*;
 import org.bukkit.plugin.java.JavaPlugin;
 import steve6472.brigit.Brigit;
+import steve6472.brigit.BrigitCommand;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.LibSettings;
 import steve6472.funnylib.category.Markers;
@@ -18,6 +23,8 @@ import steve6472.standalone.dimensionviewer.VarCommand;
 import steve6472.standalone.hideandseek.HNSStartCommand;
 import steve6472.standalone.interactable.Interactable;
 import steve6472.standalone.tnttag.TagStartCommand;
+
+import java.util.function.Consumer;
 
 /**
  * Created by steve6472

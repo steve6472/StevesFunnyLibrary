@@ -1,30 +1,24 @@
 package steve6472.standalone.buildbattle;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.ResourceArgument;
-import net.minecraft.commands.arguments.ResourceOrTagArgument;
-import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.world.level.biome.Biome;
+import org.bukkit.ChatColor;
 import org.bukkit.WeatherType;
+import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 import steve6472.brigit.BrigitCommand;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.minigame.Minigames;
 import steve6472.standalone.buildbattle.phases.BuildPhase;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Created by steve6472
@@ -77,7 +71,41 @@ public class PlotCommand extends BrigitCommand
 							return 0;
 						})
 					)
-				).then(literal("tool")
+				)
+				.then(literal("biome")
+					.then(argument("biome", string())
+						.suggests((a, b) -> suggest(biome(), b))
+						.executes(c ->
+						{
+							checkGame();
+
+							BuildPhase phase = (BuildPhase) FunnyLib.currentGame.getCurrentPhase();
+							Player player = getPlayer(c);
+							phase.getPlayersCurrentPlot(player).ifPresent(plot ->
+							{
+								if (!plot.isPlayerOwner(player))
+									return;
+
+								try
+								{
+									Biome b = Biome.valueOf(getString(c, "biome"));
+									if (b == Biome.CUSTOM)
+									{
+										player.sendMessage(ChatColor.RED + "Invalid biome");
+										return;
+									}
+									plot.setBiome(b);
+								} catch (Exception ex)
+								{
+									player.sendMessage(ChatColor.RED + "Biome not found!");
+								}
+
+							});
+							return 0;
+						})
+					)
+				)
+				.then(literal("tool")
 					.then(literal("sphere")
 						.executes(c -> {
 							getPlayer(c).getInventory().addItem(Minigames.FILL_SPHERE_LIMITED.newItemStack());
@@ -89,12 +117,64 @@ public class PlotCommand extends BrigitCommand
 							return 0;
 						})
 					)
+				).then(literal("theme")
+					.then(literal("set")
+						.then(argument("theme", StringArgumentType.greedyString()).suggests((a, b) -> suggest(suggestThemes(a), b))
+							.executes(c -> {
+
+								checkGame();
+
+								if (!getPlayer(c).isOp())
+								{
+									getPlayer(c).sendMessage(ChatColor.RED + "You do not have permission to run this command.");
+									return 0;
+								}
+
+								BuildPhase phase = (BuildPhase) FunnyLib.currentGame.getCurrentPhase();
+								Player player = getPlayer(c);
+								phase.getPlayersCurrentPlot(player).ifPresent(plot ->
+								{
+									String theme = getString(c, "theme");
+									if (!FunnyLib.currentGame.getConfig().getValue(BuildBattleGame.THEMES).contains(theme))
+									{
+										player.sendMessage(ChatColor.RED + "You set a theme that is not in the current theme list! (" + theme + ")");
+									}
+									player.sendMessage(ChatColor.GREEN + "You set new theme for this plot: " + theme);
+
+									plot.setPlotTheme(theme);
+								});
+
+								return 0;
+							}
+						)))
+					.then(literal("get")
+						.executes(c -> {
+
+							checkGame();
+							BuildPhase phase = (BuildPhase) FunnyLib.currentGame.getCurrentPhase();
+							Player player = getPlayer(c);
+
+							phase.getPlayersCurrentPlot(player).ifPresent(plot ->
+							{
+								player.sendMessage(ChatColor.YELLOW + "This plots theme is: " + ChatColor.WHITE + plot.getPlotTheme());
+							});
+							return 0;
+					}))
 				)
 		);
 	}
 
-	protected ResourceArgument<Biome> biome(CommandBuildContext commandBuildContext) {
-		return ResourceArgument.resource(commandBuildContext, Registries.BIOME);
+	private List<String> suggestThemes(CommandContext<CommandSourceStack> a) throws CommandSyntaxException
+	{
+		Player player = getPlayer(a);
+		if (!player.isOp())
+			return List.of("");
+
+		return FunnyLib.currentGame.getConfig().getValue(BuildBattleGame.THEMES);
+	}
+
+	protected List<String> biome() {
+		return Arrays.stream(Biome.values()).map(Enum::name).toList();
 	}
 
 	private void checkGame() throws CommandSyntaxException

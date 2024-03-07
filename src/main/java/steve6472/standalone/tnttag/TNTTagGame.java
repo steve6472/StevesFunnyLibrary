@@ -15,9 +15,11 @@ import steve6472.funnylib.minigame.builtin.phase.VictoryPhase;
 import steve6472.funnylib.minigame.builtin.phase.WaitingForPlayersPhase;
 import steve6472.funnylib.minigame.builtin.phase.composite.*;
 import steve6472.funnylib.minigame.builtin.state.*;
+import steve6472.funnylib.minigame.config.BuiltInConfigType;
+import steve6472.funnylib.minigame.config.GameConfiguration;
+import steve6472.funnylib.minigame.config.Value;
 import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.Preconditions;
-import steve6472.standalone.FunnyLibStandalone;
 import steve6472.standalone.tnttag.phases.TagPhase;
 
 /**
@@ -27,23 +29,22 @@ import steve6472.standalone.tnttag.phases.TagPhase;
  */
 public class TNTTagGame extends Game
 {
-	public TNTTagGame(Plugin plugin, World world)
+	public static final Value<GameStructure> LOBBY_STRUCTURE = Value.create(BuiltInConfigType.STRUCTURE, "Lobby Structure", "lobby_structure");
+	public static final Value<Marker> LOBBY_LOCATION = Value.create(BuiltInConfigType.MARKER, "Lobby", "lobby");
+	public static final Value<Marker> LOBBY_SPAWN = Value.create(BuiltInConfigType.MARKER, "Lobby Spawn", "lobby_spawn");
+	public static final Value<Marker> HIDER_SPAWN = Value.create(BuiltInConfigType.MARKER, "Hider Spawn", "hider_spawn");
+	public static final Value<Integer> PLAYERCOUNT = Value.create(BuiltInConfigType.INT, "Player Count", "player_count");
+	public static final Value<Integer> BORDER_SIZE = Value.create(BuiltInConfigType.INT, "Border Size", "border_size");
+
+	public TNTTagGame(Plugin plugin, World world, GameConfiguration gameConfig)
 	{
-		super(plugin, null, null);
+		super(plugin, null, gameConfig);
 
 		Preconditions.checkNotNull(world, "World is null!");
 
-		GameStructure lobbyStructure = (GameStructure) FunnyLibStandalone.structureStorage.getItem("lobby");
-		Preconditions.checkNotNull(lobbyStructure, "Lobby structure not found, make sure the \"lobby\" game structure exists");
-
-		Marker lobbyLocation = (Marker) FunnyLibStandalone.markerStorage.getItem("lobby");
-		Preconditions.checkNotNull(lobbyLocation, "Lobby location not found, make sure the \"lobby\" marker exists");
-
-		Marker lobbySpawn = (Marker) FunnyLibStandalone.markerStorage.getItem("lobby_spawn");
-		Preconditions.checkNotNull(lobbyLocation, "Lobby location not found, make sure the \"lobby_spawn\" marker exists");
-
-		Marker spawn = (Marker) FunnyLibStandalone.markerStorage.getItem("spawn");
-		Preconditions.checkNotNull(lobbyLocation, "Hider spawn location not found, make sure the \"hider_spawn\" marker exists");
+		Marker lobbyLocation = getConfig().getValue(LOBBY_LOCATION);
+		Marker lobbySpawn = getConfig().getValue(LOBBY_SPAWN);
+		Marker spawn = getConfig().getValue(HIDER_SPAWN);
 
 		Scoreboard scoreboard = getScoreboard();
 
@@ -73,10 +74,10 @@ public class TNTTagGame extends Game
 		registerState("tag", () -> new GenericTeamState("tag", tagTeam));
 		registerState("winner", () -> new GenericTeamState("winner", winnerTeam));
 
-		addPhase(new PlaceStructure(this, world, lobbyStructure, lobbyLocation.x(), lobbyLocation.y(), lobbyLocation.z()));
+		addPhase(new PlaceStructure(this, world, getConfig().getValue(LOBBY_STRUCTURE), lobbyLocation.x(), lobbyLocation.y(), lobbyLocation.z()));
 
 		addPhase(
-			new WaitingForPlayersPhase(this, 4, true, lobbySpawn.toLocation(world).add(0.5, 0.05, 0.5))
+			new WaitingForPlayersPhase(this, getConfig().getValue(PLAYERCOUNT), true, lobbySpawn.toLocation(world).add(0.5, 0.05, 0.5))
 				.addComponent(new AddStatesOnJoinCPhase(this, "invincible", "border_locked", "adventure"))
 				.addComponent(new AddStatesOnStartCPhase(this, "invincible", "border_locked", "adventure")));
 
@@ -106,8 +107,8 @@ public class TNTTagGame extends Game
 		world.setGameRule(GameRule.DO_MOB_LOOT, false);
 		world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
 		world.setFullTime(6000);
-		world.getWorldBorder().setCenter(0, 0);
-		world.getWorldBorder().setSize(64);
+		world.getWorldBorder().setCenter(lobbyLocation.x(), lobbyLocation.z());
+		world.getWorldBorder().setSize(getConfig().getValue(BORDER_SIZE));
 		world.setSpawnLocation(spawn.toLocation(world));
 
 		start();

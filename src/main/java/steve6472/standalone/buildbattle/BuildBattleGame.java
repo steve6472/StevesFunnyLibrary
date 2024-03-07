@@ -25,8 +25,6 @@ import java.util.*;
  */
 public class BuildBattleGame extends Game
 {
-	public static Set<String> POSSIBLE_THEMES = Set.of("Car", "House", "baldmatras");
-
 	/*
 	 * [x] Ability to change day/night and weather
 	 * [x] Custom heads
@@ -35,7 +33,7 @@ public class BuildBattleGame extends Game
 	 */
 
 	public static final Value<GameStructure> PLOT = Value.create(BuiltInConfigType.STRUCTURE, "Plot", "plot");
-	public static final Value<Integer> BUILD_TIME = Value.create(BuiltInConfigType.INT, "Build Time", "build_time");
+	public static final Value<Integer> BUILD_TIME = Value.create(BuiltInConfigType.INT, "Build Time (seconds)", "build_time");
 	public static final Value<Marker> CENTER = Value.create(BuiltInConfigType.MARKER, "Center", "center");
 	public static final Value<Vector3i> PLOT_BUILD_SIZE = Value.create(BuiltInConfigType.VEC_3I, "Plot Build Size", "plot_build_size");
 	public static final Value<Vector3i> PLOT_BUILD_OFFSET = Value.create(BuiltInConfigType.VEC_3I, "Plot Build Offset", "plot_build_offset");
@@ -43,7 +41,6 @@ public class BuildBattleGame extends Game
 	public static final Value<List<String>> THEMES = Value.create(BuiltInConfigType.STRING_LIST, "Themes", "themes", true);
 
 	public World world;
-	public final List<String> themes;
 	public final Map<UUID, Plot> plots;
 
 	public BuildBattleGame(Plugin plugin, World world, GameConfiguration gameConfig)
@@ -58,7 +55,6 @@ public class BuildBattleGame extends Game
 		registerState("border_locked", BorderLockedPlayerState::new);
 
 		this.world = world;
-		this.themes = new ArrayList<>(BuildBattleGame.POSSIBLE_THEMES);
 		this.plots = new HashMap<>();
 
 		addPhase(new BuildPhase(this));

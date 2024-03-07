@@ -1,12 +1,17 @@
 package steve6472.funnylib.util;
 
+import com.mojang.datafixers.util.Either;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkStatus;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_20_R3.entity.CraftEntity;
@@ -139,6 +144,21 @@ public class NMS
 		{
 			throw new RuntimeException(exception);
 		}
+	}
+
+	public static void resentBiomes(World world, int blockFromX, int blockFromZ, int blockToX, int blockToZ)
+	{
+		ServerLevel handle = ((CraftWorld) world).getHandle();
+		List<ChunkAccess> chunkList = new ArrayList<>();
+		ChunkAccess var14;
+		for(int var12 = SectionPos.blockToSectionCoord(blockFromZ); var12 <= SectionPos.blockToSectionCoord(blockToZ); ++var12) {
+			for(int var13 = SectionPos.blockToSectionCoord(blockFromX); var13 <= SectionPos.blockToSectionCoord(blockToX); ++var13) {
+				var14 = handle.getChunk(var13, var12, ChunkStatus.FULL, false);
+
+				chunkList.add(var14);
+			}
+		}
+		handle.getChunkSource().chunkMap.resendBiomesForChunks(chunkList);
 	}
 
 	public static BlockPos locToBlockPos(Location location)

@@ -23,23 +23,6 @@ import java.util.ArrayList;
 public class TagStartCommand
 {
 	@Command
-	@Usage("/startTag")
-	public static boolean startTag(@NotNull Player player, @NotNull String[] args)
-	{
-		if (!player.getName().equals("steve6472") && !player.getName().equals("akmatras"))
-			return false;
-
-		if (FunnyLib.currentGame != null)
-		{
-			FunnyLib.currentGame.dispose();
-		}
-
-		FunnyLib.currentGame = new TNTTagGame(FunnyLib.getPlugin(), player.getWorld());
-
-		return true;
-	}
-
-	@Command
 	@Usage("/printEvents")
 	public static boolean printEvents(@NotNull Player player, @NotNull String[] args)
 	{

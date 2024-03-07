@@ -12,8 +12,8 @@ import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.TriFunction;
 import steve6472.standalone.buildbattle.BuildBattleGame;
 import steve6472.standalone.buildbattle.items.LimitedRectangleFillerItem;
-import steve6472.funnylib.item.builtin.worldtools.RectangleFillerItem;
 import steve6472.standalone.buildbattle.items.LimitedSphereFillerItem;
+import steve6472.standalone.tnttag.TNTTagGame;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,13 +70,16 @@ public class Minigames
 			.registerValue(BuildBattleGame.THEMES)
 		;
 
-//		registerMinigame("tnt_tag")
-//			.registerStructure("Lobby", "lobby")
-//			.registerMarker("Lobby Location", "lobby_loc")
-//			.registerMarker("Lobby Spawn", "lobby_spawn")
-//			.registerMarker("Hider Spawn", "hider_spawn")
-//		;
+		// Does not work lol
+		registerMinigame("tnt_tag", TNTTagGame::new)
+			.setName(JSONMessage.create("TNT Tag (Not working)"))
+			.setDescription(JSONMessage.create("Run from [IT]"))
+			.registerValue(TNTTagGame.LOBBY_STRUCTURE)
+			.registerValue(TNTTagGame.LOBBY_LOCATION)
+			.registerValue(TNTTagGame.LOBBY_SPAWN)
+			.registerValue(TNTTagGame.HIDER_SPAWN)
+			.registerValue(TNTTagGame.PLAYERCOUNT)
+			.registerValue(TNTTagGame.BORDER_SIZE)
+		;
 	}
-
-
 }
