@@ -2,7 +2,6 @@ package steve6472.funnylib.workdistro.impl;
 
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.data.BlockData;
 
 /**
  * Created by steve6472

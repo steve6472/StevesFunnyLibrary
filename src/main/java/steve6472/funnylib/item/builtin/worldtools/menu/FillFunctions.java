@@ -11,10 +11,8 @@ import steve6472.funnylib.item.builtin.worldtools.Boundable;
 import steve6472.funnylib.menu.Click;
 import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.serialize.PdcNBT;
-import steve6472.funnylib.workdistro.impl.PlaceBlockWorkload;
-import steve6472.funnylib.workdistro.impl.PlaceWithWeightedMaterialWorkload;
-import steve6472.funnylib.workdistro.impl.ReplaceBlockWorkload;
-import steve6472.funnylib.workdistro.impl.ReplaceWithWeightedMaterialWorkload;
+import steve6472.funnylib.workdistro.UndoManager;
+import steve6472.funnylib.workdistro.impl.*;
 import steve6472.funnylib.workdistro.util.WeightedRandomBag;
 
 /**
@@ -31,6 +29,16 @@ public class FillFunctions
 		this.menu = menu;
 	}
 
+	public static Material blockOrLiquid(Material material)
+	{
+		if (material == Material.WATER_BUCKET)
+			return Material.WATER;
+		else if (material == Material.LAVA_BUCKET)
+			return Material.LAVA;
+		else
+			return material;
+	}
+
 	public void applySphere(Player player, Boundable boundable)
 	{
 		ItemNBT data = getItemNBT();
@@ -45,10 +53,14 @@ public class FillFunctions
 
 		Vector3i center = playerNbt.get3i("sphere_filler_center");
 
-		Material match = Material.matchMaterial(protectedData.getString("match", Material.AIR.toString()));
-		Material place = Material.matchMaterial(protectedData.getString("place", Material.AIR.toString()));
+		Material match = blockOrLiquid(Material.matchMaterial(protectedData.getString("match", Material.AIR.toString())));
+		Material place = blockOrLiquid(Material.matchMaterial(protectedData.getString("place", Material.AIR.toString())));
 
 		World world = player.getWorld();
+		PlayerContext context = new PlayerContext(player, EquipmentSlot.HAND);
+
+		FunnyLib.getWorkloadRunnable().addWorkload(new UndoManager.StartUndoWorkload(player, UndoManager.UndoTypes.SPHERE));
+
 		for (int i = -radius; i <= radius; i++)
 		{
 			for (int j = -radius; j <= radius; j++)
@@ -57,14 +69,14 @@ public class FillFunctions
 				{
 					if (Math.sqrt(i * i + j * j + k * k) > radius - FillerMenu.RADIUS_OFFSET) continue;
 
-					if (!boundable.isInBounds(new PlayerContext(player, EquipmentSlot.HAND), new Vector3i(center.x + i, center.y + j, center.z + k)))
+					if (!boundable.isInBounds(context, new Vector3i(center.x + i, center.y + j, center.z + k)))
 						continue;
 
 					if (matchAnyBlock)
 					{
 						FunnyLib
 							.getWorkloadRunnable()
-							.addWorkload(new PlaceBlockWorkload(world, center.x + i, center.y + j, center.z + k, place));
+							.addWorkload(new PlaceBlockUndoWorkload(world, player, UndoManager.UndoTypes.SPHERE, center.x + i, center.y + j, center.z + k, place));
 					} else
 					{
 						FunnyLib
@@ -74,6 +86,8 @@ public class FillFunctions
 				}
 			}
 		}
+
+		FunnyLib.getWorkloadRunnable().addWorkload(new UndoManager.EndUndoWorkload(player, UndoManager.UndoTypes.SPHERE));
 	}
 
 	public void applyAdvancedSphere(Player player, Boundable boundable)
@@ -91,13 +105,13 @@ public class FillFunctions
 
 		Vector3i center = playerNbt.get3i("sphere_filler_center");
 
-		Material match = Material.matchMaterial(protectedData.getString("match", Material.AIR.toString()));
+		Material match = blockOrLiquid(Material.matchMaterial(protectedData.getString("match", Material.AIR.toString())));
 
 		WeightedRandomBag<Material> bag = new WeightedRandomBag<>();
 
 		protectedData.getOrCreateCompound("advanced").getKeys().stream().filter(p -> p.startsWith("slot_")).forEach(key -> {
 			String string = protectedData.getOrCreateCompound("advanced").getString(key);
-			Material material = Material.matchMaterial(string);
+			Material material = blockOrLiquid(Material.matchMaterial(string));
 			if (material != null)
 			{
 				bag.addEntry(material, 1);
@@ -110,7 +124,12 @@ public class FillFunctions
 			bag.addEntry(Material.AIR, airCount);
 		}
 
+		if (bag.isEmpty())
+			return;
+
 		World world = player.getWorld();
+		PlayerContext context = new PlayerContext(player, EquipmentSlot.HAND);
+
 		for (int i = -radius; i <= radius; i++)
 		{
 			for (int j = -radius; j <= radius; j++)
@@ -119,7 +138,7 @@ public class FillFunctions
 				{
 					if (Math.sqrt(i * i + j * j + k * k) > radius - FillerMenu.RADIUS_OFFSET) continue;
 
-					if (!boundable.isInBounds(new PlayerContext(player, EquipmentSlot.HAND), new Vector3i(center.x + i, center.y + j, center.z + k)))
+					if (!boundable.isInBounds(context, new Vector3i(center.x + i, center.y + j, center.z + k)))
 						continue;
 
 					if (matchAnyBlock)
@@ -160,17 +179,18 @@ public class FillFunctions
 
 		boolean matchAnyBlock = protectedData.getBoolean("match_any_block", true);
 
-		Material match = Material.matchMaterial(protectedData.getString("match", Material.AIR.toString()));
-		Material place = Material.matchMaterial(protectedData.getString("place", Material.AIR.toString()));
+		Material match = blockOrLiquid(Material.matchMaterial(protectedData.getString("match", Material.AIR.toString())));
+		Material place = blockOrLiquid(Material.matchMaterial(protectedData.getString("place", Material.AIR.toString())));
 
 		World world = click.player().getWorld();
+		PlayerContext context = new PlayerContext(click.player(), EquipmentSlot.HAND);
 		for (int i = minPos.x; i < maxPos.x; i++)
 		{
 			for (int j = minPos.y; j < maxPos.y; j++)
 			{
 				for (int k = minPos.z; k < maxPos.z; k++)
 				{
-					if (!boundable.isInBounds(new PlayerContext(click.player(), EquipmentSlot.HAND), new Vector3i(i, j, k)))
+					if (!boundable.isInBounds(context, new Vector3i(i, j, k)))
 						continue;
 
 					if (matchAnyBlock)
@@ -211,12 +231,12 @@ public class FillFunctions
 
 		boolean matchAnyBlock = protectedData.getBoolean("match_any_block", true);
 
-		Material match = Material.matchMaterial(protectedData.getString("match", Material.AIR.toString()));
+		Material match = blockOrLiquid(Material.matchMaterial(protectedData.getString("match", Material.AIR.toString())));
 		WeightedRandomBag<Material> bag = new WeightedRandomBag<>();
 
 		protectedData.getOrCreateCompound("advanced").getKeys().stream().filter(p -> p.startsWith("slot_")).forEach(key -> {
 			String string = protectedData.getOrCreateCompound("advanced").getString(key);
-			Material material = Material.matchMaterial(string);
+			Material material = blockOrLiquid(Material.matchMaterial(string));
 			if (material != null)
 			{
 				bag.addEntry(material, 1);
@@ -229,14 +249,18 @@ public class FillFunctions
 			bag.addEntry(Material.AIR, airCount);
 		}
 
+		if (bag.isEmpty())
+			return;
+
 		World world = click.player().getWorld();
+		PlayerContext context = new PlayerContext(click.player(), EquipmentSlot.HAND);
 		for (int i = minPos.x; i < maxPos.x; i++)
 		{
 			for (int j = minPos.y; j < maxPos.y; j++)
 			{
 				for (int k = minPos.z; k < maxPos.z; k++)
 				{
-					if (!boundable.isInBounds(new PlayerContext(click.player(), EquipmentSlot.HAND), new Vector3i(i, j, k)))
+					if (!boundable.isInBounds(context, new Vector3i(i, j, k)))
 						continue;
 
 					if (matchAnyBlock)

@@ -35,6 +35,11 @@ public class WeightedRandomBag<T>
 		return null; //should only happen when there are no entries
 	}
 
+	public boolean isEmpty()
+	{
+		return entries.isEmpty();
+	}
+
 	private static class Entry<T>
 	{
 		double accumulatedWeight;

@@ -3,18 +3,17 @@ package steve6472.funnylib.util;
 import com.google.common.base.Strings;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import com.google.gson.*;
 import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.*;
+import net.md_5.bungee.api.chat.hover.content.Item;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
@@ -455,6 +454,18 @@ public class JSONMessage
 	}
 
 	/**
+	 * Shows item when you hover over it
+	 *
+	 * @param itemStack the item to show
+	 * @return This {@link JSONMessage} instance
+	 */
+	public JSONMessage tooltip(ItemStack itemStack)
+	{
+		last().setOnHover(HoverEvent.showItem(itemStack));
+		return this;
+	}
+
+	/**
 	 * Shows an achievement when you hover over it
 	 *
 	 * @param id The id of the achievement
@@ -797,6 +808,12 @@ public class JSONMessage
 			arr.add(new JsonPrimitive(""));
 			arr.add(message.toJSON());
 			return new MessageEvent("show_text", arr);
+		}
+
+		public static MessageEvent showItem(ItemStack itemStack)
+		{
+			JsonObject itemJson = JsonParser.parseString(NMS.saveItemNMS(itemStack)).getAsJsonObject();
+			return new MessageEvent("show_item", itemJson);
 		}
 
 		/**

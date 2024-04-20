@@ -1,16 +1,11 @@
 package steve6472.standalone.buildbattle.items;
 
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
 import org.joml.Vector3i;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.context.PlayerContext;
 import steve6472.funnylib.item.CustomItem;
-import steve6472.funnylib.item.Items;
-import steve6472.funnylib.item.builtin.worldtools.RectangleFillerItem;
 import steve6472.funnylib.item.builtin.worldtools.SphereFillerItem;
 import steve6472.funnylib.minigame.Minigames;
 import steve6472.funnylib.util.ItemStackBuilder;
@@ -77,7 +72,7 @@ public class LimitedSphereFillerItem extends SphereFillerItem
 		if (plot == null)
 			return false;
 
-		return plot.locationInPlot(pos);
+		return plot.isLocationInPlot(pos);
 	}
 
 	@Override

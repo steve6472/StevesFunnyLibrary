@@ -67,6 +67,9 @@ public class Minigames
 			.registerValue(BuildBattleGame.CENTER)
 			.registerValue(BuildBattleGame.PLOT_BUILD_SIZE)
 			.registerValue(BuildBattleGame.PLOT_BUILD_OFFSET)
+			.registerValue(BuildBattleGame.BARRIER_OFFSET)
+			.registerValue(BuildBattleGame.BARRIER_SIZE)
+			.registerValue(BuildBattleGame.BARRIER_CAP_TOP)
 			.registerValue(BuildBattleGame.THEMES)
 		;
 

@@ -10,10 +10,16 @@ import java.util.Deque;
  */
 public class WorkloadRunnable implements Runnable
 {
-	private static final double MAX_MILLIS_PER_TICK = 10;
+	private static final double MAX_MILLIS_PER_TICK = 20;
 	private static final int MAX_NANOS_PER_TICK = (int) (MAX_MILLIS_PER_TICK * 1E6);
 
 	private final Deque<Workload> workloadDeque = new ArrayDeque<>();
+	private final UndoManager undoManager = new UndoManager(64);
+
+	public UndoManager undoManager()
+	{
+		return undoManager;
+	}
 
 	public void addWorkload(Workload workload)
 	{
@@ -29,6 +35,12 @@ public class WorkloadRunnable implements Runnable
 
 		while (System.nanoTime() <= stopTime && (nextLoad = workloadDeque.poll()) != null)
 		{
+			if (nextLoad instanceof UndoWorkload undoWorkload)
+            {
+	            Workload undo = undoWorkload.createUndo();
+				undoManager.addWorkload(undoWorkload.uuid(), undoWorkload.type(), undo);
+            }
+
 			nextLoad.compute();
 		}
 	}

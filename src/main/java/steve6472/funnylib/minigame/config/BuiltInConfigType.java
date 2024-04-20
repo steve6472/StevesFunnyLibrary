@@ -25,6 +25,7 @@ public class BuiltInConfigType<T> implements ConfigType<T>
 
 	public static final ConfigType<String> ID_MATCH = new BuiltInConfigType<>("ID_MATCH", String.class);
 	public static final ConfigType<List<String>> STRING_LIST = new BuiltInConfigType<>("STRING_LIST", List.class);
+//	public static final ConfigType<Enum<?>> ENUM = new BuiltInConfigType<>("ENUM", Enum.class);
 
 	/*
 	 * Custom

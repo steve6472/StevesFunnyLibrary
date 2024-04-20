@@ -28,8 +28,29 @@ public class BuildBattleGame extends Game
 	/*
 	 * [x] Ability to change day/night and weather
 	 * [x] Custom heads
-	 * [ ] Plot biome (no)
-	 * [ ] Line tool - Bezier curve points
+	 * [x] Plot biome
+	 * [ ] Line tool - beziér curve,  varrying width per point
+	 * [ ] A layer tool - place 1 layer of blocks on top of existing blocks (with filter maybe)
+	 * [ ] Random place tool, a single block
+	 * [ ] Smooth tool, 3D
+	 * [ ] Double clicking an item takes items out of custom menu
+	 *
+	 *
+	 * [?] increase entity render distance
+	 * [?] fix time (it somehow goes faster)
+	 *
+	 * [x] Disable TNT
+	 * [x] Sphere tool does not dissapear if player is not looking at blocks
+	 * [x] /top
+	 * [x] Apply on sphere brush is confusing, should not place blocks
+	 * [x] help command
+	 * [x] give light/barrier command
+	 * [x] liquids in fill tools
+	 * [ ] one undo
+	 * [?] lavacasts should not be possible (place barriers)
+	 * [x] prohibit all entities from leaving the plot, not just players
+	 * [x] fix left click with rectangle tool not working
+	 * [x] click preview for rectangle tool
 	 */
 
 	public static final Value<GameStructure> PLOT = Value.create(BuiltInConfigType.STRUCTURE, "Plot", "plot");
@@ -38,6 +59,9 @@ public class BuildBattleGame extends Game
 	public static final Value<Vector3i> PLOT_BUILD_SIZE = Value.create(BuiltInConfigType.VEC_3I, "Plot Build Size", "plot_build_size");
 	public static final Value<Vector3i> PLOT_BUILD_OFFSET = Value.create(BuiltInConfigType.VEC_3I, "Plot Build Offset", "plot_build_offset");
 	public static final Value<Vector3i> PLOT_PLACE_OFFSET = Value.create(BuiltInConfigType.VEC_3I, "Plot Place Offset", "plot_place_offset");
+	public static final Value<Vector3i> BARRIER_OFFSET = Value.create(BuiltInConfigType.VEC_3I, "Barrier Offset", "barrier_offset");
+	public static final Value<Vector3i> BARRIER_SIZE = Value.create(BuiltInConfigType.VEC_3I, "Barrier Size", "barrier_size");
+	public static final Value<Boolean> BARRIER_CAP_TOP = Value.create(BuiltInConfigType.BOOLEAN, "Barrier Cap Top", "barrier_top");
 	public static final Value<List<String>> THEMES = Value.create(BuiltInConfigType.STRING_LIST, "Themes", "themes", true);
 
 	public World world;
@@ -71,6 +95,8 @@ public class BuildBattleGame extends Game
 		world.setGameRule(GameRule.DO_FIRE_TICK, false);
 		world.setGameRule(GameRule.DO_MOB_LOOT, false);
 		world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+		world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
+		world.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
 		world.setFullTime(6000);
 	}
 

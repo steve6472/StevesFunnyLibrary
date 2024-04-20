@@ -3,6 +3,7 @@ package steve6472.funnylib.packgen;
 import org.bukkit.Bukkit;
 import steve6472.funnylib.FunnyLib;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -21,8 +22,6 @@ import java.util.function.Consumer;
  */
 public class PackEngine
 {
-	public static final boolean DEBUG = true;
-
 	public final PackFiles files;
 	public final PackZipper zipper;
 	public final Models models;
@@ -46,9 +45,14 @@ public class PackEngine
 		}, Executors.newSingleThreadExecutor());
 	}
 
+	private static boolean isDev()
+	{
+		return new File("").getAbsolutePath().startsWith("C:\\storage\\server");
+	}
+
 	private String getExternalAddress()
 	{
-		if (DEBUG)
+		if (isDev())
 			return "localhost";
 
 		try

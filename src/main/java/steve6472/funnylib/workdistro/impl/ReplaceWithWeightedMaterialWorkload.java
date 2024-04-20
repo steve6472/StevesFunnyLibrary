@@ -29,6 +29,7 @@ public class ReplaceWithWeightedMaterialWorkload extends WorldWorkload
 	@Override
 	public void compute()
 	{
+		if (place.isEmpty()) return;
 		World world = getWorld();
 		if (world == null) return;
 		Block blockAt = world.getBlockAt(x, y, z);

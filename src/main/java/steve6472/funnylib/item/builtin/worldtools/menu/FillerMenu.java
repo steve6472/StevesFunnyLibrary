@@ -1,12 +1,14 @@
 package steve6472.funnylib.item.builtin.worldtools.menu;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.item.builtin.worldtools.Boundable;
 import steve6472.funnylib.item.builtin.worldtools.RectangleFillerItem;
@@ -22,6 +24,8 @@ import steve6472.funnylib.menu.slots.buttons.ToggleButtonSlot;
 import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.serialize.PdcNBT;
 import steve6472.funnylib.util.ItemStackBuilder;
+import steve6472.funnylib.util.JSONMessage;
+import steve6472.funnylib.workdistro.UndoManager;
 
 import java.util.UUID;
 
@@ -63,10 +67,10 @@ public class FillerMenu extends Menu
 			.addRow("RRRFFFAAA")
 			.addRow("R RF FAAA")
 			.addRow("R RFFFAAA")
-			.addRow("  -- -   ")
+			.addRow("  -      ")
 			.addItem('F', () -> new IconSlot(ItemStackBuilder.quick(Material.CYAN_STAINED_GLASS_PANE, "Fill"), false))
 			.addItem('R', () -> new IconSlot(ItemStackBuilder.quick(Material.RED_STAINED_GLASS_PANE, "Replace"), false))
-			.addItem('A', () -> new ButtonSlot(ItemStackBuilder.quick(Material.LIME_STAINED_GLASS_PANE, "Apply"), false).setClick(click ->
+			.addItem('A', () -> new ButtonSlot(ItemStackBuilder.quick(Material.LIME_STAINED_GLASS_PANE, isSphere ? "Apply Settings" : "Apply and Place"), false).setClick(click ->
 			{
 				ItemNBT itemData = nbtFromPlayersHandOrStack(null);
 				if (itemData == null) return Response.cancel();
@@ -81,10 +85,10 @@ public class FillerMenu extends Menu
 					return Response.exit();
 				}
 
-				if (advanced)
+				/*if (advanced)
 					fills.applyAdvancedSphere(click.player(), boundable);
 				else
-					fills.applySphere(click.player(), boundable);
+					fills.applySphere(click.player(), boundable);*/
 				return Response.exit();
 			}))
 			.addItem('-', () -> new IconSlot(ItemStackBuilder.quick(Material.GRAY_STAINED_GLASS_PANE, ""), false));
@@ -175,6 +179,7 @@ public class FillerMenu extends Menu
 				.setToggled(false)
 		);
 
+		// Filler Icon Slot
 		setSlot(4, 3,
 			new ItemSwapSlot(new ItemStack(itemStack.getType()), false, false)
 				.setRightClickClear(true)
@@ -212,6 +217,23 @@ public class FillerMenu extends Menu
 					}
 					player.getInventory().setItem(EquipmentSlot.HAND, hand);
 				})
+		);
+
+		setSlot(3, 3, new ButtonSlot(
+			ItemStackBuilder
+				.create(Material.SPECTRAL_ARROW)
+				.glow()
+				.setName(JSONMessage.create("Undo", ChatColor.GOLD))
+				.buildItemStack(), true)
+			.setClick(click ->
+			{
+				Player player = getViewer();
+				if (player == null)
+					return Response.cancel();
+
+				FunnyLib.getWorkloadRunnable().undoManager().applyUndo(player, isSphere ? UndoManager.UndoTypes.SPHERE : UndoManager.UndoTypes.RECTANGLE);
+				return Response.cancel();
+			})
 		);
 
 		if (!isSphere)
@@ -298,7 +320,7 @@ public class FillerMenu extends Menu
 	{
 		setSlot(x, 1,
 			new ItemSwapSlot(a, true, false)
-				.setItemCheck(item -> item.getType().isBlock())
+				.setItemCheck(item -> FillFunctions.blockOrLiquid(item.getType()).isBlock())
 				.onPlace(item ->
 				{
 					ItemNBT itemData = nbtFromPlayersHandOrStack(null);

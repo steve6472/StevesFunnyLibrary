@@ -1,5 +1,6 @@
-package steve6472.standalone.buildbattle;
+package steve6472.standalone.buildbattle.commands;
 
+import com.comphenix.protocol.reflect.cloning.AggregateCloner;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -9,12 +10,16 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.ResourceArgument;
 import net.minecraft.core.registries.Registries;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.WeatherType;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import steve6472.brigit.BrigitCommand;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.minigame.Minigames;
+import steve6472.funnylib.util.JSONMessage;
+import steve6472.standalone.buildbattle.BuildBattleGame;
 import steve6472.standalone.buildbattle.phases.BuildPhase;
 
 import java.util.Arrays;
@@ -32,6 +37,12 @@ public class PlotCommand extends BrigitCommand
 	{
 		commandDispatcher.register(
 			literal(getName())
+				.then(literal("help")
+					.executes(c -> {
+						BuildPhase.commands.send(getPlayer(c));
+						return 0;
+					})
+				)
 				.then(literal("weather")
 					.then(argument("weather", string())
 						.suggests((c, b) -> suggest(List.of("clear", "downfall"), b))
@@ -108,12 +119,42 @@ public class PlotCommand extends BrigitCommand
 				.then(literal("tool")
 					.then(literal("sphere")
 						.executes(c -> {
-							getPlayer(c).getInventory().addItem(Minigames.FILL_SPHERE_LIMITED.newItemStack());
+							checkGame();
+
+							ItemStack itemStack = Minigames.FILL_SPHERE_LIMITED.newItemStack();
+							getPlayer(c).getInventory().addItem(itemStack);
+							JSONMessage.create("Information about item: ").then("[Hover over me]", ChatColor.GOLD).tooltip(itemStack).send(getPlayer(c));
+
 							return 0;
 						})
 					).then(literal("rectangle")
 						.executes(c -> {
-							getPlayer(c).getInventory().addItem(Minigames.FILL_RECTANGLE_LIMITED.newItemStack());
+							checkGame();
+
+							ItemStack itemStack = Minigames.FILL_RECTANGLE_LIMITED.newItemStack();
+							getPlayer(c).getInventory().addItem(itemStack);
+							JSONMessage.create("Information about item: ").then("[Hover over me]", ChatColor.GOLD).tooltip(itemStack).send(getPlayer(c));
+
+							return 0;
+						})
+					)
+					.then(literal("barrier")
+						.executes(c -> {
+							checkGame();
+
+							getPlayer(c).getInventory().addItem(new ItemStack(Material.BARRIER));
+							JSONMessage.create("You have been given a Barrier block", ChatColor.YELLOW).send(getPlayer(c));
+
+							return 0;
+						})
+					)
+					.then(literal("light")
+						.executes(c -> {
+							checkGame();
+
+							getPlayer(c).getInventory().addItem(new ItemStack(Material.LIGHT));
+							JSONMessage.create("You have been given a Light block", ChatColor.YELLOW).send(getPlayer(c));
+
 							return 0;
 						})
 					)

@@ -1,9 +1,9 @@
 package steve6472.standalone.buildbattle.phases;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.WorldBorder;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -38,11 +38,13 @@ public class ViewingPhase extends AbstractGamePhase
 		registerEvent(PlayerJoinEvent.class, event ->
 		{
 			updateBorder(event.getPlayer());
+			event.getPlayer().setGameMode(GameMode.SPECTATOR);
 		});
 
 		for (Player player : game.getPlayers())
 		{
 			updateBorder(player);
+			player.setGameMode(GameMode.SPECTATOR);
 		}
 
 		registerEvent(PlayerMoveEvent.class, event ->
@@ -53,13 +55,27 @@ public class ViewingPhase extends AbstractGamePhase
 
 			Player player = event.getPlayer();
 
-			Optional<Plot> currentPlot = plots.values().stream().filter(p -> p.locationInPlot(to)).findFirst();
+			Optional<Plot> currentPlot = plots.values().stream().filter(p -> p.isLocationInPlot(to)).findFirst();
 
 			// Apply current plot settings
 			currentPlot.ifPresentOrElse(plot -> plot.applyPlotSettings(player, false), () -> BuildPhase.resetPlotSettings(player, false));
 		});
 
 		registerEvent(PlayerInteractEvent.class, event -> event.setCancelled(true));
+
+		// disallow players damaging entities
+		registerEvent(EntityDamageByEntityEvent.class, event ->
+		{
+			if (event.getDamager() instanceof Player player)
+				if (!player.isOp())
+					event.setCancelled(true);
+		});
+
+		registerEvent(PlayerInteractEntityEvent.class, event ->
+		{
+			if (!event.getPlayer().isOp())
+				event.setCancelled(true);
+		});
 	}
 
 	private void updateBorder(Player player)

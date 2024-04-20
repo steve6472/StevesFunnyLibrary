@@ -6,15 +6,10 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import org.joml.Vector3i;
-import steve6472.funnylib.CancellableResult;
 import steve6472.funnylib.FunnyLib;
-import steve6472.funnylib.context.PlayerBlockContext;
 import steve6472.funnylib.context.PlayerContext;
-import steve6472.funnylib.context.PlayerItemContext;
-import steve6472.funnylib.context.UseType;
 import steve6472.funnylib.item.Items;
 import steve6472.funnylib.item.builtin.worldtools.RectangleFillerItem;
-import steve6472.funnylib.serialize.ItemNBT;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
 import steve6472.standalone.buildbattle.BuildBattleGame;
@@ -79,7 +74,7 @@ public class LimitedRectangleFillerItem extends RectangleFillerItem
 		if (plot == null)
 			return false;
 
-		return plot.locationInPlot(pos);
+		return plot.isLocationInPlot(pos);
 	}
 
 	@Override
@@ -101,7 +96,7 @@ public class LimitedRectangleFillerItem extends RectangleFillerItem
 
 		Items.callWithItemContext(player, EquipmentSlot.HAND, pic -> adjustPositions(pic, pos1, pos2));
 
-		return plot.locationInPlot(pos1) && plot.locationInPlot(pos2);
+		return plot.isLocationInPlot(pos1) && plot.isLocationInPlot(pos2);
 	}
 
 	@Override
@@ -110,7 +105,7 @@ public class LimitedRectangleFillerItem extends RectangleFillerItem
 		Vector vector = rayTrace(player, player.isSneaking(), true);
 
 		Plot plot = ((BuildBattleGame) FunnyLib.currentGame).getPlayersPlot(player);
-		if (!plot.locationInPlot(vector.toVector3i()))
+		if (!plot.isLocationInPlot(vector.toVector3i()))
 		{
 			return false;
 		}

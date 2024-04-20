@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import steve6472.funnylib.data.GameStructure;
 import steve6472.funnylib.menu.Response;
 import steve6472.funnylib.minigame.config.GameConfiguration;
+import steve6472.funnylib.minigame.config.RedirectGameConfiguration;
 import steve6472.funnylib.minigame.config.Value;
 import steve6472.funnylib.util.JSONMessage;
 
@@ -91,6 +92,12 @@ public class ConfigValueChangeEvent extends Event implements Cancellable
 	 */
 	public static <T> boolean change(GameConfiguration gameConfig, Value<T> value, T newValue, @Nullable Player player)
 	{
+		// TODO: add support for this
+		if (gameConfig instanceof RedirectGameConfiguration<?>)
+		{
+			return true;
+		}
+
 		T oldValue = gameConfig.getValue(value);
 		ConfigValueChangeEvent event = new ConfigValueChangeEvent(value, oldValue, newValue);
 		Bukkit.getPluginManager().callEvent(event);

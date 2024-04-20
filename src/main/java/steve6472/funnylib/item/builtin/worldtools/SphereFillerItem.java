@@ -196,6 +196,10 @@ public class SphereFillerItem extends CustomItem implements TickInHandEvent, Swa
 			if (!isInBounds(context.playerContext(), sphereFillerCenter))
 				return false;
 
+			Vector vector = rayTrace(player);
+			if (vector == null)
+				return false;
+
 			return FrameDisplayEntity.holdingCustomItemCondition(player, itemCheck()).get();
 		});
 		fde.getEntityPDC().setBoolean("sphere_select_frame", true);
@@ -222,6 +226,10 @@ public class SphereFillerItem extends CustomItem implements TickInHandEvent, Swa
 
 			Vector3i sphereFillerCenter = playerNbt.get3i("sphere_filler_center");
 			if (!isInBounds(context.playerContext(), sphereFillerCenter))
+				return false;
+
+			Vector vector = rayTrace(player);
+			if (vector == null)
 				return false;
 
 			return FrameDisplayEntity.holdingCustomItemCondition(player, itemCheck()).get();

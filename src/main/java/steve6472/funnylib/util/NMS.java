@@ -1,6 +1,7 @@
 package steve6472.funnylib.util;
 
-import com.mojang.datafixers.util.Either;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.hover.content.ItemSerializer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -95,6 +96,36 @@ public class NMS
 		}
 
 		return base.toString();
+	}
+
+	public static String saveItemNMS(ItemStack bukkitStack)
+	{
+		var vanillaStack = getVanillaStack(bukkitStack);
+		CompoundTag tag = vanillaStack.save(new CompoundTag());
+		return tag.toString();
+	}
+
+	public static net.minecraft.world.item.ItemStack getVanillaStack(ItemStack bukkitStack)
+	{
+		try
+		{
+			CraftItemStack craftStack;
+			if (bukkitStack instanceof CraftItemStack)
+			{
+				craftStack = (CraftItemStack) bukkitStack;
+			} else
+			{
+				craftStack = CraftItemStack.asCraftCopy(bukkitStack);
+			}
+
+			Field handle = craftStack.getClass().getDeclaredField("handle");
+			handle.setAccessible(true);
+			return (net.minecraft.world.item.ItemStack) handle.get(craftStack);
+		} catch (Exception ex)
+		{
+			ex.printStackTrace();
+			return null;
+		}
 	}
 
 	public static void addLore(ItemStack bukkitStack, String json)

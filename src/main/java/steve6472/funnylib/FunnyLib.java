@@ -91,6 +91,7 @@ public class FunnyLib
 	{
 		new MavenSux();
 		Bukkit.getPluginManager().registerEvents(nbtRemover = new NbtPacketEditor(plugin), plugin);
+		Log.init(plugin);
 
 		configurationsJson = new HashSet<>();
 		configurationsNbt = new HashSet<>();
@@ -105,7 +106,6 @@ public class FunnyLib
 
 		FunnyLib.plugin = plugin;
 
-		Log.init(plugin);
 		GlowingUtil.init();
 
 		Brigit.addBrigitCommand(plugin, new PackCommand(packEngine = new PackEngine()));

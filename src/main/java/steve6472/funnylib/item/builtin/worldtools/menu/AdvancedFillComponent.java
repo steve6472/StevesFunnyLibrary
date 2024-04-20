@@ -83,7 +83,7 @@ public class AdvancedFillComponent extends Menu
 	{
 		setSlot(x, y,
 			new ItemSwapSlot(a, true, false)
-				.setItemCheck(item -> item.getType().isBlock())
+				.setItemCheck(item -> FillFunctions.blockOrLiquid(item.getType()).isBlock())
 				.onPlace(item ->
 				{
 					ItemNBT itemData = fillerMenu.nbtFromPlayersHandOrStack(null);

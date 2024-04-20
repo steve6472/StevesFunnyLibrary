@@ -6,18 +6,20 @@ import org.bukkit.block.Block;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.joml.Vector3i;
+import org.w3c.dom.css.Rect;
 import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.data.GameStructure;
 import steve6472.funnylib.minigame.Game;
 import steve6472.funnylib.util.NMS;
 import steve6472.funnylib.workdistro.impl.ChangeBiomeWorkload;
 import steve6472.funnylib.workdistro.impl.ModifyWorldWorkload;
-import steve6472.funnylib.workdistro.impl.PlaceBlockWorkload;
 import steve6472.standalone.buildbattle.phases.BuildPhase;
+import steve6472.standalone.buildbattle.phases.RectangleCreator;
 
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created by steve6472
@@ -26,9 +28,11 @@ import java.util.UUID;
  */
 public class Plot
 {
-	UUID owner;
 	Game game;
+	UUID owner;
 	Vector3i plotCoords;
+	String ownerName;
+	Set<UUID> trackedEntities;
 
 	/*
 	 * Plot settings
@@ -45,6 +49,11 @@ public class Plot
 		this.game = game;
 		this.owner = owner;
 		this.plotCoords = plotCoords;
+		Player player = Bukkit.getPlayer(owner);
+		if (player != null)
+			this.ownerName = player.getName();
+		this.trackedEntities = new HashSet<>();
+
 		this.plotTheme = plotTheme;
 		this.plotBossBar = game.createBossBar("plot_" + plotCoords.x + "_" + plotCoords.z, "Theme: " + plotTheme, BarColor.WHITE, BarStyle.SEGMENTED_12);
 		plotBossBar.setProgress(1.0);
@@ -52,8 +61,28 @@ public class Plot
 
 	public void place(World world)
 	{
+		// Place plot structure
 		GameStructure plotStructure = game.getConfig().getValue(BuildBattleGame.PLOT);
 		plotStructure.place(world, plotCoords.x, plotCoords.y, plotCoords.z, 0, 0, 0, false);
+
+		// Place plot barrier
+		changeBarrier(world, Material.BARRIER, Material.AIR);
+	}
+
+	public void changeBarrier(World world, Material toPlace, Material replace)
+	{
+		Vector3i barrierOffset = game.getConfig().getValue(BuildBattleGame.BARRIER_OFFSET);
+		Vector3i barrierSize = game.getConfig().getValue(BuildBattleGame.BARRIER_SIZE);
+		RectangleCreator.createHollowRectangle(
+			world,
+			toPlace,
+			replace,
+			plotCoords.x + barrierOffset.x,
+			plotCoords.y + barrierOffset.y,
+			plotCoords.z + barrierOffset.z,
+			barrierSize.x,
+			barrierSize.y,
+			barrierSize.z);
 	}
 
 	public Vector3i getCenter()
@@ -63,6 +92,11 @@ public class Plot
 		Vector3i buildSize = new Vector3i(game.getConfig().getValue(BuildBattleGame.PLOT_BUILD_SIZE));
 		center.add(new Vector3i(buildSize.x / 2, buildSize.y / 2, buildSize.z / 2));
 		return center;
+	}
+
+	public Vector3i getPlotCoords()
+	{
+		return new Vector3i(plotCoords);
 	}
 
 	public void teleportToPlot(Player player)
@@ -90,12 +124,12 @@ public class Plot
 		player.setWorldBorder(border);
 	}
 
-	public boolean locationInPlot(Location location)
+	public boolean isLocationInPlot(Location location)
 	{
-		return locationInPlot(location.toVector().toVector3i());
+		return isLocationInPlot(location.toVector().toVector3i());
 	}
 
-	public boolean locationInPlot(Vector3i location)
+	public boolean isLocationInPlot(Vector3i location)
 	{
 		Vector3i size = game.getConfig().getValue(BuildBattleGame.PLOT_BUILD_SIZE);
 		Vector3i offset = game.getConfig().getValue(BuildBattleGame.PLOT_BUILD_OFFSET);
@@ -108,7 +142,7 @@ public class Plot
 	{
 		game.getPlayers().forEach(player ->
 		{
-			if (locationInPlot(player.getLocation()))
+			if (isLocationInPlot(player.getLocation()))
 			{
 				applyPlotSettings(player, false);
 			}
@@ -147,12 +181,36 @@ public class Plot
 			timeString = ((time / (60 * 60)) % 24) + " hour" + (((time / (60 * 60)) % 24) > 1 ? "s " : " ") + ((time / 60) % 60) + " minute" + (((time / 60) % 60) > 1 ? "s" : "");
 		else
 			timeString = (time / 60) + " minute" + ((time / 60) > 1 ? "s" : "");
-		this.plotBossBar.setTitle("Theme: " + plotTheme + (time > 0 ? "   Time: " + timeString : ""));
+		this.plotBossBar.setTitle("Theme: " + plotTheme + (time > 0 ? "   Time: " + timeString : "   Builder: " + ownerName));
 	}
 
 	public BossBar getPlotBossBar()
 	{
 		return plotBossBar;
+	}
+
+	public void trackEntity(Entity entity)
+	{
+		trackedEntities.add(entity.getUniqueId());
+	}
+
+	public Collection<Entity> getTrackedEntities()
+	{
+		World world = ((BuildBattleGame) game).world;
+		Set<Entity> entities = new HashSet<>();
+		for (Iterator<UUID> iterator = trackedEntities.iterator(); iterator.hasNext(); )
+		{
+			UUID trackedEntity = iterator.next();
+			Entity entityInWorld = NMS.getEntityInWorld(world, trackedEntity);
+			if (entityInWorld == null)
+			{
+				iterator.remove();
+				continue;
+			}
+
+			entities.add(entityInWorld);
+		}
+		return entities;
 	}
 
 	public boolean isPlayerOwner(Player player)
@@ -187,8 +245,6 @@ public class Plot
 				}
 			}
 		}
-		FunnyLib.getWorkloadRunnable().addWorkload(new ModifyWorldWorkload(world, w -> {
-			NMS.resentBiomes(w, startX, startZ, endX, endZ);
-		}));
+		FunnyLib.getWorkloadRunnable().addWorkload(new ModifyWorldWorkload(world, w -> NMS.resentBiomes(w, startX, startZ, endX, endZ)));
 	}
 }

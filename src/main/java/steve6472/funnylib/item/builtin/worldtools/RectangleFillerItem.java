@@ -1,5 +1,6 @@
 package steve6472.funnylib.item.builtin.worldtools;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -27,6 +28,9 @@ import steve6472.funnylib.serialize.PdcNBT;
 import steve6472.funnylib.util.ItemStackBuilder;
 import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.MiscUtil;
+
+import javax.swing.*;
+import java.util.UUID;
 
 /**
  * Created by steve6472
@@ -102,6 +106,8 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 		if (!data.protectedData().getBoolean("is_floating", false))
 		{
 			Vector loc = rayTrace(context.getPlayer(), context.isSneaking(), false);
+			if (loc == null)
+				return;
 
 			if (!isInBounds(context.playerContext(), loc.toVector3i()))
 			{
@@ -109,14 +115,7 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 				return;
 			}
 
-			if (useType.isLeft() && !data.protectedData().has3i("pos1"))
-			{
-				data.protectedData().set3i("pos1", loc.toVector3i());
-			} else if (useType.isRight() && !data.has3i("pos2"))
-			{
-				data.protectedData().set3i("pos2", loc.toVector3i());
-			}
-
+			data.protectedData().set3i(useType.isLeft() ? "pos1" : "pos2", loc.toVector3i());
 			return;
 		}
 
@@ -217,6 +216,7 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 		frame.setRadius((float) (Math.sin(Math.toRadians(FunnyLib.getUptimeTicks() % 3600)) * 0.25 + 1.5) * (1f / 16f));
 		frame.move(minPos.x + (size.x) / 2f, minPos.y + (size.y) / 2f, minPos.z + (size.z) / 2f);
 
+
 		ItemNBT data = context.getItemData();
 
 		boolean isFloating = data.protectedData().getBoolean("is_floating", false);
@@ -224,6 +224,21 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 
 		if (isFloating)
 			renderFloatingPosition(context);
+
+		/*
+		 * cursor
+		 */
+		if (isFloating)
+			return;
+
+		Vector vector = rayTrace(context.getPlayer(), context.isSneaking(), false);
+		if (vector == null || !isInBounds(context.playerContext(), vector.toVector3i()))
+			return;
+
+		FrameDisplayEntity selectedBlock = FunnyLib
+			.getPlayerboundEntityManager()
+			.getOrCreateMultiEntity(context.getPlayer(), nbt -> nbt.getBoolean("rectangle_select_block", false), () -> createSelectBlock(context, vector.toVector3i()));
+		selectedBlock.move(vector.getBlockX() + 0.5f, vector.getBlockY() + 0.5f, vector.getBlockZ() + 0.5f);
 	}
 
 	protected void renderFloatingPosition(PlayerItemContext context)
@@ -367,6 +382,35 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 
 		fde.setAliveCondition(context.getPlayer(), () -> aliveCondition(fde, context.getPlayer()));
 		fde.getEntityPDC().setBoolean("rectangle_select_frame", true);
+		return fde;
+	}
+
+	public FrameDisplayEntity createSelectBlock(PlayerItemContext context, Vector3i pos)
+	{
+		FrameDisplayEntity fde = new FrameDisplayEntity(
+			context.getPlayer(),
+			new Location(context.getWorld(), pos.x + 0.5, pos.y + 0.5, pos.z + 0.5),
+			FrameDisplayEntity.FrameType.CHART_REUSE,
+			1f / 16f);
+		fde.setScale(0.5f, 0.5f, 0.5f);
+
+		UUID ownerUUID = context.getPlayer().getUniqueId();
+		fde.setAliveCondition(context.getPlayer(), () ->
+		{
+			Player player = Bukkit.getPlayer(ownerUUID);
+			if (player == null)
+				return false;
+
+			Vector vector = rayTrace(player, player.isSneaking(), false);
+			if (vector == null)
+				return false;
+
+			if (!isInBounds(context.playerContext(), vector.toVector3i()))
+				return false;
+
+			return aliveCondition(fde, player);
+		});
+		fde.getEntityPDC().setBoolean("rectangle_select_block", true);
 		return fde;
 	}
 
