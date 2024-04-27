@@ -71,6 +71,7 @@ public class Minigames
 			.registerValue(BuildBattleGame.BARRIER_SIZE)
 			.registerValue(BuildBattleGame.BARRIER_CAP_TOP)
 			.registerValue(BuildBattleGame.THEMES)
+			.registerValue(BuildBattleGame.ENTITY_PLOT_LIMIT)
 		;
 
 		// Does not work lol

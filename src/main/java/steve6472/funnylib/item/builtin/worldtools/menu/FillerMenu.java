@@ -231,7 +231,7 @@ public class FillerMenu extends Menu
 				if (player == null)
 					return Response.cancel();
 
-				FunnyLib.getWorkloadRunnable().undoManager().applyUndo(player, isSphere ? UndoManager.UndoTypes.SPHERE : UndoManager.UndoTypes.RECTANGLE);
+				FunnyLib.getWorkloadRunnable().undoManager().applyUndo(player, UndoManager.UndoTypes.ALL);
 				return Response.cancel();
 			})
 		);

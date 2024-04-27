@@ -82,7 +82,9 @@ public class Plot
 			plotCoords.z + barrierOffset.z,
 			barrierSize.x,
 			barrierSize.y,
-			barrierSize.z);
+			barrierSize.z,
+			game.getConfig().getValue(BuildBattleGame.BARRIER_CAP_TOP),
+			false);
 	}
 
 	public Vector3i getCenter()
@@ -176,7 +178,7 @@ public class Plot
 	{
 		String timeString;
 		if (time <= 60)
-			timeString = ChatColor.RED + "" + time + "second" + (time > 1 ? "s!" : "!");
+			timeString = ChatColor.RED + "" + time + " second" + (time > 1 ? "s!" : "!");
 		else if (time >= 60 * 60) // more than hour
 			timeString = ((time / (60 * 60)) % 24) + " hour" + (((time / (60 * 60)) % 24) > 1 ? "s " : " ") + ((time / 60) % 60) + " minute" + (((time / 60) % 60) > 1 ? "s" : "");
 		else

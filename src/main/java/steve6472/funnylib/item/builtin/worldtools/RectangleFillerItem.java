@@ -43,6 +43,22 @@ public class RectangleFillerItem extends CustomItem implements TickInHandEvent, 
 	private static final double FLOATING_MODE_DISTANCE = 3;
 	private static final boolean ENABLE_CORNERS = true;
 
+	public static final JSONMessage HELP =
+		JSONMessage.create("").newline()
+			.then("Rectangle Filler", ChatColor.DARK_AQUA).then(" Help").newline()
+			.then("Press [").thenKeybind("key.drop", ChatColor.BLUE).then("] to open the menu.").newline().newline()
+			.then("Press [").thenKeybind("key.attack", ChatColor.BLUE).then("] to select first corner.").newline()
+			.then("Press [").thenKeybind("key.use", ChatColor.BLUE).then("] to select second corner.").newline()
+			.then("Place block items to the empty slots to configure the tool.").newline()
+			.then("Empty slot means Air, unless in Advanced Mode.").newline()
+			.then("Press dye on the left side to switch between ").then("Fill", ChatColor.RED).then(" <-> ").then("Replace", ChatColor.RED).then(".").newline()
+			.then("The ").then("Golden Arrow", ChatColor.GOLD).then(" is Undo.").newline()
+			.then("Click the green right button to fill/replace.").newline()
+			.then("Replace the bottom middle item with a different item to change the tool icon.").newline().newline()
+			.then("You can enable Advanced Mode, this mode allows you to place different blocks based on percentage.").newline()
+			.then("To place air, click the empty bottom in bottom right.")
+		;
+
 	@Override
 	public String id()
 	{

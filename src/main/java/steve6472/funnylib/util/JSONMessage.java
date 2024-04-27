@@ -227,7 +227,8 @@ public class JSONMessage
 	{
 		for (Player player : players)
 		{
-			BaseComponent[] parse = ComponentSerializer.parse(toJSON().toString());
+			JsonObject json = toJSON();
+			BaseComponent[] parse = ComponentSerializer.parse(json.toString());
 			player.spigot().sendMessage(parse);
 		}
 	}
@@ -812,7 +813,13 @@ public class JSONMessage
 
 		public static MessageEvent showItem(ItemStack itemStack)
 		{
-			JsonObject itemJson = JsonParser.parseString(NMS.saveItemNMS(itemStack)).getAsJsonObject();
+			// Modify the "tag" so it is a string... for.. mojank reasons
+			String nmsJson = NMS.saveItemNMS(itemStack);
+			JsonObject itemJson = JsonParser.parseString(nmsJson).getAsJsonObject();
+			JsonObject tag = itemJson.getAsJsonObject("tag");
+			itemJson.remove("tag");
+			itemJson.addProperty("tag", tag.toString());
+
 			return new MessageEvent("show_item", itemJson);
 		}
 

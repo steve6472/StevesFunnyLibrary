@@ -1,29 +1,33 @@
 package steve6472.standalone.buildbattle.commands;
 
-import com.comphenix.protocol.reflect.cloning.AggregateCloner;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.arguments.ResourceArgument;
-import net.minecraft.core.registries.Registries;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.WeatherType;
 import org.bukkit.block.Biome;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
+import org.joml.Vector3i;
 import steve6472.brigit.BrigitCommand;
 import steve6472.funnylib.FunnyLib;
+import steve6472.funnylib.item.builtin.worldtools.RectangleFillerItem;
+import steve6472.funnylib.item.builtin.worldtools.SphereFillerItem;
 import steve6472.funnylib.minigame.Minigames;
 import steve6472.funnylib.util.JSONMessage;
 import steve6472.standalone.buildbattle.BuildBattleGame;
+import steve6472.standalone.buildbattle.Plot;
 import steve6472.standalone.buildbattle.phases.BuildPhase;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by steve6472
@@ -40,6 +44,34 @@ public class PlotCommand extends BrigitCommand
 				.then(literal("help")
 					.executes(c -> {
 						BuildPhase.commands.send(getPlayer(c));
+						return 0;
+					})
+				)
+				.then(literal("home")
+					.executes(c -> {
+						checkGame();
+
+						BuildPhase phase = (BuildPhase) FunnyLib.currentGame.getCurrentPhase();
+
+						Player player = getPlayer(c);
+						Plot plot = phase.plots.get(player.getUniqueId());
+						if (plot == null)
+						{
+							player.sendMessage(ChatColor.RED + "Your plot was not found!");
+							return -1;
+						}
+
+						Block highestBlockAt = player.getWorld().getHighestBlockAt(new Location(player.getWorld(), plot.getCenter().x, plot.getCenter().y, plot.getCenter().z));
+						Location tpLoc = highestBlockAt.getLocation().clone().add(0.5, 1.5, 0.5);
+
+						Vector3i size = FunnyLib.currentGame.getConfig().getValue(BuildBattleGame.PLOT_BUILD_SIZE);
+						Vector3i offset = FunnyLib.currentGame.getConfig().getValue(BuildBattleGame.PLOT_BUILD_OFFSET);
+
+						if (tpLoc.getY() + 0.2 >= plot.getPlotCoords().y + offset.y + size.y)
+							tpLoc.setY(plot.getPlotCoords().y + offset.y + size.y - 0.2);
+
+						player.teleport(tpLoc, PlayerTeleportEvent.TeleportCause.PLUGIN);
+
 						return 0;
 					})
 				)
@@ -125,6 +157,8 @@ public class PlotCommand extends BrigitCommand
 							getPlayer(c).getInventory().addItem(itemStack);
 							JSONMessage.create("Information about item: ").then("[Hover over me]", ChatColor.GOLD).tooltip(itemStack).send(getPlayer(c));
 
+							SphereFillerItem.HELP.send(getPlayer(c));
+
 							return 0;
 						})
 					).then(literal("rectangle")
@@ -134,6 +168,7 @@ public class PlotCommand extends BrigitCommand
 							ItemStack itemStack = Minigames.FILL_RECTANGLE_LIMITED.newItemStack();
 							getPlayer(c).getInventory().addItem(itemStack);
 							JSONMessage.create("Information about item: ").then("[Hover over me]", ChatColor.GOLD).tooltip(itemStack).send(getPlayer(c));
+							RectangleFillerItem.HELP.send(getPlayer(c));
 
 							return 0;
 						})

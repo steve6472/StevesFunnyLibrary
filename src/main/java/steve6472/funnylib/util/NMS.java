@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import org.bukkit.*;
+import org.bukkit.craftbukkit.v1_20_R3.CraftServer;
 import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_20_R3.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
@@ -205,6 +206,21 @@ public class NMS
 	public static PersistentDataContainer newCraftContainer()
 	{
 		return new CraftPersistentDataContainer(new CraftPersistentDataTypeRegistry());
+	}
+
+	public static long[] getTickTimeNanos()
+	{
+		return ((CraftServer) Bukkit.getServer()).getServer().getTickTimesNanos();
+	}
+
+	public static int getServerTickTime()
+	{
+		return ((CraftServer) Bukkit.getServer()).getServer().getTickCount();
+	}
+
+	public static double getAvgServerTickTime()
+	{
+		return ((CraftServer) Bukkit.getServer()).getServer().getAverageTickTimeNanos() * 1e-6;
 	}
 
 	/*

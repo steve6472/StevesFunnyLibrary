@@ -95,6 +95,7 @@ public class ConfigValueChangeEvent extends Event implements Cancellable
 		// TODO: add support for this
 		if (gameConfig instanceof RedirectGameConfiguration<?>)
 		{
+			gameConfig.setValue(value, newValue);
 			return true;
 		}
 

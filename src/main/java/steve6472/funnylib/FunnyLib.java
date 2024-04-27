@@ -47,8 +47,10 @@ import steve6472.funnylib.item.events.ArmorEventListener;
 import steve6472.funnylib.util.JSONMessage;
 import steve6472.funnylib.util.Log;
 import steve6472.funnylib.util.NMS;
+import steve6472.funnylib.workdistro.WorkloadCommand;
 import steve6472.funnylib.workdistro.WorkloadRunnable;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -59,6 +61,11 @@ import java.util.Set;
  */
 public class FunnyLib
 {
+	public static boolean isDev()
+	{
+		return new File("").getAbsolutePath().startsWith("C:\\storage\\server");
+	}
+
 	private static final ServerTickEvent SERVER_TICK_EVENT = new ServerTickEvent();
 
 	public static boolean NMS_FAILED = false;
@@ -109,6 +116,7 @@ public class FunnyLib
 		GlowingUtil.init();
 
 		Brigit.addBrigitCommand(plugin, new PackCommand(packEngine = new PackEngine()));
+		Brigit.addBrigitCommand(plugin, new WorkloadCommand());
 
 		// TODO: remove
 		AnnotationCommand.registerCommands(MenuTest.class);

@@ -59,11 +59,11 @@ public class FillFunctions
 		World world = player.getWorld();
 		PlayerContext context = new PlayerContext(player, EquipmentSlot.HAND);
 
-		FunnyLib.getWorkloadRunnable().addWorkload(new UndoManager.StartUndoWorkload(player, UndoManager.UndoTypes.SPHERE));
+		FunnyLib.getWorkloadRunnable().addWorkload(new UndoManager.StartUndoWorkload(player, UndoManager.UndoTypes.ALL));
 
-		for (int i = -radius; i <= radius; i++)
+		for (int j = -radius; j <= radius; j++)
 		{
-			for (int j = -radius; j <= radius; j++)
+			for (int i = -radius; i <= radius; i++)
 			{
 				for (int k = -radius; k < radius; k++)
 				{
@@ -76,18 +76,18 @@ public class FillFunctions
 					{
 						FunnyLib
 							.getWorkloadRunnable()
-							.addWorkload(new PlaceBlockUndoWorkload(world, player, UndoManager.UndoTypes.SPHERE, center.x + i, center.y + j, center.z + k, place));
+							.addWorkload(new PlaceBlockUndoWorkload(world, player, UndoManager.UndoTypes.ALL, center.x + i, center.y + j, center.z + k, place));
 					} else
 					{
 						FunnyLib
 							.getWorkloadRunnable()
-							.addWorkload(new ReplaceBlockWorkload(world, center.x + i, center.y + j, center.z + k, match, place));
+							.addWorkload(new ReplaceBlockUndoWorkload(world, player, UndoManager.UndoTypes.ALL, center.x + i, center.y + j, center.z + k, match, place));
 					}
 				}
 			}
 		}
 
-		FunnyLib.getWorkloadRunnable().addWorkload(new UndoManager.EndUndoWorkload(player, UndoManager.UndoTypes.SPHERE));
+		FunnyLib.getWorkloadRunnable().addWorkload(new UndoManager.EndUndoWorkload(player, UndoManager.UndoTypes.ALL));
 	}
 
 	public void applyAdvancedSphere(Player player, Boundable boundable)
@@ -130,9 +130,11 @@ public class FillFunctions
 		World world = player.getWorld();
 		PlayerContext context = new PlayerContext(player, EquipmentSlot.HAND);
 
-		for (int i = -radius; i <= radius; i++)
+		FunnyLib.getWorkloadRunnable().addWorkload(new UndoManager.StartUndoWorkload(player, UndoManager.UndoTypes.ALL));
+
+		for (int j = -radius; j <= radius; j++)
 		{
-			for (int j = -radius; j <= radius; j++)
+			for (int i = -radius; i <= radius; i++)
 			{
 				for (int k = -radius; k <= radius; k++)
 				{
@@ -145,16 +147,18 @@ public class FillFunctions
 					{
 						FunnyLib
 							.getWorkloadRunnable()
-							.addWorkload(new PlaceWithWeightedMaterialWorkload(world, center.x + i, center.y + j, center.z + k, bag));
+							.addWorkload(new PlaceWithWeightedMaterialUndoWorkload(world, player, UndoManager.UndoTypes.ALL, center.x + i, center.y + j, center.z + k, bag));
 					} else
 					{
 						FunnyLib
 							.getWorkloadRunnable()
-							.addWorkload(new ReplaceWithWeightedMaterialWorkload(world, center.x + i, center.y + j, center.z + k, match, bag));
+							.addWorkload(new ReplaceWithWeightedMaterialUndoWorkload(world, player, UndoManager.UndoTypes.ALL, center.x + i, center.y + j, center.z + k, match, bag));
 					}
 				}
 			}
 		}
+
+		FunnyLib.getWorkloadRunnable().addWorkload(new UndoManager.EndUndoWorkload(player, UndoManager.UndoTypes.ALL));
 	}
 
 	public void applyRectangle(Click click, Boundable boundable)
@@ -184,9 +188,11 @@ public class FillFunctions
 
 		World world = click.player().getWorld();
 		PlayerContext context = new PlayerContext(click.player(), EquipmentSlot.HAND);
-		for (int i = minPos.x; i < maxPos.x; i++)
+
+		FunnyLib.getWorkloadRunnable().addWorkload(new UndoManager.StartUndoWorkload(click.player(), UndoManager.UndoTypes.ALL));
+		for (int j = minPos.y; j < maxPos.y; j++)
 		{
-			for (int j = minPos.y; j < maxPos.y; j++)
+			for (int i = minPos.x; i < maxPos.x; i++)
 			{
 				for (int k = minPos.z; k < maxPos.z; k++)
 				{
@@ -197,16 +203,18 @@ public class FillFunctions
 					{
 						FunnyLib
 							.getWorkloadRunnable()
-							.addWorkload(new PlaceBlockWorkload(world, i, j, k, place));
+							.addWorkload(new PlaceBlockUndoWorkload(world, click.player(), UndoManager.UndoTypes.ALL, i, j, k, place));
 					} else
 					{
 						FunnyLib
 							.getWorkloadRunnable()
-							.addWorkload(new ReplaceBlockWorkload(world, i, j, k, match, place));
+							.addWorkload(new ReplaceBlockUndoWorkload(world, click.player(), UndoManager.UndoTypes.ALL, i, j, k, match, place));
 					}
 				}
 			}
 		}
+
+		FunnyLib.getWorkloadRunnable().addWorkload(new UndoManager.EndUndoWorkload(click.player(), UndoManager.UndoTypes.ALL));
 	}
 
 	public void applyAdvancedRectangle(Click click, Boundable boundable)
@@ -254,9 +262,11 @@ public class FillFunctions
 
 		World world = click.player().getWorld();
 		PlayerContext context = new PlayerContext(click.player(), EquipmentSlot.HAND);
-		for (int i = minPos.x; i < maxPos.x; i++)
+		FunnyLib.getWorkloadRunnable().addWorkload(new UndoManager.StartUndoWorkload(click.player(), UndoManager.UndoTypes.ALL));
+
+		for (int j = minPos.y; j < maxPos.y; j++)
 		{
-			for (int j = minPos.y; j < maxPos.y; j++)
+			for (int i = minPos.x; i < maxPos.x; i++)
 			{
 				for (int k = minPos.z; k < maxPos.z; k++)
 				{
@@ -267,16 +277,18 @@ public class FillFunctions
 					{
 						FunnyLib
 							.getWorkloadRunnable()
-							.addWorkload(new PlaceWithWeightedMaterialWorkload(world, i, j, k, bag));
+							.addWorkload(new PlaceWithWeightedMaterialUndoWorkload(world, click.player(), UndoManager.UndoTypes.ALL, i, j, k, bag));
 					} else
 					{
 						FunnyLib
 							.getWorkloadRunnable()
-							.addWorkload(new ReplaceWithWeightedMaterialWorkload(world, i, j, k, match, bag));
+							.addWorkload(new ReplaceWithWeightedMaterialUndoWorkload(world, click.player(), UndoManager.UndoTypes.ALL, i, j, k, match, bag));
 					}
 				}
 			}
 		}
+
+		FunnyLib.getWorkloadRunnable().addWorkload(new UndoManager.EndUndoWorkload(click.player(), UndoManager.UndoTypes.ALL));
 	}
 
 	public ItemNBT getItemNBT()

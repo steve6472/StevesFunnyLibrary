@@ -7,83 +7,57 @@ import steve6472.funnylib.workdistro.impl.ReplaceBlockWorkload;
 
 public class RectangleCreator
 {
-	public static void createHollowRectangle(World world, Material toPlace, Material replace, int startX, int startY, int startZ, int width, int height, int depth)
-	{
-		// Draw the edges
-		drawEdges(world, toPlace, replace, startX, startY, startZ, width, height, depth);
-
-		// Draw the faces
-		drawFaces(world, toPlace, replace, startX, startY, startZ, width, height, depth);
-	}
-
-	private static void drawEdges(World world, Material material, Material replace, int startX, int startY, int startZ, int width, int height, int depth)
-	{
-		// Draw top edges
-		drawHorizontalLine(world, material, replace, startX, startY, startZ, width);
-		drawHorizontalLine(world, material, replace, startX, startY, startZ + depth - 1, width);
-
-		// Draw bottom edges
-		drawHorizontalLine(world, material, replace, startX, startY + height - 1, startZ, width);
-		drawHorizontalLine(world, material, replace, startX, startY + height - 1, startZ + depth - 1, width);
-
-		// Draw vertical edges
-		drawVerticalLine(world, material, replace, startX, startY, startZ, height);
-		drawVerticalLine(world, material, replace, startX, startY, startZ + depth - 1, height);
-		drawVerticalLine(world, material, replace, startX + width - 1, startY, startZ, height);
-		drawVerticalLine(world, material, replace, startX + width - 1, startY, startZ + depth - 1, height);
-	}
-
-	private static void drawFaces(World world, Material material, Material replace, int startX, int startY, int startZ, int width, int height, int depth)
+	public static void createHollowRectangle(World world, Material toPlace, Material replace, int x, int y, int z, int width, int height, int depth, boolean top, boolean bottom)
 	{
 		// Draw top and bottom faces
-		drawHorizontalFace(world, material, replace, startX + 1, startY, startZ + 1, width - 2, depth - 2);
-		drawHorizontalFace(world, material, replace, startX + 1, startY + height - 1, startZ + 1, width - 2, depth - 2);
+		if (top)
+			drawHorizontalFace(world, toPlace, replace, x + 1, y + height - 1, z + 1, width - 2, depth - 2);
+		if (bottom)
+			drawHorizontalFace(world, toPlace, replace, x + 1, y, z + 1, width - 2, depth - 2);
 
 		// Draw side faces
-		drawVerticalFace(world, material, replace, startX, startY + 1, startZ + 1, height - 2, depth - 2);
-		drawVerticalFace(world, material, replace, startX + width - 1, startY + 1, startZ + 1, height - 2, depth - 2);
+		drawVerticalFaceX(world, toPlace, replace, x, y, z, height, width);
+		drawVerticalFaceX(world, toPlace, replace, x, y, z + depth - 1, height, width);
+
+		drawVerticalFaceZ(world, toPlace, replace, x, y, z, height, depth);
+		drawVerticalFaceZ(world, toPlace, replace, x + width - 1, y, z, height, depth);
 	}
 
-	private static void drawHorizontalLine(World world, Material material, Material replace, int startX, int y, int startZ, int length)
-	{
-		for (int i = 0; i < length; i++)
-		{
-			setMaterial(world, material, replace, startX + i, y, startZ);
-		}
-	}
-
-	private static void drawVerticalLine(World world, Material material, Material replace, int x, int startY, int startZ, int length)
-	{
-		for (int i = 0; i < length; i++)
-		{
-			setMaterial(world, material, replace, x, startY + i, startZ);
-		}
-	}
-
-	private static void drawHorizontalFace(World world, Material material, Material replace, int startX, int startY, int startZ, int width, int depth)
+	private static void drawHorizontalFace(World world, Material material, Material replace, int x, int y, int z, int width, int depth)
 	{
 		for (int i = 0; i < width; i++)
 		{
 			for (int j = 0; j < depth; j++)
 			{
-				setMaterial(world, material, replace, startX + i, startY, startZ + j);
+				setMaterial(world, material, replace, x + i, y, z + j);
 			}
 		}
 	}
 
-	private static void drawVerticalFace(World world, Material material, Material replace, int startX, int startY, int startZ, int height, int depth)
+	private static void drawVerticalFaceZ(World world, Material material, Material replace, int x, int y, int z, int height, int depth)
 	{
 		for (int i = 0; i < height; i++)
 		{
 			for (int j = 0; j < depth; j++)
 			{
-				setMaterial(world, material, replace, startX, startY + i, startZ + j);
+				setMaterial(world, material, replace, x, y + i, z + j);
+			}
+		}
+	}
+
+	private static void drawVerticalFaceX(World world, Material material, Material replace, int x, int y, int z, int height, int depth)
+	{
+		for (int i = 0; i < height; i++)
+		{
+			for (int j = 0; j < depth; j++)
+			{
+				setMaterial(world, material, replace, x + j, y + i, z);
 			}
 		}
 	}
 
 	private static void setMaterial(World world, Material material, Material replace, int x, int y, int z)
 	{
-		FunnyLib.getWorkloadRunnable().addWorkload(new ReplaceBlockWorkload(world, x, y, z, material, replace));
+		FunnyLib.getWorkloadRunnable().addWorkload(new ReplaceBlockWorkload(world, x, y, z, replace, material));
 	}
 }

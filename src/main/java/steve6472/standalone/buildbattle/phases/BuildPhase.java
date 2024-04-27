@@ -17,6 +17,7 @@ import org.bukkit.util.Vector;
 import org.joml.Vector2i;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
+import steve6472.funnylib.FunnyLib;
 import steve6472.funnylib.minigame.AbstractGamePhase;
 import steve6472.funnylib.minigame.Game;
 import steve6472.funnylib.util.JSONMessage;
@@ -35,33 +36,36 @@ public class BuildPhase extends AbstractGamePhase
 {
 	public final List<String> themes;
 	public final Map<UUID, Plot> plots;
-	public final Set<Material> disallowedBlocks = Set.of(Material.COMMAND_BLOCK, Material.CHAIN_COMMAND_BLOCK, Material.REPEATING_COMMAND_BLOCK);
-	public final Set<EntityType> disallowedEntities = Set.of(EntityType.MINECART_COMMAND, EntityType.WITHER, EntityType.ENDER_DRAGON, EntityType.MINECART_TNT, EntityType.PRIMED_TNT);
+	public final Set<Material> disallowedBlocks = Set.of(Material.COMMAND_BLOCK, Material.CHAIN_COMMAND_BLOCK, Material.REPEATING_COMMAND_BLOCK, Material.RESPAWN_ANCHOR);
+	public final Set<EntityType> disallowedEntities = Set.of(EntityType.MINECART_COMMAND, EntityType.WITHER, EntityType.ENDER_DRAGON, EntityType.MINECART_TNT, EntityType.PRIMED_TNT, EntityType.ENDER_CRYSTAL);
+	public final Map<UUID, Integer> clearQueueTasks = new HashMap<>();
 	public int timeElapsed;
 
 	public static final JSONMessage joinMessage = JSONMessage
 		.create("Welcome to testing version of the Build Battle Minigame.").newline()
-		.then("Time limit is 4 hours").newline()
+		.then("Time limit is 8 hours").newline()
 		.then("You have been given a theme, but you do not need to follow it").newline()
-		.then("You can use these commands:").newline()
-		.then("(Hover over gold text to see what the command does)").newline();
+		.then("Each plot can contain limited amount of entities!").newline()
+		.then("Do ").then("/plot help", ChatColor.GOLD).then(" to show all commands.").newline();
+
 	public static final JSONMessage commands = JSONMessage
 		.create("/giveskull", ChatColor.GREEN).newline()
-		.then("  <player>", ChatColor.GOLD).tooltip("Gives you a skull of said player").newline()
+		.then("  <player>", ChatColor.GOLD).tooltip(JSONMessage.create("Gives you a skull of said player").newline().then("/giveskull <player>", ChatColor.GRAY)).newline()
 		.then("/top", ChatColor.GOLD).tooltip("Teleports you to the highest block").newline()
 		.then("/plot", ChatColor.GREEN).newline()
-		.then("  help", ChatColor.GOLD).style(ChatColor.BOLD).tooltip("Shows this help menu").newline()
+		.then("  help", ChatColor.GOLD).style(ChatColor.BOLD).tooltip(JSONMessage.create("Shows this help menu").newline().then("/plot help", ChatColor.GRAY)).newline()
+		.then("  home", ChatColor.GOLD).style(ChatColor.BOLD).tooltip(JSONMessage.create("Teleports you back to your plot").newline().then("/plot home", ChatColor.GRAY)).newline()
 		.then("  tool", ChatColor.GRAY).newline()
-		.then("    sphere", ChatColor.GOLD).tooltip("Gives you the Sphere Filler Tool").newline()
-		.then("    rectangle", ChatColor.GOLD).tooltip("Gives you the Rectangle Filler Tool").newline()
-		.then("    barrier", ChatColor.GOLD).tooltip("Gives you the Barrier block").newline()
-		.then("    light", ChatColor.GOLD).tooltip("Gives you the Light block").newline()
+		.then("    sphere", ChatColor.GOLD).tooltip(JSONMessage.create("Gives you the Sphere Filler Tool").newline().then("/plot tool sphere", ChatColor.GRAY)).newline()
+		.then("    rectangle", ChatColor.GOLD).tooltip(JSONMessage.create("Gives you the Rectangle Filler Tool").newline().then("/plot tool rectangle", ChatColor.GRAY)).newline()
+		.then("    barrier", ChatColor.GOLD).tooltip(JSONMessage.create("Gives you the Barrier block").newline().then("/plot tool barrier", ChatColor.GRAY)).newline()
+		.then("    light", ChatColor.GOLD).tooltip(JSONMessage.create("Gives you the Light block").newline().then("/plot tool light", ChatColor.GRAY)).newline()
 		.then("  weather", ChatColor.GRAY).newline()
-		.then("    [clear, downfall]", ChatColor.GOLD).tooltip("Sets the plot weather").newline()
+		.then("    [clear, downfall]", ChatColor.GOLD).tooltip(JSONMessage.create("Sets the plot weather").newline().then("/plot weather [clear, downfall]", ChatColor.GRAY)).newline()
 		.then("  time", ChatColor.GRAY).newline()
-		.then("    <time>", ChatColor.GOLD).tooltip("Sets plot time").newline()
+		.then("    <time>", ChatColor.GOLD).tooltip(JSONMessage.create("Sets plot time").newline().then("/plot time <time>", ChatColor.GRAY)).newline()
 		.then("  biome", ChatColor.GRAY).newline()
-		.then("    <biome>", ChatColor.GOLD).tooltip("Sets plot biome");
+		.then("    <biome>", ChatColor.GOLD).tooltip(JSONMessage.create("Sets plot biome").newline().then("/plot biome <biome>", ChatColor.GRAY));
 
 	public BuildPhase(Game game)
 	{
@@ -81,7 +85,11 @@ public class BuildPhase extends AbstractGamePhase
 	{
 		UUID uuid = player.getUniqueId();
 		Plot plot = plots.computeIfAbsent(uuid, this::createNewPlot);
-		plot.teleportToPlot(player);
+		Bukkit.getScheduler().runTaskLater(FunnyLib.getPlugin(), () -> {
+			Player pl = Bukkit.getPlayer(uuid);
+			if (pl != null)
+				plot.teleportToPlot(pl);
+		}, 1);
 		player.setGameMode(GameMode.CREATIVE);
 	}
 
@@ -117,14 +125,30 @@ public class BuildPhase extends AbstractGamePhase
 			game.addPlayer(onlinePlayer);
 			addPlayer(onlinePlayer);
 			joinMessage.send(onlinePlayer);
-			commands.send(onlinePlayer);
 		}
 
 		registerEvent(PlayerJoinEvent.class, event ->
 		{
-			addPlayer(event.getPlayer());
-			joinMessage.send(event.getPlayer());
-			commands.send(event.getPlayer());
+			Player player = event.getPlayer();
+			addPlayer(player);
+			joinMessage.send(player);
+
+			// Cancel the undo quee clear task if player joined within 5 minutes
+			Integer rmovedTask = clearQueueTasks.remove(player.getUniqueId());
+			if (rmovedTask != null)
+				Bukkit.getScheduler().cancelTask(rmovedTask);
+		});
+
+		// Clear the undo queue after 5 minutes
+		registerEvent(PlayerQuitEvent.class, event ->
+		{
+			UUID playerUUID = event.getPlayer().getUniqueId();
+			var clearQueueTask = scheduleSyncTask(task ->
+			{
+				FunnyLib.getWorkloadRunnable().undoManager().clearQueue(playerUUID);
+				clearQueueTasks.remove(playerUUID);
+			}, 20 * 5 * 60);
+			clearQueueTasks.put(playerUUID, clearQueueTask.getTaskId());
 		});
 
 		registerEvent(PlayerMoveEvent.class, event ->
@@ -230,10 +254,30 @@ public class BuildPhase extends AbstractGamePhase
 		// start tracking entity so it never leaves plot
 		registerEvent(EntitySpawnEvent.class, event ->
 		{
+			// Ignore display entities
+			if (event.getEntity() instanceof Display)
+				return;
+
 			getPlot(event.getEntity().getLocation()).ifPresent(plot ->
 			{
+				if (plot.getTrackedEntities().size() > game.getConfig().getValue(BuildBattleGame.ENTITY_PLOT_LIMIT))
+				{
+					event.setCancelled(true);
+					return;
+				}
 				plot.trackEntity(event.getEntity());
 			});
+		});
+
+		// Disable falling block item drops
+		registerEvent(EntityChangeBlockEvent.class, event ->
+		{
+			Entity entity = event.getEntity();
+
+			if (!(entity instanceof FallingBlock fallingBlock))
+				return;
+
+			fallingBlock.setDropItem(false);
 		});
 
 		/*
@@ -290,8 +334,7 @@ public class BuildPhase extends AbstractGamePhase
 		{
 			if (event.getEntity() instanceof Arrow arrow)
 			{
-				if (arrow.isOnGround())
-					arrow.remove();
+				arrow.remove();
 			}
 		});
 
@@ -349,7 +392,11 @@ public class BuildPhase extends AbstractGamePhase
 	@Override
 	public void end()
 	{
-		plots.forEach((k, plot) -> plot.setBarTime(-1));
+		plots.forEach((k, plot) ->
+        {
+            plot.setBarTime(-1);
+	        FunnyLib.getWorkloadRunnable().undoManager().clearQueue(k);
+        });
 		game.getPlayers().forEach(player -> resetPlotSettings(player, true));
 	}
 }

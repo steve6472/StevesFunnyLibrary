@@ -45,14 +45,9 @@ public class PackEngine
 		}, Executors.newSingleThreadExecutor());
 	}
 
-	private static boolean isDev()
-	{
-		return new File("").getAbsolutePath().startsWith("C:\\storage\\server");
-	}
-
 	private String getExternalAddress()
 	{
-		if (isDev())
+		if (FunnyLib.isDev())
 			return "localhost";
 
 		try

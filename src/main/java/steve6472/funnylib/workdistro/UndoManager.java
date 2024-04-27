@@ -12,6 +12,8 @@ import java.util.*;
  */
 public final class UndoManager
 {
+    private static final Map<UndoType, UndoQueue> EMPTY_MUTABLE_MAP = new HashMap<>();
+
     private int undoLimit;
     private final Map<UUID, Map<UndoType, UndoQueue>> queues = new HashMap<>();
 
@@ -28,6 +30,20 @@ public final class UndoManager
 
     public void applyUndo(UUID owner, UndoType undoType) { getQueue(owner, undoType).undo(); }
     public void applyUndo(Player player, UndoType undoType) { applyUndo(player.getUniqueId(), undoType); }
+
+    public void clearQueue(UUID owner, UndoType undoType) { queues.getOrDefault(owner, EMPTY_MUTABLE_MAP).remove(undoType); }
+    public void clearQueue(Player player, UndoType undoType) { clearQueue(player.getUniqueId(), undoType); }
+
+    public void clearQueue(UUID owner) { queues.remove(owner); }
+    public void clearQueue(Player player) { clearQueue(player.getUniqueId()); }
+
+    public List<UndoQueue> getQueues(UUID owner)
+    {
+        Map<UndoType, UndoQueue> map = queues.getOrDefault(owner, EMPTY_MUTABLE_MAP);
+        List<UndoQueue> queues = new ArrayList<>();
+        map.forEach((type, queue) -> queues.add(queue));
+        return queues;
+    }
 
     public void addWorkload(UUID owner, UndoType undoType, Workload workload) { getQueue(owner, undoType).addWorkload(workload); }
 
@@ -49,7 +65,7 @@ public final class UndoManager
         return undoTypeMap.computeIfAbsent(undoType, type -> new UndoQueue(undoLimit, type));
     }
 
-    private static final class UndoQueue
+    public static final class UndoQueue
     {
         private int undoLimit;
         private final UndoType type;
@@ -105,7 +121,8 @@ public final class UndoManager
 
             UndoAction lastUndo = actions.remove(actions.size() - 1);
 
-            // TODO: possibly reverse ? Idk yet
+            // Reverse to prevent creating falling blocks
+            Collections.reverse(lastUndo.workloads);
             for (Workload workload : lastUndo.workloads)
             {
                 FunnyLib.getWorkloadRunnable().addWorkload(workload);
@@ -121,9 +138,19 @@ public final class UndoManager
         {
             return type;
         }
+
+        public List<UndoAction> getActions()
+        {
+            return List.copyOf(actions);
+        }
+
+        public UndoAction getCurrentBuilding()
+        {
+            return currentBuilding;
+        }
     }
 
-    private static final class UndoAction
+    public static final class UndoAction
     {
         private final List<Workload> workloads = new ArrayList<>();
 
@@ -144,6 +171,11 @@ public final class UndoManager
         {
             return workloads.isEmpty();
         }
+
+        public int getWorkloadCount()
+        {
+            return workloads.size();
+        }
     }
 
     /**
@@ -156,7 +188,8 @@ public final class UndoManager
      */
     public enum UndoTypes implements UndoType
     {
-        SPHERE, RECTANGLE
+        //SPHERE, RECTANGLE
+        ALL
     }
 
     private static abstract class UndoWoorkload implements Workload

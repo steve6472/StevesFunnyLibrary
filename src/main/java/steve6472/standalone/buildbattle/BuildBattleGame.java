@@ -33,12 +33,12 @@ public class BuildBattleGame extends Game
 	 * [ ] A layer tool - place 1 layer of blocks on top of existing blocks (with filter maybe)
 	 * [ ] Random place tool, a single block
 	 * [ ] Smooth tool, 3D
-	 * [ ] Double clicking an item takes items out of custom menu
+	 * [ ] Fix double clicking an item takes items out of custom menu
+	 * [ ] Tool to copy blocks without updating
 	 *
 	 *
-	 * [?] increase entity render distance
-	 * [?] fix time (it somehow goes faster)
-	 *
+	 * [x] increase entity render distance
+	 * [x] fix time (it somehow goes faster)
 	 * [x] Disable TNT
 	 * [x] Sphere tool does not dissapear if player is not looking at blocks
 	 * [x] /top
@@ -46,11 +46,20 @@ public class BuildBattleGame extends Game
 	 * [x] help command
 	 * [x] give light/barrier command
 	 * [x] liquids in fill tools
-	 * [ ] one undo
-	 * [?] lavacasts should not be possible (place barriers)
+	 * [x] ~~one~~ undo
+	 * [x] lavacasts should not be possible (place barriers)
 	 * [x] prohibit all entities from leaving the plot, not just players
 	 * [x] fix left click with rectangle tool not working
 	 * [x] click preview for rectangle tool
+	 *
+	 * [x] top command can teleport outside of plot (above)
+	 * [x] add /plot home JUST IN CASE
+	 * [x] Limit entities
+	 * [x] Place blocks from bottom when filling, not top. Falling blocks spawn in this way (Falling blocks spawn if filling air, somewhat fixed by entity limit)
+	 * [x] Falling blocks not dropping items when they break
+	 * [x] Undo takes too much ram....
+	 * [x] Add the full command to the golden tooltip for idiots
+	 * [x] Help upon giving fill tools: how to open menu, Advanced Fill, setting blocks, replace, set air, Undo, Icon
 	 */
 
 	public static final Value<GameStructure> PLOT = Value.create(BuiltInConfigType.STRUCTURE, "Plot", "plot");
@@ -63,6 +72,7 @@ public class BuildBattleGame extends Game
 	public static final Value<Vector3i> BARRIER_SIZE = Value.create(BuiltInConfigType.VEC_3I, "Barrier Size", "barrier_size");
 	public static final Value<Boolean> BARRIER_CAP_TOP = Value.create(BuiltInConfigType.BOOLEAN, "Barrier Cap Top", "barrier_top");
 	public static final Value<List<String>> THEMES = Value.create(BuiltInConfigType.STRING_LIST, "Themes", "themes", true);
+	public static final Value<Integer> ENTITY_PLOT_LIMIT = Value.create(BuiltInConfigType.INT, "Entity Plot Limit", "entity_plot_limit");
 
 	public World world;
 	public final Map<UUID, Plot> plots;
@@ -91,7 +101,6 @@ public class BuildBattleGame extends Game
 		world.setPVP(false);
 		world.setGameRule(GameRule.DO_MOB_SPAWNING, false);
 		world.setGameRule(GameRule.DO_TILE_DROPS, false);
-		world.setGameRule(GameRule.DO_FIRE_TICK, false);
 		world.setGameRule(GameRule.DO_FIRE_TICK, false);
 		world.setGameRule(GameRule.DO_MOB_LOOT, false);
 		world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);

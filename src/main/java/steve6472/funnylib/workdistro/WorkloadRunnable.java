@@ -1,7 +1,9 @@
 package steve6472.funnylib.workdistro;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
+import steve6472.funnylib.util.NMS;
+
+import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * Created by steve6472
@@ -26,9 +28,38 @@ public class WorkloadRunnable implements Runnable
 		workloadDeque.add(workload);
 	}
 
+	private final long[] lastTickState = new long[100];
+
+	int recoveryTime = 0;
+
 	@Override
 	public void run()
 	{
+		long change = 0;
+
+		for (int i = 0; i < 100; i++)
+		{
+			long l = lastTickState[i] - NMS.getTickTimeNanos()[i];
+			if (l != 0)
+                change = Math.max(l, Math.abs(l));
+
+			lastTickState[i] = NMS.getTickTimeNanos()[i];
+		}
+
+		double mspt = change * 1e-6;
+
+		if (mspt >= 40)
+        {
+			recoveryTime = 10;
+            return;
+        }
+
+		if (recoveryTime > 0)
+		{
+			recoveryTime--;
+			return;
+		}
+
 		long stopTime = System.nanoTime() + MAX_NANOS_PER_TICK;
 
 		Workload nextLoad;
@@ -43,5 +74,17 @@ public class WorkloadRunnable implements Runnable
 
 			nextLoad.compute();
 		}
+	}
+
+	public void removeWorkloadIf(Predicate<Workload> predicate)
+	{
+		workloadDeque.removeIf(predicate);
+	}
+
+	public List<Workload> getWorkloadsCopy()
+	{
+		List<Workload> copy = new ArrayList<>(workloadDeque.size());
+        copy.addAll(workloadDeque);
+		return copy;
 	}
 }

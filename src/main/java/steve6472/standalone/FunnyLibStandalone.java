@@ -9,6 +9,7 @@ import steve6472.funnylib.category.Structures;
 import steve6472.funnylib.minigame.MinigameCommand;
 import steve6472.funnylib.minigame.Minigames;
 import steve6472.standalone.bingo.BingoCommand;
+import steve6472.standalone.buildbattle.AddDummyPlayer;
 import steve6472.standalone.buildbattle.commands.PlotCommand;
 import steve6472.standalone.buildbattle.commands.SkullCommand;
 import steve6472.standalone.buildbattle.commands.TopCommand;
@@ -60,7 +61,9 @@ public class FunnyLibStandalone extends JavaPlugin
 		Brigit.addBrigitCommand(FunnyLib.getPlugin(), new SkullCommand());
 		Brigit.addBrigitCommand(FunnyLib.getPlugin(), new PlotCommand());
 		Brigit.addBrigitCommand(FunnyLib.getPlugin(), new TopCommand());
-//		Brigit.addBrigitCommand(FunnyLib.getPlugin(), new AddDummyPlayer()); //TODO: don't forget to remove this command
+
+		if (FunnyLib.isDev())
+			Brigit.addBrigitCommand(FunnyLib.getPlugin(), new AddDummyPlayer());
 	}
 
 	@Override
